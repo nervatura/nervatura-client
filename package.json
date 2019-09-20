@@ -1,7 +1,7 @@
 {
   "name": "nervatura-client",
   "description": "Business Management Application",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "keywords": [
     "business management",
     "open-data",
@@ -20,6 +20,7 @@
     "PDF reporting"
   ],
   "author": "Csaba Kappel <kappel.csaba@gmail.com> (http://nervatura.com)",
+  "license": "EUPL-1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nervatura/nervatura-client.git"

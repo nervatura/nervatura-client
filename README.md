@@ -1,7 +1,7 @@
 Nervatura Client
 =========================
 
-Free to use Nervatura Business Management Application
+Free to use Nervatura PWA Client
 
 ## Installation & Quick Start
 
@@ -22,6 +22,8 @@ and [http://localhost:8080/client/](http://localhost:8080/client/)
   $ npm start
 ```
 and [https://localhost:8080/client/](https://localhost:8080/client/)
+
+Nervatura Client licence: [EUPL-1.2](https://opensource.org/licenses/EUPL-1.2)
 
 ## Docs & Community
 
