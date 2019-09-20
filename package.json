@@ -28,5 +28,7 @@
   "bugs": {
     "url": "https://github.com/nervatura/nervatura/issues"
   },
-  "homepage": "."
+  "homepage": ".",
+  "dependencies": {
+  }
 }
