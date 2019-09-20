@@ -1,7 +1,7 @@
 Nervatura Client
 =========================
 
-Free to use Nervatura PWA Client
+The Nervatura Client is part of the Nervatura Framework and can be used freely under the scope of [EUPL-1.2 License](https://opensource.org/licenses/EUPL-1.2). This is a browser based Progressive Web Application (PWA).
 
 ## Installation & Quick Start
 
@@ -22,8 +22,6 @@ and [http://localhost:8080/client/](http://localhost:8080/client/)
   $ npm start
 ```
 and [https://localhost:8080/client/](https://localhost:8080/client/)
-
-Nervatura Client licence: [EUPL-1.2](https://opensource.org/licenses/EUPL-1.2)
 
 ## Docs & Community
 
