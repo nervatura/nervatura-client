@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "./static/css/main.1c58f58e.chunk.css",
-    "main.js": "./static/js/main.cafa7aa0.chunk.js",
+    "main.js": "./static/js/main.1906c021.chunk.js",
     "runtime-main.js": "./static/js/runtime-main.97f96e7e.js",
     "static/css/2.f7d8b63d.chunk.css": "./static/css/2.f7d8b63d.chunk.css",
     "static/js/2.43a98868.chunk.js": "./static/js/2.43a98868.chunk.js",
     "index.html": "./index.html",
-    "precache-manifest.821d2800ef0f058d6d0683b6900126f3.js": "./precache-manifest.821d2800ef0f058d6d0683b6900126f3.js",
+    "precache-manifest.7ee1e05e208399fdccfa052a9704d0f7.js": "./precache-manifest.7ee1e05e208399fdccfa052a9704d0f7.js",
     "service-worker.js": "./service-worker.js",
     "static/media/fonts.css": "./static/media/droid-sans-v6-latin-regular.ae8b5d5f.woff2",
     "static/media/font-awesome.css": "./static/media/fontawesome-webfont.fee66e71.woff"
@@ -16,6 +16,6 @@
     "static/css/2.f7d8b63d.chunk.css",
     "static/js/2.43a98868.chunk.js",
     "static/css/main.1c58f58e.chunk.css",
-    "static/js/main.cafa7aa0.chunk.js"
+    "static/js/main.1906c021.chunk.js"
   ]
 }
