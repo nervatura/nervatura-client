@@ -1,0 +1,81 @@
+:import('../../styles/theme.css') {
+  --primaryFont: primaryFont;
+  --whiteColor: whiteColor;
+  --redColor: redColor;
+  --primaryColor: primaryColor;
+  --focusColor: focusColor;
+  --hoverColor: hoverColor;
+  --topMenuHeight: topMenuHeight;
+}
+
+.shadow {
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+@media (min-width:769px){
+  .sidebar{
+    display: none!important;
+  }
+}
+
+.menuitem {
+  font-size: 17px;
+  text-align: center;
+  padding: 8px 6px;
+  font-weight: bold;
+  vertical-align: middle;
+  color: --whiteColor;
+  width: auto;
+  display: table-cell;
+  cursor: pointer;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+}
+
+.menuitem:hover {
+  color: --hoverColor;
+}
+
+.exit:hover {
+  color: --redColor;
+}
+
+.selected {
+  color: --focusColor;
+}
+
+.container { 
+  padding: 0px 4px; 
+}
+
+.menubar {
+  z-index: 5;
+  position: fixed;
+  display: table;
+  top: 0;
+  width: 100%;
+  height: --topMenuHeight!important;
+  padding: 0px 8px;
+  background-color: --primaryColor!important;
+  font-family: --primaryFont;
+  font-size: 14px;
+  overflow:hidden;
+  -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; 
+  -moz-user-select: none; -ms-user-select: none; user-select: none;
+}
+
+.menubar::before {
+  content: "";
+  display: table;
+  clear: both;
+};
+
+.menubar::after {
+  content: "";
+  display: table;
+  clear: both;
+};

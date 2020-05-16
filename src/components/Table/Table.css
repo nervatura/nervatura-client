@@ -1,0 +1,208 @@
+:import('../../styles/theme.css') {
+  --primaryFont: primaryFont;
+  --textColor: textColor;
+  --primaryColor: primaryColor;
+  --hoverColor: hoverColor;
+  --backgroundColor: backgroundColor;
+  --whiteColor: whiteColor;
+  --orangeColor: orangeColor;
+  --lightBlack: lightBlack;
+}
+
+.sort {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.sort:after {
+  padding-left: 1em;
+  font-size: 0.5em;
+}
+
+.sort-none:after {
+  padding-left: 0.5em;
+  font-size: 1em;
+}
+
+.sort-asc:after {
+  content: '▼';
+  font-size: 14px;
+  color: --orangeColor;
+}
+
+.sort-desc:after {
+  content: '▲';
+  font-size: 14px;
+  color: --orangeColor;
+}
+
+.sort-order {
+  margin-left: 0.5em;
+}
+
+.number {
+  text-align: right;
+}
+
+.ui-table table {
+  overflow-x: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  display: table;
+  color: --textColor;
+  font-size: 14px;
+  border: 1.5px solid --backgroundColor;
+}
+
+.ui-table tbody th, .ui-table tbody td {
+  vertical-align: top;
+}
+
+.ui-table tbody tr:nth-child(odd){
+  background-color: --whiteColor;
+}
+
+.ui-table tbody tr:hover {
+  color: --hoverColor;
+}
+
+.ui-table th:hover {
+  color: --orangeColor;
+}
+
+.ui-table td .cell-label,
+.ui-table th .cell-label { 
+	display: none;
+  font-weight: bold;
+  font-size: 12px;
+  color: --lightBlack;
+}
+/* Mobile first styles: Begin with the stacked presentation at narrow widths */ 
+@media only all {
+	/* Hide the table headers */ 
+	.ui-table thead td, 
+	.ui-table thead th {
+		display: none;
+    font-size: 13px;
+    background-color: --backgroundColor;
+    color: --lightBlack;
+    white-space: nowrap;
+	}
+	/* Show the table cells as a block level element */ 
+	.ui-table td,
+	.ui-table th { 
+		text-align: left;
+		display: block;
+    padding: 8px;
+	}
+	/* Add a fair amount of top margin to visually separate each row when stacked */  
+	.ui-table tbody th {
+		margin-top: 3em;
+	}
+	/* Make the label elements a percentage width */ 
+	.ui-table td .cell-label,
+	.ui-table th .cell-label { 
+		padding: 4px 6px;
+		min-width: 30%; 
+		display: inline-block;
+		margin: -.4em 1em -.1em -.4em;
+	}
+}
+/* Breakpoint to show as a standard table at 560px (35em x 16px) or wider */ 
+@media ( min-width: 35em ) {
+	/* Show the table header rows */ 
+	.ui-table td,
+	.ui-table th,
+	.ui-table tbody th,
+	.ui-table tbody td,
+	.ui-table thead td,
+	.ui-table thead th {
+		display: table-cell;
+		margin: 0;
+	}
+	/* Hide the labels in each cell */ 
+	.ui-table td .cell-label,
+	.ui-table th .cell-label { 
+		display: none;
+	}
+}
+/* Hack to make IE9 and WP7.5 treat cells like block level elements, scoped to ui-responsive class */ 
+/* Applied in a max-width media query up to the table layout breakpoint so we don't need to negate this*/ 
+@media ( max-width: 35em ) {
+	.ui-table td,
+	.ui-table th {
+		width: 100%;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		float: left;
+		clear: left;
+    font-size: 13px;
+    padding: 4px 6px;
+    line-height: 11.5px;
+	}
+  .ui-table td:first-child {
+    border-top: 1.5px solid --backgroundColor;
+  }
+  .number {
+    text-align: left;
+  }
+}
+
+.w3-table-all{
+  border: 1px solid #ccc;
+}
+.w3-bordered tr,.w3-table-all tr{
+  border-bottom: 1px solid #ddd;
+}
+.w3-striped tbody tr:nth-child(even){
+  background-color:#f1f1f1;
+}
+.w3-table-all tr:nth-child(odd){
+  background-color:#fff;
+}
+.w3-table-all tr:nth-child(even){
+  background-color:#f1f1f1;
+}
+.w3-hoverable tbody tr:hover,.w3-ul.w3-hoverable li:hover{
+  background-color:#ccc;
+}.w3-centered tr th,.w3-centered tr td{
+  text-align:center;
+}
+.w3-table td,.w3-table th,.w3-table-all td,.w3-table-all th{
+  padding:8px 8px; display:table-cell; text-align:left; vertical-align:top;
+}
+.w3-table th:first-child,.w3-table td:first-child,.w3-table-all th:first-child,.w3-table-all td:first-child{
+  padding-left:16px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-disabled {
+  cursor: not-allowed;
+}
+
+input {
+  font-family: --primaryFont;
+  border-radius: 3px;
+  border: 1px solid --backgroundColor;
+  background: --whiteColor;
+  color: --primaryColor;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
+  opacity: 1;
+}
+
+input:disabled {
+  opacity: 0.5;
+}
+
+input::placeholder, input::-ms-input-placeholder {
+  opacity: 0.5;
+};
+
+

@@ -1,0 +1,19 @@
+:export {
+  textColor: #888888;
+  primaryColor: #000;
+  secondaryColor: #53575e;
+  hoverColor: #ffc107;
+  focusColor: #b4aa50;
+  backgroundColor: #d3d3d3;
+  lightColor: #f1f1f1;
+  whiteColor: #fff;
+  redColor: red;
+  orangeColor: orange;
+  darkBlack: #2A2A2A;
+  lightBlack: #333333;
+
+  primaryFont: "DroidSans";
+  fontSize: 15px;
+  topMenuHeight: 42px;
+  sideMenuWidth: 250px;
+}

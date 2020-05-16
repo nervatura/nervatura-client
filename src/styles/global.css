@@ -1,0 +1,37 @@
+:import('./theme.css') {
+  --primaryFont: primaryFont;
+  --fontSize: fontSize;
+  --textColor: textColor;
+  --primaryColor: primaryColor;
+  --secondaryColor: secondaryColor;
+  --backgroundColor: backgroundColor;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: --textColor;
+  font-family: --primaryFont;
+  font-size: --fontSize;
+  background-color: --backgroundColor;
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: --primaryColor;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 5px --secondaryColor;
+  box-shadow: inset 0 0 5px --secondaryColor;
+  border-radius: 10px;
+}

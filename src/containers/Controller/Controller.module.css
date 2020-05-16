@@ -1,0 +1,73 @@
+:import('../../styles/theme.css') {
+  --primaryFont: primaryFont;
+  --primaryColor: primaryColor;
+  --secondaryColor: secondaryColor;
+  --whiteColor: whiteColor;
+  --backgroundColor: backgroundColor;
+}
+
+.label_info_left {
+  padding: 2px 0px 0px 3px;
+}
+
+.label_icon_left {
+  text-align: center;
+}
+
+.label_icon_right {
+  text-align: right;
+}
+
+.centered {
+  margin: auto;
+}
+
+select {
+  font-family: --primaryFont;
+  border-radius: 3px;
+  border: 1px solid --backgroundColor;
+  background: --whiteColor;
+  color: --primaryColor;
+  font-size: 13px;
+  padding: 8px;
+  opacity: 1;
+}
+
+select:disabled {
+  opacity: 0.5;
+}
+
+input {
+  font-family: --primaryFont;
+  border-radius: 3px;
+  border: 1px solid --backgroundColor;
+  background: --whiteColor;
+  color: --primaryColor;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
+  opacity: 1;
+}
+
+input:disabled {
+  opacity: 0.5;
+}
+
+input::placeholder, input::-ms-input-placeholder {
+  opacity: 0.5;
+};
+
+option {
+  font-family: --primaryFont;
+  background-color: --whiteColor;
+  color: --primaryColor;
+  font-size: 14px;
+}
+
+option:disabled {
+  opacity: 0.5;
+}
+
+.optionPlaceholder {
+  color: --secondaryColor;
+}

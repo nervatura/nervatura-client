@@ -1,0 +1,77 @@
+:import('../../styles/theme.css') {
+  --primaryFont: primaryFont;
+  --textColor: textColor;
+  --whiteColor: whiteColor;
+  --primaryColor: primaryColor;
+  --secondaryColor: secondaryColor;
+  --backgroundColor: backgroundColor;
+  --darkBlack: darkBlack;
+  --lightBlack: lightBlack;
+  --focusColor: focusColor;
+  --topMenuHeight: topMenuHeight;
+  --sideMenuWidth: sideMenuWidth;
+}
+
+@keyframes animateleft{ 
+  from { left:-300px; opacity:0; }
+  to{ left:0; opacity:1; }
+}
+
+.sidebar{
+  position: fixed!important;
+  height: 100%;
+  width: --sideMenuWidth;
+  top: --topMenuHeight;
+  left: 0;
+  animation: animateleft 0.4s;
+  background-color: --darkBlack;
+  z-index: 3;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-weight: bold;
+  padding: 5px 4px 50px 2px;
+}
+
+@media (min-width:769px){
+  .sidebar{
+    display: block!important;
+  }
+}
+@media (max-width:768px){
+  .sidebar{
+    display: none;
+  }
+}
+
+.selectButton, .selectButton:focus {
+  color: --focusColor;
+  background-color: --secondaryColor;
+  border: 1px solid --primaryColor;
+  border-radius: 0px;
+}
+
+.groupButton {
+  background-color: --lightBlack;
+  border: 1px solid --primaryColor;
+  border-radius: 0px;
+}
+
+.groupButton:hover {
+  background-color: --lightBlack;
+}
+
+.panelGroup {
+  padding: 2px 4px 3px;
+}
+
+.panelButton {
+  margin: 3px 0px;
+}
+
+.selected {
+  color: --focusColor;
+}
+
+.separator {
+  height: 15px;
+}

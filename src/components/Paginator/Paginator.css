@@ -1,0 +1,30 @@
+:import('../../styles/theme.css') {
+  --whiteColor: whiteColor;
+  --primaryColor: primaryColor;
+  --secondaryColor: secondaryColor;
+  --hoverColor: hoverColor;
+}
+
+.pagify-pagination {
+  text-align: center;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+}
+.pagify-pagination span {
+  background: none;
+  color: --primaryColor;
+  font-weight: bold;
+}
+.pagify-pagination span:hover {
+  color: --hoverColor;
+}
+.pagify-pagination .selected span {
+  color: --whiteColor;
+  background: --primaryColor;
+  font-weight: bold;
+  border-radius: 2px;
+}
