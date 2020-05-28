@@ -1,1 +1,1 @@
-export { Label, Input, Select } from './Controller'
+export { Label, Input, Select, DateInput } from './Controller'

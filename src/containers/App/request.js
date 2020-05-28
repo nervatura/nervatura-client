@@ -10,6 +10,8 @@ import 'whatwg-fetch';
 function parseJSON(response) {
   if (response.status === 401)
     return { code: 401, message: "Unauthorized" }
+  if (response.status === 400)
+    return { code: 400, message: response.statusText }
   if (response.status === 204 || response.status === 205) {
     return null;
   }

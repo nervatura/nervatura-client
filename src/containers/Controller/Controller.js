@@ -3,7 +3,7 @@ import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import styles from './Controller.module.css';
-//import DateTimeInput from 'components/DateTimeInput';
+import DateTimeInput from 'components/DateTimeInput';
 
 const useText = (key) => {
   const store = useContext(AppStore)
@@ -94,6 +94,18 @@ export const Input = (props) => {
       }
     }
   }
+  if(props.itype === "float"){
+    let fvalue = parseFloat(String(inputValue).replace(/[^0-9.-]+/g, ""))
+    if (isNaN(fvalue)){
+      fvalue = 0
+    }
+    if (inputValue !== fvalue && inputValue !== fvalue+".") {
+      inputValue = fvalue
+    }
+    if (inputValue === "" || isNaN(inputValue) || inputValue === null) {
+      inputValue = 0
+    }
+  }
   
   return <input id={props.id||""}
     type={props.type||"text"}
@@ -102,7 +114,8 @@ export const Input = (props) => {
     onChange={(props.onChange) ? props.onChange : (evt) => change(props.keys, evt.target.value)}
     onFocus={()=> { setState({...state, focus: true }) }}
     onBlur={()=> { setState({...state, focus: false }) }}
-    onKeyDown={(props.onEnter)?(ev)=>{if(ev.keyCode === 13){props.onEnter()}}:null}
+    onKeyDown={(props.onEnter)?
+      (ev)=>{if(ev.keyCode === 13){props.onEnter()}}:null}
     value={inputValue}/>
 }
 
@@ -137,20 +150,18 @@ export const Select = (props) => {
   </select>
 }
 
-/*
 export const DateInput = (props) => {
   const store = useContext(AppStore);
   const placeholderText = useText(props.placeholder)
-  const dateValue = useValues(props.keys)
+  const dateValue = useValues(props.keys, props.value)
   const change = useChange()
 
   const _props = update(props, {$merge: {
     value: (props.default && (dateValue === "")) ? props.default : dateValue,
     placeholder: placeholderText,
-    onChange: (value) => change(props.keys, value),
+    onChange: (props.onChange) ? props.onChange : (value) => change(props.keys, value),
     dateFormat: store.data.ui.dateFormat,
     timeFormat: store.data.ui.timeFormat
   }})
   return <DateTimeInput {..._props}/>
 }
-*/

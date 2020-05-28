@@ -1,3 +1,16 @@
+:import('../../styles/theme.css') {
+  --backgroundColor: backgroundColor;
+  --whiteColor: whiteColor;
+  --lightColor: lightColor;
+  --focusColor: focusColor;
+  --primaryColor: primaryColor;
+  --hoverColor: hoverColor;
+  --secondaryColor: secondaryColor;
+  --greenColor: greenColor;
+  --redColor: redColor;
+  --textColor: textColor;
+}
+
 .searchCol {
   width: 150px;
   padding-left: 16px;
@@ -6,4 +19,148 @@
 .maxpanel {
   max-width: 800px;
   margin: auto;
+}
+
+.barButton {
+  border-radius: 0px;
+  border: 1px solid --backgroundColor;
+  margin-left: -0.7px;
+  background-color: --lightColor;
+}
+
+.barButton:hover {
+  color: --hoverColor!important;
+}
+
+.barButton:focus {
+  color: inherit;
+  background-color: --lightColor;
+  outline: none;
+}
+
+.selected {
+  color: --focusColor!important;
+  background-color: --whiteColor;
+  box-shadow:0 2px 3px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+.selected:hover, .selected:focus {
+  background-color: --whiteColor;
+}
+
+.dropdownBox {
+  position:relative;
+  display:inline-block;
+}
+
+.filterDelete {
+  border: 1px solid --backgroundColor;
+  background-color: --lightColor;
+  color: --textColor;
+}
+
+.filterDelete:focus {
+  color: inherit;
+  background-color: --lightColor;
+  outline: none;
+}
+
+.filterDelete:hover {
+  color: --redColor;
+  background-color: --lightColor;
+  border-color: --hoverColor;
+}
+
+@keyframes opac{
+  from{opacity:0} to{opacity:1}
+}
+
+.dropdownContent{
+  background-color:--whiteColor;
+  border: 1px solid --backgroundColor;
+  border-top: none;
+  animation: opac 0.8s;
+  box-shadow:0 2px 3px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  position: absolute;
+  min-width: 160px;
+  margin: 0;
+  padding: 4px 8px;
+  z-index: 5;
+}
+
+.dropItem {
+  font-size: 14px;
+  padding: 2px 0px;
+  font-weight: bold;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 100%;
+  cursor: pointer;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+}
+
+.dropItem:hover {
+  color: --hoverColor;
+}
+
+.active {
+  color: --focusColor!important;
+}
+
+.filterPanel {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid --backgroundColor;
+  border-top: none;
+  border-radius: 0px;
+  background-color: --whiteColor;
+}
+
+.resultTitle {
+  background-color: --secondaryColor;
+  color: --whiteColor;
+  font-weight: bold;
+  padding: 8px 16px;
+}
+
+.resultTitlePlus {
+  background-color: --secondaryColor;
+  vertical-align: middle;
+  padding: 0px 16px;
+  width: 40px;
+  text-align: right;
+}
+
+.editCol {
+  cursor: pointer;
+}
+
+.editCol:hover {
+  color: --greenColor;
+}
+
+.colBox {
+  display: table;
+  width: 100%;
+  border: 2px solid --backgroundColor;
+  border-radius: 4px;
+  white-space: nowrap;
+  padding: 6px;
+}
+
+.selectCol {
+  cursor: pointer;
+  color: --greenColor;
+  font-weight: bold;
+}
+
+@media (max-width:600px){
+  .filterPanel {
+    padding: 8px;
+  }
 }

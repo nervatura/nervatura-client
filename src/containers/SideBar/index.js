@@ -23,6 +23,10 @@ export default (props) => {
     }
   }
 
+  state.showBrowser = (vkey, view) => {
+    actions.showBrowser(vkey, view)
+  }
+
   state.data = data[state.mdKey]
   state.module = data[state.data.module]
 

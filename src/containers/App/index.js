@@ -5,6 +5,7 @@ import request from './request';
 import { store } from 'config/app'
 import { showToast } from './toast'
 import { getSql } from './adapter'
+import { getQuery } from './queries'
 
 export default class extends App {
 
@@ -14,14 +15,20 @@ export default class extends App {
     this.state = update(store, {$merge: props.data||{} })
     this.actions = {
       setData: this.setData.bind(this),
+      resultError: this.resultError.bind(this),
       requestData: this.requestData.bind(this),
       getText: this.getText.bind(this),
       setSideBar: this.setSideBar.bind(this),
       signOut: this.signOut.bind(this),
       showToast: this.showToast.bind(this),
       getSql: getSql,
-      getAuditFilter: this.getAuditFilter.bind(this)
+      getAuditFilter: this.getAuditFilter.bind(this),
+      showBrowser: this.showBrowser.bind(this),
+      saveToDisk: this.saveToDisk.bind(this)
     }
+    this.state = update(this.state, {$merge: {
+      queries: getQuery(this.actions.getText)
+    }})
   }
 
   setData(key, data) {
@@ -160,5 +167,88 @@ export default class extends App {
     if (typeof audit !== "undefined") {
       retvalue = [audit.inputfilterName, audit.supervisor];}
     return retvalue;
+  }
+
+  resultError(result) {
+    if(result.error){
+      this.actions.setData("error", result.error )
+    }
+    if(result.error && result.error.message){
+      this.actions.showToast({ type: "error", message: result.error.message })
+    } else {
+      this.actions.showToast({ type: "error", 
+        message: this.actions.getText("error_internal", "Internal Server Error") })
+    }
+  }
+
+  async showBrowser(vkey, view) {
+    let search = update(this.state.search, {})
+    if((search.vkey !== vkey) && this.state.queries[vkey]){
+      let views = [
+        { key: "deffield",
+          text: this.actions.getSql(this.state.login.data.engine, 
+            this.state.queries[vkey]().options.deffield_sql),
+          values: [] 
+        }
+      ]
+      let options = { method: "POST", data: views }
+      let view = await this.actions.requestData("/view", options)
+      if(view.error){
+        return this.resultError(view)
+      }
+      search = update(search, {$merge: {
+        deffield: view.deffield
+      }})
+    }
+    if (typeof view==="undefined") {
+      view = Object.keys(this.state.queries[vkey]())[1]
+    }
+    search = update(search, {$merge: {
+      vkey: vkey, view: view, dropdown: "", result: []
+    }})
+    if(!search.filters[view]){
+      search = update(search, { filters: {
+        $merge: { [view]: []}
+      }})
+    }
+    const viewDef = this.state.queries[vkey]()[view]
+    if (typeof search.columns[view] === "undefined") {
+      search = update(search, { columns: {
+        $merge: { [view]: {} }
+      }})
+      if (typeof viewDef.columns !== "undefined") {
+        for(let fic = 0; fic < Object.keys(viewDef.columns).length; fic++) {
+          let fieldname = Object.keys(viewDef.columns)[fic];
+          search = update(search, { columns: { 
+            [view]: {
+              $merge: { [fieldname]: viewDef.columns[fieldname] }
+            }
+          }})
+        }
+      }
+    }
+    if (Object.keys(search.columns[view]).length === 0) {
+      for(let v = 0; v < 3; v++) {
+        let fieldname = Object.keys(viewDef.fields)[v];
+        search = update(search, { columns: { 
+          [view]: {
+            $merge: { [fieldname]: true }
+          }
+        }})
+      }
+    }
+    this.actions.setData("search", search)
+    if(this.state.current.side === "show"){
+      this.actions.setSideBar()
+    }
+    this.actions.setData("current", { module: "search" })
+  }
+
+  saveToDisk(fileUrl, fileName) {
+    const element = document.createElement("a")
+    element.href = fileUrl
+    element.download = fileName || fileUrl
+    document.body.appendChild(element) // Required for this to work in FireFox
+    element.click()
   }
 }

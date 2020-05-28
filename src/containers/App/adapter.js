@@ -228,9 +228,9 @@ export const getSql = (engine, _sql) => {
       }
       return sql;
     } else {
-      if (data === "?" && engine === "postgres") {
+      if (data.indexOf("?")>-1 && key !== "select" && engine === "postgres") {
         prm_count += 1;
-        data = "$" + prm_count;
+        data = data.replace("?","$" + prm_count);
       }
       return data;
     }

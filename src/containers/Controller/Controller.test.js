@@ -200,7 +200,7 @@ describe('Icons', () => {
       </AppProvider>)
 
   });
-/*
+
   it('DateInput', () => {
     let ctr_store = update(store, {
       data: { $merge: {
@@ -231,5 +231,5 @@ describe('Icons', () => {
       </AppProvider>);
   
   });
-*/
+
 })

@@ -37,6 +37,7 @@ export const TableView = memo((props) => {
     (prevProps.rows === nextProps.rows) &&
     (prevProps.sortingColumns === nextProps.sortingColumns) &&
     (prevProps.filter === nextProps.filter) &&
-    (prevProps.pagination === nextProps.pagination)
+    (prevProps.pagination === nextProps.pagination) &&
+    (prevProps.fields === nextProps.fields)
   )
 })

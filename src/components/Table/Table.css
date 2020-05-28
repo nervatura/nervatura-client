@@ -7,6 +7,7 @@
   --whiteColor: whiteColor;
   --orangeColor: orangeColor;
   --lightBlack: lightBlack;
+  --linkColor: linkColor;
 }
 
 .sort {
@@ -40,8 +41,17 @@
   margin-left: 0.5em;
 }
 
-.number {
+.number-cell {
   text-align: right;
+}
+
+.link-cell {
+  color: --linkColor;
+  cursor: pointer;
+}
+
+.link-cell:hover {
+  text-decoration: underline;
 }
 
 .ui-table table {
@@ -145,7 +155,7 @@
   .ui-table td:first-child {
     border-top: 1.5px solid --backgroundColor;
   }
-  .number {
+  .number-cell {
     text-align: left;
   }
 }

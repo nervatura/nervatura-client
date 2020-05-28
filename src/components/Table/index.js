@@ -3,8 +3,7 @@ import update from 'immutability-helper';
 import * as sort from 'sortabular';
 import { format, formatISO, isValid, parseISO } from 'date-fns'
 
-//import { TableCellValue, TableCellLabel } from 'components/Controls';
-import { CheckSquare, Square } from 'components/Icons';
+import { CheckSquare, SquareEmpty } from 'components/Icons';
 import { TableView } from "./Table";
 
 export default (props) => {
@@ -13,7 +12,7 @@ export default (props) => {
     dateFormat, timeFormat,
     labelYes, labelNo, tableFilter, filterPlaceholder,
     paginationPage, paginationTop, paginatonScroll, 
-    currentPage, onCurrentPage, tablePadding, onRowSelected } = props
+    currentPage, onCurrentPage, tablePadding, onRowSelected, onEditCell } = props
 
   const [ state, setState ] = useState({
     rowKey: rowKey || "id",
@@ -31,6 +30,7 @@ export default (props) => {
   })
 
   state.rows = rows
+  state.fields = fields
 
   const getSortingColumns = () => state.sortingColumns;
   const sortable = sort.sort({
@@ -104,12 +104,80 @@ export default (props) => {
 
   state.getColumns = () => {
     let cols = []
+    const numberCell = (value, label, styles) => {
+      return <div className="number-cell">
+        <span className="cell-label">{label}</span>
+        <span style={styles}>{value}</span>
+      </div>
+    }
+    const boolCell = (value, label) => {
+      if((value === 1) || (value === "true") || (value === true)){
+        return <Fragment>
+          <span className="cell-label">{label}</span>
+          <span><CheckSquare /> {labelYes||""}</span>
+        </Fragment>
+      }
+      else {
+        return <Fragment>
+          <span className="cell-label">{label}</span>
+          <span><SquareEmpty /> {labelNo||""}</span>
+        </Fragment>
+      }
+    }
+    const dateCell = (value, label, dateType) => {
+      let fmtValue = ""
+      const dateValue = parseISO(value)
+      if (isValid(dateValue)) {
+        switch (dateType) {
+          case "date":
+            if(dateFormat){
+              fmtValue = format(dateValue, dateFormat)
+            } else {
+              fmtValue = formatISO(dateValue, { representation: 'date' })
+            }   
+            break;
+          
+          case "time":
+            if(timeFormat){
+              fmtValue = format(dateValue, timeFormat)
+            } else {
+              fmtValue = formatISO(dateValue, { representation: 'time' })
+            }   
+            break;
+        
+          default:
+          if(dateFormat && timeFormat){
+              fmtValue = format(dateValue, dateFormat+" "+timeFormat)
+            } else {
+              fmtValue = formatISO(dateValue)
+            } 
+            break;
+        }
+      }
+      return <Fragment>
+        <span className="cell-label">{label}</span>
+        <span>{fmtValue}</span>
+      </Fragment>
+    }
+    const stringCell = (value, label, styles) => {
+      return <Fragment>
+        <span className="cell-label">{label}</span>
+        <span style={styles} >{value}</span>
+      </Fragment>
+    }
+    const linkCell = (value, label, fieldname, resultValue, rowData) => {
+      return <Fragment>
+        <span className="cell-label">{label}</span>
+        <span className="link-cell" 
+          onClick={(onEditCell)?()=>onEditCell(fieldname, resultValue, rowData):null} >{value}</span>
+      </Fragment>
+    }
     if(fields){
       Object.keys(fields).forEach((fieldname) => {
         if(fields[fieldname].columnDef){
           cols = update(cols, {$push: [fields[fieldname].columnDef]});
         } else {
-          const coldef = {
+          let coldef = {
             property: fieldname,
             header: {
               props: {
@@ -140,10 +208,7 @@ export default (props) => {
                     styles.color = "green"
                   }
                 }
-                return <Fragment>
-                  <span className="cell-label number">{fields[fieldname].label}</span>
-                  <span style={styles}>{value}</span>
-                </Fragment>
+                return numberCell(value, fields[fieldname].label, styles)
               });
               break;
 
@@ -153,39 +218,7 @@ export default (props) => {
               coldef.header.props.style.textAlign = "left"
               coldef.cell.props.style.textAlign = "left"
               coldef.cell.formatters.push((value, { rowData }) => {
-                let fmtValue = ""
-                const dateValue = parseISO(value)
-                if (isValid(dateValue)) {
-                  switch (fields[fieldname].fieldtype) {
-                    case "date":
-                      if(dateFormat){
-                        fmtValue = format(dateValue, dateFormat)
-                      } else {
-                        fmtValue = formatISO(dateValue, { representation: 'date' })
-                      }   
-                      break;
-                    
-                    case "time":
-                      if(timeFormat){
-                        fmtValue = format(dateValue, timeFormat)
-                      } else {
-                        fmtValue = formatISO(dateValue, { representation: 'time' })
-                      }   
-                      break;
-                  
-                    default:
-                    if(dateFormat && timeFormat){
-                        fmtValue = format(dateValue, dateFormat+" "+timeFormat)
-                      } else {
-                        fmtValue = formatISO(dateValue)
-                      } 
-                      break;
-                  }
-                }
-                return <Fragment>
-                  <span className="cell-label">{fields[fieldname].label}</span>
-                  <span>{fmtValue}</span>
-                </Fragment>
+                return dateCell(value, fields[fieldname].label, fields[fieldname].fieldtype)
               });
               break;
 
@@ -193,17 +226,36 @@ export default (props) => {
               coldef.header.props.style.textAlign = "center"
               coldef.cell.props.style.textAlign = "center"
               coldef.cell.formatters.push((value, { rowData }) => {
-                if((value === 1) || (value === "true") || (value === true)){
-                  return <Fragment>
-                    <span className="cell-label">{fields[fieldname].label}</span>
-                    <span><CheckSquare /> {labelYes||""}</span>
-                  </Fragment>
-                }
-                else {
-                  return <Fragment>
-                    <span className="cell-label">{fields[fieldname].label}</span>
-                    <span><Square /> {labelNo||""}</span>
-                  </Fragment>
+                return boolCell(value, fields[fieldname].label)
+              });
+              break;
+            
+            case "deffield":
+              coldef.header.props.style.textAlign = "left"
+              coldef.cell.formatters.push((value, { rowData }) => {
+                switch (rowData.fieldtype) {
+                  case "bool":
+                    return boolCell(value, fields[fieldname].label)
+
+                  case "integer":
+                  case "float":
+                    return numberCell(value, fields[fieldname].label, {})
+
+                  case "customer":
+                  case "tool":
+                  case "product":
+                  case "trans": 
+                  case "transitem":
+                  case "transmovement": 
+                  case "transpayment":
+                  case "project":
+                  case "employee":
+                  case "place":
+                  case "urlink":
+                    return linkCell(rowData["export_deffield_value"], fields[fieldname].label, rowData.fieldtype, rowData[fieldname], rowData)
+
+                  default:
+                    return stringCell(value, fields[fieldname].label, {})
                 }
               });
               break;
@@ -216,10 +268,10 @@ export default (props) => {
                 if(rowData[fieldname+"_color"]){
                   styles.color = rowData[fieldname+"_color"]
                 }
-                return <Fragment>
-                  <span className="cell-label">{fields[fieldname].label}</span>
-                  <span style={styles} >{value}</span>
-                </Fragment>
+                if(Object.keys(rowData).includes("export_"+fieldname)){
+                  return linkCell(rowData["export_"+fieldname], fields[fieldname].label, fieldname, rowData[fieldname], rowData)
+                }
+                return stringCell(value, fields[fieldname].label, styles)
               })
           }
           if(tablePadding){

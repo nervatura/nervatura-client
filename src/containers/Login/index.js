@@ -73,8 +73,10 @@ export default (props) => {
     }
 
     lData = update(lData, {$merge: view})
-    lData.employee = lData.employee[0]
-    lData.userlogin = (lData.userlogin.length>0) ? lData.userlogin[0].value : "false"
+    lData = update(lData, {$merge: {
+      employee: lData.employee[0],
+      userlogin: (lData.userlogin.length>0) ? lData.userlogin[0].value : "false"
+    }})
 
     views = [
       { key: "audit",
@@ -126,14 +128,20 @@ export default (props) => {
       const transfilter = lData.groups.filter((group)=> {
         return ((group.groupname === "transfilter") && (group.groupvalue === "all"))
       })[0]
-      lData.transfilter = transfilter.id
-      lData.transfilterName = "all"
+      lData = update(lData, {$merge: {
+        transfilter: transfilter.id,
+        transfilterName: "all"
+      }})
     } else {
-      lData.transfilterName = view.transfilter[0].transfilterName
+      lData = update(lData, {$merge: {
+        transfilterName: view.transfilter[0].transfilterName
+      }})
     }
 
-    lData.audit_filter = {trans:{}, menu:{}, report:{}}
-    lData.edit_new = [[],[],[],[]]
+    lData = update(lData, {$merge: {
+      audit_filter: {trans:{}, menu:{}, report:{}},
+      edit_new: [[],[],[],[]]
+    }})
     const trans = [
       ["offer",0],["order",0],["worksheet",0],["rent",0],["invoice",0],["receipt",0],
       ["bank",1],["cash",1],
@@ -142,10 +150,14 @@ export default (props) => {
       const audit = lData.audit.filter((item)=> {
         return ((item.nervatypeName === "trans") && (item.subtypeName === transtype[0]))
       })[0]
-      lData.audit_filter.trans[transtype[0]] = (audit) ? 
-        [audit.inputfilterName, audit.supervisor] : ["all",1]
+      lData = update(lData, { audit_filter: { trans: { $merge: {
+        [transtype[0]]: (audit) ? 
+          [audit.inputfilterName, audit.supervisor] : ["all",1]
+      }}}})
       if (lData.audit_filter.trans[transtype[0]][0] !== "disabled"){
-        lData.edit_new[transtype[1]].push(transtype[0])
+        lData = update(lData, { edit_new: {
+          [transtype[1]]: {$push: [transtype[0]]}
+        }})
       }
     });
 
@@ -154,11 +166,15 @@ export default (props) => {
       const audit = lData.audit.filter((item)=> {
         return ((item.nervatypeName === ntype) && (item.subtypeName === null))
       })[0]
-      lData.audit_filter[ntype] = (audit) ? 
-        [audit.inputfilterName, audit.supervisor] : ["all",1]
+      lData = update(lData, { audit_filter: { $merge: {
+        [ntype]: (audit) ? 
+          [audit.inputfilterName, audit.supervisor] : ["all",1]
+      }}})
       if (lData.audit_filter[ntype][0] !== "disabled" && 
         ntype !== "setting" && ntype !== "audit"){
-          lData.edit_new[3].push(ntype)
+          lData = update(lData, { edit_new: {
+            3: {$push: [ntype]}
+          }})
         }
     });
 
@@ -166,18 +182,6 @@ export default (props) => {
   }
 
   state.login = async () => {
-    const error = (result) => {
-      if(result.error){
-        actions.setData("session", { error: result.error })
-      }
-      if(result.error && result.error.message){
-        actions.showToast({ type: "error", message: result.error.message })
-      } else {
-        actions.showToast({ type: "error", 
-          message: actions.getText("error_internal", "Internal Server Error") })
-      }
-    }
-
     const options = {
       method: "POST",
       data: update({}, { $set: data[state.mdKey] }) 
@@ -185,16 +189,16 @@ export default (props) => {
     let result = await actions.requestData("/auth/login", options)
     if(result.token && result.engine ){
       if(!data.session.engines.includes(result.engine)){
-        return error({ error: { message: actions.getText("login_engine_err") } })
+        return actions.resultError({ error: { message: actions.getText("login_engine_err") } })
       }
       const lData = await loginData(result)
       if(lData.error){
-        return error(lData)
+        return actions.resultError(lData)
       }
       if (lData.userlogin === "t" || lData.userlogin === "true") {
         const log = await userLog(lData)
         if(log.error){
-          return error(log)
+          return actions.resultError(log)
         }
       }
 
@@ -207,7 +211,7 @@ export default (props) => {
       localStorage.setItem("username", data[state.mdKey].username);
 
     } else {
-      error(result)
+      actions.resultError(result)
     }
   }
 

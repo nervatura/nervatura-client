@@ -3,10 +3,13 @@
   --primaryColor: primaryColor;
   --secondaryColor: secondaryColor;
   --hoverColor: hoverColor;
+  --backgroundColor: backgroundColor;
 }
 
 .pagify-pagination {
-  text-align: center;
+  text-align: left;
+  margin: 12px 0px 12px;
+  padding: 0;
   -webkit-touch-callout:none;
   -webkit-user-select:none;
   -khtml-user-select:none;
@@ -15,9 +18,11 @@
   user-select:none;
 }
 .pagify-pagination span {
-  background: none;
+  background: --backgroundColor;
   color: --primaryColor;
   font-weight: bold;
+  padding: 7px;
+  margin: 0 7px 0 0;
 }
 .pagify-pagination span:hover {
   color: --hoverColor;

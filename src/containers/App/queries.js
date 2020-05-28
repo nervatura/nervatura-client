@@ -58,7 +58,7 @@ export const getQuery = (getText) => {
             ["groups tg","on",["t.transtype","=","tg.id"]], 
             ["groups dg","on",["t.direction","=","dg.id"]], 
             ["place pl","on",["t.place_id","=","pl.id"]]], 
-          where:[["p.deleted","=","0"]," @where_str"]},
+          where:[["p.deleted","=","0"]]},
         label: "{CCS}t.transnumber{SEP} case when tg.groupvalue='bank' then {CCS}' ~ '{SEP}"+
           " {CAS_TEXT}p.id {CAE_TEXT} {CCE} else '' end {CCE} ",
         value: "{CCS}{FMS_DATE}p.paiddate {FME_DATE}{SEP}' | '{SEP} tg.groupvalue{SEP}'-'{SEP}dg.groupvalue{SEP}' | ' "+
@@ -71,7 +71,7 @@ export const getQuery = (getText) => {
             "{CCS}p.description{SEP}' | '{SEP}pt.groupvalue{CCE} as lsvalue"],
           from:"place p", 
           inner_join:["groups pt","on",["p.placetype","=","pt.id"]], 
-          where:[["p.deleted","=","0"]," @where_str"]} ,
+          where:[["p.deleted","=","0"]]} ,
         label: "p.planumber ",
         value: "{CCS}p.description{SEP}' | '{SEP}pt.groupvalue{CCE} "};},
       
@@ -82,7 +82,7 @@ export const getQuery = (getText) => {
             "p.description as lsvalue"], 
           from:"place p",
           inner_join:["groups pt","on",[["p.placetype","=","pt.id"],["and","pt.groupvalue","=","'bank'"]]],
-          where:[["p.deleted","=","0"]," @where_str"]},
+          where:[["p.deleted","=","0"]]},
         label: "p.planumber ",
         value: "{CCS}p.description{SEP}' | '{SEP}pt.groupvalue{CCE} "};},
       
@@ -93,7 +93,7 @@ export const getQuery = (getText) => {
               "p.description as lsvalue"], 
           from:"place p", 
           inner_join:["groups pt","on",[["p.placetype","=","pt.id"],["and","pt.groupvalue","=","'cash'"]]],
-          where:[["p.deleted","=","0"]," @where_str"]} ,
+          where:[["p.deleted","=","0"]]} ,
         label: "p.planumber ",
         value: "{CCS}p.description{SEP}' | '{SEP}pt.groupvalue{CCE} "};},
       
@@ -104,7 +104,7 @@ export const getQuery = (getText) => {
           from:"place p",
           inner_join:["groups pt","on",[["p.placetype","=","pt.id"],
             ["and","pt.groupvalue","=","'warehouse'"]]],
-          where:[["p.deleted","=","0"]," @where_str"]} ,
+          where:[["p.deleted","=","0"]]} ,
         label: "p.planumber ",
         value: "p.description "
       };},
@@ -132,7 +132,7 @@ export const getQuery = (getText) => {
           from:"product p",
           inner_join:["groups pt","on",[["p.protype","=","pt.id"],["and","pt.groupvalue","=","'item'"]]],
           left_join:["tax tx","on",["p.tax_id","=","tx.id"]],
-          where:[["p.deleted","=","0"]," @where_str"]},
+          where:[["p.deleted","=","0"]]},
         label: "{CCS}p.partnumber{SEP}' | '{SEP}p.description{CCE} ",
         value: "{CCS}p.unit{SEP}' | '{SEP}tx.taxcode{CCE} "};},
       
@@ -225,7 +225,7 @@ export const getQuery = (getText) => {
             ["groups dg","on",["t.direction","=","dg.id"]]],
           left_join:["customer c","on",["t.customer_id","=","c.id"]],
           where:[[[["t.deleted","=","0"],["or",[["tg.groupvalue","=","'invoice'"],
-            ["and","dg.groupvalue","=","'out'"]]]]]," @where_str"]},
+            ["and","dg.groupvalue","=","'out'"]]]]]]},
         label: "t.transnumber ",
         value: "{CCS}tg.groupvalue{SEP}'-'{SEP}dg.groupvalue{SEP}' | '{SEP}c.custname{CCE} "};},
       
@@ -241,7 +241,7 @@ export const getQuery = (getText) => {
             ["and","tg.groupvalue","in",[[],"'order'","'worksheet'","'rent'"]]]],
             ["groups dg","on",["t.direction","=","dg.id"]]],
           left_join:["customer c","on",["t.customer_id","=","c.id"]], 
-          where:[["t.deleted","=","0"]," @where_str"]} ,
+          where:[["t.deleted","=","0"]]} ,
         label: "t.transnumber ",
         value: "{CCS}tg.groupvalue{SEP}'-'{SEP}dg.groupvalue{SEP}' | '{SEP}c.custname{CCE} "};},
       
@@ -339,7 +339,7 @@ export const getQuery = (getText) => {
             where:["id","in",[{select:["min(id) fid"], from:"address a",
               where:[["a.deleted","=","0"],["and","a.nervatype","=",[{select:["id"], from:"groups", where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]]],
               group_by:["a.ref_id"]}]]}],"addr"],"on",["c.id","=","addr.ref_id"]]],
-          where:[["c.deleted","=","0"],["and","c.id","not in",[{select:["customer.id"], from:"customer", inner_join:["groups","on",[["customer.custtype","=","groups.id"],["and","groups.groupvalue","=","'own'"]]]}]]," @where_str"]}},
+          where:[["c.deleted","=","0"],["and","c.id","not in",[{select:["customer.id"], from:"customer", inner_join:["groups","on",[["customer.custtype","=","groups.id"],["and","groups.groupvalue","=","'own'"]]]}]]]}},
       
       CustomerFieldsView: {
         columns: {custname:true, fielddef:true, deffield_value:true},
@@ -403,7 +403,7 @@ export const getQuery = (getText) => {
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
           where:[["fv.deleted","=","0"],["and","c.deleted","=","0"],
-            ["and","c.id","not in",[{select:["customer.id"], from:"customer", inner_join:["groups","on",[["customer.custtype","=","groups.id"],["and","groups.groupvalue","=","'own'"]]]}]]," @where_str"]}},
+            ["and","c.id","not in",[{select:["customer.id"], from:"customer", inner_join:["groups","on",[["customer.custtype","=","groups.id"],["and","groups.groupvalue","=","'own'"]]]}]]]}},
       
       CustomerContactView: {
         columns: {custname:true, firstname:true, surname:true, phone:true},
@@ -441,7 +441,7 @@ export const getQuery = (getText) => {
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]],
             ["and","c.id","not in",[{select:["customer.id"], from:"customer",
               inner_join:["groups","on",[["customer.custtype","=","groups.id"],
-              ["and","groups.groupvalue","=","'own'"]]]}]]," @where_str"]}},
+              ["and","groups.groupvalue","=","'own'"]]]}]]]}},
       
       CustomerAddressView: {
         columns: {custname:true, city:true, street:true},
@@ -475,7 +475,7 @@ export const getQuery = (getText) => {
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]],
             ["and","c.id","not in",[{select:["customer.id"], from:"customer", 
               inner_join:["groups","on",[["customer.custtype","=","groups.id"],
-              ["and","groups.groupvalue","=","'own'"]]]}]]," @where_str"]}},
+              ["and","groups.groupvalue","=","'own'"]]]}]]]}},
       
       CustomerEvents: {
         columns: {custname:true, fromdate:true, subject:true},
@@ -526,7 +526,7 @@ export const getQuery = (getText) => {
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]],
             ["and","c.id","not in",[{select:["customer.id"], from:"customer", 
               inner_join:["groups","on",[["customer.custtype","=","groups.id"],
-              ["and","groups.groupvalue","=","'own'"]]]}]]," @where_str"]}}};
+              ["and","groups.groupvalue","=","'own'"]]]}]]]}}};
     },
     
     employee: () => {return {
@@ -596,7 +596,7 @@ export const getQuery = (getText) => {
               ["and","a.nervatype","=",[{select:["id"], from:"groups", 
                 where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'employee'"]]}]]]],
             ["groups dg","on",["e.department","=","dg.id"]]],
-          where:[["e.deleted","=","0"]," @where_str"]}},
+          where:[["e.deleted","=","0"]]}},
       
       EmployeeFieldsView: {
         columns: {empnumber:true, fielddef:true, deffield_value:true},
@@ -665,7 +665,7 @@ export const getQuery = (getText) => {
             ["project rf_project","on",["fv.value","=","{CAS_TEXT}rf_project.id {CAE_TEXT}"]],
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
-          where:[["fv.deleted","=","0"],["and","e.deleted","=","0"]," @where_str"]}},
+          where:[["fv.deleted","=","0"],["and","e.deleted","=","0"]]}},
       
       EmployeeEvents: {
         columns: {empnumber:true, fromdate:true, subject:true},
@@ -722,7 +722,7 @@ export const getQuery = (getText) => {
             ["groups eg","on",["e.eventgroup","=","eg.id"]]],
           where:[["e.deleted","=","0"],["and","em.deleted","=","0"],
             ["and","e.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'employee'"]]}]]," @where_str"]}}};
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'employee'"]]}]]]}}};
     },
     
     product: () => {return {
@@ -769,7 +769,7 @@ export const getQuery = (getText) => {
             ["tax t","on",["p.tax_id","=","t.id"]]],
           left_join:["ui_message ms","on",[["ms.fieldname","=","g.groupvalue"],["and","ms.secname","=","'protype'"],
             ["and","ms.lang","=",[{select:["value"], from:"fieldvalue", where:["fieldname","=","'default_lang'"]}]]]],
-          where:[["p.deleted","=","0"]," @where_str"]}},
+          where:[["p.deleted","=","0"]]}},
       
       ProductFieldsView: {
         columns: {custname:true, fielddef:true, deffield_value:true},
@@ -832,7 +832,7 @@ export const getQuery = (getText) => {
             ["project rf_project","on",["fv.value","=","{CAS_TEXT}rf_project.id {CAE_TEXT}"]],
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
-          where:[["fv.deleted","=","0"],["and","p.deleted","=","0"]," @where_str"]}},
+          where:[["fv.deleted","=","0"],["and","p.deleted","=","0"]]}},
       
       ProductBarcodeView: {
         columns: {partnumber:true, description:true, barcode:true},
@@ -865,7 +865,7 @@ export const getQuery = (getText) => {
           from:"barcode b", 
           inner_join:[
             ["product p","on",["b.product_id","=","p.id"]],["groups g","on",["b.barcodetype","=","g.id"]]],
-          where:[["p.deleted","=","0"]," @where_str"]}},
+          where:[["p.deleted","=","0"]]}},
       
       ProductPriceView: {
         columns: {partnumber:true, validfrom:true, curr:true, pricevalue:true},
@@ -907,7 +907,7 @@ export const getQuery = (getText) => {
               ["and","ln0.ref_id_1","=","pr.id"],["and","ln0.deleted","=","0"], 
               ["and","ln0.nervatype_2","=",[{select:["id"], from:"groups", where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]]]],
             ["customer c","on",[["ln0.ref_id_2","=","c.id"],["and","c.deleted","=","0"]]]],
-          where:[["p.deleted","=","0"],["and","pr.deleted","=","0"],["and","pr.discount","is null"]," @where_str"]}},
+          where:[["p.deleted","=","0"],["and","pr.deleted","=","0"],["and","pr.discount","is null"]]}},
       /*
       ProductDiscountView: {
         columns: {partnumber:true, validfrom:true, curr:true, discount:true},
@@ -959,7 +959,7 @@ export const getQuery = (getText) => {
             and ln0.deleted=0 and ln0.nervatype_2 = ( \
               select id from groups where groupname='nervatype' and groupvalue='customer') \
             left join customer c on ln0.ref_id_2 = c.id and c.deleted=0 \
-          where p.deleted = 0 and pr.deleted = 0 and pr.discount is not null @where_str "
+          where p.deleted = 0 and pr.deleted = 0 and pr.discount is not null  "
       },*/
       
       ProductEvents: {
@@ -1008,7 +1008,7 @@ export const getQuery = (getText) => {
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
           where:[["e.deleted","=","0"],["and","p.deleted","=","0"], 
             ["and","e.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'product'"]]}]]," @where_str"]}}};
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'product'"]]}]]]}}};
     },
     
     project: () => {return {
@@ -1050,7 +1050,7 @@ export const getQuery = (getText) => {
             "p.inactive","p.notes"],
           from:"project p",
           left_join:["customer c","on",["p.customer_id","=","c.id"]],
-          where:[["p.deleted","=","0"]," @where_str"]}},
+          where:[["p.deleted","=","0"]]}},
       
       ProjectFieldsView: {
         columns: {pronumber:true, fielddef:true, deffield_value:true},
@@ -1113,7 +1113,7 @@ export const getQuery = (getText) => {
             ["project rf_project","on",["fv.value","=","{CAS_TEXT}rf_project.id {CAE_TEXT}"]],
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
-          where:[["fv.deleted","=","0"],["and","p.deleted","=","0"]," @where_str"]}},
+          where:[["fv.deleted","=","0"],["and","p.deleted","=","0"]]}},
       
       ProjectContactView: {
         columns: {pronumber:true, firstname:true, surname:true, phone:true},
@@ -1148,7 +1148,7 @@ export const getQuery = (getText) => {
           inner_join:["project p","on",["co.ref_id","=","p.id"]],
           where:[["co.deleted","=","0"],["and","p.deleted","=","0"], 
             ["and","co.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]," @where_str"]}},
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]]}},
       
       ProjectAddressView: {
         columns: {pronumber:true, city:true, street:true},
@@ -1179,7 +1179,7 @@ export const getQuery = (getText) => {
           inner_join:["project p","on",["a.ref_id","=","p.id"]],
           where:[["a.deleted","=","0"],["and","p.deleted","=","0"], 
             ["and","a.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]," @where_str"]}},
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]]}},
       
       ProjectEvents: {
         columns: {pronumber:true, fromdate:true, subject:true},
@@ -1227,7 +1227,7 @@ export const getQuery = (getText) => {
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
           where:[["e.deleted","=","0"],["and","p.deleted","=","0"],
             ["and","e.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]," @where_str"]}},
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'project'"]]}]]]}},
       
       ProjectTrans: {
         columns: {pronumber:true, transtype:true, transnumber:true, transdate:true},
@@ -1278,10 +1278,10 @@ export const getQuery = (getText) => {
             ["customer c","on",["t.customer_id","=","c.id"]]],
           where:[["p.deleted","=","0"],["and", [["t.deleted","=","0"],
             ["or",[["tg.groupvalue","=","'invoice'"],["and","dg.groupvalue","=","'out'"]]],
-              ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]," @where_str"],
+              ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]],
           group_by:["p.id","p.pronumber","p.description","tg.groupvalue","dg.groupvalue","mst.msg, msd.msg",
             "t.id","t.transnumber","t.transdate","c.custname","t.curr"], 
-          having:[["sum(i.amount)","<>","0"]," @having_str"]}}};
+          having:[["sum(i.amount)","<>","0"]]}}};
     },
     
     rate: () => {return {
@@ -1326,7 +1326,7 @@ export const getQuery = (getText) => {
             left_join:[
               ["groups as rgroup","on",["r.rategroup","=","rgroup.id"]],
               ["place p","on",["r.place_id","=","p.id"]]],
-            where:[["r.deleted","=","0"]," @where_str"]}}};
+            where:[["r.deleted","=","0"]]}}};
     },
     
     tool: () => {return {
@@ -1409,7 +1409,7 @@ export const getQuery = (getText) => {
           where:[["t.deleted","=","0"],["and",["t.toolgroup","not in",[
             {select:["id"], from:"groups", where:[["groupname","=","'toolgroup'"],
               ["and","groupvalue","=","'printer'"]]}],
-              ["or","t.toolgroup","is null"]]]," @where_str"]}},
+              ["or","t.toolgroup","is null"]]]]}},
       
       ToolFieldsView: {
         columns: {serial:true, fielddef:true, deffield_value:true},
@@ -1472,7 +1472,7 @@ export const getQuery = (getText) => {
             ["project rf_project","on",["fv.value","=","{CAS_TEXT}rf_project.id {CAE_TEXT}"]],
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
-          where:[["fv.deleted","=","0"],["and","t.deleted","=","0"]," @where_str"]}
+          where:[["fv.deleted","=","0"],["and","t.deleted","=","0"]]}
       },
       
       ToolEvents: {
@@ -1521,7 +1521,7 @@ export const getQuery = (getText) => {
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
           where:[["e.deleted","=","0"],["and","t.deleted","=","0"],
             ["and","e.nervatype","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'tool'"]]}]]," @where_str"]}}};
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'tool'"]]}]]]}}};
     },
     
     transitem: () => {return {
@@ -1541,7 +1541,7 @@ export const getQuery = (getText) => {
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'trans'"]]}]]]}},
       
       TransItemHeadView: {
-        columns: {transtype:true, transnumber:true, transdate:true},
+        columns: {transtype:true, transnumber:true, transdate:true, custname: true},
         label: getText("document_view"),
         edit: "trans",
         fields: {
@@ -1649,7 +1649,7 @@ export const getQuery = (getText) => {
             [[[{select:["trans_id","sum(netamount) as netamount","sum(vatamount) as vatamount","sum(amount) as amount"],
               from:"item", where:["deleted","=","0"], group_by:["trans_id"]}],"irow"],"on",["t.id","=","irow.trans_id"]]],
           where:[[[["t.deleted","=","0"],["or",[["tg.groupvalue","=","'invoice'"],["and","dg.groupvalue","=","'out'"]]],
-            ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]," @where_str"]}},
+            ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]]}},
       
       TransItemFieldsView: {
         columns: {transtype:true, transnumber:true, fielddef:true, deffield_value:true},
@@ -1731,7 +1731,7 @@ export const getQuery = (getText) => {
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
           where:[["fv.deleted","=","0"],["and",[["t.deleted","=","0"],
             ["or",[["tg.groupvalue","=","'invoice'"],["and","dg.groupvalue","=","'out'"]]],
-            ["or",[["tg.groupvalue","=","'receipt'"],["and",["dg.groupvalue","=","'out'"]]]]]]," @where_str"]}},
+            ["or",[["tg.groupvalue","=","'receipt'"],["and",["dg.groupvalue","=","'out'"]]]]]]]}},
       
       TransItemRowView: {
         columns: {transnumber:true, curr:true, description:true, amount:true},
@@ -1807,7 +1807,7 @@ export const getQuery = (getText) => {
               ["and","msd.lang","=",[{select:["value"], from:"fieldvalue", where:["fieldname","=","'default_lang'"]}]]]]],
           where:[["i.deleted","=","0"],["and",[["t.deleted","=","0"],
             ["or",[["tg.groupvalue","=","'invoice'"],["and","dg.groupvalue","=","'out'"]]],
-            ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]," @where_str"]}}};
+            ["or",[["tg.groupvalue","=","'receipt'"],["and","dg.groupvalue","=","'out'"]]]]]]}}};
     },
     
     transmovement: () => {return {
@@ -1856,9 +1856,9 @@ export const getQuery = (getText) => {
             ["trans t","on",[["mv.trans_id","=","t.id"],["and","t.deleted","=","0"]]],
             ["groups tg","on",["t.transtype","=","tg.id"]],
             ["groups dg","on",["t.direction","=","dg.id"]]],
-          where:[["mv.deleted","=","0"],["and","t.deleted","=","0"]," @where_str"],
+          where:[["mv.deleted","=","0"],["and","t.deleted","=","0"]],
           group_by:["pl.id","pl.description","p.id","p.partnumber","p.description","p.unit","mv.notes"],
-          having:[["sum(mv.qty)","<>","0"]," @having_str"]}},
+          having:[["sum(mv.qty)","<>","0"]]}},
       
       MovementView: {
         columns: {transtype:true, shippingdate:true, partnumber:true, qty:true},
@@ -1952,7 +1952,7 @@ export const getQuery = (getText) => {
                 from:"groups", where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'movement'"]]}]]]],
             ["movement mv2","on",["pln2.ref_id_1","=","mv2.id"]], 
             ["trans vt2","on",["mv2.trans_id","=","vt2.id"]]],
-          where:[["mt.deleted","=","0"],["and","t.deleted","=","0"]," @where_str"]}},
+          where:[["mt.deleted","=","0"],["and","t.deleted","=","0"]]}},
       
       ToolMovement: {
         columns: {transnumber:true, direction:true, shippingdate:true, serial:true},
@@ -2026,7 +2026,7 @@ export const getQuery = (getText) => {
                 where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'trans'"]]}]]]], 
             ["trans lt","on",["lnk.ref_id_2","=","lt.id"]], 
             ["groups ltg","on",["lt.transtype","=","ltg.id"]]], 
-          where:[["t.deleted","=","0"],["and","mv.deleted","=","0"]," @where_str"]}},
+          where:[["t.deleted","=","0"],["and","mv.deleted","=","0"]]}},
       
       FormulaView: {
         columns: {transnumber:true, type:true, partnumber:true, qty:true},
@@ -2068,7 +2068,7 @@ export const getQuery = (getText) => {
           ["groups mt","on",["mv.movetype","=","mt.id"]],
           ["product p","on",["mv.product_id","=","p.id"]]],
           left_join:["place pl","on",["mv.place_id","=","pl.id"]],
-          where:[["t.deleted","=","0"]," @where_str"]}},
+          where:[["t.deleted","=","0"]]}},
       
       MovementFieldsView: {
         columns: {transtype:true, transnumber:true, fielddef:true, deffield_value:true},
@@ -2157,7 +2157,7 @@ export const getQuery = (getText) => {
                     where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'item'"]]}]]]]],
               ["item i","on",["iln.ref_id_2","=","i.id"]]],
               left_join:["trans it","on",["i.trans_id","=","it.id"]], group_by:["mt.trans_id"]}],"delt"],"on",["fv.ref_id","=","delt.trans_id"]]],
-          where:[["fv.deleted","=","0"],["and","t.deleted","=","0"]," @where_str"]}}};
+          where:[["fv.deleted","=","0"],["and","t.deleted","=","0"]]}}};
     },
     
     transpayment: () => {return {
@@ -2252,7 +2252,7 @@ export const getQuery = (getText) => {
               ["and","mss.lang","=",[{select:["value"], from:"fieldvalue", where:["fieldname","=","'default_lang'"]}]]]],
             ["ui_message msc","on",[["msc.fieldname","=","fv.value"],["and","msc.secname","=","'trans_transcast'"], 
               ["and","msc.lang","=",[{select:["value"], from:"fieldvalue", where:["fieldname","=","'default_lang'"]}]]]]],
-          where:[[[["t.deleted","=","0"],["or",["tg.groupvalue","=","'cash'"]]]]," @where_str"]}},
+          where:[[[["t.deleted","=","0"],["or",["tg.groupvalue","=","'cash'"]]]]]}},
       
       PaymentFieldsView: {
         columns: {transtype:true, direction:true, transnumber:true, fielddef:true, deffield_value:true},
@@ -2333,7 +2333,7 @@ export const getQuery = (getText) => {
             ["employee rf_employee","on",["fv.value","=","{CAS_TEXT}rf_employee.id {CAE_TEXT}"]],
             ["place rf_place","on",["fv.value","=","{CAS_TEXT}rf_place.id {CAE_TEXT}"]]],
           where:[["fv.deleted","=","0"],["and",[["t.deleted","=","0"],["or",["tg.groupvalue","=","'cash'"]]]],
-            ["and","fv.ref_id","in",[{select:["trans_id"], from:"payment"}]]," @where_str"]}},
+            ["and","fv.ref_id","in",[{select:["trans_id"], from:"payment"}]]]}},
       
       PaymentInvoiceView: {
         columns: {paidnumber:true, paiddate:true, pcurr:true, paidamount:true, invnumber:true},
@@ -2404,7 +2404,7 @@ export const getQuery = (getText) => {
           where:[["ln.deleted","=","0"],["and","ln.nervatype_1","=",[{select:["id"], 
             from:"groups", where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'payment'"]]}]],
             ["and","ln.nervatype_2","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'trans'"]]}]],"  @where_str"]}}};
+              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'trans'"]]}]]]}}};
     }
   }
 }

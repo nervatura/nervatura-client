@@ -5,7 +5,7 @@ import { Label } from 'containers/Controller'
 import { FileText, ChartBar, Search as SearchIcon, Bolt, Inbox, Print, Globe, Share } from 'components/Icons';
 
 export const Search = memo((props) => {
-  const { changeData, quickView } = props
+  const { changeData, quickView, showBrowser } = props
   const { side } = props.data
   const { group_key } = props.module
   const { audit_filter } = props.login
@@ -29,7 +29,7 @@ export const Search = memo((props) => {
             <Label text={"quick_search"} leftIcon={<Bolt />} col={20}  />
           </button>
           <button className={`${"full medium primary"} ${styles.panelButton}`} 
-            onClick={()=>{}} >
+            onClick={()=>showBrowser(key)} >
             <Label text={"browser_"+key} leftIcon={<SearchIcon />} col={20}  />
           </button>
         </div>:null}
@@ -73,7 +73,7 @@ export const Search = memo((props) => {
           <Label text={"title_printqueue"} leftIcon={<Print />} col={20}  />
         </button>
         <button className={`${"full medium primary"} ${styles.panelButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>showBrowser("rate")} >
           <Label text={"title_rate"} leftIcon={<Globe />} col={20}  />
         </button>
         <button className={`${"full medium primary"} ${styles.panelButton}`} 

@@ -1,0 +1,27 @@
+:import('../../styles/theme.css') {
+  --primaryFont: primaryFont;
+  --primaryColor: primaryColor;
+  --backgroundColor: backgroundColor;
+  --whiteColor: whiteColor;
+}
+
+.react-datepicker-wrapper input {
+  font-family: --primaryFont;
+  text-align: center;
+  border-radius: 3px;
+  border: 1px solid --backgroundColor;
+  background: --whiteColor;
+  color: --primaryColor;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
+  opacity: 1;
+}
+
+.react-datepicker-wrapper input:disabled {
+  opacity: 0.5;
+}
+
+.react-datepicker-wrapper input::placeholder, input::-ms-input-placeholder {
+  opacity: 0.5;
+};

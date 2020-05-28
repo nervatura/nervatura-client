@@ -9,6 +9,7 @@
   --hoverColor: hoverColor;
   --topMenuHeight: topMenuHeight;
   --sideMenuWidth: sideMenuWidth;
+  --textColor: textColor;
 }
 
 .main {
@@ -59,6 +60,22 @@
   color: --focusColor;
 }
 
+.border-button {
+  background: none;
+  border: 2px solid --backgroundColor;
+  color: --textColor;
+}
+
+.border-button:hover {
+  background: none;
+  border-color: --hoverColor;
+}
+
+.small-button {
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
 button:focus {
   background-color: --primaryColor;
   color: --focusColor;
@@ -104,3 +121,4 @@ button:disabled {
 button:disabled:hover {
   box-shadow:none;
 };
+

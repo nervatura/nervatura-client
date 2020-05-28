@@ -4,7 +4,8 @@ import {render} from '@testing-library/react'
 import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, Exit,
   Envelop, Phone, Mobile, User, Close, Edit, Star, Cog, FileText, ChartBar, Bolt,
   CheckSquare, Square, Calendar, CaretRight, Eye, Search, QuestionCircle,
-  Inbox, Print, Globe, Share, Times } from './index';
+  Inbox, Print, Globe, Share, Times, Filter, Download, Columns, Plus,
+  SquareEmpty, Check, CheckSquareEmpty } from './index';
 
 describe('Icons', () => {
 
@@ -185,6 +186,48 @@ describe('Icons', () => {
   it('Times should render a SVG', () => {
 
     const { container } = render(<Times />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Filter should render a SVG', () => {
+
+    const { container } = render(<Filter />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Download should render a SVG', () => {
+
+    const { container } = render(<Download />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Columns should render a SVG', () => {
+
+    const { container } = render(<Columns />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Plus should render a SVG', () => {
+
+    const { container } = render(<Plus />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Check should render a SVG', () => {
+
+    const { container } = render(<Check />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('SquareEmpty should render a SVG', () => {
+
+    const { container } = render(<SquareEmpty />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('CheckSquareEmpty should render a SVG', () => {
+
+    const { container } = render(<CheckSquareEmpty />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });
