@@ -26,7 +26,9 @@ export const store = {
     searchSubtract: 3, //months
     filter_opt_1: [["===","EQUAL"],["==N","IS NULL"],["!==","NOT EQUAL"]],
     filter_opt_2: [["===","EQUAL"],["==N","IS NULL"],["!==","NOT EQUAL"],[">==",">="],["<==","<="]],
-    export_sep: ";"
+    export_sep: ";",
+    page_size: "a4",
+    page_orient: "portrait"
   },
   current: { 
     home: "search", module: "login", side: "auto",
@@ -37,6 +39,7 @@ export const store = {
     database: localStorage.getItem("database") || ""  
   },
   search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
-    filters: {}, columns: {}, browser_filter: true }, 
-  edit: {}, setting: {}, bookmark: {}, preview: {}
+    filters: {}, columns: {}, browser_filter: true },
+  edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, history: [], selector: {} },
+  setting: {}, bookmark: {}, preview: {}
 }

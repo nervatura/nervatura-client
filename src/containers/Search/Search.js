@@ -232,7 +232,7 @@ export const BrowserView = memo((props) => {
 
 export const QuickView = memo((props) => {
   const { getText, quickSearch, editRow } = props
-  const { mdKey, queries, theme } = props
+  const { queries, theme } = props
   const { paginationPage } = props.ui
   const { qview, result } = props.data
   const query = queries.quick[qview]()
@@ -266,7 +266,7 @@ export const QuickView = memo((props) => {
           <div className="row full container section-small-bottom" >
             <div className="cell" >
               <Input type="text" className="full" placeholder="placeholder_search"
-                keys={[mdKey,"qfilter"]} onEnter={quickSearch} />
+                keys={["search","qfilter"]} onEnter={quickSearch} />
             </div>
             <div className={`${"cell"} ${styles.searchCol}`} >
               <button className={`${"full medium"}`} 

@@ -2,13 +2,14 @@ import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
+import { useApp } from 'containers/App/actions'
 import styles from './Controller.module.css';
 import DateTimeInput from 'components/DateTimeInput';
 
 const useText = (key) => {
-  const store = useContext(AppStore)
-  if(key && store.actions)
-    return store.actions.getText(key)
+  const app = useApp()
+  if(key)
+    return app.getText(key)
   return ""
 }
 
@@ -29,10 +30,10 @@ const useChange = () => {
         const data = update(store.data[keys[0]][keys[1]], {$merge: {
           [keys[2]]: value
         }})
-        store.actions.setData(keys[0], { [keys[1]]: data })
+        store.setData(keys[0], { [keys[1]]: data })
       }
       if(keys.length === 2)
-        store.actions.setData(keys[0], { [keys[1]]: value })
+        store.setData(keys[0], { [keys[1]]: value })
     }
   }
 }

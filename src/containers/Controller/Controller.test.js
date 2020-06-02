@@ -85,7 +85,7 @@ describe('Icons', () => {
     const testInput1 = container.querySelector('#testInput1')
     let value = 'value'
     fireEvent.change(testInput1, {target: {value: value}})
-    expect(ctr_store.actions.setData).toHaveBeenCalled()
+    expect(ctr_store.setData).toHaveBeenCalled()
 
     ctr_store = update(store, {
       actions: { $merge: {
@@ -100,7 +100,7 @@ describe('Icons', () => {
     const testInput2 = container.querySelector('#testInput2')
     value = 'test'
     fireEvent.change(testInput2, {target: {value: value}})
-    expect(ctr_store.actions.setData).toHaveBeenCalled()
+    expect(ctr_store.setData).toHaveBeenCalled()
 
     fireEvent.focus(testInput2)
     fireEvent.blur(testInput2)
@@ -154,7 +154,7 @@ describe('Icons', () => {
     const testInput5 = container.querySelector('#testInput5')
     value = "nokey"
     fireEvent.change(testInput5, {target: {value: value}})
-    expect(ctr_store.actions.setData).not.toHaveBeenCalled()
+    expect(ctr_store.setData).not.toHaveBeenCalled()
 
   });
 
@@ -179,7 +179,7 @@ describe('Icons', () => {
     const testSelect = container.querySelector('#testSelect')
     let value = 'value1'
     fireEvent.change(testSelect, {target: {value: value}})
-    expect(ctr_store.actions.setData).toHaveBeenCalled()
+    expect(ctr_store.setData).toHaveBeenCalled()
 
     fireEvent.focus(testSelect)
     fireEvent.blur(testSelect)
@@ -223,7 +223,7 @@ describe('Icons', () => {
     const testInput = container.querySelector('input')
     let value = '2012-11-01'
     fireEvent.change(testInput, {target: {value: value}})
-    expect(ctr_store.actions.setData).toHaveBeenCalled()
+    expect(ctr_store.setData).toHaveBeenCalled()
 
     rerender(
       <AppProvider value={ctr_store}>

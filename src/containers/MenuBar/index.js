@@ -1,27 +1,27 @@
 import React, { useContext, useState } from 'react';
 
 import AppStore from 'containers/App/context'
+import { useApp } from 'containers/App/actions'
 import { MenuBar } from './MenuBar';
 
 export default (props) => {
-  const { data, actions } = useContext(AppStore);
+  const { data, setData } = useContext(AppStore);
+  const app = useApp()
   
-  const [state] = useState({
-    mdKey: "current"
-  })
+  const [state] = useState({})
 
-  state.data = data[state.mdKey]
+  state.data = data.current
 
   state.signOut = () => {
-    actions.signOut()
+    app.signOut()
   }
 
   state.sideBar = () => {
-    actions.setSideBar()
+    app.setSideBar()
   }
 
   state.loadModule = (key) => {
-    actions.setData(state.mdKey, { module: key, menu: "" })
+    setData("current", { module: key, menu: "" })
   }
 
   state.setScroll = () => {

@@ -2,18 +2,19 @@ import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
+import { getSql, useApp } from 'containers/App/actions'
 
 import { Login } from './Login';
 
 export default (props) => {
-  const { data, actions } = useContext(AppStore);
+  const { data, setData } = useContext(AppStore);
+  const app = useApp()
 
   const [state] = useState({
-    mdKey: "login",
     session: data.session
   })
 
-  state.data = data[state.mdKey]
+  state.data = data.login
   state.user = data.session.user
   
   const userLog = async (loginData) => {
@@ -26,7 +27,7 @@ export default (props) => {
         }}
       ] 
     }
-    return await actions.requestData("/log", options)
+    return await app.requestData("/log", options)
   }
   
   const loginData = async (params) => {
@@ -34,40 +35,40 @@ export default (props) => {
       token: params.token, engine: params.engine }})
     let views = [
       { key: "employee",
-        text: actions.getSql(params.engine, { 
+        text: getSql(params.engine, { 
           select: ["e.*", "ug.groupvalue as usergroupName", "dp.groupvalue as departmentName"], 
           from: "employee e",
           inner_join: ["groups ug", "on", ["e.usergroup", "=", "ug.id"]],
           left_join: ["groups dp", "on", ["e.department", "=", "dp.id"]], 
-          where: ["username", "=", "?"] }),
-        values: [data[state.mdKey].username] },
+          where: ["username", "=", "?"] }).sql,
+        values: [data.login.username] },
       { key: "menuCmds",
-        text: actions.getSql(params.engine, { 
-          select: ["*"], from: "ui_menu" }),
+        text: getSql(params.engine, { 
+          select: ["*"], from: "ui_menu" }).sql,
         values: [] },
       { key: "menuFields",
-        text: actions.getSql(params.engine, { 
+        text: getSql(params.engine, { 
           select: ["mf.*", "ft.groupvalue as fieldtypeName"], 
           from: "ui_menufields mf",
           inner_join: ["groups ft", "on", ["mf.fieldtype", "=", "ft.id"]],
-          order_by: ["menu_id", "orderby"] }),
+          order_by: ["menu_id", "orderby"] }).sql,
         values: [] },
       { key: "userlogin",
-        text: actions.getSql(params.engine, {
+        text: getSql(params.engine, {
           select: ["value"], from: "fieldvalue",
           where: [["ref_id", "is", "null"], ["and", "fieldname", "=", "'log_login'"]]
-        }),
+        }).sql,
         values: [] },
       { key: "groups",
-        text: actions.getSql(params.engine, {
+        text: getSql(params.engine, {
           select: ["*"], from: "groups",
           where: ["groupname", "in", [[], "'usergroup'", "'nervatype'", "'transtype'", "'inputfilter'",
             "'transfilter'", "'department'", "'logstate'", "'fieldtype'"]]
-        }),
+        }).sql,
         values: [] }
     ]
     let options = { method: "POST", token: params.token, data: views }
-    let view = await actions.requestData("/view", options)
+    let view = await app.requestData("/view", options)
     if(view.error){
       return view
     }
@@ -80,7 +81,7 @@ export default (props) => {
 
     views = [
       { key: "audit",
-        text: actions.getSql(params.engine, { 
+        text: getSql(params.engine, { 
           select: ["au.nervatype", "nt.groupvalue as nervatypeName", "au.subtype",
             "case when nt.groupvalue = 'trans' then st.groupvalue else m.menukey end as subtypeName",
             "au.inputfilter", "ip.groupvalue as inputfilterName", "au.supervisor"],
@@ -92,10 +93,10 @@ export default (props) => {
             ["groups st", "on", ["au.subtype", "=", "st.id"]],
             ["ui_menu m", "on", ["au.subtype", "=", "m.id"]]],
           where: ["au.usergroup", "=", "?"] 
-        }),
+        }).sql,
         values: [lData.employee.usergroup] },
       { key: "transfilter",
-        text: actions.getSql(params.engine, {
+        text: getSql(params.engine, {
           select: ["ref_id_2 as transfilter", "g.groupvalue as transfilterName"], 
           from: "link",
           inner_join: ["groups g", "on", ["link.ref_id_2", "=", "g.id"]],
@@ -110,13 +111,13 @@ export default (props) => {
               select: ["id"], from: "groups",
               where: [["groupname", "=", "'nervatype'"], ["and", "groupvalue", "=", "'groups'"]]
             }]]]
-        }),
+        }).sql,
         values: [lData.employee.usergroup] 
       }
     ]
 
     options = { method: "POST", token: params.token, data: views }
-    view = await actions.requestData("/view", options)
+    view = await app.requestData("/view", options)
     if(view.error){
       return view
     }
@@ -184,34 +185,34 @@ export default (props) => {
   state.login = async () => {
     const options = {
       method: "POST",
-      data: update({}, { $set: data[state.mdKey] }) 
+      data: update({}, { $set: data.login }) 
     }
-    let result = await actions.requestData("/auth/login", options)
+    let result = await app.requestData("/auth/login", options)
     if(result.token && result.engine ){
       if(!data.session.engines.includes(result.engine)){
-        return actions.resultError({ error: { message: actions.getText("login_engine_err") } })
+        return app.resultError({ error: { message: app.getText("login_engine_err") } })
       }
       const lData = await loginData(result)
       if(lData.error){
-        return actions.resultError(lData)
+        return app.resultError(lData)
       }
       if (lData.userlogin === "t" || lData.userlogin === "true") {
         const log = await userLog(lData)
         if(log.error){
-          return actions.resultError(log)
+          return app.resultError(log)
         }
       }
 
-      //actions.setData("search", { filters: {}, columns: {}, result: [], view: null, vkey: null })
-      //actions.setData("edit", { fdataset: {}, current: {}, dirty: false, form_dirty: false, history: [], selector: {} })
-      //actions.setData("setting", { dirty: false, result: [] })
-      actions.setData("current", { module: "search" })
-      actions.setData(state.mdKey, { data: lData })
-      localStorage.setItem("database", data[state.mdKey].database);
-      localStorage.setItem("username", data[state.mdKey].username);
+      //setData("search", { filters: {}, columns: {}, result: [], view: null, vkey: null })
+      //setData("edit", { fdataset: {}, current: {}, dirty: false, form_dirty: false, history: [], selector: {} })
+      //setData("setting", { dirty: false, result: [] })
+      setData("current", { module: "search" })
+      setData("login", { data: lData })
+      localStorage.setItem("database", data.login.database);
+      localStorage.setItem("username", data.login.username);
 
     } else {
-      actions.resultError(result)
+      app.resultError(result)
     }
   }
 

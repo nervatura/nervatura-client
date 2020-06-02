@@ -6,7 +6,6 @@ import { Label, Input, Select } from 'containers/Controller'
 export const Login = memo((props) => {
   const { login } = props
   const { version, languages, serverSide } = props.session
-  const { mdKey } = props
   const { username, database } = props.data
   return (
     <div className={styles.middle}>
@@ -27,7 +26,7 @@ export const Login = memo((props) => {
               </div>
               <div className="container s12 m8 l8" >
                 <Input id="username" type="text" className="full"
-                  keys={[mdKey,"username"]} onEnter={login} />
+                  keys={["login","username"]} onEnter={login} />
               </div>
             </div>
             <div className="row full" >
@@ -36,7 +35,7 @@ export const Login = memo((props) => {
               </div>
               <div className="container s12 m8 l8" >
                 <Input id="password" type="password" className="full" 
-                  keys={[mdKey,"password"]} onEnter={login} />
+                  keys={["login","password"]} onEnter={login} />
               </div>
             </div>
           </div>
@@ -47,7 +46,7 @@ export const Login = memo((props) => {
               </div>
               <div className="container s12 m8 l8" >
                 <Input id="database" type="text" className="full"
-                  keys={[mdKey,"database"]} onEnter={login} />
+                  keys={["login","database"]} onEnter={login} />
               </div>
             </div>
             {(!serverSide)?<div className="row full" >
@@ -56,7 +55,7 @@ export const Login = memo((props) => {
               </div>
               <div className="container full" >
                 <Input id="server" type="text" className="full"
-                  keys={[mdKey,"server"]} />
+                  keys={["login","server"]} />
               </div>
             </div>:null}
           </div>

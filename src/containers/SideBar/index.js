@@ -1,33 +1,42 @@
 import React, { useContext, useState } from 'react';
 
 import AppStore from 'containers/App/context'
+import { useApp } from 'containers/App/actions'
+import { useSearch } from 'containers/Search/actions'
+import { useEditor } from 'containers/Editor/actions'
 import { Search, SideBar } from './SideBar';
 
 export default (props) => {
-  const { data, actions } = useContext(AppStore);
+  const { data, setData } = useContext(AppStore)
+  const app = useApp()
+  const search = useSearch()
+  const editor = useEditor()
   
   const [state] = useState({
-    mdKey: "current",
     login: data.login.data
   })
 
   state.changeData = (key, value) => {
-    actions.setData(state.data.module, { [key]: value })
+    setData(state.data.module, { [key]: value })
   }
 
   state.quickView = (qview) => {
-    actions.setData(state.data.module, { 
+    setData(state.data.module, { 
       result: [], vkey: null, qview: qview, qfilter: "" })
     if(state.data.side === "show"){
-      actions.setSideBar()
+      app.setSideBar()
     }
   }
 
   state.showBrowser = (vkey, view) => {
-    actions.showBrowser(vkey, view)
+    search.showBrowser(vkey, view)
   }
 
-  state.data = data[state.mdKey]
+  state.checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
+    editor.checkEditor(options, cbKeyTrue, cbKeyFalse)
+  }
+
+  state.data = data.current
   state.module = data[state.data.module]
 
   if(data.preview[state.data.module]){

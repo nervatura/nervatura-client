@@ -1,7 +1,15 @@
 /*eslint no-useless-escape: "off"*/
+import { useContext } from 'react';
+import update from 'immutability-helper';
 
-export const getQuery = (getText) => {
-  return {
+import AppStore from 'containers/App/context'
+import { getSql, useApp } from 'containers/App/actions'
+
+export const useSearch = () => {
+  const { data, setData } = useContext(AppStore)
+  const app = useApp()
+  
+  const queries = {
     quick: {
       customer: () => {return {
         sql: {
@@ -217,7 +225,7 @@ export const getQuery = (getText) => {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id",
             "t.transnumber as lslabel",
             "{CCS}tg.groupvalue{SEP}'-'{SEP}dg.groupvalue{SEP}' | '{SEP}c.custname{SEP} "+
-            "case when t.deleted=0 then '' else {CCS}' | '{SEP}'"+getText("label_deleted")+
+            "case when t.deleted=0 then '' else {CCS}' | '{SEP}'"+app.getText("label_deleted")+
             "' {CCE} end{CCE} as lsvalue, t.curr, tg.groupvalue as transtype, t.id as trans_id"],
           from:"trans t",
           inner_join:[[["groups tg","on",["t.transtype","=","tg.id"]],
@@ -235,7 +243,7 @@ export const getQuery = (getText) => {
             "t.transnumber as lslabel",
             "{CCS}tg.groupvalue{SEP}'-'{SEP}dg.groupvalue{SEP} "+
             "case when c.custname is null then '' else {CCS}' | '{SEP}c.custname {CCE} end{SEP}"+
-            "case when t.deleted=0 then '' else {CCS}' | '{SEP}'"+getText("label_deleted")+"' {CCE} end{CCE} as lsvalue"],
+            "case when t.deleted=0 then '' else {CCS}' | '{SEP}'"+app.getText("label_deleted")+"' {CCE} end{CCE} as lsvalue"],
           from:"trans t",
           inner_join:[["groups tg","on",[["t.transtype","=","tg.id"],
             ["and","tg.groupvalue","in",[[],"'order'","'worksheet'","'rent'"]]]],
@@ -294,33 +302,33 @@ export const getQuery = (getText) => {
               
       CustomerView: {
         columns: {custnumber:true, custname:true, address:true},
-        label: getText("customer_view"),
+        label: app.getText("customer_view"),
         fields: {
           custnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("customer_custnumber"), sqlstr:'c.custnumber '},
+            label:app.getText("customer_custnumber"), sqlstr:'c.custnumber '},
           custname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           taxnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("customer_taxnumber"), sqlstr:'c.taxnumber '},
+            label:app.getText("customer_taxnumber"), sqlstr:'c.taxnumber '},
           custtype: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("customer_custtype"), 
+            label:app.getText("customer_custtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           account: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("customer_account"), sqlstr:'c.account '},
+            label:app.getText("customer_account"), sqlstr:'c.account '},
           notax: {fieldtype:'bool', wheretype:'where', orderby:5, 
-            label:getText("customer_notax"), sqlstr:'c.notax '},
+            label:app.getText("customer_notax"), sqlstr:'c.notax '},
           terms: {fieldtype:'float', wheretype:'where', orderby:6, 
-            label:getText("customer_terms"), sqlstr:'c.terms '},
+            label:app.getText("customer_terms"), sqlstr:'c.terms '},
           creditlimit: {fieldtype:'float', wheretype:'where', aggretype:'sum', orderby:7, 
-            label:getText("customer_creditlimit"), sqlstr:'c.creditlimit '},
+            label:app.getText("customer_creditlimit"), sqlstr:'c.creditlimit '},
           discount: {fieldtype:'float', wheretype:'where', orderby:8, 
-            label:getText("customer_discount"), sqlstr:'c.discount '},
+            label:app.getText("customer_discount"), sqlstr:'c.discount '},
           notes: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("customer_notes"), sqlstr:'c.notes '},
+            label:app.getText("customer_notes"), sqlstr:'c.notes '},
           inactive: {fieldtype:'bool', wheretype:'where', orderby:10, 
-            label:getText("customer_inactive"), sqlstr:'c.inactive '},
+            label:app.getText("customer_inactive"), sqlstr:'c.inactive '},
           address: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("customer_address"), 
+            label:app.getText("customer_address"), 
             sqlstr:"{CCS}case when addr.city is null then '' else addr.city end {SEP} ' ' {SEP} case when addr.street is null then '' else addr.street end{CCE} "}
         },
         sql: {
@@ -343,18 +351,18 @@ export const getQuery = (getText) => {
       
       CustomerFieldsView: {
         columns: {custname:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         fields: {
           custnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("customer_custnumber"), sqlstr:'c.custnumber'},
+            label:app.getText("customer_custnumber"), sqlstr:'c.custnumber'},
           custname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'customer'{SEP}'//'{SEP} {CAS_TEXT}c.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -407,28 +415,28 @@ export const getQuery = (getText) => {
       
       CustomerContactView: {
         columns: {custname:true, firstname:true, surname:true, phone:true},
-        label: getText("contact_view"),
+        label: app.getText("contact_view"),
         fields: {
           custnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("customer_custnumber"), sqlstr:'c.custnumber '},
+            label:app.getText("customer_custnumber"), sqlstr:'c.custnumber '},
           custname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           firstname: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("contact_firstname"), sqlstr:'co.firstname'},
+            label:app.getText("contact_firstname"), sqlstr:'co.firstname'},
           surname: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("contact_surname"), sqlstr:' co.surname'},
+            label:app.getText("contact_surname"), sqlstr:' co.surname'},
           status: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("contact_status"), sqlstr:' co.status'},
+            label:app.getText("contact_status"), sqlstr:' co.status'},
           phone: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("contact_phone"), sqlstr:' co.phone'},
+            label:app.getText("contact_phone"), sqlstr:' co.phone'},
           fax: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("contact_fax"), sqlstr:' co.fax'},
+            label:app.getText("contact_fax"), sqlstr:' co.fax'},
           mobil: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("contact_mobil"), sqlstr:' co.mobil'},
+            label:app.getText("contact_mobil"), sqlstr:' co.mobil'},
           email: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("contact_email"), sqlstr:' co.email'},
+            label:app.getText("contact_email"), sqlstr:' co.email'},
           notes: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("contact_notes"), sqlstr:' co.notes'}
+            label:app.getText("contact_notes"), sqlstr:' co.notes'}
           },
         sql: {
           select:["{CCS}'customer'{SEP}'//'{SEP} {CAS_TEXT}c.id {CAE_TEXT}{CCE} as id","co.id as row_id",
@@ -445,24 +453,24 @@ export const getQuery = (getText) => {
       
       CustomerAddressView: {
         columns: {custname:true, city:true, street:true},
-        label: getText("address_view"),
+        label: app.getText("address_view"),
         fields: {
           custnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("customer_custnumber"), sqlstr:'c.custnumber '},
+            label:app.getText("customer_custnumber"), sqlstr:'c.custnumber '},
           custname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           country: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("address_country"), sqlstr:'a.country'},
+            label:app.getText("address_country"), sqlstr:'a.country'},
           state: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("address_state"), sqlstr:'a.state'},
+            label:app.getText("address_state"), sqlstr:'a.state'},
           zipcode: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("address_zipcode"), sqlstr:'a.zipcode '},
+            label:app.getText("address_zipcode"), sqlstr:'a.zipcode '},
           city: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("address_city"), sqlstr:'a.city'},
+            label:app.getText("address_city"), sqlstr:'a.city'},
           street: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("address_street"), sqlstr:'a.street'},
+            label:app.getText("address_street"), sqlstr:'a.street'},
           notes: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("address_notes"), sqlstr:'a.notes'}
+            label:app.getText("address_notes"), sqlstr:'a.notes'}
         },
         sql: {
           select:["{CCS}'customer'{SEP}'//'{SEP} {CAS_TEXT}c.id {CAE_TEXT}{CCE} as id","a.id as row_id",
@@ -479,35 +487,35 @@ export const getQuery = (getText) => {
       
       CustomerEvents: {
         columns: {custname:true, fromdate:true, subject:true},
-        label: getText("event_view"),
+        label: app.getText("event_view"),
         edit: "event",
         fields: {
           custnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("customer_custnumber"), sqlstr:'c.custnumber '},
+            label:app.getText("customer_custnumber"), sqlstr:'c.custnumber '},
           custname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           calnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("event_calnumber"), sqlstr:'e.calnumber'},
+            label:app.getText("event_calnumber"), sqlstr:'e.calnumber'},
           eventgroup: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("event_group"), sqlstr:'eg.groupvalue'},
+            label:app.getText("event_group"), sqlstr:'eg.groupvalue'},
           fromdate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("event_fromdate"), 
+            label:app.getText("event_fromdate"), 
             sqlstr:'{FMS_DATE}e.fromdate {FME_DATE}'},
           fromtime: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("event_fromtime"), 
+            label:app.getText("event_fromtime"), 
             sqlstr:'{FMS_TIME}e.fromdate {FME_TIME}'},
           todate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("event_todate"), 
+            label:app.getText("event_todate"), 
             sqlstr:'{FMS_DATE}e.todate {FME_DATE}'},
           totime: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("event_totime"), 
+            label:app.getText("event_totime"), 
             sqlstr:'{FMS_TIME}e.todate {FME_TIME}'},
           subject: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("event_subject"), sqlstr:'e.subject'},
+            label:app.getText("event_subject"), sqlstr:'e.subject'},
           place: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("event_place"), sqlstr:'e.place'},
+            label:app.getText("event_place"), sqlstr:'e.place'},
           description: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("event_description"), sqlstr:'e.description'}
+            label:app.getText("event_description"), sqlstr:'e.description'}
 
         },
         sql: {
@@ -543,42 +551,42 @@ export const getQuery = (getText) => {
         
       EmployeeView: {
         columns: {empnumber:true, firstname:true, surname:true, username:true},
-        label: getText("employee_view"),
+        label: app.getText("employee_view"),
         fields: {
           empnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("employee_empnumber"), sqlstr:'e.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'e.empnumber '},
           firstname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("contact_firstname"), sqlstr:'c.firstname '},
+            label:app.getText("contact_firstname"), sqlstr:'c.firstname '},
           surname: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("contact_surname"), sqlstr:'c.surname '},
+            label:app.getText("contact_surname"), sqlstr:'c.surname '},
           username: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("employee_username"), sqlstr:'e.username '},
+            label:app.getText("employee_username"), sqlstr:'e.username '},
           startdate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("employee_startdate"), sqlstr:'e.startdate '},
+            label:app.getText("employee_startdate"), sqlstr:'e.startdate '},
           enddate: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("employee_enddate"), sqlstr:'e.enddate '},
+            label:app.getText("employee_enddate"), sqlstr:'e.enddate '},
           status: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("contact_status"), sqlstr:'c.status '},
+            label:app.getText("contact_status"), sqlstr:'c.status '},
           phone: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("contact_phone"), sqlstr:'c.phone '},
+            label:app.getText("contact_phone"), sqlstr:'c.phone '},
           mobil: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("contact_mobil"), sqlstr:'c.mobil '},
+            label:app.getText("contact_mobil"), sqlstr:'c.mobil '},
           email: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("contact_email"), sqlstr:'c.email '},
+            label:app.getText("contact_email"), sqlstr:'c.email '},
           zipcode: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("address_zipcode"), sqlstr:'a.zipcode '},
+            label:app.getText("address_zipcode"), sqlstr:'a.zipcode '},
           city: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("address_city"), sqlstr:'a.city '},
+            label:app.getText("address_city"), sqlstr:'a.city '},
           street: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("address_street"), sqlstr:'a.street '},
+            label:app.getText("address_street"), sqlstr:'a.street '},
           usergroup: {fieldtype:'string', wheretype:'where', orderby:13, 
-            label:getText("employee_usergroup"), sqlstr:'ug.groupvalue '},
+            label:app.getText("employee_usergroup"), sqlstr:'ug.groupvalue '},
           department: {fieldtype:'string', wheretype:'where', orderby:14, 
-            label:getText("employee_department"), sqlstr:'dg.groupvalue '},
+            label:app.getText("employee_department"), sqlstr:'dg.groupvalue '},
           inactive: {fieldtype:'bool', wheretype:'where', orderby:15, 
-            label:getText("employee_inactive"), sqlstr:'e.inactive '},
+            label:app.getText("employee_inactive"), sqlstr:'e.inactive '},
           notes: {fieldtype:'string', wheretype:'where', orderby:16, 
-            label:getText("contact_notes"), sqlstr:'c.notes '}
+            label:app.getText("contact_notes"), sqlstr:'c.notes '}
         },
         sql: {
           select:["{CCS}'employee'{SEP}'//'{SEP} {CAS_TEXT}e.id {CAE_TEXT}{CCE} as id","e.id as row_id",
@@ -600,22 +608,22 @@ export const getQuery = (getText) => {
       
       EmployeeFieldsView: {
         columns: {empnumber:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         fields: {
           empnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("employee_empnumber"), sqlstr:'e.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'e.empnumber '},
           firstname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("contact_firstname"), sqlstr:'c.firstname '},
+            label:app.getText("contact_firstname"), sqlstr:'c.firstname '},
           surname: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("contact_surname"), sqlstr:'c.surname '},
+            label:app.getText("contact_surname"), sqlstr:'c.surname '},
           username: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("employee_username"), sqlstr:'e.username '},
+            label:app.getText("employee_username"), sqlstr:'e.username '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'employee'{SEP}'//'{SEP} {CAS_TEXT}e.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -669,39 +677,39 @@ export const getQuery = (getText) => {
       
       EmployeeEvents: {
         columns: {empnumber:true, fromdate:true, subject:true},
-        label: getText("event_view"),
+        label: app.getText("event_view"),
         edit: "event",
         fields: {
           empnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("employee_empnumber"), sqlstr:'em.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'em.empnumber '},
           firstname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("contact_firstname"), sqlstr:'c.firstname '},
+            label:app.getText("contact_firstname"), sqlstr:'c.firstname '},
           surname: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("contact_surname"), sqlstr:'c.surname '},
+            label:app.getText("contact_surname"), sqlstr:'c.surname '},
           username: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("employee_username"), sqlstr:'em.username '},
+            label:app.getText("employee_username"), sqlstr:'em.username '},
           calnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("event_calnumber"), sqlstr:'e.calnumber'},
+            label:app.getText("event_calnumber"), sqlstr:'e.calnumber'},
           eventgroup: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("event_group"), sqlstr:'eg.groupvalue'},
+            label:app.getText("event_group"), sqlstr:'eg.groupvalue'},
           fromdate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("event_fromdate"), 
+            label:app.getText("event_fromdate"), 
             sqlstr:'{FMS_DATE}e.fromdate {FME_DATE}'},
           fromtime: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("event_fromtime"), 
+            label:app.getText("event_fromtime"), 
             sqlstr:'{FMS_TIME}e.fromdate {FME_TIME}'},
           todate: {fieldtype:'date', wheretype:'where', orderby:8, 
-            label:getText("event_todate"), 
+            label:app.getText("event_todate"), 
             sqlstr:'{FMS_DATE}e.todate {FME_DATE}'},
           totime: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("event_totime"), 
+            label:app.getText("event_totime"), 
             sqlstr:'{FMS_TIME}e.todate {FME_TIME}'},
           subject: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("event_subject"), sqlstr:'e.subject'},
+            label:app.getText("event_subject"), sqlstr:'e.subject'},
           place: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("event_place"), sqlstr:'e.place'},
+            label:app.getText("event_place"), sqlstr:'e.place'},
           description: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("event_description"), sqlstr:'e.description'}
+            label:app.getText("event_description"), sqlstr:'e.description'}
 
         },
         sql: {
@@ -739,25 +747,25 @@ export const getQuery = (getText) => {
 
       ProductView: {
         columns: {partnumber:true, protype:true, description:true},
-        label: getText("product_view"),
+        label: app.getText("product_view"),
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           protype: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_protype"), 
+            label:app.getText("product_protype"), 
             sqlstr:'case when ms.msg is null then g.groupvalue else ms.msg end '},
           description: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("product_unit"), sqlstr:'p.unit '},
+            label:app.getText("product_unit"), sqlstr:'p.unit '},
           tax: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("product_tax"), sqlstr:'t.taxcode '},
+            label:app.getText("product_tax"), sqlstr:'t.taxcode '},
           webitem: {fieldtype:'bool', wheretype:'where', orderby:5, 
-            label:getText("product_webitem"), sqlstr:'p.webitem  '},
+            label:app.getText("product_webitem"), sqlstr:'p.webitem  '},
           inactive: {fieldtype:'bool', wheretype:'where', orderby:6, 
-            label:getText("product_inactive"), sqlstr:'p.inactive  '},
+            label:app.getText("product_inactive"), sqlstr:'p.inactive  '},
           notes: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("product_notes"), sqlstr:'p.notes '}
+            label:app.getText("product_notes"), sqlstr:'p.notes '}
         },
         sql: {
           select:["{CCS}'product'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","p.id as row_id",
@@ -773,18 +781,18 @@ export const getQuery = (getText) => {
       
       ProductFieldsView: {
         columns: {custname:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber'},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber'},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'product'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -836,24 +844,24 @@ export const getQuery = (getText) => {
       
       ProductBarcodeView: {
         columns: {partnumber:true, description:true, barcode:true},
-        label: getText("barcode_view"),
+        label: app.getText("barcode_view"),
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           partname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_unit"), sqlstr:'p.unit '},
+            label:app.getText("product_unit"), sqlstr:'p.unit '},
           description: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("barcode_description"), sqlstr:'b.description '},
+            label:app.getText("barcode_description"), sqlstr:'b.description '},
           barcodetype: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("barcode_barcodetype"), sqlstr:'g.description '},
+            label:app.getText("barcode_barcodetype"), sqlstr:'g.description '},
           qty: {fieldtype:'float', wheretype:'where', orderby:5, 
-            label:getText("barcode_qty"), sqlstr:'b.qty '},
+            label:app.getText("barcode_qty"), sqlstr:'b.qty '},
           defcode: {fieldtype:'bool', wheretype:'where', orderby:6, 
-            label:getText("barcode_defcode"), sqlstr:'b.defcode '},
+            label:app.getText("barcode_defcode"), sqlstr:'b.defcode '},
           barcode: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("barcode_code"), sqlstr:'b.id '}
+            label:app.getText("barcode_code"), sqlstr:'b.id '}
         },
         sql: {
           select:["{CCS}'product'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","b.id as row_id",
@@ -869,28 +877,28 @@ export const getQuery = (getText) => {
       
       ProductPriceView: {
         columns: {partnumber:true, validfrom:true, curr:true, pricevalue:true},
-        label: getText("price_view"),
+        label: app.getText("price_view"),
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_unit"), sqlstr:'p.unit '},
+            label:app.getText("product_unit"), sqlstr:'p.unit '},
           vendor: {fieldtype:'bool', wheretype:'where', orderby:3, 
-            label:getText("price_vendor"), sqlstr:'pr.vendorprice '},
+            label:app.getText("price_vendor"), sqlstr:'pr.vendorprice '},
           custname: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("price_custname"), sqlstr:'c.custname '},
+            label:app.getText("price_custname"), sqlstr:'c.custname '},
           validfrom: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("price_validfrom"), sqlstr:'pr.validfrom '},
+            label:app.getText("price_validfrom"), sqlstr:'pr.validfrom '},
           validto: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("price_validto"), sqlstr:'pr.validto '},
+            label:app.getText("price_validto"), sqlstr:'pr.validto '},
           curr: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("price_curr"), sqlstr:'pr.curr '},
+            label:app.getText("price_curr"), sqlstr:'pr.curr '},
           qty: {fieldtype:'float', wheretype:'where', orderby:8, 
-            label:getText("price_qty"), sqlstr:'pr.qty '},
+            label:app.getText("price_qty"), sqlstr:'pr.qty '},
           pricevalue: {fieldtype:'float', wheretype:'where', orderby:9, 
-            label:getText("price_pricevalue"), sqlstr:'pr.pricevalue '}
+            label:app.getText("price_pricevalue"), sqlstr:'pr.pricevalue '}
         },
         sql: {
           select:["{CCS}'product'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","pr.id as row_id",
@@ -911,32 +919,32 @@ export const getQuery = (getText) => {
       /*
       ProductDiscountView: {
         columns: {partnumber:true, validfrom:true, curr:true, discount:true},
-        label: getText("discount_view,
+        label: app.getText("discount_view,
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber, sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber, sqlstr:'p.partnumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_description, sqlstr:'p.description '},
+            label:app.getText("product_description, sqlstr:'p.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_unit, sqlstr:'p.unit '},
+            label:app.getText("product_unit, sqlstr:'p.unit '},
           vendor: {fieldtype:'bool', wheretype:'where', orderby:3, 
-            label:getText("price_vendor, sqlstr:'pr.vendorprice '},
+            label:app.getText("price_vendor, sqlstr:'pr.vendorprice '},
           custname: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("price_custname, sqlstr:'c.custname '},
+            label:app.getText("price_custname, sqlstr:'c.custname '},
           validfrom: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("price_validfrom, sqlstr:'pr.validfrom '},
+            label:app.getText("price_validfrom, sqlstr:'pr.validfrom '},
           validto: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("price_validto, sqlstr:'pr.validto '},
+            label:app.getText("price_validto, sqlstr:'pr.validto '},
           curr: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("price_curr, sqlstr:'pr.curr '},
+            label:app.getText("price_curr, sqlstr:'pr.curr '},
           calcmode: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("price_calcmode, sqlstr:'case when ms.msg is null then g.description else ms.msg end '},
+            label:app.getText("price_calcmode, sqlstr:'case when ms.msg is null then g.description else ms.msg end '},
           qty: {fieldtype:'float', wheretype:'where', orderby:9, 
-            label:getText("price_qty, sqlstr:'pr.qty '},
+            label:app.getText("price_qty, sqlstr:'pr.qty '},
           pricevalue: {fieldtype:'float', wheretype:'where', orderby:10, 
-            label:getText("price_limit, sqlstr:'pr.pricevalue '},
+            label:app.getText("price_limit, sqlstr:'pr.pricevalue '},
           discount: {fieldtype:'float', wheretype:'where', orderby:11, 
-            label:getText("price_discount, sqlstr:'pr.discount '}
+            label:app.getText("price_discount, sqlstr:'pr.discount '}
         },
         sql: "select {CCS}'product'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id, \
             p.partnumber, p.description, p.unit, pr.vendorprice as export_vendor, c.custname, \
@@ -964,35 +972,35 @@ export const getQuery = (getText) => {
       
       ProductEvents: {
         columns: {partname:true, fromdate:true, subject:true},
-        label: getText("event_view"),
+        label: app.getText("event_view"),
         edit: "event",
         fields: {
           partnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           partname: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           calnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("event_calnumber"), sqlstr:'e.calnumber'},
+            label:app.getText("event_calnumber"), sqlstr:'e.calnumber'},
           eventgroup: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("event_group"), sqlstr:'eg.groupvalue'},
+            label:app.getText("event_group"), sqlstr:'eg.groupvalue'},
           fromdate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("event_fromdate"), 
+            label:app.getText("event_fromdate"), 
             sqlstr:'{FMS_DATE}e.fromdate {FME_DATE}'},
           fromtime: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("event_fromtime"), 
+            label:app.getText("event_fromtime"), 
             sqlstr:'{FMS_TIME}e.fromdate {FME_TIME}'},
           todate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("event_todate"), 
+            label:app.getText("event_todate"), 
             sqlstr:'{FMS_DATE}e.todate {FME_DATE}'},
           totime: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("event_totime"), 
+            label:app.getText("event_totime"), 
             sqlstr:'{FMS_TIME}e.todate {FME_TIME}'},
           subject: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("event_subject"), sqlstr:'e.subject'},
+            label:app.getText("event_subject"), sqlstr:'e.subject'},
           place: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("event_place"), sqlstr:'e.place'},
+            label:app.getText("event_place"), sqlstr:'e.place'},
           description: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("event_description"), sqlstr:'e.description'}
+            label:app.getText("event_description"), sqlstr:'e.description'}
 
         },
         sql: {
@@ -1025,22 +1033,22 @@ export const getQuery = (getText) => {
         
       ProjectView: {
         columns: {pronumber:true, description:true, startdate:true},
-        label: getText("project_view"),
+        label: app.getText("project_view"),
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           customer: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("project_customer"), sqlstr:'c.custname '},
+            label:app.getText("project_customer"), sqlstr:'c.custname '},
           startdate: {fieldtype:'date', wheretype:'where', orderby:3, 
-            label:getText("project_startdate"), sqlstr:'cast(p.startdate as date) '},
+            label:app.getText("project_startdate"), sqlstr:'cast(p.startdate as date) '},
           enddate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("project_enddate"), sqlstr:'cast(p.enddate as date) '},
+            label:app.getText("project_enddate"), sqlstr:'cast(p.enddate as date) '},
           inactive: {fieldtype:'bool', wheretype:'where', orderby:5, 
-            label:getText("project_inactive"), sqlstr:'p.inactive'},
+            label:app.getText("project_inactive"), sqlstr:'p.inactive'},
           notes: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("project_notes"), sqlstr:'p.notes '}
+            label:app.getText("project_notes"), sqlstr:'p.notes '}
         },
         sql: {
           select:["{CCS}'project'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","p.id as row_id",
@@ -1054,18 +1062,18 @@ export const getQuery = (getText) => {
       
       ProjectFieldsView: {
         columns: {pronumber:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber'},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber'},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'project'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -1117,28 +1125,28 @@ export const getQuery = (getText) => {
       
       ProjectContactView: {
         columns: {pronumber:true, firstname:true, surname:true, phone:true},
-        label: getText("contact_view"),
+        label: app.getText("contact_view"),
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           firstname: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("contact_firstname"), sqlstr:'co.firstname'},
+            label:app.getText("contact_firstname"), sqlstr:'co.firstname'},
           surname: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("contact_surname"), sqlstr:' co.surname'},
+            label:app.getText("contact_surname"), sqlstr:' co.surname'},
           status: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("contact_status"), sqlstr:' co.status'},
+            label:app.getText("contact_status"), sqlstr:' co.status'},
           phone: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("contact_phone"), sqlstr:' co.phone'},
+            label:app.getText("contact_phone"), sqlstr:' co.phone'},
           fax: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("contact_fax"), sqlstr:' co.fax'},
+            label:app.getText("contact_fax"), sqlstr:' co.fax'},
           mobil: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("contact_mobil"), sqlstr:' co.mobil'},
+            label:app.getText("contact_mobil"), sqlstr:' co.mobil'},
           email: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("contact_email"), sqlstr:' co.email'},
+            label:app.getText("contact_email"), sqlstr:' co.email'},
           notes: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("contact_notes"), sqlstr:' co.notes'}
+            label:app.getText("contact_notes"), sqlstr:' co.notes'}
           },
         sql: {
           select:["{CCS}'project'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","co.id as row_id",
@@ -1152,24 +1160,24 @@ export const getQuery = (getText) => {
       
       ProjectAddressView: {
         columns: {pronumber:true, city:true, street:true},
-        label: getText("address_view"),
+        label: app.getText("address_view"),
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           country: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("address_country"), sqlstr:'a.country'},
+            label:app.getText("address_country"), sqlstr:'a.country'},
           state: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("address_state"), sqlstr:'a.state'},
+            label:app.getText("address_state"), sqlstr:'a.state'},
           zipcode: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("address_zipcode"), sqlstr:'a.zipcode '},
+            label:app.getText("address_zipcode"), sqlstr:'a.zipcode '},
           city: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("address_city"), sqlstr:'a.city'},
+            label:app.getText("address_city"), sqlstr:'a.city'},
           street: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("address_street"), sqlstr:'a.street'},
+            label:app.getText("address_street"), sqlstr:'a.street'},
           notes: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("address_notes"), sqlstr:'a.notes'}
+            label:app.getText("address_notes"), sqlstr:'a.notes'}
         },
         sql: {
           select:["{CCS}'project'{SEP}'//'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{CCE} as id","a.id as row_id",
@@ -1183,35 +1191,35 @@ export const getQuery = (getText) => {
       
       ProjectEvents: {
         columns: {pronumber:true, fromdate:true, subject:true},
-        label: getText("event_view"),
+        label: app.getText("event_view"),
         edit: "event",
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           pdescription: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           calnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("event_calnumber"), sqlstr:'e.calnumber'},
+            label:app.getText("event_calnumber"), sqlstr:'e.calnumber'},
           eventgroup: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("event_group"), sqlstr:'eg.groupvalue'},
+            label:app.getText("event_group"), sqlstr:'eg.groupvalue'},
           fromdate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("event_fromdate"), 
+            label:app.getText("event_fromdate"), 
             sqlstr:'{FMS_DATE}e.fromdate {FME_DATE}'},
           fromtime: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("event_fromtime"), 
+            label:app.getText("event_fromtime"), 
             sqlstr:'{FMS_TIME}e.fromdate {FME_TIME}'},
           todate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("event_todate"), 
+            label:app.getText("event_todate"), 
             sqlstr:'{FMS_DATE}e.todate {FME_DATE}'},
           totime: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("event_totime"), 
+            label:app.getText("event_totime"), 
             sqlstr:'{FMS_TIME}e.todate {FME_TIME}'},
           subject: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("event_subject"), sqlstr:'e.subject'},
+            label:app.getText("event_subject"), sqlstr:'e.subject'},
           place: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("event_place"), sqlstr:'e.place'},
+            label:app.getText("event_place"), sqlstr:'e.place'},
           description: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("event_description"), sqlstr:'e.description'}
+            label:app.getText("event_description"), sqlstr:'e.description'}
 
         },
         sql: {
@@ -1231,28 +1239,28 @@ export const getQuery = (getText) => {
       
       ProjectTrans: {
         columns: {pronumber:true, transtype:true, transnumber:true, transdate:true},
-        label: getText("document_view"),
+        label: app.getText("document_view"),
         fields: {
           pronumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("project_description"), sqlstr:'p.description '},
+            label:app.getText("project_description"), sqlstr:'p.description '},
           transtype: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           transdate: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("document_transdate2"), sqlstr:'t.transdate '},
+            label:app.getText("document_transdate2"), sqlstr:'t.transdate '},
           curr: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("document_curr"), sqlstr:'t.curr '},
+            label:app.getText("document_curr"), sqlstr:'t.curr '},
           amount: {fieldtype:'float', wheretype:'having', orderby:7, 
-            label:getText("item_amount"), sqlstr:'sum(i.amount) '},
+            label:app.getText("item_amount"), sqlstr:'sum(i.amount) '},
           custname: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("customer_custnumber"), sqlstr:'c.custname '}
+            label:app.getText("customer_custnumber"), sqlstr:'c.custname '}
 
         },
         sql: {
@@ -1298,22 +1306,22 @@ export const getQuery = (getText) => {
 
       RateView: {
         columns: {ratetype:true, ratedate:true, curr:true, ratevalue:true},
-        label: getText("rate_view"),
+        label: app.getText("rate_view"),
         actions_new: {
           action: "loadEditor", ntype: "rate", ttype: null},
         fields: {
           ratetype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("rate_ratetype"), sqlstr:'rtype.groupvalue '},
+            label:app.getText("rate_ratetype"), sqlstr:'rtype.groupvalue '},
           ratedate: {fieldtype:'date', wheretype:'where', orderby:1, 
-            label:getText("rate_ratedate"), sqlstr:'r.ratedate '},
+            label:app.getText("rate_ratedate"), sqlstr:'r.ratedate '},
           curr: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("rate_curr"), sqlstr:'r.curr '},
+            label:app.getText("rate_curr"), sqlstr:'r.curr '},
           ratevalue: {fieldtype:'float', wheretype:'where', orderby:3, 
-            label:getText("rate_ratevalue"), sqlstr:'r.ratevalue '},
+            label:app.getText("rate_ratevalue"), sqlstr:'r.ratevalue '},
           rategroup: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("rate_rategroup"), sqlstr:'rgroup.groupvalue '},
+            label:app.getText("rate_rategroup"), sqlstr:'rgroup.groupvalue '},
           planumber: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("rate_planumber"), sqlstr:'p.planumber'}
+            label:app.getText("rate_planumber"), sqlstr:'p.planumber'}
         },
         sql:{
           select:["{CCS}'rate'{SEP}'//'{SEP} {CAS_TEXT}r.id {CAE_TEXT}{CCE} as id","r.id as row_id",
@@ -1343,22 +1351,22 @@ export const getQuery = (getText) => {
 
       ToolView: {
         columns: {serial:true, description:true, product:true},
-        label: getText("tool_view"),
+        label: app.getText("tool_view"),
         fields: {
           serial: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("tool_serial"), sqlstr:'t.serial '},
+            label:app.getText("tool_serial"), sqlstr:'t.serial '},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("tool_description"), sqlstr:'t.description '},
+            label:app.getText("tool_description"), sqlstr:'t.description '},
           product: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("tool_product"), sqlstr:'p.description '},
+            label:app.getText("tool_product"), sqlstr:'p.description '},
           toolgroup: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("tool_toolgroup"), sqlstr:'tg.groupvalue '},
+            label:app.getText("tool_toolgroup"), sqlstr:'tg.groupvalue '},
           //state: {fieldtype:'string', wheretype:'where', orderby:4, 
-          //  label:getText("tool_state, sqlstr:'ssel.state '},
+          //  label:app.getText("tool_state, sqlstr:'ssel.state '},
           inactive: {fieldtype:'bool', wheretype:'where', orderby:5, 
-            label:getText("tool_inactive"), sqlstr:'t.inactive'},
+            label:app.getText("tool_inactive"), sqlstr:'t.inactive'},
           notes: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("tool_notes"), sqlstr:'t.notes '}
+            label:app.getText("tool_notes"), sqlstr:'t.notes '}
         },
         sql: {
           select:["{CCS}'tool'{SEP}'//'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","t.id as row_id",
@@ -1413,18 +1421,18 @@ export const getQuery = (getText) => {
       
       ToolFieldsView: {
         columns: {serial:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         fields: {
           serial: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("tool_serial"), sqlstr:'t.serial'},
+            label:app.getText("tool_serial"), sqlstr:'t.serial'},
           description: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("tool_description"), sqlstr:'t.description '},
+            label:app.getText("tool_description"), sqlstr:'t.description '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'tool'{SEP}'//'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -1477,35 +1485,35 @@ export const getQuery = (getText) => {
       
       ToolEvents: {
         columns: {serial:true, fromdate:true, subject:true},
-        label: getText("event_view"),
+        label: app.getText("event_view"),
         edit: "event",
         fields: {
           serial: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("tool_serial"), sqlstr:'t.serial'},
+            label:app.getText("tool_serial"), sqlstr:'t.serial'},
           pdescription: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("tool_description"), sqlstr:'t.description '},
+            label:app.getText("tool_description"), sqlstr:'t.description '},
           calnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("event_calnumber"), sqlstr:'e.calnumber'},
+            label:app.getText("event_calnumber"), sqlstr:'e.calnumber'},
           eventgroup: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("event_group"), sqlstr:'eg.groupvalue'},
+            label:app.getText("event_group"), sqlstr:'eg.groupvalue'},
           fromdate: {fieldtype:'date', wheretype:'where', orderby:4, 
-            label:getText("event_fromdate"), 
+            label:app.getText("event_fromdate"), 
             sqlstr:'{FMS_DATE}e.fromdate {FME_DATE}'},
           fromtime: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("event_fromtime"), 
+            label:app.getText("event_fromtime"), 
             sqlstr:'{FMS_TIME}e.fromdate {FME_TIME}'},
           todate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("event_todate"), 
+            label:app.getText("event_todate"), 
             sqlstr:'{FMS_DATE}e.todate {FME_DATE}'},
           totime: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("event_totime"), 
+            label:app.getText("event_totime"), 
             sqlstr:'{FMS_TIME}e.todate {FME_TIME}'},
           subject: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("event_subject"), sqlstr:'e.subject'},
+            label:app.getText("event_subject"), sqlstr:'e.subject'},
           place: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("event_place"), sqlstr:'e.place'},
+            label:app.getText("event_place"), sqlstr:'e.place'},
           description: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("event_description"), sqlstr:'e.description'}
+            label:app.getText("event_description"), sqlstr:'e.description'}
 
         },
         sql: {
@@ -1542,63 +1550,63 @@ export const getQuery = (getText) => {
       
       TransItemHeadView: {
         columns: {transtype:true, transnumber:true, transdate:true, custname: true},
-        label: getText("document_view"),
+        label: app.getText("document_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           transcast: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transcast"), 
+            label:app.getText("document_transcast"), 
             sqlstr:'case when msc.msg is null then fv.value else msc.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           ref_transnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("document_ref_transnumber"), sqlstr:'t.ref_transnumber '},
+            label:app.getText("document_ref_transnumber"), sqlstr:'t.ref_transnumber '},
           crdate: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("document_crdate"), sqlstr:'t.crdate '},
+            label:app.getText("document_crdate"), sqlstr:'t.crdate '},
           transdate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("document_transdate"), sqlstr:'t.transdate '},
+            label:app.getText("document_transdate"), sqlstr:'t.transdate '},
           duedate: {fieldtype:'date', wheretype:'where', orderby:7, 
-            label:getText("document_duedate"), 
+            label:app.getText("document_duedate"), 
             sqlstr:'{FMS_DATE}t.duedate {FME_DATE} '},
           custname: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           empnumber: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("employee_empnumber"), sqlstr:'e.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'e.empnumber '},
           department: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("document_department"), sqlstr:'deg.groupvalue '},
+            label:app.getText("document_department"), sqlstr:'deg.groupvalue '},
           pronumber: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("project_pronumber"), sqlstr:'p.pronumber '},
+            label:app.getText("project_pronumber"), sqlstr:'p.pronumber '},
           paidtype: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("document_paidtype"), 
+            label:app.getText("document_paidtype"), 
             sqlstr:'case when msp.msg is null then ptg.groupvalue else msp.msg end '},
           curr: {fieldtype:'string', wheretype:'where', orderby:13, 
-            label:getText("document_curr"), sqlstr:'t.curr '},
+            label:app.getText("document_curr"), sqlstr:'t.curr '},
           netamount: {fieldtype:'float', wheretype:'where', orderby:14, 
-            label:getText("item_netamount"), sqlstr:'irow.netamount '},
+            label:app.getText("item_netamount"), sqlstr:'irow.netamount '},
           vatamount: {fieldtype:'float', wheretype:'where', orderby:15, 
-            label:getText("item_vatamount"), sqlstr:'irow.vatamount '},
+            label:app.getText("item_vatamount"), sqlstr:'irow.vatamount '},
           amount: {fieldtype:'float', wheretype:'where', orderby:16, 
-            label:getText("item_amount"), sqlstr:'irow.amount '},
+            label:app.getText("item_amount"), sqlstr:'irow.amount '},
           paid: {fieldtype:'bool', wheretype:'where', orderby:17, 
-            label:getText("document_paid"), sqlstr:'t.paid '},
+            label:app.getText("document_paid"), sqlstr:'t.paid '},
           acrate: {fieldtype:'float', wheretype:'where', orderby:18, 
-            label:getText("document_acrate"), sqlstr:'t.acrate '},
+            label:app.getText("document_acrate"), sqlstr:'t.acrate '},
           notes: {fieldtype:'string', wheretype:'where', orderby:19, 
-            label:getText("document_notes"), sqlstr:'t.notes '},
+            label:app.getText("document_notes"), sqlstr:'t.notes '},
           intnotes: {fieldtype:'string', wheretype:'where', orderby:20, 
-            label:getText("document_intnotes"), sqlstr:'t.intnotes '},
+            label:app.getText("document_intnotes"), sqlstr:'t.intnotes '},
           transtate: {fieldtype:'string', wheretype:'where', orderby:21, 
-            label:getText("document_transtate"), 
+            label:app.getText("document_transtate"), 
             sqlstr:'case when mss.msg is null then sg.groupvalue else mss.msg end '},
           closed: {fieldtype:'bool', wheretype:'where', orderby:22, 
-            label:getText("document_closed"), sqlstr:'t.closed '},
+            label:app.getText("document_closed"), sqlstr:'t.closed '},
           deleted: {fieldtype:'bool', wheretype:'where', orderby:23, 
-            label:getText("document_deleted"), sqlstr:'t.deleted '}
+            label:app.getText("document_deleted"), sqlstr:'t.deleted '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","t.id as row_id",
@@ -1653,23 +1661,23 @@ export const getQuery = (getText) => {
       
       TransItemFieldsView: {
         columns: {transtype:true, transnumber:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","fv.id as row_id",
@@ -1735,47 +1743,47 @@ export const getQuery = (getText) => {
       
       TransItemRowView: {
         columns: {transnumber:true, curr:true, description:true, amount:true},
-        label: getText("item_view"),
+        label: app.getText("item_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           transdate: {fieldtype:'date', wheretype:'where', orderby:3, 
-            label:getText("item_transdate"), sqlstr:'t.transdate '},
+            label:app.getText("item_transdate"), sqlstr:'t.transdate '},
           partnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("item_description"), sqlstr:'i.description '},
+            label:app.getText("item_description"), sqlstr:'i.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("item_unit"), sqlstr:'i.unit '},
+            label:app.getText("item_unit"), sqlstr:'i.unit '},
           curr: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("document_curr"), sqlstr:'t.curr '},
+            label:app.getText("document_curr"), sqlstr:'t.curr '},
           qty: {fieldtype:'float', wheretype:'where', orderby:8, 
-            label:getText("item_qty"), sqlstr:'i.qty '},
+            label:app.getText("item_qty"), sqlstr:'i.qty '},
           fxprice: {fieldtype:'float', wheretype:'where', orderby:9, 
-            label:getText("item_fxprice"), sqlstr:'i.fxprice '},
+            label:app.getText("item_fxprice"), sqlstr:'i.fxprice '},
           netamount: {fieldtype:'float', wheretype:'where', orderby:10, 
-            label:getText("item_netamount"), sqlstr:'i.netamount '},
+            label:app.getText("item_netamount"), sqlstr:'i.netamount '},
           discount: {fieldtype:'float', wheretype:'where', orderby:11, 
-            label:getText("item_discount"), sqlstr:'i.discount '},
+            label:app.getText("item_discount"), sqlstr:'i.discount '},
           taxcode: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("item_taxcode"), sqlstr:'tax.taxcode '},
+            label:app.getText("item_taxcode"), sqlstr:'tax.taxcode '},
           vatamount: {fieldtype:'float', wheretype:'where', orderby:13, 
-            label:getText("item_vatamount"), sqlstr:'i.vatamount '},
+            label:app.getText("item_vatamount"), sqlstr:'i.vatamount '},
           amount: {fieldtype:'float', wheretype:'where', orderby:14, 
-            label:getText("item_amount"), sqlstr:'i.amount '},
+            label:app.getText("item_amount"), sqlstr:'i.amount '},
           deposit: {fieldtype:'bool', wheretype:'where', orderby:15, 
-            label:getText("item_deposit"), sqlstr:'i.deposit '},
+            label:app.getText("item_deposit"), sqlstr:'i.deposit '},
           actionprice: {fieldtype:'bool', wheretype:'where', orderby:16, 
-            label:getText("item_actionprice"), sqlstr:'i.actionprice '},
+            label:app.getText("item_actionprice"), sqlstr:'i.actionprice '},
           ownstock: {fieldtype:'float', wheretype:'where', orderby:17, 
-            label:getText("item_ownstock"), sqlstr:'i.ownstock '}
+            label:app.getText("item_ownstock"), sqlstr:'i.ownstock '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","i.id as row_id",
@@ -1825,21 +1833,21 @@ export const getQuery = (getText) => {
       
       InventoryView: {
         columns: {warehouse:true, partnumber:true, unit:true, sqty:true},
-        label: getText("inventory_view"),
+        label: app.getText("inventory_view"),
         readonly: true,
         fields: {
           warehouse: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("inventory_warehouse"), sqlstr:'pl.description '},
+            label:app.getText("inventory_warehouse"), sqlstr:'pl.description '},
           partnumber: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           unit: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_unit"), sqlstr:'p.unit '},
+            label:app.getText("product_unit"), sqlstr:'p.unit '},
           sqty: {fieldtype:'float', wheretype:'having', orderby:3, 
-            label:getText("inventory_sqty"), sqlstr:'sum(mv.qty) '},
+            label:app.getText("inventory_sqty"), sqlstr:'sum(mv.qty) '},
           posdate: {fieldtype:'date', wheretype:'having', orderby:4, 
-            label:getText("inventory_posdate"), sqlstr:'{CAS_DATE}max(mv.shippingdate){CAE_DATE} '},
+            label:app.getText("inventory_posdate"), sqlstr:'{CAS_DATE}max(mv.shippingdate){CAE_DATE} '},
           description: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("product_description"), sqlstr:'p.description '}
+            label:app.getText("product_description"), sqlstr:'p.description '}
         },
         sql: {
           select:["{CCS} {CAS_TEXT}pl.id {CAE_TEXT}{SEP}'/'{SEP} {CAS_TEXT}p.id {CAE_TEXT}{SEP}'/'{SEP} mv.notes{CCE} as row_id",
@@ -1862,38 +1870,38 @@ export const getQuery = (getText) => {
       
       MovementView: {
         columns: {transtype:true, shippingdate:true, partnumber:true, qty:true},
-        label: getText("movement_view"),
+        label: app.getText("movement_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           shippingdate: {fieldtype:'date', wheretype:'where', orderby:3, 
-            label:getText("movement_shippingdate"), sqlstr:'{CAS_DATE}mt.shippingdate{CAE_DATE} '},
+            label:app.getText("movement_shippingdate"), sqlstr:'{CAS_DATE}mt.shippingdate{CAE_DATE} '},
           warehouse: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("inventory_warehouse"), sqlstr:'pt.description  '},
+            label:app.getText("inventory_warehouse"), sqlstr:'pt.description  '},
           partnumber: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber  '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber  '},
           description: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("product_description"), sqlstr:'p.description  '},
+            label:app.getText("product_description"), sqlstr:'p.description  '},
           unit: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("product_unit"), sqlstr:'p.unit  '},
+            label:app.getText("product_unit"), sqlstr:'p.unit  '},
           pgroup: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("movement_batchnumber"), sqlstr:'mt.notes '},
+            label:app.getText("movement_batchnumber"), sqlstr:'mt.notes '},
           qty: {fieldtype:'float', wheretype:'where', orderby:9, 
-            label:getText("movement_qty"), sqlstr:'mt.qty '},
+            label:app.getText("movement_qty"), sqlstr:'mt.qty '},
           refnumber: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("movement_refnumber"), 
+            label:app.getText("movement_refnumber"), 
             sqlstr:'case when it.transnumber is null then '+
               'case when vt1.transnumber is null then case when vt2.transnumber is null then '+
               'tl.transnumber end     else vt1.transnumber end else it.transnumber end '},
           refcustomer: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("movement_refcustomer"), 
+            label:app.getText("movement_refcustomer"), 
             sqlstr:'case when c1.custname is null then c2.custname else c1.custname end '}
         },
         sql: {
@@ -1956,40 +1964,40 @@ export const getQuery = (getText) => {
       
       ToolMovement: {
         columns: {transnumber:true, direction:true, shippingdate:true, serial:true},
-        label: getText("toolmovement_view"),
+        label: app.getText("toolmovement_view"),
         edit: "trans",
         fields: {
           transnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           crdate: {fieldtype:'date', wheretype:'where', orderby:1, 
-            label:getText("document_crdate"), sqlstr:'t.crdate '},
+            label:app.getText("document_crdate"), sqlstr:'t.crdate '},
           direction: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:'case when msd.msg is null then dg.groupvalue else msd.msg end '},
           refnumber: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("movement_refnumber"), sqlstr:'lt.transnumber '},
+            label:app.getText("movement_refnumber"), sqlstr:'lt.transnumber '},
           empnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("employee_empnumber"), sqlstr:'e.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'e.empnumber '},
           custname: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("customer_custname"), sqlstr:'c.custname '},
+            label:app.getText("customer_custname"), sqlstr:'c.custname '},
           shippingdate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("movement_shippingdate"), 
+            label:app.getText("movement_shippingdate"), 
             sqlstr:'{CAS_DATE}mv.shippingdate {CAE_DATE} '},
           serial: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("tool_serial"), sqlstr:'tl.serial '},
+            label:app.getText("tool_serial"), sqlstr:'tl.serial '},
           description: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("tool_description"), sqlstr:'tl.description '},
+            label:app.getText("tool_description"), sqlstr:'tl.description '},
           mvnotes: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("movement_mvnotes"), sqlstr:'mv.notes '},
+            label:app.getText("movement_mvnotes"), sqlstr:'mv.notes '},
           closed: {fieldtype:'bool', wheretype:'where', orderby:10, 
-            label:getText("document_closed"), sqlstr:'t.closed '},
+            label:app.getText("document_closed"), sqlstr:'t.closed '},
           transtate: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("document_transtate"), 
+            label:app.getText("document_transtate"), 
             sqlstr:'case when mss.msg is null then sg.groupvalue else mss.msg end '},
           notes: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("document_notes"), sqlstr:'t.notes '},
+            label:app.getText("document_notes"), sqlstr:'t.notes '},
           intnotes: {fieldtype:'string', wheretype:'where', orderby:13, 
-            label:getText("document_intnotes"), sqlstr:'t.intnotes '}
+            label:app.getText("document_intnotes"), sqlstr:'t.intnotes '}
         },
         sql: {
           select: ["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","mv.id as row_id",
@@ -2030,28 +2038,28 @@ export const getQuery = (getText) => {
       
       FormulaView: {
         columns: {transnumber:true, type:true, partnumber:true, qty:true},
-        label: getText("formula_view"),
+        label: app.getText("formula_view"),
         edit: "trans",
         fields: {
           transnumber: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           type: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("formula_type"), 
+            label:app.getText("formula_type"), 
             sqlstr:"case when mt.groupvalue = 'head' then 'in' else 'out' end "},
           partnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("product_partnumber"), sqlstr:'p.partnumber '},
+            label:app.getText("product_partnumber"), sqlstr:'p.partnumber '},
           description: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("product_description"), sqlstr:'p.description '},
+            label:app.getText("product_description"), sqlstr:'p.description '},
           unit: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("product_unit"), sqlstr:'p.unit '},
+            label:app.getText("product_unit"), sqlstr:'p.unit '},
           qty: {fieldtype:'float', wheretype:'where', orderby:5, 
-            label:getText("movement_qty"), sqlstr:'mv.qty '},
+            label:app.getText("movement_qty"), sqlstr:'mv.qty '},
           batch_no: {fieldtype:'string', wheretype:'where', orderby:6, 
-            label:getText("movement_batchnumber"), sqlstr:'mv.notes '},
+            label:app.getText("movement_batchnumber"), sqlstr:'mv.notes '},
           planumber: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("inventory_warehouse"), sqlstr:'pl.planumber '},
+            label:app.getText("inventory_warehouse"), sqlstr:'pl.planumber '},
           shared: {fieldtype:'bool', wheretype:'where', orderby:8, 
-            label:getText("formula_shared"), sqlstr:'mv.shared '}
+            label:app.getText("formula_shared"), sqlstr:'mv.shared '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id",
@@ -2072,24 +2080,24 @@ export const getQuery = (getText) => {
       
       MovementFieldsView: {
         columns: {transtype:true, transnumber:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:"case when tg.groupvalue='bank' then '' else "+
               "case when msd.msg is null then dg.groupvalue else msd.msg end end "},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP} tg.groupvalue{SEP}'/'{SEP} case when delt.ref_id is null then {CAS_TEXT}t.id {CAE_TEXT} else {CAS_TEXT}delt.ref_id {CAE_TEXT} end{CCE} as id",
@@ -2175,49 +2183,49 @@ export const getQuery = (getText) => {
       
       PaymentView: {
         columns: {transnumber:true, paiddate:true, place:true, curr:true, amount:true},
-        label: getText("payment_view"),
+        label: app.getText("payment_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:"case when tg.groupvalue='bank' then '' else "+
               "case when msd.msg is null then dg.groupvalue else msd.msg end end "},
           transcast: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transcast"), 
+            label:app.getText("document_transcast"), 
             sqlstr:'case when msc.msg is null then fv.value else msc.msg end '},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           ref_transnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("document_ref_transnumber"), sqlstr:'t.ref_transnumber '},
+            label:app.getText("document_ref_transnumber"), sqlstr:'t.ref_transnumber '},
           crdate: {fieldtype:'date', wheretype:'where', orderby:5, 
-            label:getText("document_crdate"), sqlstr:'t.crdate '},
+            label:app.getText("document_crdate"), sqlstr:'t.crdate '},
           paiddate: {fieldtype:'date', wheretype:'where', orderby:6, 
-            label:getText("payment_paiddate"), sqlstr:'pm.paiddate '},
+            label:app.getText("payment_paiddate"), sqlstr:'pm.paiddate '},
           place: {fieldtype:'string', wheretype:'where', orderby:7, 
-            label:getText("payment_place"), sqlstr:'pc.description '},
+            label:app.getText("payment_place"), sqlstr:'pc.description '},
           curr: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("payment_curr"), sqlstr:'pc.curr '},
+            label:app.getText("payment_curr"), sqlstr:'pc.curr '},
           amount: {fieldtype:'float', wheretype:'where', orderby:9, 
-            label:getText("payment_amount"), 
+            label:app.getText("payment_amount"), 
             sqlstr:"case when dg.groupvalue='out' then -pm.amount else pm.amount end "},
           description: {fieldtype:'string', wheretype:'where', orderby:10, 
-            label:getText("payment_description"), sqlstr:'pm.notes '},
+            label:app.getText("payment_description"), sqlstr:'pm.notes '},
           empnumber: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("employee_empnumber"), sqlstr:'e.empnumber '},
+            label:app.getText("employee_empnumber"), sqlstr:'e.empnumber '},
           transtate: {fieldtype:'string', wheretype:'where', orderby:12, 
-            label:getText("document_transtate"), 
+            label:app.getText("document_transtate"), 
             sqlstr:'case when mss.msg is null then sg.groupvalue else mss.msg end '},
           closed: {fieldtype:'bool', wheretype:'where', orderby:13, 
-            label:getText("document_closed"), sqlstr:'t.closed '},
+            label:app.getText("document_closed"), sqlstr:'t.closed '},
           deleted: {fieldtype:'bool', wheretype:'where', orderby:14, 
-            label:getText("document_deleted"), sqlstr:'t.deleted '},
+            label:app.getText("document_deleted"), sqlstr:'t.deleted '},
           notes: {fieldtype:'string', wheretype:'where', orderby:15, 
-            label:getText("document_notes"), sqlstr:'t.notes '},
+            label:app.getText("document_notes"), sqlstr:'t.notes '},
           intnotes: {fieldtype:'string', wheretype:'where', orderby:16, 
-            label:getText("document_intnotes"), sqlstr:'t.intnotes '}
+            label:app.getText("document_intnotes"), sqlstr:'t.intnotes '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id","pm.id as row_id",
@@ -2256,24 +2264,24 @@ export const getQuery = (getText) => {
       
       PaymentFieldsView: {
         columns: {transtype:true, direction:true, transnumber:true, fielddef:true, deffield_value:true},
-        label: getText("fields_view"),
+        label: app.getText("fields_view"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:"case when tg.groupvalue='bank' then '' else "+
               "case when msd.msg is null then dg.groupvalue else msd.msg end end "},
           transnumber: {fieldtype:'string', wheretype:'where', orderby:2, 
-            label:getText("document_transnumber"), sqlstr:'t.transnumber '},
+            label:app.getText("document_transnumber"), sqlstr:'t.transnumber '},
           fielddef: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("fields_fielddef"), sqlstr:'df.description '},
+            label:app.getText("fields_fielddef"), sqlstr:'df.description '},
           deffield_value: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("fields_value"), sqlstr:'fv.value '},
+            label:app.getText("fields_value"), sqlstr:'fv.value '},
           notes: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("fields_notes"), sqlstr:'fv.notes '}
+            label:app.getText("fields_notes"), sqlstr:'fv.notes '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id",
@@ -2337,36 +2345,36 @@ export const getQuery = (getText) => {
       
       PaymentInvoiceView: {
         columns: {paidnumber:true, paiddate:true, pcurr:true, paidamount:true, invnumber:true},
-        label: getText("payment_invoices"),
+        label: app.getText("payment_invoices"),
         edit: "trans",
         fields: {
           transtype: {fieldtype:'string', wheretype:'where', orderby:0, 
-            label:getText("document_transtype"), 
+            label:app.getText("document_transtype"), 
             sqlstr:'case when mst.msg is null then tg.groupvalue else mst.msg end '},
           direction: {fieldtype:'string', wheretype:'where', orderby:1, 
-            label:getText("document_direction"), 
+            label:app.getText("document_direction"), 
             sqlstr:"case when tg.groupvalue='bank' then '' else "+
               "case when msd.msg is null then dg.groupvalue else msd.msg end end "},
           paiddate: {fieldtype:'date', wheretype:'where', orderby:2, 
-            label:getText("payment_paiddate"), sqlstr:'p.paiddate '},
+            label:app.getText("payment_paiddate"), sqlstr:'p.paiddate '},
           place: {fieldtype:'string', wheretype:'where', orderby:3, 
-            label:getText("payment_place"), sqlstr:'pa.description '},
+            label:app.getText("payment_place"), sqlstr:'pa.description '},
           paidnumber: {fieldtype:'string', wheretype:'where', orderby:4, 
-            label:getText("payment_paidnumber"), sqlstr:'tp.transnumber '},
+            label:app.getText("payment_paidnumber"), sqlstr:'tp.transnumber '},
           pcurr: {fieldtype:'string', wheretype:'where', orderby:5, 
-            label:getText("payment_pcurr"), sqlstr:'pa.curr '},
+            label:app.getText("payment_pcurr"), sqlstr:'pa.curr '},
           paidamount: {fieldtype:'float', wheretype:'where', orderby:6, 
-            label:getText("payment_amount"), sqlstr:'{CAS_FLOAT}af.value {CAE_FLOAT} '},
+            label:app.getText("payment_amount"), sqlstr:'{CAS_FLOAT}af.value {CAE_FLOAT} '},
           prate: {fieldtype:'float', wheretype:'where', calc:"avg", orderby:7, 
-            label:getText("payment_rate"), sqlstr:'{CAS_FLOAT}rf.value {CAE_FLOAT} '},
+            label:app.getText("payment_rate"), sqlstr:'{CAS_FLOAT}rf.value {CAE_FLOAT} '},
           invnumber: {fieldtype:'string', wheretype:'where', orderby:8, 
-            label:getText("payment_invnumber"), sqlstr:'inv.transnumber '},
+            label:app.getText("payment_invnumber"), sqlstr:'inv.transnumber '},
           icurr: {fieldtype:'string', wheretype:'where', orderby:9, 
-            label:getText("payment_icurr"), sqlstr:'inv.curr '},
+            label:app.getText("payment_icurr"), sqlstr:'inv.curr '},
           invamount: {fieldtype:'float', wheretype:'where', orderby:10, 
-            label:getText("payment_iamount"), sqlstr:'irow.amount '},
+            label:app.getText("payment_iamount"), sqlstr:'irow.amount '},
           pnotes: {fieldtype:'string', wheretype:'where', orderby:11, 
-            label:getText("payment_description"), sqlstr:'p.notes '}
+            label:app.getText("payment_description"), sqlstr:'p.notes '}
         },
         sql: {
           select:["{CCS}'trans'{SEP}'/'{SEP}tg.groupvalue{SEP}'/'{SEP} {CAS_TEXT}t.id {CAE_TEXT}{CCE} as id",
@@ -2406,5 +2414,73 @@ export const getQuery = (getText) => {
             ["and","ln.nervatype_2","=",[{select:["id"], from:"groups", 
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'trans'"]]}]]]}}};
     }
+  }
+
+  const showBrowser = async (vkey, view) => {
+    let search = update(data.search, {})
+    if((search.vkey !== vkey) && queries[vkey]){
+      let views = [
+        { key: "deffield",
+          text: getSql(data.login.data.engine, 
+            queries[vkey]().options.deffield_sql).sql,
+          values: [] 
+        }
+      ]
+      let options = { method: "POST", data: views }
+      let view = await app.requestData("/view", options)
+      if(view.error){
+        return app.resultError(view)
+      }
+      search = update(search, {$merge: {
+        deffield: view.deffield
+      }})
+    }
+    if (typeof view==="undefined") {
+      view = Object.keys(queries[vkey]())[1]
+    }
+    search = update(search, {$merge: {
+      vkey: vkey, view: view, dropdown: "", result: []
+    }})
+    if(!search.filters[view]){
+      search = update(search, { filters: {
+        $merge: { [view]: []}
+      }})
+    }
+    const viewDef = queries[vkey]()[view]
+    if (typeof search.columns[view] === "undefined") {
+      search = update(search, { columns: {
+        $merge: { [view]: {} }
+      }})
+      if (typeof viewDef.columns !== "undefined") {
+        for(let fic = 0; fic < Object.keys(viewDef.columns).length; fic++) {
+          let fieldname = Object.keys(viewDef.columns)[fic];
+          search = update(search, { columns: { 
+            [view]: {
+              $merge: { [fieldname]: viewDef.columns[fieldname] }
+            }
+          }})
+        }
+      }
+    }
+    if (Object.keys(search.columns[view]).length === 0) {
+      for(let v = 0; v < 3; v++) {
+        let fieldname = Object.keys(viewDef.fields)[v];
+        search = update(search, { columns: { 
+          [view]: {
+            $merge: { [fieldname]: true }
+          }
+        }})
+      }
+    }
+    setData("search", search)
+    if(data.current.side === "show"){
+      app.setSideBar()
+    }
+    setData("current", { module: "search" })
+  }
+
+  return {
+    showBrowser: showBrowser,
+    queries: queries
   }
 }

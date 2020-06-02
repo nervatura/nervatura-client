@@ -39,7 +39,8 @@ class App extends Component {
       let cModule = this.state.current.module
       if(this.state.login.data){
         return (
-          <div className="main">
+          <div className={`${"main"}`} >
+            {(this.state.current.modal)?<div className={`${"modal"}`} />:null}
             <MenuBar />
             <SideBar />
             {createElement(modules[cModule], { name: cModule })}
@@ -50,7 +51,7 @@ class App extends Component {
     }
     
     return (
-      <AppProvider value={{ data: this.state, actions: this.actions }}>
+      <AppProvider value={{ data: this.state, setData: this.setData }}>
         <Suspense fallback={<Spinner />}>
           {protector()}
         </Suspense>

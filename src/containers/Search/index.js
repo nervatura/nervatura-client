@@ -3,32 +3,58 @@ import update from 'immutability-helper';
 import { formatISO } from 'date-fns'
 
 import AppStore from 'containers/App/context'
+import { getSql, saveToDisk, useApp } from 'containers/App/actions'
+import { useSearch } from './actions'
+import { useEditor } from 'containers/Editor/actions'
 import { QuickView, BrowserView } from './Search';
 
 export default (props) => {
-  const { data, actions } = useContext(AppStore);
-  
+  const { data, setData } = useContext(AppStore);
+  const search = useSearch()
+  const editor = useEditor()
+  const app = useApp()
+
   const [state] = useState({
-    mdKey: "search",
     engine: data.login.data.engine,
-    queries: data.queries,
+    queries: search.queries,
     theme: data.session.theme,
     ui: data.ui
   })
 
-  state.data = data[state.mdKey]
+  state.data = data.search
   state.current = data.current
 
   state.getText = (key, defValue) => {
-    return actions.getText(key, defValue)
+    return app.getText(key, defValue)
   }
 
   state.editRow = (row, rowIndex) => {
-    //actions.setData("current", { module: "video", params: [row.id], fallback:"games" })
+    const params = row.id.split("/")
+    const options = update({},{$merge: { 
+      ntype: params[0], 
+      ttype: params[1], 
+      id: parseInt(params[2],10), item:row 
+    }})
+    if (options.ntype === "servercmd") {
+      //showServerCmd(options.id)
+    }
+    editor.checkEditor(options, 'LOAD_EDITOR')
   }
 
   state.onEdit = ( fieldname, value, row ) => {
-    //const val = value
+    const params = value.split("/")
+    let options = update({},{$merge: { 
+      ntype: params[0], 
+      ttype: params[1], 
+      id: params[2] 
+    }})
+    if(fieldname === "id"){
+      options = update(options, {$merge: {
+        form: row.form,
+        form_id: row.form_id
+      }})
+    }
+    editor.checkEditor(options, 'LOAD_EDITOR')
   }
 
   state.setColumns = (fieldname, value) => {
@@ -43,11 +69,11 @@ export default (props) => {
         [state.data.view] : columns[state.data.view]
       } })
     }
-    actions.setData(state.mdKey, { columns: columns, update: new Date().getTime() })
+    setData("search", { columns: columns, update: new Date().getTime() })
   }
 
   state.showColumns = () => {
-    actions.setData(state.mdKey, { [state.data.vkey+"_columns"]: !(state.data[state.data.vkey+"_columns"]) })
+    setData("search", { [state.data.vkey+"_columns"]: !(state.data[state.data.vkey+"_columns"]) })
   }
 
   const defaultFilterValue = (fieldtype) => {
@@ -76,7 +102,7 @@ export default (props) => {
       filtertype: "===",
       value: defaultFilterValue(frow.fieldtype)
     }]}})
-    actions.setData(state.mdKey, { filters: filters })
+    setData("search", { filters: filters })
   }
 
   state.deleteFilter = (index) => {
@@ -84,7 +110,7 @@ export default (props) => {
     filters = update(filters, { [state.data.view]: {
       $splice: [[index, 1]]
     } })
-    actions.setData(state.mdKey, { filters: filters })
+    setData("search", { filters: filters })
   }
 
   state.editFilter = (index, fieldname, value) => {
@@ -176,19 +202,19 @@ export default (props) => {
         break;
       default:
     }
-    actions.setData(state.mdKey, { filters: filters })
+    setData("search", { filters: filters })
   }
 
   state.browserFilter = () => {
-    actions.setData(state.mdKey, { browser_filter: !state.data.browser_filter })
+    setData("search", { browser_filter: !state.data.browser_filter })
   }
 
   state.dropDown = (value) => {
-    actions.setData(state.mdKey, { dropdown: (state.data.dropdown === value) ? "": value })
+    setData("search", { dropdown: (state.data.dropdown === value) ? "": value })
   }
 
   state.showBrowser = (vkey, view) => {
-    actions.showBrowser(vkey, view)
+    search.showBrowser(vkey, view)
   }
   
   const getDataFilter = (type, _where) => {
@@ -198,36 +224,36 @@ export default (props) => {
       case "product":
         break;
       case "transitem":
-        if (actions.getAuditFilter("trans", "offer")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "offer")[0] === "disabled") {
           _where = _where.concat.push(["and", ["tg.groupvalue", "<>", "'offer'"]]);
         }
-        if (actions.getAuditFilter("trans", "order")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "order")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
         }
-        if (actions.getAuditFilter("trans", "worksheet")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "worksheet")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
         }
-        if (actions.getAuditFilter("trans", "rent")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "rent")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
         }
-        if (actions.getAuditFilter("trans", "invoice")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "invoice")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
         }
         break;
       case "transpayment":
-        if (actions.getAuditFilter("trans", "bank")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "bank")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
         }
-        if (actions.getAuditFilter("trans", "cash")[0] === "disabled") {
+        if (app.getAuditFilter("trans", "cash")[0] === "disabled") {
           _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
         }
         break;
       case "transmovement":
         if (state.data.view !== "InventoryView") {
-          if (actions.getAuditFilter("trans", "delivery")[0] === "disabled") {
+          if (app.getAuditFilter("trans", "delivery")[0] === "disabled") {
             _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
           }
-          if (actions.getAuditFilter("trans", "inventory")[0] === "disabled") {
+          if (app.getAuditFilter("trans", "inventory")[0] === "disabled") {
             _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
           }
         }
@@ -289,16 +315,16 @@ export default (props) => {
     
     let views = [
       { key: "result",
-        text: actions.getSql(state.engine, _sql),
+        text: getSql(state.engine, _sql).sql,
         values: params 
       }
     ]
     let options = { method: "POST", data: views }
-    let view = await actions.requestData("/view", options)
+    let view = await app.requestData("/view", options)
     if(view.error){
-      return actions.resultError(view)
+      return app.resultError(view)
     }
-    actions.setData(state.mdKey, { result: view.result })
+    setData("search", { result: view.result })
   }
 
   state.browserView = async () => {
@@ -379,16 +405,16 @@ export default (props) => {
 
     let views = [
       { key: "result",
-        text: actions.getSql(state.engine, _sql),
+        text: getSql(state.engine, _sql).sql,
         values: params 
       }
     ]
     let options = { method: "POST", data: views }
-    let view = await actions.requestData("/view", options)
+    let view = await app.requestData("/view", options)
     if(view.error){
-      return actions.resultError(view)
+      return app.resultError(view)
     }
-    actions.setData(state.mdKey, { result: view.result, dropdown: "" })
+    setData("search", { result: view.result, dropdown: "" })
   }
   
   state.checkTotalFields = (fields, deffield) => {
@@ -471,8 +497,8 @@ export default (props) => {
               value="${formatNumber(total.totalFields[fieldname])}"/>
           </div>
         </div>`)
-      actions.showToast({ type: "message", autoClose: false,
-        title: actions.getText("browser_total"), message: content.join("") })
+      app.showToast({ type: "message", autoClose: false,
+        title: app.getText("browser_total"), message: content.join("") })
     }
   }
 
@@ -490,7 +516,7 @@ export default (props) => {
       data += cols.join(state.ui.export_sep) + "\n"
     });
     const csvUrl = URL.createObjectURL(new Blob([data], {type : 'text/csv;charset=utf-8;'}))
-    actions.saveToDisk(csvUrl, filename)
+    saveToDisk(csvUrl, filename)
   }
 
   if(state.data.vkey){
