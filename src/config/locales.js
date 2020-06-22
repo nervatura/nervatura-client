@@ -48,6 +48,15 @@ export const en = {
   transitem_transtype: "Doc.Type",
   transitem_custname: "Customer Name",
 
+  transitem_invoice_transnumber: "Document No.",
+  transitem_invoice_transtype: "Doc.Type",
+  transitem_invoice_custname: "Customer Name",
+  transitem_invoice_curr: "Currency",
+
+  transitem_delivery_transnumber: "Document No.",
+  transitem_delivery_transtype: "Doc.Type",
+  transitem_delivery_custname: "Customer Name",
+
   transmovement_transnumber: "Document No.",
   transmovement_transtype: "Doc.Type",
   transmovement_transdate: "Date",
@@ -137,7 +146,7 @@ export const en = {
   title_log: "DATABASE LOG",
   
   title_database: "DATABASE",
-  title_deffield: "ADDITIONAL DATA",
+  title_deffield: "METADATA",
   title_groups: "GROUPS",
   title_place: "PLACE",
   title_currency: "CURRENCY",
@@ -247,9 +256,10 @@ export const en = {
   customer_discount: "Discount%",
   customer_notes: "Comment",
   customer_address: "Address",
+  customer_city: "City",
   customer_street: "Street",
   
-  fields_view: "Additional Data",
+  fields_view: "Metadata",
   fields_deffield_missing: "No data was selected!",
   fields_fieldname: "Fieldname",
   fields_fielddef: "Description",
@@ -517,6 +527,11 @@ export const en = {
   product_webitem: "WEB Item",
   product_inactive: "Inactive",
   product_notes: "Comment",
+
+  product_item_partnumber: "Product No.",
+  product_item_protype: "Product Type",
+  product_item_description: "Product Name",
+  product_item_tax: "Tax",
   
   barcode_view: "Barcode",
   barcode_unit: "Unit",
@@ -555,6 +570,17 @@ export const en = {
   place_curr: "Currency",
   place_notes: "Comment",
   place_inactive: "Inactive",
+
+  place_bank_planumber: "Place No.",
+  place_bank_description: "Description",
+  place_bank_curr: "Currency",
+
+  place_cash_planumber: "Place No.",
+  place_cash_description: "Description",
+  place_cash_curr: "Currency",
+
+  place_warehouse_planumber: "Place No.",
+  place_warehouse_description: "Description",
   
   tool_view: "Tools",
   tool_serial: "Serial",

@@ -28,7 +28,6 @@
 }
 
 .message {
-  color: --textColor;
   font-weight: bold;
   font-size: 13px!important;
 }

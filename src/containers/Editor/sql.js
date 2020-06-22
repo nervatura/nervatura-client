@@ -1,10 +1,6 @@
-import { useContext } from 'react';
-
-import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 
 export const useSql = () => {
-  const { data } = useContext(AppStore)
   const app = useApp()
   return {    
     all: {
@@ -470,7 +466,7 @@ export const useSql = () => {
           where:[["t.deleted","=","0"],["and","t.inactive","=","0"]]}; 
         return sql;},
               
-      items: () => {
+      items: (edit) => {
         let sql = {
           select:["pq.id","ntg.groupvalue as typename",
             "case when ntg.groupvalue='trans' then tg.groupvalue "+
@@ -513,32 +509,32 @@ export const useSql = () => {
             ["employee rf_employee","on",["pq.ref_id","=","rf_employee.id"]],
             ["place rf_place","on",["pq.ref_id","=","rf_place.id"]],
             ["ui_report r","on",["pq.report_id","=","r.id"]]]};
-        if (typeof data.edit.printqueue === "undefined") {
+        if (typeof edit.printqueue === "undefined") {
           sql.where = [["pq.id","=","-1"]];}
         else {
           sql.where = [["1","=","1"]];
-          if (data.edit.printqueue.nervatype !== "" && 
-            data.edit.printqueue.nervatype !== null) {
-              switch (data.edit.printqueue.nervatype) {
+          if (edit.printqueue.nervatype !== "" && 
+            edit.printqueue.nervatype !== null) {
+              switch (edit.printqueue.nervatype) {
                 case "customer":
                 case "product":
                 case "employee":
                 case "tool":
                 case "project":
-                  sql.where.push(["and","ntg.groupvalue","=","'"+data.edit.printqueue.nervatype+"'"]);
+                  sql.where.push(["and","ntg.groupvalue","=","'"+edit.printqueue.nervatype+"'"]);
                   break;
                 default:
                   sql.where.push(["and","ntg.groupvalue","=","'trans'"]);
-                  sql.where.push(["and","tg.groupvalue","=","'"+data.edit.printqueue.nervatype+"'"]);
+                  sql.where.push(["and","tg.groupvalue","=","'"+edit.printqueue.nervatype+"'"]);
                   break;}}
-          if (data.edit.printqueue.startdate !== "" && 
-            data.edit.printqueue.startdate !== null) {
-            sql.where.push(["and","pq.crdate",">=","'"+data.edit.printqueue.startdate+"'"]);}
-          if (data.edit.printqueue.enddate !== "" && 
-            data.edit.printqueue.enddate !== null) {
-            sql.where.push(["and","pq.crdate","<=","'"+data.edit.printqueue.enddate+"'"]);}
-          if (data.edit.printqueue.transnumber !== "" && 
-            data.edit.printqueue.transnumber !== null) {
+          if (edit.printqueue.startdate !== "" && 
+            edit.printqueue.startdate !== null) {
+            sql.where.push(["and","pq.crdate",">=","'"+edit.printqueue.startdate+"'"]);}
+          if (edit.printqueue.enddate !== "" && 
+            edit.printqueue.enddate !== null) {
+            sql.where.push(["and","pq.crdate","<=","'"+edit.printqueue.enddate+"'"]);}
+          if (edit.printqueue.transnumber !== "" && 
+            edit.printqueue.transnumber !== null) {
             sql.where.push(["and", "case when ntg.groupvalue in ('customer') then rf_customer.custnumber "+
               "when ntg.groupvalue in ('tool') then rf_tool.serial "+
               "when ntg.groupvalue in ('trans', 'transitem', 'transmovement', "+
@@ -547,10 +543,10 @@ export const useSql = () => {
               "when ntg.groupvalue in ('project') then rf_project.pronumber "+
               "when ntg.groupvalue in ('employee') then rf_employee.empnumber "+
               "when ntg.groupvalue in ('place') then rf_place.planumber "+
-              "else null end","like","'"+data.edit.printqueue.transnumber+"'"]);}
-          if (data.edit.printqueue.username !== "" && 
-            data.edit.printqueue.username !== null) {
-            sql.where.push(["and","e.username","like","'"+data.edit.printqueue.username+"'"]);}}
+              "else null end","like","'"+edit.printqueue.transnumber+"'"]);}
+          if (edit.printqueue.username !== "" && 
+            edit.printqueue.username !== null) {
+            sql.where.push(["and","e.username","like","'"+edit.printqueue.username+"'"]);}}
         return sql;}
     },
     
@@ -1062,7 +1058,7 @@ export const useSql = () => {
       
       movement_delivery: () => {
         let sql = {
-          select:["mv.*","mv.id as rid","lnk_item.ref_id_2 as item_id",
+          select_distinct:["mv.*","mv.id as rid","lnk_item.ref_id_2 as item_id",
             "it.transnumber as item_refnumber","lnk_ref.ref_id_1 as ref_id","pl.planumber",
             "{CCS}p.partnumber{SEP}' | '{SEP}p.description{CCE} as product",
             "p.partnumber","p.unit","it.id as item_ref_id",
@@ -1091,7 +1087,7 @@ export const useSql = () => {
       
       movement_transfer: () => {
         let sql = {
-          select:["mv.*","mv.id as rid","lnk_ref.ref_id_1 as ref_id","pl.planumber",
+          select_distinct:["mv.*","mv.id as rid","lnk_ref.ref_id_1 as ref_id","pl.planumber",
             "{CCS}p.partnumber{SEP}' | '{SEP}p.description{CCE} as product",
             "p.partnumber","p.unit",
             "{FMS_DATETIME}mv.shippingdate {FME_DATETIME} as shippingdate"],

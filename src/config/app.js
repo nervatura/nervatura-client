@@ -20,6 +20,7 @@ export const store = {
   ui: {
     toastTime: 7000,
     paginationPage: 10,
+    selectorPage: 5,
     dateFormat: "yyyy-MM-dd",
     timeFormat: "HH:mm",
     timeIntervals: 15,
@@ -28,7 +29,41 @@ export const store = {
     filter_opt_2: [["===","EQUAL"],["==N","IS NULL"],["!==","NOT EQUAL"],[">==",">="],["<==","<="]],
     export_sep: ";",
     page_size: "a4",
-    page_orient: "portrait"
+    page_orient: "portrait",
+    printqueue_mode: [
+      ["preview", "printqueue_mode_preview"],
+      ["pdf", "printqueue_mode_pdf"],
+      ["xml", "printqueue_mode_xml"]
+    ],
+    printqueue_type: [
+      ["customer", "title_customer"],
+      ["product", "title_product"],
+      ["employee", "title_employee"],
+      ["tool", "title_tool"],
+      ["project", "title_project"],
+      ["order", "title_order"],
+      ["offer", "title_offer"],
+      ["invoice", "title_invoice"],
+      ["receipt", "title_receipt"],
+      ["rent", "title_rent"],
+      ["worksheet", "title_worksheet"],
+      ["delivery", "title_delivery"],
+      ["inventory", "title_inventory"],
+      ["waybill", "title_waybill"],
+      ["production", "title_production"],
+      ["formula", "title_formula"],
+      ["bank", "title_bank"],
+      ["cash", "title_cash"]
+    ],
+    report_orientation: [
+      ["portrait", "report_portrait"],
+      ["landscape", "report_landscape"]
+    ],
+    report_size: [
+      ["a3", "A3"], ["a4", "A4"],
+      ["a5", "A5"], ["letter", "Letter"],
+      ["legal", "Legal"]
+    ],
   },
   current: { 
     home: "search", module: "login", side: "auto",

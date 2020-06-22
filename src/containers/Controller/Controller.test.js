@@ -34,7 +34,7 @@ describe('Icons', () => {
 
   it('Label', () => {
 
-    const ctr_store = update({}, {$merge: store})
+    const ctr_store = update({}, {$set: store})
     const { container, rerender } = render(
       <AppProvider value={ctr_store}>
         <Label text="hello" value="leo" />

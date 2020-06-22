@@ -6,17 +6,19 @@ import AppStore from 'containers/App/context'
 import { getSql, saveToDisk, useApp } from 'containers/App/actions'
 import { useSearch } from './actions'
 import { useEditor } from 'containers/Editor/actions'
+import { useQueries } from './queries'
 import { QuickView, BrowserView } from './Search';
 
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const search = useSearch()
   const editor = useEditor()
+  const queries = useQueries()
   const app = useApp()
 
   const [state] = useState({
     engine: data.login.data.engine,
-    queries: search.queries,
+    queries: queries,
     theme: data.session.theme,
     ui: data.ui
   })
@@ -30,7 +32,7 @@ export default (props) => {
 
   state.editRow = (row, rowIndex) => {
     const params = row.id.split("/")
-    const options = update({},{$merge: { 
+    const options = update({},{$set: { 
       ntype: params[0], 
       ttype: params[1], 
       id: parseInt(params[2],10), item:row 
@@ -41,9 +43,13 @@ export default (props) => {
     editor.checkEditor(options, 'LOAD_EDITOR')
   }
 
+  state.setActions = (params, row) => {
+    editor.setFormActions(params, row)
+  }
+
   state.onEdit = ( fieldname, value, row ) => {
     const params = value.split("/")
-    let options = update({},{$merge: { 
+    let options = update({},{$set: { 
       ntype: params[0], 
       ttype: params[1], 
       id: params[2] 
@@ -216,111 +222,9 @@ export default (props) => {
   state.showBrowser = (vkey, view) => {
     search.showBrowser(vkey, view)
   }
-  
-  const getDataFilter = (type, _where) => {
-    switch (type) {
-      case "customer":
-        break;
-      case "product":
-        break;
-      case "transitem":
-        if (app.getAuditFilter("trans", "offer")[0] === "disabled") {
-          _where = _where.concat.push(["and", ["tg.groupvalue", "<>", "'offer'"]]);
-        }
-        if (app.getAuditFilter("trans", "order")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
-        }
-        if (app.getAuditFilter("trans", "worksheet")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
-        }
-        if (app.getAuditFilter("trans", "rent")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
-        }
-        if (app.getAuditFilter("trans", "invoice")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
-        }
-        break;
-      case "transpayment":
-        if (app.getAuditFilter("trans", "bank")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
-        }
-        if (app.getAuditFilter("trans", "cash")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
-        }
-        break;
-      case "transmovement":
-        if (state.data.view !== "InventoryView") {
-          if (app.getAuditFilter("trans", "delivery")[0] === "disabled") {
-            _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
-          }
-          if (app.getAuditFilter("trans", "inventory")[0] === "disabled") {
-            _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
-          }
-        }
-        break;
-      default:
-        break;
-    }
-    return _where;
-  }
-
-  const getUserFilter = (type) => {
-    let filter = { params: [], where: []}
-    const query = state.queries[type]
-    if(!query){
-      return filter
-    }
-    switch (data.login.data.transfilterName) {
-      case "all":
-        break;
-      case "usergroup":
-        if (query().options.usergroup_filter !== null) {
-          filter.where = ["and", query().options.usergroup_filter]
-          filter.params = [data.login.data.employee.usergroup]
-        }
-        break;
-      case "own":
-        if (query().options.employee_filter !== null) {
-          filter.where = ["and", query().options.employee_filter]
-          filter.params = [data.login.data.employee.id]
-        }
-        break;
-      default:
-        break;}
-    return filter;
-  }
 
   state.quickSearch = async () => {
-    const query = state.queries.quick[state.data.qview](data.login.data.employee.usergroup)
-    let _sql = update({}, {$set: query.sql})
-    let params = []; let _where = []
-    if(state.data.qfilter !== ""){
-      const filter = `{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE} `
-      query.columns.forEach((column, index) => {
-        _where.push([((index!==0)?"or":""),[`lower(${column[1]})`,"like", filter]])
-        params.push(state.data.qfilter)
-      });
-      _where = ["and",[_where]]
-    }
-    _where = getDataFilter(state.data.qview, _where)
-    if(_where.length > 0){
-      _sql = update(_sql, { where: {$push: [_where]}})
-    }
-
-    let userFilter = getUserFilter(state.data.qview)
-    if(userFilter.where.length > 0){
-      _sql = update(_sql, { where: {$push: userFilter.where}})
-      params = params.concat(userFilter.params)
-    }
-    
-    let views = [
-      { key: "result",
-        text: getSql(state.engine, _sql).sql,
-        values: params 
-      }
-    ]
-    let options = { method: "POST", data: views }
-    let view = await app.requestData("/view", options)
+    const view = await search.quickSearch(state.data.qview, state.data.qfilter)
     if(view.error){
       return app.resultError(view)
     }
@@ -392,12 +296,12 @@ export default (props) => {
       _sql = update(_sql, { having: {$push: [..._where]}})
     }
 
-    _where = getDataFilter(state.data.vkey, [])
+    _where = search.getDataFilter(state.data.vkey, [], state.data.view)
     if(_where.length > 0){
       _sql = update(_sql, { where: {$push: [_where]}})
     }
 
-    let userFilter = getUserFilter(state.data.vkey)
+    let userFilter = search.getUserFilter(state.data.vkey)
     if(userFilter.where.length > 0){
       _sql = update(_sql, { where: {$push: userFilter.where}})
       params = params.concat(userFilter.params)

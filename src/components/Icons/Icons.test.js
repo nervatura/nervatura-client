@@ -5,7 +5,10 @@ import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   Envelop, Phone, Mobile, User, Close, Edit, Star, Cog, FileText, ChartBar, Bolt,
   CheckSquare, Square, Calendar, CaretRight, Eye, Search, QuestionCircle,
   Inbox, Print, Globe, Share, Times, Filter, Download, Columns, Plus,
-  SquareEmpty, Check, CheckSquareEmpty } from './index';
+  SquareEmpty, Check, CheckSquareEmpty, ToggleOff, ToggleOn, Home, Money, 
+  ListOl, Barcode, Dollar, Tag, Truck, Male, Magic, Th, Briefcase, Lock,
+  Map, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, Book, TextHeight, 
+  Ticket, Wrench, Key } from './index';
 
 describe('Icons', () => {
 
@@ -228,6 +231,156 @@ describe('Icons', () => {
   it('CheckSquareEmpty should render a SVG', () => {
 
     const { container } = render(<CheckSquareEmpty />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ToggleOn should render a SVG', () => {
+
+    const { container } = render(<ToggleOn />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ToggleOff should render a SVG', () => {
+
+    const { container } = render(<ToggleOff />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Home should render a SVG', () => {
+
+    const { container } = render(<Home />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Money should render a SVG', () => {
+
+    const { container } = render(<Money />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ListOl should render a SVG', () => {
+
+    const { container } = render(<ListOl />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Barcode should render a SVG', () => {
+
+    const { container } = render(<Barcode />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Dollar should render a SVG', () => {
+
+    const { container } = render(<Dollar />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Tag should render a SVG', () => {
+
+    const { container } = render(<Tag />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Truck should render a SVG', () => {
+
+    const { container } = render(<Truck />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Male should render a SVG', () => {
+
+    const { container } = render(<Male />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Magic should render a SVG', () => {
+
+    const { container } = render(<Magic />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Th should render a SVG', () => {
+
+    const { container } = render(<Th />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Briefcase should render a SVG', () => {
+
+    const { container } = render(<Briefcase />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Lock should render a SVG', () => {
+
+    const { container } = render(<Lock />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Map should render a SVG', () => {
+
+    const { container } = render(<Map />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ShoppingCart should render a SVG', () => {
+
+    const { container } = render(<ShoppingCart />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Flask should render a SVG', () => {
+
+    const { container } = render(<Flask />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Clock should render a SVG', () => {
+
+    const { container } = render(<Clock />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Strikethrough should render a SVG', () => {
+
+    const { container } = render(<Strikethrough />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Keyboard should render a SVG', () => {
+
+    const { container } = render(<Keyboard />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Book should render a SVG', () => {
+
+    const { container } = render(<Book />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('TextHeight should render a SVG', () => {
+
+    const { container } = render(<TextHeight />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Ticket should render a SVG', () => {
+
+    const { container } = render(<Ticket />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+  
+  it('Wrench should render a SVG', () => {
+
+    const { container } = render(<Wrench />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Key should render a SVG', () => {
+
+    const { container } = render(<Key />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });

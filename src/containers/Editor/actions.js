@@ -1,34 +1,333 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
+import { formatISO, addDays } from 'date-fns'
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
 import dataset from './dataset'
 import { useSql } from './sql'
-//import { useForm } from './forms'
+import { useForm } from './forms'
+import { useInitItem } from './items'
 
 export const useEditor = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
+  const initItem = useInitItem()
   const sql = useSql()
-  //const forms = useForm()
+  const forms = useForm()
   
-  const setEditor = (form, options) => {
+  const setEditor = (options, form, iedit) => {
+    let edit = update(iedit||data.edit, {})
+    if ((typeof edit.dataset[edit.current.type] === "undefined") || 
+      (edit.dataset[edit.current.type].length===0)) {
+      app.showToast({ type: "error", autoClose: false,
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_editor_invalid") })
+      return false;
+    }
+    
+    edit = update(edit, {$merge: {
+      template: form,
+      panel: form.options.panel,
+      caption: form.options.title,
+      audit: app.getAuditFilter(edit.current.type, edit.current.transtype)[0]
+    }})
+    if (edit.audit==="disabled") {
+      return false
+    }
 
+    if (edit.dataset[edit.current.type][0].id === null) {
+      edit = update(edit, {$merge: {
+        item: edit.dataset[edit.current.type][0]
+      }})
+      if (form.options.search_form) {
+        edit = update(edit, {$merge: {
+          title_field: form.options.title_field
+        }})
+      } else {
+        if((edit.audit==="all") || (edit.audit==="update")){
+          edit = update(edit, {$merge: {
+            dirty: true
+          }})
+        }
+        edit = update(edit, {$merge: {
+          title_field: app.getText("label_new")+" "+form.options.title
+        }})
+      }
+      if (typeof form.options.extend !== "undefined") {
+        edit = update(edit, {current: {$merge: {
+          extend: initItem({tablename: form.options.extend, 
+            dataset: edit.dataset, current: edit.current})
+        }}})
+      }
+    } else {
+      edit = update(edit, {current: {$merge: {
+        item: update(initItem({tablename: edit.current.type, 
+          dataset: edit.dataset, current: edit.current}), {
+          $merge: edit.dataset[edit.current.type][0]})
+      }}})
+      if (typeof form.options.extend !== "undefined") {
+        edit = update(edit, {current: {$merge: {
+          extend: initItem({tablename: form.options.extend, 
+            dataset: edit.dataset, current: edit.current})
+        }}})
+        if (typeof edit.dataset[form.options.extend] !== "undefined") {
+          if (edit.dataset[form.options.extend].length > 0) {
+            edit = update(edit, {current: {$merge: {
+              extend: update(edit.current.extend, {
+                $merge: edit.dataset[form.options.extend][0]})
+            }}})
+          }
+        }
+      }
+    }
+
+    edit = update(edit, {current: {$merge: {
+      state: "normal",
+      pagination: { page: 1, perPage: data.ui.selectorPage }
+    }}})
+    if (edit.current.type === "trans") {
+      if (typeof edit.dataset.trans[0].transcast !== "undefined") {
+        if (edit.dataset.trans[0].transcast === "cancellation") {
+          edit = update(edit, {current: {$merge: {
+            state: "cancellation"
+          }}})
+        }
+      }
+    }
+    if (edit.current.state === "normal" && edit.current.item.deleted === 1) {
+      edit = update(edit, {current: {$merge: {
+        state: "deleted"
+      }}})
+    } else if (edit.current.item.closed === 1) {
+      edit = update(edit, {current: {$merge: {
+        state: "closed"
+      }}})
+    }
+
+    edit = update(edit, {current: {$merge: {
+      fieldvalue: edit.dataset.fieldvalue || []
+    }}})
+
+    Object.keys(edit.template.view).forEach(vname => {
+      edit = update(edit, {template: {view: { [vname]: {$merge: {
+        view_audit: "all"
+      }}}}})
+      if (vname === "setting") {
+        edit = update(edit, {template: {view: { [vname]: {$merge: {
+          view_audit: "disabled"
+        }}}}})
+      } else {
+        edit = update(edit, {template: {view: { [vname]: {$merge: {
+          view_audit: app.getAuditFilter(form.view[vname].audit_type || vname, 
+            form.view[vname].audit_transtype || null)[0]
+        }}}}})
+      }
+    });
+
+    if (edit.current.type === "report") {
+      edit.dataset.reportfields.forEach(rfdata => {
+        const selected = (rfdata.selected)?
+          rfdata.selected:
+          (rfdata.wheretype === 'in')?true:false
+        let tfrow = update({}, {$set: {
+          id: rfdata.id,
+          rowtype: "reportfield", 
+          datatype: rfdata.fieldtype,
+          name: rfdata.fieldname, 
+          label: rfdata.description, 
+          selected: selected,
+          empty: (rfdata.wheretype === 'in') ? 'false' : 'true',
+          value: rfdata.value
+        }})
+        switch (rfdata.fieldtype) {
+          case "bool":
+            break;
+          case "valuelist":
+            tfrow = update(tfrow, {$merge: {
+              description: (rfdata.wheretype !== "in") ? 
+                rfdata.valuelist.split("|").unshift("") : rfdata.valuelist.split("|")
+            }})
+            break;
+          case "date":
+            if(typeof(tfrow.value) === "undefined"){
+              if (rfdata.defvalue !== null) {
+                tfrow = update(tfrow, {$merge: {
+                  value: formatISO(addDays(new Date(), parseInt(rfdata.defvalue,10)), { representation: 'date' })
+                }})
+              } else if (rfdata.wheretype === "in") {
+                tfrow = update(tfrow, {$merge: {
+                  value: formatISO(new Date(), { representation: 'date' })
+                }})
+              } else {
+                tfrow = update(tfrow, {$merge: {
+                  value: ""
+                }})
+              }
+            }
+            break;
+          case "integer":
+          case "float":
+            if(typeof(tfrow.value) === "undefined"){
+              tfrow = update(tfrow, {$merge: {
+                value: (rfdata.defvalue !== null && rfdata.defvalue !== "") ? rfdata.defvalue : "0"
+              }})
+            }
+            break;
+          default:
+            tfrow = update(tfrow, {$merge: {
+              datatype: "string"
+            }})
+            break;
+        }
+        if (typeof tfrow.value === "undefined") {
+          tfrow = update(tfrow, {$merge: {
+            value: (rfdata.defvalue !== null) ? rfdata.defvalue : ""
+          }})
+        }
+        edit = update(edit, {current: {fieldvalue: {
+          $push: [tfrow]
+        }}})
+      });
+    }
+
+    if(options.shipping){
+      edit = update(edit, {current: {$merge: {
+        form_type: "transitem_shipping",
+        direction: edit.dataset.groups.filter((group)=> {
+          return (group.id === edit.current.item.direction)
+        })[0].groupvalue
+      }}})
+      if (typeof edit.dataset.shiptemp === "undefined") {
+        edit = update(edit, {dataset: {$merge: {
+          shiptemp: []
+        }}})
+      }
+      edit = update(edit, {current: {item: {$merge: {
+        delivery_type: app.getLang("delivery_"+edit.current.direction)
+      }}}})
+      if(edit.current.shippingdate){
+        edit = update(edit, {current: {item: {$merge: {
+          shippingdate: edit.current.shippingdate
+        }}}})
+      } else {
+        edit = update(edit, {current: {$merge: {
+          shippingdate: formatISO(new Date(), { representation: 'date' })+"T00:00:00"
+        }}})
+        edit = update(edit, {current: {item: {$merge: {
+          shippingdate: formatISO(new Date(), { representation: 'date' })+"T00:00:00"
+        }}}})
+      }
+      if(edit.current.shipping_place_id){
+        edit = update(edit, {current: {item: {$merge: {
+          shipping_place_id: edit.current.shipping_place_id
+        }}}})
+      } else{
+        edit = update(edit, {current: {$merge: {
+          shipping_place_id: null
+        }}})
+        edit = update(edit, {current: {item: {$merge: {
+          shipping_place_id: null
+        }}}})
+      }
+
+      edit = update(edit, {dataset: {$merge: {
+        shipping_items_: []
+      }}})
+      edit.dataset.shipping_items.forEach((item, index) => {
+        let oitem = update(item, {$merge: {
+          id: index+1
+        }})
+        const mitem = edit.dataset.transitem_shipping.filter((item)=> {
+          return (item.id === oitem.item_id+"-"+oitem.product_id)
+        })[0]
+        if (typeof mitem !== "undefined") {
+          const dir = (edit.current.direction === "out")?-1:1
+          oitem = update(oitem, {$merge: {
+            tqty: dir*mitem.sqty,
+            diff: oitem.qty - dir*oitem.tqty
+          }})
+        } else {
+          oitem = update(oitem, {$merge: {
+            tqty: 0,
+            diff: oitem.qty
+          }})
+        }
+        const sitem = edit.dataset.shiptemp.filter((item)=> {
+          return (item.id === oitem.item_id+"-"+oitem.product_id)
+        })[0]
+        if (typeof sitem !== "undefined") {
+          oitem = update(oitem, {$merge: {
+            edited: true
+          }})
+        }
+        edit = update(edit, {dataset: {shipping_items_: {
+          $push: [oitem]
+        }}})
+      });
+    }
+
+    edit = update(edit, {panel: {$merge: {
+      form: true,
+      state: edit.current.state
+    }}})
+    if (edit.panel.state !== "normal") {
+      edit = update(edit, {$merge: {
+        audit: "readonly"
+      }})
+    }
+    if(edit.audit === "readonly") {
+      edit = update(edit, {panel: {$merge: {
+        save: false, link: false, delete: false, new: false,
+        pattern: false, password: false, formula: false
+      }}})  
+      if (edit.panel.state !== "deleted") {
+        edit = update(edit, {panel: {$merge: {
+          trans: false
+        }}})
+      }
+    }
+    if (edit.audit !== "all") {
+      edit = update(edit, {panel: {$merge: {
+        delete: false,
+        new: false
+      }}})
+      if (edit.panel.state !== "deleted") {
+        edit = update(edit, {panel: {$merge: {
+          trans: false
+        }}})
+      }
+    }
+    if (edit.panel.state === "deleted") {
+      edit = update(edit, {panel: {$merge: {
+        copy: false, 
+        create: false
+      }}})
+    }
+    edit = update(edit, {current: {$merge: {
+      view: options.form||'form'
+    }}})
+    setData("state", { edit: true })
+    setData("edit", edit)
+    if(data.preview.edit){
+      setData("preview", { edit: false })
+    }
+    setData("current", { module: "edit" })
   }
 
   const loadEditor = async (params) => {
     let { ntype, ttype, id } = params;
-    let proitem;
-    if (id===null) {
-      proitem = app.initItem({tablename: ntype, transtype: ttype, dataset: {}});
-    };
     let edit = update({}, {$set: {
       dataset: { },
       current: { type: ntype, transtype: ttype },
       dirty: false,
       form_dirty: false
     }})
+    let proitem;
+    if (id===null) {
+      proitem = initItem({tablename: ntype, transtype: ttype, 
+        dataset: edit.dataset, current: edit.current});
+    };
     let views = []
     dataset[ntype](ttype).forEach(info => {
       let _sql = {}
@@ -110,7 +409,8 @@ export const useEditor = () => {
       }})
       if (id===null) {
         if (proitem === null) {
-          proitem = app.initItem({tablename: ntype, transtype: ttype, dataset: edit.dataset});
+          proitem = initItem({tablename: ntype, transtype: ttype, 
+            dataset: edit.dataset, current: edit.current});
         }
         if (ttype === "delivery") {
           proitem = update(proitem, {$merge: {
@@ -123,26 +423,29 @@ export const useEditor = () => {
           [ntype]: [proitem]
         }}})
       }
-      setData("edit", edit)
-      if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
-        if (ntype==="trans") {
-          if(options.shipping){
-            //setEditor(params, forms["shipping"](edit.dataset[ntype][0]))
+      setData("edit", edit, ()=>{
+        if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
+          if (ntype==="trans") {
+            if(options.shipping){
+              return setEditor(params, forms["shipping"](edit.dataset[ntype][0], edit), edit)
+            } else {
+              return setEditor(params, forms[ttype](edit.dataset[ntype][0], edit), edit)
+            }
           } else {
-            //setEditor(params, forms[ttype](edit.dataset[ntype][0]))
+            return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit), edit)
           }
-        } else {
-          //setEditor(params, forms[ntype](edit.dataset[ntype][0]))
         }
-      }
+      })
     } else {
       edit = update(edit, { dataset: {$merge: {
-        [ntype]: [app.initItem({ tablename: ntype, transtype: ttype, dataset: edit.dataset })]
+        [ntype]: [initItem({ tablename: ntype, transtype: ttype, 
+          dataset: edit.dataset, current: edit.current })]
       }}})
-      setData("edit", edit)
-      if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
-        //setEditor(params, forms[ntype]())
-      }
+      setData("edit", edit, ()=>{
+        if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
+          return setEditor(params, forms[ntype](), edit)
+        }
+      })
     }
   }
 
@@ -209,10 +512,20 @@ export const useEditor = () => {
       cbNext(cbKeyTrue);
     }
   }
+  
+  const checkTranstype = (options, cbKeyTrue, cbKeyFalse) => {
+    
+  }
+
+  const setFormActions = (params, _row) => {
+
+  }
 
   return {
     checkEditor: checkEditor,
+    checkTranstype: checkTranstype,
     loadEditor: loadEditor,
-    setEditor: setEditor
+    setEditor: setEditor,
+    setFormActions: setFormActions
   }
 }

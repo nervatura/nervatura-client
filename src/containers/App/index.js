@@ -12,11 +12,12 @@ export default class extends App {
     this.setData = this.setData.bind(this)
   }
 
-  setData(key, data) {
+  setData(key, data, callback) {
     if(key && this.state[key] && typeof data === "object" && data !== null){
-      this.setState({ [key]: update(this.state[key], {$merge: data}) })
+      this.setState({ [key]: update(this.state[key], {$merge: data}) }, 
+        ()=>{ if(callback) {callback()} })
     } else if(key){
-      this.setState({ [key]:  data })
+      this.setState({ [key]:  data }, ()=>{ if(callback) {callback()} })
     }
   }
 

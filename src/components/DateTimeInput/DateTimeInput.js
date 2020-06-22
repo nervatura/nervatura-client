@@ -8,7 +8,7 @@ export const DateTimeInput = memo((props) => {
   const { placeholder, dateTime, dateFormat, timeFormat,
     minDate, maxDate, excludeDates, includeDates, highlightDates,
     showTimeSelectOnly, showTimeInput, excludeTimes, includeTimes, timeIntervals,
-    locale, isEmpty, readOnly, disabled } = props
+    locale, isEmpty, readOnly, disabled, className } = props
   const { setValue, setFocus } = props
   const { selectedDate } = props
   const lostFocus = () => {
@@ -38,7 +38,8 @@ export const DateTimeInput = memo((props) => {
       onChange={(value) => setValue( value )}
       onFocus={()=>setFocus(true)}
       onBlur={lostFocus}
-      onCalendarClose={lostFocus} />
+      onCalendarClose={lostFocus}
+      className={className} />
   )
 }, (prevProps, nextProps) => {
   return (

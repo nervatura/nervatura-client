@@ -10,9 +10,9 @@ export default (props) => {
   
   const { rowKey, rows, fields,
     dateFormat, timeFormat,
-    labelYes, labelNo, tableFilter, filterPlaceholder,
+    labelYes, labelNo, labelAdd, addIcon, tableFilter, filterPlaceholder,
     paginationPage, paginationTop, paginatonScroll, 
-    currentPage, onCurrentPage, tablePadding, onRowSelected, onEditCell } = props
+    currentPage, onCurrentPage, tablePadding, onRowSelected, onEditCell, onAddItem } = props
 
   const [ state, setState ] = useState({
     rowKey: rowKey || "id",
@@ -26,7 +26,10 @@ export default (props) => {
     tablePadding: tablePadding,
     filter: "",
     tableFilter: tableFilter,
-    filterPlaceholder: filterPlaceholder || ""
+    filterPlaceholder: filterPlaceholder || "",
+    onAddItem: onAddItem,
+    labelAdd: labelAdd,
+    addIcon: addIcon
   })
 
   state.rows = rows

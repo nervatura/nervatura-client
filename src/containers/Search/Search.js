@@ -11,7 +11,7 @@ import Table from 'components/Table';
 export const BrowserView = memo((props) => {
   const { browserFilter, dropDown, showBrowser, getText, browserView, onEdit, 
     setColumns, showColumns, addFilter, editFilter, deleteFilter, checkTotalFields,
-    showTotal, exportResult } = props
+    showTotal, exportResult, setActions } = props
   const { paginationPage, dateFormat, timeFormat, filter_opt_1, filter_opt_2 } = props.ui
   const { queries } = props
   const { vkey, view, browser_filter, dropdown, result, columns, filters, deffield } = props.data
@@ -205,7 +205,7 @@ export const BrowserView = memo((props) => {
             </div>
             {(viewDef.actions_new)?<div className={`${"cell"} ${styles.resultTitlePlus}`}>
               <button className={`${"primary small-button"}`} 
-                onClick={()=>{}} >
+                onClick={ ()=>setActions(viewDef.actions_new) } >
                 <Plus />
               </button>
             </div>:null}
@@ -230,10 +230,10 @@ export const BrowserView = memo((props) => {
   )
 })
 
-export const QuickView = memo((props) => {
-  const { getText, quickSearch, editRow } = props
-  const { queries, theme } = props
-  const { paginationPage } = props.ui
+export const SelectorView = (props) => {
+  const { getText, quickSearch, editRow, onClose, filterChange } = props
+  const { queries, theme, filter } = props
+  const { paginationPage, selectorPage } = props.ui
   const { qview, result } = props.data
   const query = queries.quick[qview]()
   let fields = {
@@ -255,34 +255,51 @@ export const QuickView = memo((props) => {
       [field[0]]: {fieldtype:'string', label: getText(qview+"_"+field[0])}
     }})
   });
+  return(
+    <div className={`${"panel"} ${styles.maxpanel}`} >
+      <div className="panel-title">
+        {(onClose)?<div className="row full">
+          <div className="cell">
+            <Label value={getText("search_"+qview)} leftIcon={<SearchIcon />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>:
+        <Label bold primary xxxlarge 
+          text="quick_search" value={": "+getText("search_"+qview)} />}
+      </div>
+      <div className="section" >
+        <div className="row full container section-small-bottom" >
+          <div className="cell" >
+            {((typeof filter !== "undefined") && filterChange)?
+              <Input type="text" className="full" placeholder="placeholder_search" autoFocus={true}
+                value={filter} onEnter={quickSearch} onChange={filterChange} />:
+              <Input type="text" className="full" placeholder="placeholder_search"
+                keys={["search","qfilter"]} onEnter={quickSearch} />}
+          </div>
+          <div className={`${"cell"} ${styles.searchCol}`} >
+            <button className={`${"full medium"}`} 
+              onClick={()=>quickSearch()} >
+              <Label text={"label_search"} leftIcon={<SearchIcon />} center />
+            </button>
+          </div>
+        </div>
+        {(result && (result.length > 0))?<div className="row full container section-small-bottom" >
+          <Table fields={fields} rows={result}
+            filterPlaceholder={getText("placeholder_search")} 
+            paginationPage={(onClose)?selectorPage:paginationPage} paginationTop={true}
+            onRowSelected={editRow} />
+        </div>:null}
+      </div>
+    </div>
+  )
+}
+
+export const QuickView = memo((props) => { 
   return (
     <div className="page padding-normal" >
-      <div className={`${"panel"} ${styles.maxpanel}`} >
-        <div className="panel-title">
-          <Label bold primary xxxlarge 
-          text="quick_search" value={": "+getText("search_"+qview)} />
-        </div>
-        <div className="section" >
-          <div className="row full container section-small-bottom" >
-            <div className="cell" >
-              <Input type="text" className="full" placeholder="placeholder_search"
-                keys={["search","qfilter"]} onEnter={quickSearch} />
-            </div>
-            <div className={`${"cell"} ${styles.searchCol}`} >
-              <button className={`${"full medium"}`} 
-                onClick={()=>quickSearch()} >
-                <Label text={"label_search"} leftIcon={<SearchIcon />} center />
-              </button>
-            </div>
-          </div>
-          {(result && (result.length > 0))?<div className="row full container section-small-bottom" >
-            <Table fields={fields} rows={result}
-              filterPlaceholder={getText("placeholder_search")} 
-              paginationPage={paginationPage} paginationTop={true}
-              onRowSelected={editRow} />
-          </div>:null}
-        </div>
-      </div>
+      <SelectorView {...props} />
     </div>
   )
 }, (prevProps, nextProps) => {

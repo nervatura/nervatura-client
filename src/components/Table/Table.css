@@ -8,6 +8,7 @@
   --orangeColor: orangeColor;
   --lightBlack: lightBlack;
   --linkColor: linkColor;
+  --lightColor: lightColor;
 }
 
 .sort {
@@ -160,33 +161,6 @@
   }
 }
 
-.w3-table-all{
-  border: 1px solid #ccc;
-}
-.w3-bordered tr,.w3-table-all tr{
-  border-bottom: 1px solid #ddd;
-}
-.w3-striped tbody tr:nth-child(even){
-  background-color:#f1f1f1;
-}
-.w3-table-all tr:nth-child(odd){
-  background-color:#fff;
-}
-.w3-table-all tr:nth-child(even){
-  background-color:#f1f1f1;
-}
-.w3-hoverable tbody tr:hover,.w3-ul.w3-hoverable li:hover{
-  background-color:#ccc;
-}.w3-centered tr th,.w3-centered tr td{
-  text-align:center;
-}
-.w3-table td,.w3-table th,.w3-table-all td,.w3-table-all th{
-  padding:8px 8px; display:table-cell; text-align:left; vertical-align:top;
-}
-.w3-table th:first-child,.w3-table td:first-child,.w3-table-all th:first-child,.w3-table-all td:first-child{
-  padding-left:16px;
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
@@ -197,7 +171,8 @@
 
 input {
   font-family: --primaryFont;
-  border-radius: 3px;
+  width: 100%;
+  border-radius: 0px!important;
   border: 1px solid --backgroundColor;
   background: --whiteColor;
   color: --primaryColor;
@@ -205,6 +180,8 @@ input {
   padding: 8px;
   display: block;
   opacity: 1;
+  margin-top: 1px;
+  margin-bottom: 2px;
 }
 
 input:disabled {
@@ -214,5 +191,22 @@ input:disabled {
 input::placeholder, input::-ms-input-placeholder {
   opacity: 0.5;
 };
+
+.border-button {
+  margin-left: 1px;
+  margin-top: 1px;
+  margin-bottom: 2px;
+}
+
+.addButton {
+  font-weight: bold;
+  border-radius: 0px!important;
+  background-color: --lightColor!important;
+  padding: 7px 16px;
+}
+
+.addLabel {
+  padding-left: 4px;
+}
 
 

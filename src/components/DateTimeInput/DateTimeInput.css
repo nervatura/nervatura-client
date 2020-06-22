@@ -5,6 +5,10 @@
   --whiteColor: whiteColor;
 }
 
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
 .react-datepicker-wrapper input {
   font-family: --primaryFont;
   text-align: center;

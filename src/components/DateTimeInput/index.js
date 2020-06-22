@@ -6,7 +6,7 @@ import { DateTimeInput } from "./DateTimeInput";
 export default (props) => {
 
   const { value, onChange, placeholder, dateTime,
-    dateFormat, timeFormat,
+    dateFormat, timeFormat, className,
     minDate, maxDate, highlightDates, excludeDates, includeDates,
     showTimeSelectOnly, showTimeInput, excludeTimes, includeTimes,
     locale, isEmpty, readOnly, disabled } = props
@@ -27,7 +27,8 @@ export default (props) => {
     showTimeInput:showTimeInput,
     excludeTimes: excludeTimes,
     includeTimes: includeTimes,
-    locale: locale
+    locale: locale,
+    className: className
   })
   
   state.isEmpty = isEmpty

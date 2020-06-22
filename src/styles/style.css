@@ -11,6 +11,7 @@
 
 .container { padding: 0.01em 16px; } 
 .container::after, .container::before { content: ""; display: table; clear: both; }
+.container-small { padding: 0px 8px; }
 .padding-tiny { padding: 2px 4px; }
 .padding-small { padding: 4px 8px; }
 .padding-normal { padding: 8px 16px; }
@@ -62,6 +63,7 @@
   .mobile{ display:block; width:100%!important }
   
   .container { padding: 0px 8px; }
+  .container-small { padding: 0px 4px; }
   .padding-tiny { padding: 1px 2px; }
   .padding-small { padding: 2px 4px; }
   .padding-normal { padding: 4px 8px; }

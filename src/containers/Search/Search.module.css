@@ -164,3 +164,11 @@
     padding: 8px;
   }
 }
+
+.closeIcon {
+  cursor: pointer;
+}
+
+.closeIcon:hover {
+  color: --redColor;
+}

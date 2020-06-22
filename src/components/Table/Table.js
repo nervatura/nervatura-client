@@ -1,15 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, createElement } from 'react';
 import * as Table from 'reactabular-table';
 import * as sort from 'sortabular';
 import orderBy from 'lodash/orderBy';
 
 import Paginator, { paginate } from 'components/Paginator';
+import { Plus } from 'components/Icons';
 import './Table.css';
 
 export const TableView = memo((props) => {
-  const { getColumns, rowFilter, onSelect, onRow } = props
+  const { getColumns, rowFilter, onSelect, onRow, onAddItem } = props
   const { rowKey, sortingColumns, pagination, paginationTop,
-    tableFilter, filter, filterPlaceholder, filterChange } = props
+    tableFilter, filter, filterPlaceholder, filterChange, labelAdd, addIcon } = props
 
   const columns = getColumns()
   const tableRows = (pagination.perPage > 0) ? 
@@ -21,8 +22,15 @@ export const TableView = memo((props) => {
     <div className="ui-table" >
       {((tableRows.amount) && (tableRows.amount > 1) && paginationTop) ?
         <Paginator pagination={pagination} pages={tableRows.amount} onSelect={onSelect} />:null}
-      {(tableFilter) ? <input id="filter" placeholder={filterPlaceholder} value={filter} 
-        onChange={(evt) => filterChange(evt.target.value)} /> : null}
+      {(tableFilter) ? <div className="row full">
+        <div className="cell" ><input id="filter" 
+          placeholder={filterPlaceholder} value={filter} 
+          onChange={(evt) => filterChange(evt.target.value)} /></div>
+        {(onAddItem)?<div className="cell" style={{width:20}} ><button 
+          className={`${"border-button"} ${"addButton"}`} 
+          onClick={ ()=>onAddItem() } >{createElement(addIcon || Plus)}<span className="addLabel">{labelAdd}</span>
+        </button></div>:null}
+      </div>: null}
       <Table.Provider columns={columns} >
         <Table.Header />
         <Table.Body rows={tableRows.rows || tableRows} rowKey={rowKey} 

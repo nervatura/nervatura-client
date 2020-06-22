@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, createElement } from 'react';
 import update from 'immutability-helper';
-import { formatISO, addDays } from 'date-fns'
 import 'whatwg-fetch';
 
 import { toast, Zoom } from 'react-toastify';
@@ -68,10 +67,10 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FME_FLOAT}/g, "");
         sql = sql.replace(/{FMS_INT}/g, "");
         sql = sql.replace(/{FME_INT}/g, "");
-        sql = sql.replace(/{FMS_DATE}/g, "date("); //format to iso date - start
-        sql = sql.replace(/{FME_DATE}/g, ")"); //format to iso date - end
-        sql = sql.replace(/{FMS_DATETIME}/g, "substr(datetime("); //format to iso datetime - start
-        sql = sql.replace(/{FME_DATETIME}/g, "),1,16)"); //format to iso datetime - end
+        sql = sql.replace(/{FMS_DATE}/g, "substr("); //format to iso date - start
+        sql = sql.replace(/{FME_DATE}/g, ",1,10)"); //format to iso date - end
+        sql = sql.replace(/{FMS_DATETIME}/g, "substr("); //format to iso datetime - start
+        sql = sql.replace(/{FME_DATETIME}/g, ",1,16)"); //format to iso datetime - end
         sql = sql.replace(/{FMS_TIME}/g, "substr(time(");
         sql = sql.replace(/{FME_TIME}/g, "),0,6)");
         sql = sql.replace(/{JOKER}/g, "'%'");
@@ -102,7 +101,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FMS_DATE}/g, "date_format(");
         sql = sql.replace(/{FME_DATE}/g, ", '%Y-%m-%d')");
         sql = sql.replace(/{FMS_DATETIME}/g, "date_format(");
-        sql = sql.replace(/{FME_DATETIME}/g, ", '%Y-%m-%d %H:%i')");
+        sql = sql.replace(/{FME_DATETIME}/g, ", '%Y-%m-%dT%H:%i')");
         sql = sql.replace(/{FMS_TIME}/g, "cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as char)");
         sql = sql.replace(/{JOKER}/g, "'%'");
@@ -141,7 +140,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FMS_DATE}/g, "to_char(");
         sql = sql.replace(/{FME_DATE}/g, ", 'YYYY-MM-DD')");
         sql = sql.replace(/{FMS_DATETIME}/g, "to_char(");
-        sql = sql.replace(/{FME_DATETIME}/g, ", 'YYYY-MM-DD HH24:MI')");
+        sql = sql.replace(/{FME_DATETIME}/g, ", 'YYYY-MM-DD\"T\"HH24:MI')");
         sql = sql.replace(/{FMS_TIME}/g, "substr(cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as text), 0, 6)");
         sql = sql.replace(/{JOKER}/g, "chr(37)");
@@ -192,6 +191,7 @@ export const getSql = (engine, _sql) => {
       if (data.length > 0) {
         if (
           key === "select" ||
+          key === "select_distinct" ||
           key === "union_select" ||
           key === "order_by" ||
           key === "group_by" ||
@@ -313,566 +313,9 @@ export const useApp = () => {
     return defValue || locales["en"][key] || ""
   }
 
-  const initItem = (params) => {
-    const dataset = params.dataset || data.edit.dataset
-    switch (params.tablename) {
-      case "address":
-        return update({}, {$merge: {
-          id:null, 
-          nervatype: data.login.data.groups.filter((group)=> {
-            return ((group.groupname === "nervatype") && (group.groupvalue === data.edit.current.type))
-          })[0].id, 
-          ref_id: data.edit.current.item.id, 
-          country: null, state: null, zipcode: null, city: null, street: null, notes: null, deleted: 0
-        }})
-          
-      case "audit":
-        //ui_audit
-        return update({}, {$merge: {
-          id: null, usergroup: null, nervatype: null, subtype: null, inputfilter: null, supervisor: 1
-        }})
-        
-      case "barcode":
-        return update({}, {$merge: {
-          id: null, code: null, product_id: data.edit.current.item.id, description: null,
-          barcodetype: dataset.barcodetype.filter((group)=> {
-            return ((group.groupname === "barcodetype") && (group.groupvalue === "CODE_39"))
-          })[0].id, 
-          qty: 0, defcode: 0
-        }})
-      
-      case "contact":
-        return update({}, {$merge: {
-          id: null,
-          nervatype: data.login.data.groups.filter((group)=> {
-            return ((group.groupname === "nervatype") && (group.groupvalue === data.edit.current.type))
-          })[0].id, 
-          ref_id: data.edit.current.item.id, 
-          firstname: null, surname: null, status: null, 
-          phone: null, fax: null, mobil: null, email: null, notes: null, deleted: 0
-        }})  
-         
-      case "currency":
-        return update({}, {$merge: {
-          id: null, curr: null, description: null, digit: 0, defrate: 0, cround: 0
-        }})
-          
-      case "customer":
-        if (typeof dataset.custtype !== "undefined") {
-          return update({}, {$merge: {
-            id: null,
-            custtype: dataset.custtype.filter((group)=> {
-              return (group.groupvalue === "company")
-            })[0].id,  
-            custnumber: null, custname: null, taxnumber: null, account: null,
-            notax: 0, terms: 0, creditlimit: 0, discount: 0, notes: null, inactive: 0, deleted: 0
-          }})
-        }  
-        return null;
-          
-      case "deffield":
-        return update({}, {$merge: {
-          id: null, fieldname: guid(), 
-          nervatype: null, subtype: null, fieldtype: null, description: null,
-          valuelist:null, addnew: 0, visible: 1, readonly: 0, deleted: 0
-        }})
-        
-      case "employee":
-        if(dataset.usergroup){
-          return update({}, {$merge: {
-            id: null,
-            empnumber: null, username: null,
-            usergroup: dataset.usergroup.filter((group)=> {
-              return (group.groupvalue === "admin")
-            })[0].id, 
-            startdate: formatISO(new Date(), { representation: 'date' }), 
-            enddate: null, department: null,
-            password: null, registration_key: null, inactive: 0, deleted: 0
-          }})  
-        }
-        return null
-        
-      case "event":
-        let event = update({}, {$merge: {
-          id: null, calnumber: null, 
-          nervatype: null, ref_id: null, 
-          uid: null, eventgroup: null, fromdate: null, todate: null, subject: null, 
-          place: null, description: null, deleted: 0
-        }})
-        if (typeof data.edit.current.item !== "undefined") {
-          if (data.edit.current.type === "event") {
-            event = update({}, {$merge: {
-              nervatype: data.edit.current.item.nervatype,
-              ref_id: data.edit.current.item.ref_id
-            }})  
-          } else {
-            event = update({}, {$merge: {
-              nervatype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "nervatype") && (group.groupvalue === data.edit.current.type))
-              })[0].id,
-              ref_id: data.edit.current.item.id
-            }})
-          }
-        }
-        return event;
-      
-      case "fieldvalue":
-        let fieldvalue = update({}, {$merge: {
-          id: null, fieldname: null, ref_id: null, value: null, notes: null, deleted: 0
-        }})
-        if (typeof data.edit.current.item !== "undefined") {
-          fieldvalue = update({}, {$merge: {
-            ref_id: data.edit.current.item.id
-          }})
-        }
-        return fieldvalue;
-      
-      case "groups":
-        return update({}, {$merge: {
-          id: null, groupname: null, groupvalue: null, description: null, 
-          inactive: 0, deleted: 0
-        }})
-      
-      case "usergroup":
-        //groups
-        return update({}, {$merge: {
-          id: null, groupname: "usergroup", groupvalue: null, description: null, 
-          transfilter: null, inactive: 0, deleted: 0
-        }})
-        
-      case "item":
-        return update({}, {$merge: {
-          id: null, 
-          trans_id: data.edit.current.item.id, 
-          product_id: null, unit: null, qty: 0, 
-          fxprice: 0, netamount: 0, discount: 0, tax_id: null, 
-          vatamount: 0, amount: 0, description: null, deposit: 0, 
-          ownstock: 0, actionprice: 0, deleted: 0
-        }})
-        
-      case "link":
-        let link = update({}, {$merge: { 
-          id: null, nervatype_1: null, ref_id_1: null, nervatype_2: null, 
-          ref_id_2: null, deleted: 0
-        }})
-        switch (data.edit.current.form_type) {
-          case "invoice_link":
-            link = update({}, {$merge: {
-              nervatype_1: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "nervatype") && (group.groupvalue === "payment"))
-              })[0].id,
-              nervatype_2: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "nervatype") && (group.groupvalue === "trans"))
-              })[0].id,
-              ref_id_2: data.edit.current.item.id
-            }})
-            break;
-          case "payment_link":
-            link = update({}, {$merge: {
-              nervatype_1: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "nervatype") && (group.groupvalue === "payment"))
-              })[0].id,
-              nervatype_2: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "nervatype") && (group.groupvalue === "trans"))
-              })[0].id
-            }})
-            break;
-          default:
-        }
-        return link;
-      
-      case "log":
-        return update({}, {$merge: {
-          id: null,
-          fromdate: formatISO(new Date(), { representation: 'date' }), 
-          todate: "", empnumber: "", logstate: "update", nervatype: ""
-        }})
-      
-      case "ui_menu":
-        return update({}, {$merge: {
-          id: null, menukey: null, description: null, modul: null, icon: null, 
-          funcname: null, url: 0, address: null
-        }})
-      
-      case "ui_menufields":
-        return update({}, {$merge: {
-          id: null, menu_id: null, fieldname: null, description: null, 
-          fieldtype: null, orderby: 0
-        }})
-          
-      case "movement":
-        let movement = update({}, {$merge: {
-          id: null, trans_id: data.edit.current.item.id, 
-          shippingdate: null, movetype: null, product_id: null,
-          tool_id: null, qty: 0, place_id: null, shared: 0, notes: null, deleted: 0
-        }})
-        switch (data.edit.current.transtype) {
-          case "delivery":
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "inventory"))
-              })[0].id,
-              shippingdate: data.edit.current.item.transdate+" 00:00:00"
-            }})
-            if (dataset.movement_transfer.length > 0){
-              movement = update({}, {$merge: {
-                place_id: dataset.movement_transfer[0].place_id
-              }})
-            }
-            break;
-          case "inventory":
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "inventory"))
-              })[0].id,
-              shippingdate: data.edit.current.item.transdate+" 00:00:00",
-              place_id: data.edit.current.item.place_id
-            }})
-            break;
-          case "production":
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "inventory"))
-              })[0].id,
-              shippingdate: data.edit.current.item.duedate
-            }})
-            break;
-          case "formula":
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "plan"))
-              })[0].id,
-              shippingdate: data.edit.current.item.transdate+" 00:00:00"
-            }})
-            break;
-          case "waybill":
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "tool"))
-              })[0].id,
-              shippingdate: data.edit.current.item.transdate+" 00:00:00"
-            }})
-            break;
-          default:
-            movement = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "inventory"))
-              })[0].id
-            }})
-        }
-        return movement;
-      
-      case "movement_head":
-        //movement
-        let movement_head = update({}, {$merge: {
-          id: null, trans_id: data.edit.current.item.id, 
-          shippingdate: null, product_id: null, product: "", movetype: null, 
-          tool_id: null, qty: 0, place_id: null, shared: 0, notes: null, deleted: 0
-        }})
-        switch (data.edit.current.transtype) {
-          case "formula":
-            movement_head = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "head"))
-              })[0].id
-            }})
-            break;
-          case "production":
-            movement_head = update({}, {$merge: {
-              movetype: data.login.data.groups.filter((group)=> {
-                return ((group.groupname === "movetype") && (group.groupvalue === "inventory"))
-              })[0].id,
-              shared: 1
-            }})
-            break;
-          default:
-        }
-        return movement_head;
-          
-      case "numberdef":
-        return update({}, {$merge: {
-          id: null,
-          numberkey: null, prefix: null, curvalue: 0, isyear: 1, sep: "/",
-          len: 5, description: null, visible: 0, readonly: 0, orderby: 0
-        }})
-        
-      case "pattern":
-        return update({}, {$merge: {
-          id: null,
-          transtype: data.edit.current.item.transtype,
-          description: null, notes: "", defpattern: 0, deleted: 0
-        }})
-          
-      case "payment":
-        return update({}, {$merge: {
-          id: null,
-          trans_id: data.edit.current.item.id, 
-          paiddate: data.edit.current.item.transdate, amount: 0, notes: null, deleted: 0
-        }})
-      
-      case "place":
-        return update({}, {$merge: {
-          id: null,
-          planumber: null, placetype:null, description: null,
-          curr: null, defplace: 0, notes: null, inactive: 0, deleted: 0
-        }})
-        
-      case "price":
-      case "discount":
-        let price =  update({}, {$merge: {
-          id: null, product_id: data.edit.current.item.id,
-          validfrom: formatISO(new Date(), { representation: 'date' }), 
-          validto: null, curr: null, qty: 0,
-          pricevalue: 0, discount: null,
-          calcmode: data.login.data.groups.filter((group)=> {
-            return ((group.groupname === "calcmode") && (group.groupvalue === "amo"))
-          })[0].id, 
-          vendorprice: 0, deleted: 0
-        }})
-        if (params.tablename === "discount") {
-          price =  update({}, {$merge: {
-            discount: 0
-          }})
-        }
-        let default_currency = dataset.settings.filter((group)=> {
-          return (group.fieldname === "default_currency")
-        })[0]
-        if (typeof default_currency !== "undefined") {
-          price =  update({}, {$merge: {
-            curr: default_currency.value
-          }})
-        }
-        return price;
-        
-      case "product":
-        if(dataset.protype){
-          let product = update({}, {$merge: {
-            id: null,
-            protype: dataset.protype.filter((group)=> {
-              return (group.groupvalue === "item")
-            })[0].id,
-            partnumber: null, description: null, unit: null,
-            tax_id: null, notes: null, inactive: 0, webitem: 0, deleted: 0
-          }})
-          let default_unit = dataset.settings.filter((group)=> {
-            return (group.fieldname === "default_unit")
-          })[0]
-          if (typeof default_unit !== "undefined") {
-            product = update({}, {$merge: {
-              unit: default_unit.value
-            }})
-          }
-          let default_taxcode = dataset.settings.filter((group)=> {
-            return (group.fieldname === "default_taxcode")
-          })[0]
-          if (typeof default_taxcode !== "undefined") {
-            product = update({}, {$merge: {
-              tax_id: dataset.tax.filter((tax)=> {
-                return (tax.taxcode === default_taxcode.value)
-              })[0].id
-            }})
-          } else {
-            product = update({}, {$merge: {
-              tax_id: dataset.tax.filter((tax)=> {
-                return (tax.taxcode === "0%")
-              })[0].id
-            }})
-          }
-          return product;
-        }
-        return null
-      
-      case "project":
-        return update({}, {$merge: {
-          id: null,
-          pronumber: null, description: null, customer_id: null, startdate: null, 
-          enddate:null, notes:null, inactive:0, deleted: 0
-        }})
-      
-      case "printqueue":
-        if (data.edit.current.type === "printqueue") {
-          return update({}, {$merge: {
-            id: null, 
-            nervatype: data.edit.current.item.nervatype, 
-            startdate: data.edit.current.item.startdate, 
-            enddate: data.edit.current.item.enddate,
-            transnumber: data.edit.current.item.transnumber, 
-            username: data.edit.current.item.username, 
-            server: data.edit.current.item.server, 
-            mode: data.edit.current.item.mode,
-            orientation: data.edit.current.item.orientation,
-            size: data.edit.current.item.size
-          }})
-        }
-        return update({}, {$merge: {
-          id: null, nervatype: null, startdate: null, enddate: null,
-          transnumber: null, username: null, server: null, mode: "pdf", 
-          orientation: data.ui.page_orient, 
-          size: data.ui.page_size
-        }})
-      
-      case "rate":
-        return update({}, {$merge: {
-          id: null,
-          ratetype: null, ratedate: formatISO(new Date(), { representation: 'date' }), 
-          curr: null, place_id: null, rategroup: null, ratevalue: 0, deleted: 0
-        }})
-      
-      case "refvalue":
-        let refvalue = update({}, {$merge: {
-          seltype: "transitem", ref_id: null, refnumber: "", transtype: ""
-        }})
-        if (data.edit.current.transtype === "waybill") {
-          const base_trans = dataset.trans[0]
-          if (base_trans.customer_id !== null) {
-            refvalue = update({}, {$merge: {
-              seltype: "customer",
-              ref_id: base_trans.customer_id,
-              refnumber: base_trans.custname
-            }}) 
-          } else if (base_trans.employee_id !== null) {
-            refvalue = update({}, {$merge: {
-              seltype: "employee",
-              ref_id: base_trans.employee_id,
-              refnumber: base_trans.empnumber
-            }})
-          } else {
-            refvalue = update({}, {$merge: {
-              seltype: "transitem",
-            }})
-            if (dataset.translink.length > 0) {
-              refvalue = update({}, {$merge: {
-                ref_id: dataset.translink[0].ref_id_2,
-                transtype: dataset.translink[0].transtype,
-                refnumber: dataset.translink[0].transnumber
-              }})
-            }
-          }
-        }
-        return refvalue;
-      
-      case "report":
-        //ui_report
-        return update({}, {$merge: {
-          id: null,
-          reportkey: null, nervatype: null, transtype: null, direction: null, repname: null,
-          description: null, label: null, filetype: null, report: null,
-          orientation: data.ui.page_orient, size: data.ui.page_size
-        }})
-        
-      case "tax":
-        return update({}, {$merge: {
-          id:null,
-          taxcode: null, description: null, rate: 0, inactive: 0
-        }})
-      
-      case "tool":
-        return update({}, {$merge: {
-          id: null,
-          serial: null, description: null, product_id: null, 
-          toolgroup: null, notes: null, inactive: 0, deleted: 0
-        }})
-       
-      case "trans":
-        const transtype = params.transtype || data.edit.current.transtype;
-        if (typeof dataset.pattern !== "undefined") {
-          let trans = update({}, {$merge: {
-            id: null,
-            movetype: data.login.data.groups.filter((group)=> {
-              return ((group.groupname === "transtype") && (group.groupvalue === transtype))
-            })[0].id,
-            direction: data.login.data.groups.filter((group)=> {
-              return ((group.groupname === "direction") && (group.groupvalue === "out"))
-            })[0].id, 
-            transnumber: null, ref_transnumber: null, 
-            crdate: formatISO(new Date(), { representation: 'date' }), 
-            transdate: formatISO(new Date(), { representation: 'date' }), 
-            duedate: null,
-            customer_id: null, employee_id: null, department: null, project_id: null,
-            place_id: null, paidtype: null, curr: null, notax: 0, paid: 0, acrate: 0, 
-            notes: null, intnotes: null, fnote: null,
-            transtate: data.login.data.groups.filter((group)=> {
-              return ((group.groupname === "transtate") && (group.groupvalue === "ok"))
-            })[0].id,
-            cruser_id: data.login.data.employee.id, closed: 0, deleted: 0
-          }})
-          let pattern = dataset.pattern.filter((pattern)=> {
-            return (pattern.defpattern === 1)
-          })[0]
-          if (typeof pattern !== "undefined") {
-            trans = update({}, {$merge: {
-              fnote: pattern.notes
-            }})
-          }
-          switch (transtype) {
-            case "offer":
-            case "order":
-            case "worksheet":
-            case "rent":
-            case "invoice":
-            case "receipt":
-              trans = update({}, {$merge: {
-                duedate: formatISO(new Date(), { representation: 'date' })+"T00:00:00"
-              }})
-              let default_currency = dataset.settings.filter((group)=> {
-                return (group.fieldname === "default_currency")
-              })[0]
-              if (typeof default_currency !== "undefined") {
-                trans = update({}, {$merge: {
-                  curr: default_currency.value
-                }})
-              }
-              let default_paidtype = dataset.settings.filter((group)=> {
-                return (group.fieldname === "default_paidtype")
-              })[0]
-              if (typeof default_paidtype !== "undefined") {
-                trans = update({}, {$merge: {
-                  paidtype: dataset.paidtype.filter((group)=> {
-                    return (group.groupvalue === default_paidtype.value)
-                  })[0].id
-                }})
-              }
-              break;
-            case "bank":
-            case "inventory":
-            case "formula":
-              trans = update({}, {$merge: {
-                direction: data.login.data.groups.filter((group)=> {
-                  return ((group.groupname === "direction") && (group.groupvalue === "transfer"))
-                })[0].id
-              }})
-              break;
-            case "production":
-              trans = update({}, {$merge: {
-                direction: data.login.data.groups.filter((group)=> {
-                  return ((group.groupname === "direction") && (group.groupvalue === "transfer"))
-                })[0].id,
-                duedate: formatISO(new Date(), { representation: 'date' })+"T00:00:00"
-              }})
-              break;
-            default:
-              }
-          if (transtype === "invoice") {
-            let default_deadline = dataset.settings.filter((group)=> {
-              return (group.fieldname === "default_deadline")
-            })[0]
-            if (typeof default_deadline !== "undefined") {
-              trans = update({}, {$merge: {
-                duedate: formatISO(addDays(new Date(), parseInt(default_deadline.item.value,10)), { representation: 'date' })+"T00:00:00"
-              }})
-            }
-          }    
-          return trans;}
-        return null;
-        
-      default:
-    }
-    return false;
-  }
-
   const showToast = (params) => {
     const autoClose = (params.autoClose === false) ? false : data.ui.toastTime
-    const modal = (show)=>setData("current", { modal: show } )
+    const modal = (show, cb)=>setData("current", { modal: show }, cb )
     const toastId = params.key || params.type
     switch (params.type) {
       case "error":
@@ -916,16 +359,30 @@ export const useApp = () => {
             labelCancel={params.labelCancel || getText("msg_cancel")}
             labelOK={params.labelOK || getText("msg_ok")}  
             cbCancel={()=>{ 
-              toast.dismiss(toastId); modal(false);
-              if(params.cbCancel){ params.cbCancel() } 
+              toast.dismiss(toastId);
+              modal(false, ()=>{
+                if(params.cbCancel){ params.cbCancel()
+              }});
             }}
             cbOK={(value)=>{ 
-              toast.dismiss(toastId); modal(false);
-              if(params.cbOK){ params.cbOK(value) } 
+              toast.dismiss(toastId); 
+              modal(false, ()=>{
+                if(params.cbOK){ params.cbOK(value) }
+              }); 
             }} />, { 
             autoClose: false, className: "input-box", toastId: toastId,
             position: "top-center", draggable: false,
             closeButton: false, transition: Zoom, closeOnClick: false })
+        break;
+      
+      case "custom":
+        /* istanbul ignore next */
+        toast.dismiss()
+        //modal(true)
+        toast(createElement(params.form, { ...params.props }), { 
+          autoClose: false, className: "input-box", toastId: toastId,
+          position: "top-center", draggable: false,
+          closeButton: false, transition: Zoom, closeOnClick: false })
         break;
     
       default:
@@ -1043,7 +500,6 @@ export const useApp = () => {
   return {
     getText: getText,
     getAuditFilter: getAuditFilter,
-    initItem: initItem,
     showToast: showToast,
     resultError: resultError,
     requestData: requestData,
