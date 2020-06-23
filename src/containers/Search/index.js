@@ -39,8 +39,9 @@ export default (props) => {
     }})
     if (options.ntype === "servercmd") {
       //showServerCmd(options.id)
+    } else {
+      editor.checkEditor(options, 'LOAD_EDITOR')
     }
-    editor.checkEditor(options, 'LOAD_EDITOR')
   }
 
   state.setActions = (params, row) => {

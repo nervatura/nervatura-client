@@ -148,7 +148,7 @@ export const useSearch = () => {
   }
 
   const quickSearch = async (qview, qfilter) => {
-    const query = queries.quick[qview](data.login.data.employee.usergroup)
+    const query = queries.quick[qview](String(data.login.data.employee.usergroup))
     let _sql = update({}, {$set: query.sql})
     let params = []; let _where = []
     if(qfilter !== ""){

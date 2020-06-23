@@ -10,7 +10,7 @@ import { useQueries } from 'containers/Search/queries'
 import { SelectorView } from 'containers/Search/Search'
 import styles from './Controller.module.css';
 import DateTimeInput from 'components/DateTimeInput';
-import { ToggleOff, ToggleOn, Times, Search } from 'components/Icons';
+import { ToggleOff, ToggleOn, Times, Search, CheckSquare, SquareEmpty } from 'components/Icons';
 
 const useValues = (keys, defValue) => {
   const store = useContext(AppStore)
@@ -186,6 +186,7 @@ export const FormField = (props) => {
   let datatype = field.datatype
   let description = field.description
   let fieldMap = field.map || null
+  const empty = ((field.empty === "true") || (field.empty === true)) ? true : false
 
   const onChange = ( value, item ) => {
     let extend = false
@@ -446,7 +447,7 @@ export const FormField = (props) => {
       }
       return <DateTimeInput value={value} 
         dateTime={(datatype === "datetime")}
-        isEmpty={field.empty||false} disabled={(disabled || audit === 'readonly')}
+        isEmpty={empty} disabled={(disabled || audit === 'readonly')}
         onChange={(value) => {
           if(datatype === "datetime"){
             format(parseISO(value), data.ui.dateFormat+" "+data.ui.timeFormat)
@@ -482,7 +483,7 @@ export const FormField = (props) => {
         value = current.extend[field.name]||"";
       }
       let option = []
-      if (field.empty) {
+      if (empty) {
         option.push(<option key="empty" value=""></option>)
       }
       if (fieldMap) {
@@ -558,7 +559,7 @@ export const FormField = (props) => {
           </button>
         </div>)
       }
-      if (field.empty==="true") {
+      if (empty) {
         columns.push(<div key="sel_delete" className={` ${"cell"} ${styles.timesCol}`}>
           <button className={`${"border-button"} ${styles.selectorButton}`}
             disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}
@@ -683,11 +684,14 @@ export const FormField = (props) => {
 }
 
 export const FormRow = (props) => {
-  const { rowtype, label, columns, values, name, disabled } = props.row
+  const { values, rowdata } = props
+  const { id, rowtype, label, columns, name, disabled, audit, notes, selected, empty } = props.row
   switch (rowtype) {
 
     case "label":
-      return <div className="full padding-normal" >{values[name] || label}</div>
+      return (<div className={`${"row full padding-small section-small border-bottom"} ${styles.labelRow}`} >
+        <div className="cell padding-small" >{values[name] || label}</div>
+      </div>)
 
     case "field":
       return(<div className="row full padding-small section-small border-bottom">
@@ -698,8 +702,19 @@ export const FormRow = (props) => {
           <div className={`${"hide-medium hide-large"}`} >
             <Label className="bold" value={label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={props.row} />
+          <FormField values={values} rowdata={rowdata} field={props.row} />
         </div>
+      </div>)
+    
+    case "reportfield":
+      return(<div className={`${"cell padding-small s12 m6 l4"}`} >
+        <div className={`${"padding-small"} ${(empty !== 'false')?styles.reportField:""}`} 
+          onClick={() => {if(empty !== 'false'){
+            rowdata.onEdit({id: id, name: "selected", value: !selected, extend: false })} }}>
+          <Label className="bold" value={label} 
+            leftIcon={(selected)?<CheckSquare />:<SquareEmpty />} />
+        </div>
+        <FormField values={values} rowdata={rowdata} field={props.row} />
       </div>)
 
     case "fieldvalue":
@@ -710,20 +725,20 @@ export const FormRow = (props) => {
           </div>
           <div className="cell align-right container-small" >
             <span className={`${styles.fieldvalueDelete}`} 
-              onClick={ ()=>props.rowdata.onEdit({ 
-                id: props.row.id, name: "fieldvalue_delete"}) }><Times /></span>
+              onClick={ ()=>rowdata.onEdit({ 
+                id: id, name: "fieldvalue_delete"}) }><Times /></span>
           </div>
         </div>
         <div className="row full">
           <div className={`${"cell padding-small s12 m6 l6"}`} >
-            <FormField values={props.values} rowdata={props.rowdata} field={props.row} />
+            <FormField values={values} rowdata={rowdata} field={props.row} />
           </div>
           <div className={`${"cell padding-small s12 m6 l6"}`} >
             <input name={'fieldvalue_notes'} type="text" 
-              value={props.row.notes} className="full" 
-              onChange={(event) => props.rowdata.onEdit({
-                id: props.row.id, name: "fieldvalue_notes", value: event.target.value})}
-              disabled={(disabled || props.row.audit === 'readonly') ? 'disabled' : ''}/>
+              value={notes} className="full" 
+              onChange={(event) => rowdata.onEdit({
+                id: id, name: "fieldvalue_notes", value: event.target.value})}
+              disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
           </div>
         </div>
       </div>)
@@ -734,13 +749,13 @@ export const FormRow = (props) => {
           <div>
             <Label className="bold" value={columns[0].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[0]} />
+          <FormField values={values} rowdata={rowdata} field={columns[0]} />
         </div>
         <div className={`${"cell padding-small s12 m6 l6"}`} >
           <div>
             <Label className="bold" value={columns[1].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[1]} />
+          <FormField values={values} rowdata={rowdata} field={columns[1]} />
         </div>
       </div>)
     
@@ -750,19 +765,19 @@ export const FormRow = (props) => {
           <div>
             <Label className="bold" value={columns[0].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[0]} />
+          <FormField values={values} rowdata={rowdata} field={columns[0]} />
         </div>
         <div className={`${"cell padding-small s12 m4 l4"}`} >
           <div>
             <Label className="bold" value={columns[1].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[1]} />
+          <FormField values={values} rowdata={rowdata} field={columns[1]} />
         </div>
         <div className={`${"cell padding-small s12 m4 l4"}`} >
           <div>
             <Label className="bold" value={columns[2].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[2]} />
+          <FormField values={values} rowdata={rowdata} field={columns[2]} />
         </div>
       </div>)
 
@@ -772,25 +787,25 @@ export const FormRow = (props) => {
           <div>
             <Label className="bold" value={columns[0].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[0]} />
+          <FormField values={values} rowdata={rowdata} field={columns[0]} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
             <Label className="bold" value={columns[1].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[1]} />
+          <FormField values={values} rowdata={rowdata} field={columns[1]} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
             <Label className="bold" value={columns[2].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[2]} />
+          <FormField values={values} rowdata={rowdata} field={columns[2]} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
             <Label className="bold" value={columns[3].label} />
           </div>
-          <FormField values={props.values} rowdata={props.rowdata} field={columns[3]} />
+          <FormField values={values} rowdata={rowdata} field={columns[3]} />
         </div>
       </div>)
     

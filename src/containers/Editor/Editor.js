@@ -292,6 +292,25 @@ export const ViewEditor = memo((props) => {
   )
 })
 
+export const ReportEditor = memo((props) => {
+  const { editItem } = props
+  const { current, dataset, audit } = props.data
+  if (current.type === "report"){
+    if (dataset.reportfields.length>0) {
+      return(<div className="row full">
+        {current.fieldvalue.map((row, index) => <FormRow key={index} row={row} 
+          values={row}
+          rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }} />)}
+      </div>)
+    }
+  }
+  return null
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data)
+  )
+})
+
 export const Editor = memo((props) => {
   const { caption, template } = props.data
   return (
@@ -304,6 +323,7 @@ export const Editor = memo((props) => {
         <div className="section container" >
           <MainEditor {...props} />
           <FieldEditor {...props} />
+          <ReportEditor {...props} />
           {Object.keys(template.view).filter(
             (vname)=>(template.view[vname].view_audit !== "disabled")).map(
               (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}

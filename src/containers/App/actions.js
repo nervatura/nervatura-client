@@ -224,7 +224,7 @@ export const getSql = (engine, _sql) => {
       if (sep === ", ") {
         sql = sql.substr(2);
       }
-      if (key && data.indexOf("on") > -1) {
+      if (key && data.includes("on")) {
         sql = key.replace("_", " ") + sql;
       }
       return start_br + sql.toString().trim() + end_br;
@@ -241,7 +241,7 @@ export const getSql = (engine, _sql) => {
       }
       return sql;
     } else {
-      if (data.indexOf("?")>-1 && key !== "select") {
+      if (data.includes("?") && key !== "select") {
         prm_count += 1;
         if(engine === "postgres"){
           data = data.replace("?","$" + prm_count);

@@ -1937,18 +1937,6 @@ export const useForm = () => {
             {name:"size", label: app.getText("report_size"), datatype:"select", 
               empty: false, options: config.report_size, default: config.page_size}]}
         ]};
-      /*
-      if (typeof edit.printqueue === "undefined") {
-        let default_printer = getItemFromKey(edit.dataset.settings, 
-          "fieldname", "default_printer");
-        if (typeof default_printer !== "undefined") {
-          item.server = default_printer.item.value;
-        }
-        edit.printqueue = item;
-      } else {
-        copyItem(item, edit.printqueue);
-      }
-      */
       return printqueue;
     },
 
@@ -2554,7 +2542,7 @@ export const useForm = () => {
       return rent;
     },
 
-    report: (item, config) => {
+    report: (item, edit, config) => {
       let report = {
         options: {
           title: app.getText("title_report"),
@@ -2578,7 +2566,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.ftype === "xls") {
           report = update(report, {
-            rows: [{rowtype:"label", name:"description"}],
+            rows: {$set: [{rowtype:"label", name:"description"}]},
             options: { 
               panel: {$merge: {
                 preview: false, export_pdf: false, export_xml: false, export_xls: true

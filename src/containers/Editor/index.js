@@ -80,7 +80,7 @@ export default (props) => {
     let edit = update({}, {$set: data.edit})
     if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes") || (options.name === "fieldvalue_delete")){
       const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.id === options.id))
-      if( (typeof fieldvalue_idx !== "undefined") && ((edit.audit==="all") || (edit.audit==="update"))){
+      if( (fieldvalue_idx > -1) && ((edit.audit==="all") || (edit.audit==="update"))){
         edit = update(edit, {
           dirty: true,
         })
@@ -113,14 +113,14 @@ export default (props) => {
           }})
           if(options.name === "selected"){
             const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.id === options.id))
-            if(fieldvalue_idx){
+            if(fieldvalue_idx > -1){
               edit = update(edit, { current: { fieldvalue: { [fieldvalue_idx]: {$merge: {
                 selected: options.value
               }}}}})
             }
           } else {
             const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.name === options.name))
-            if(fieldvalue_idx){
+            if(fieldvalue_idx > -1){
               edit = update(edit, { current: { fieldvalue: { [fieldvalue_idx]: {$merge: {
                 value: options.value
               }}}}})

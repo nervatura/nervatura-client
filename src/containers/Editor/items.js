@@ -387,7 +387,7 @@ export const useInitItem = () => {
         }})
       
       case "printqueue":
-        if (current.type === "printqueue") {
+        if ((current.type === "printqueue") && current.item) {
           return update({}, {$set: {
             id: null, 
             nervatype: current.item.nervatype, 

@@ -37,9 +37,9 @@ export const useEditor = () => {
     }
 
     if (edit.dataset[edit.current.type][0].id === null) {
-      edit = update(edit, {$merge: {
+      edit = update(edit, { current: {$merge: {
         item: edit.dataset[edit.current.type][0]
-      }})
+      }}})
       if (form.options.search_form) {
         edit = update(edit, {$merge: {
           title_field: form.options.title_field
@@ -267,6 +267,26 @@ export const useEditor = () => {
       });
     }
 
+    if (edit.current.type === "printqueue") {
+      if (typeof edit.printqueue === "undefined") {
+        const default_printer = edit.dataset.settings.filter((item)=> {
+          return (item.fieldname === "default_printer")
+        })[0]
+        if (typeof default_printer !== "undefined") {
+          edit = update(edit, {current: {item: {$merge: {
+            server: default_printer.value
+          }}}})
+        }
+        edit = update(edit, {$merge: {
+          printqueue: edit.current.item
+        }})
+      } else {
+        edit = update(edit, {current: {item: {$merge: {
+          ...edit.printqueue
+        }}}})
+      }
+    }
+
     edit = update(edit, {panel: {$merge: {
       form: true,
       state: edit.current.state
@@ -427,12 +447,12 @@ export const useEditor = () => {
         if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
           if (ntype==="trans") {
             if(options.shipping){
-              return setEditor(params, forms["shipping"](edit.dataset[ntype][0], edit), edit)
+              return setEditor(params, forms["shipping"](edit.dataset[ntype][0], edit, data.ui), edit)
             } else {
-              return setEditor(params, forms[ttype](edit.dataset[ntype][0], edit), edit)
+              return setEditor(params, forms[ttype](edit.dataset[ntype][0], edit, data.ui), edit)
             }
           } else {
-            return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit), edit)
+            return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, data.ui), edit)
           }
         }
       })

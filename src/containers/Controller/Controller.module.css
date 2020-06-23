@@ -175,3 +175,11 @@ option:disabled {
   max-width: 600px;
   min-width: 280px;
 }
+
+.labelRow {
+  background-color: --lightColor;
+}
+
+.reportField {
+  cursor: pointer;
+}
