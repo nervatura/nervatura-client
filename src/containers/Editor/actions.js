@@ -1,6 +1,8 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
 import { formatISO, addDays } from 'date-fns'
+import { EditorState } from 'draft-js';
+import { convertFromHTML } from 'draft-convert'
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
@@ -93,6 +95,15 @@ export const useEditor = () => {
             state: "cancellation"
           }}})
         }
+      }
+      if(edit.current.item.fnote){
+        edit = update(edit, {current: {$merge: {
+          note: EditorState.createWithContent(convertFromHTML(edit.current.item.fnote))
+        }}})
+      } else {
+        edit = update(edit, {current: {$merge: {
+          note: EditorState.createEmpty() 
+        }}})
       }
     }
     if (edit.current.state === "normal" && edit.current.item.deleted === 1) {

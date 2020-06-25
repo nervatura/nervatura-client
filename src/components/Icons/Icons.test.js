@@ -6,9 +6,9 @@ import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   CheckSquare, Square, Calendar, CaretRight, Eye, Search, QuestionCircle,
   Inbox, Print, Globe, Share, Times, Filter, Download, Columns, Plus,
   SquareEmpty, Check, CheckSquareEmpty, ToggleOff, ToggleOn, Home, Money, 
-  ListOl, Barcode, Dollar, Tag, Truck, Male, Magic, Th, Briefcase, Lock,
+  ListOl, ListUl, Barcode, Dollar, Tag, Truck, Male, Magic, Th, Briefcase, Lock,
   Map, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, Book, TextHeight, 
-  Ticket, Wrench, Key } from './index';
+  Ticket, Wrench, Key, Comment, Bold, Italic, Underline } from './index';
 
 describe('Icons', () => {
 
@@ -264,6 +264,12 @@ describe('Icons', () => {
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 
+  it('ListUl should render a SVG', () => {
+
+    const { container } = render(<ListUl />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
   it('Barcode should render a SVG', () => {
 
     const { container } = render(<Barcode />);
@@ -381,6 +387,30 @@ describe('Icons', () => {
   it('Key should render a SVG', () => {
 
     const { container } = render(<Key />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Comment should render a SVG', () => {
+
+    const { container } = render(<Comment />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Bold should render a SVG', () => {
+
+    const { container } = render(<Bold />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Italic should render a SVG', () => {
+
+    const { container } = render(<Italic />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Underline should render a SVG', () => {
+
+    const { container } = render(<Underline />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });

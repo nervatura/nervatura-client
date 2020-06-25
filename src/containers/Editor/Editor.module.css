@@ -90,3 +90,31 @@
   border-radius: 3px;
   margin-left: 8px;
 }
+
+.rtfEditor {
+  padding: 8px;
+  width: 100%;
+  border-bottom: 1px solid --backgroundColor;
+  min-height: 65px;
+}
+
+.barButton {
+  border-radius: 0px;
+  background-color: --whiteColor;
+  border: 1px solid --backgroundColor;
+  margin-left: -0.7px;
+}
+
+.barButton:hover {
+  color: --hoverColor!important;
+}
+
+.barButton:focus {
+  color: inherit;
+  background-color: --lightColor;
+  outline: none;
+}
+
+.activeStyle {
+  background-color: --backgroundColor;
+}

@@ -1,10 +1,11 @@
 import React, { memo, createElement, Fragment } from 'react';
 import update from 'immutability-helper';
+import {Editor as RtfEditor} from 'draft-js';
 
 import styles from './Editor.module.css';
 import { Label, FormRow, Select } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times } from 'components/Icons';
+import { Plus, Edit, Times, Comment } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -311,6 +312,66 @@ export const ReportEditor = memo((props) => {
   )
 })
 
+export const NoteEditor = memo((props) => {
+  const { noteChange, currentView, noteState } = props
+  const { rtf_inline, rtf_block } = props.ui
+  const { current, template, audit } = props.data
+  if ((current.item.id !== null) && (typeof current.item.fnote !== "undefined") && 
+    (template.options.pattern === true)) {
+    const currentStyle = current.note.getCurrentInlineStyle()
+    const selection = current.note.getSelection();
+    const blockType = current.note.getCurrentContent().getBlockForKey(selection.getStartKey()).getType()
+    return(
+      <Fragment >
+          <div className="row full" >
+            <div className="cell" >
+              <button className={` ${styles.tabButton} ${"full"}`} onClick={()=>currentView("fnote")} >
+                <div className="row full" >
+                  <div className="cell" >
+                    <Label text="fnote_view" leftIcon={<Comment />} col={20} />
+                  </div>  
+                </div>
+              </button>
+            </div>
+          </div>
+          {(current.view === "fnote")?<div className={`${styles.formPanel}`} >
+            {(audit !== 'readonly')?<div>
+            </div>:null}
+            <div className="row full" >
+              <div className={`${"cell padding-small"} ${styles.viewPanel}`} >
+                <div className="cell padding-tiny">
+                  {rtf_inline.map(
+                    type => <button key={type.label} 
+                      className={`${"border-button"} ${styles.barButton} ${currentStyle.has(type.style)?styles.activeStyle:""}`} 
+                        onClick={ ()=>noteState(type.style) } >
+                        {createElement(type.icon)}
+                      </button>
+                  )}
+                </div>
+                <div className="cell padding-tiny">
+                  {rtf_block.map(
+                    (type) => <button key={type.label} 
+                      className={`${"border-button"} ${styles.barButton} ${(type.style === blockType)?styles.activeStyle:""}`} 
+                        onClick={ ()=>noteState(type.style) } >
+                        {createElement(type.icon)}
+                      </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className={`${styles.rtfEditor}`} >
+              <RtfEditor editorState={current.note} onChange={noteChange} />
+            </div>
+        </div>:null}
+      </Fragment>)
+  }
+  return null
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data)
+  )
+})
+
 export const Editor = memo((props) => {
   const { caption, template } = props.data
   return (
@@ -324,6 +385,7 @@ export const Editor = memo((props) => {
           <MainEditor {...props} />
           <FieldEditor {...props} />
           <ReportEditor {...props} />
+          <NoteEditor {...props} />
           {Object.keys(template.view).filter(
             (vname)=>(template.view[vname].view_audit !== "disabled")).map(
               (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}

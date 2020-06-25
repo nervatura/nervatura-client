@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
-//import { formatISO } from 'date-fns'
+import { convertToHTML } from 'draft-convert'
+import { RichUtils } from 'draft-js';
 
 import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
@@ -239,6 +240,26 @@ export default (props) => {
           break;
       }
     }
+    setData("edit", edit)
+  }
+
+  state.noteState = (key) => {
+    const edit = update(data.edit, { current: {$merge: {
+      note: (["unordered-list-item","ordered-list-item"].includes(key))?
+        RichUtils.toggleBlockType(data.edit.current.note, key):
+        RichUtils.toggleInlineStyle(data.edit.current.note, key),
+    }}})
+    setData("edit", edit)
+  }
+  
+  state.noteChange = (editorState) => {
+    let edit = update(data.edit, { current: {$merge: {
+      note: editorState,
+      dirty: true
+    }}})
+    edit = update(edit, { current: { item: {$merge: {
+      fnote: convertToHTML(editorState.getCurrentContent())
+    }}}})
     setData("edit", edit)
   }
   

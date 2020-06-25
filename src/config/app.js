@@ -1,6 +1,7 @@
 import { version } from '../../package.json';
 import * as locales from './locales';
 import theme from '../styles/theme.css';
+import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 
 const serverSide = true
 const languages = [{ value: "en", text:"English" }]
@@ -64,6 +65,15 @@ export const store = {
       ["a5", "A5"], ["letter", "Letter"],
       ["legal", "Legal"]
     ],
+    rtf_inline: [
+      { label: 'B', style: 'BOLD', icon: Bold }, 
+      { label: 'I', style: 'ITALIC', icon: Italic  }, 
+      { label: 'U', style: 'UNDERLINE', icon: Underline }
+    ],
+    rtf_block: [
+      { label: 'UL', style: 'unordered-list-item', icon: ListUl }, 
+      { label: 'OL', style: 'ordered-list-item', icon: ListOl }
+    ]
   },
   current: { 
     home: "search", module: "login", side: "auto",
