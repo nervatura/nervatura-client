@@ -90,6 +90,19 @@ export const Search = memo((props) => {
   )
 })
 
+export const Edit = memo((props) => {
+  const { side } = props.data
+  return (
+    <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+      
+    </div>
+  )
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data)
+  )
+})
+
 export const SideBar = memo((props) => {
   const { side } = props.data
   return (

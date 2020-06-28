@@ -1,26 +1,11 @@
 :import('../../styles/theme.css') {
-  --textColor: textColor;
   --primaryColor: primaryColor;
   --primaryFont: primaryFont;
   --whiteColor: whiteColor;
-  --redColor: redColor;
-  --greenColor: greenColor;
 }
 
 .icon {
   padding: 2px 12px 2px 2px;
-}
-
-.btnLabel{
-  padding-left: 4px;
-}
-
-.btnCancel:hover {
-  color: --redColor;
-}
-
-.btnOK:hover {
-  color: --greenColor;
 }
 
 .msgcell {
@@ -30,17 +15,6 @@
 .message {
   font-weight: bold;
   font-size: 13px!important;
-}
-
-.input {
-  color: --textColor;
-  font-weight: bold;
-  font-size: 14px!important;
-}
-
-.info {
-  color: --textColor;
-  font-size: 14px!important;
 }
 
 .box {

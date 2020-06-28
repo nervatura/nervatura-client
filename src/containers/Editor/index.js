@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
-import { convertToHTML } from 'draft-convert'
-import { RichUtils } from 'draft-js';
+import { convertToHTML, convertFromHTML } from 'draft-convert'
+import { EditorState, RichUtils } from 'draft-js';
 
 import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
@@ -142,22 +142,26 @@ export default (props) => {
           switch (options.name) {
             case "closed":
               if (options.value === 1) {
-                app.showToast({ type: "input", 
+                setData("current", { input: { 
                   title: app.getText("msg_warning"), message: app.getText("msg_close_text"),
                   infoText: app.getText("msg_delete_info"),
                   cbOK: ()=>{
-                    edit = update(edit, { current: {$merge: {
-                      closed: 1
-                    }}})
-                    setData("edit", edit)
+                    setData("current", { input: null }, ()=>{
+                      edit = update(edit, { current: {$merge: {
+                        closed: 1
+                      }}})
+                      setData("edit", edit)
+                    })
                   },
                   cbCancel: (value)=>{
-                    edit = update(edit, { current: { item: {$merge: {
-                      [options.name]: 0
-                    }}}})
-                    setData("edit", edit)
+                    setData("current", { input: null }, ()=>{
+                      edit = update(edit, { current: { item: {$merge: {
+                        [options.name]: 0
+                      }}}})
+                      setData("edit", edit)
+                    })
                   }
-                })
+                }})
               }
               break;
             case "paiddate":
@@ -251,15 +255,162 @@ export default (props) => {
     }}})
     setData("edit", edit)
   }
+
+  state.noteTemplate = (value) => {
+    const edit = update(data.edit, { current: {$merge: {
+      template: value
+    }}})
+    setData("edit", edit)
+  }
+
+  state.setPattern = ( key ) => {
+    const updatePattern = async (values) => {
+      const options = { method: "POST", data: values }
+      let result = await app.requestData("/pattern", options)
+      if(result.error){
+        return app.resultError(result)
+      }
+      editor.checkEditor({ntype: data.edit.current.type, 
+        ttype: data.edit.current.transtype, 
+        id: data.edit.current.item.id, form:"fnote"}, 'LOAD_EDITOR')
+    }
+    if(key !== "new"){
+      if(!data.edit.current.template || (data.edit.current.template === "")){
+        return app.showToast({ type: "error", title: app.getText("msg_warning"), 
+          message: app.getText("msg_pattern_missing") })
+      }
+    }
+    switch (key) {
+      case "default":
+        setData("current", { input: {
+          title: app.getText("msg_warning"), message: app.getText("msg_pattern_default"),
+          cbOK: ()=>{
+            setData("current", { input: null }, ()=>{
+              let pattern = update(data.edit.dataset.pattern, {})
+              pattern.forEach((element, index) => {
+                pattern = update(pattern, {
+                  [index]: { $merge: {
+                    defpattern: (element.id === parseInt(data.edit.current.template,10)) ? 1 : 0
+                  }}
+                })
+              });
+              updatePattern(pattern)
+            })
+          },
+          cbCancel: ()=>{
+            setData("current", { input: null })
+          }
+        }})
+        break;
+
+      case "load":
+        const pattern = data.edit.dataset.pattern.filter((item) => 
+          (item.id === parseInt(data.edit.current.template,10) ))[0]
+        if(pattern){
+          let edit = update(data.edit, {
+            current: { item: { $merge: {
+              fnote: pattern.notes
+            }}}
+          })
+          edit = update(edit, {
+            current: {$merge: {
+              note: EditorState.createWithContent(convertFromHTML(pattern.notes||""))
+            }}
+          })
+          edit = update(edit, {$merge: {
+            dirty: true
+          }})
+          setData("edit", edit)
+        }
+        break;
+
+      case "save":
+        setData("current", { input: {
+          title: app.getText("msg_warning"), message: app.getText("msg_pattern_save"),
+          cbOK: ()=>{
+            setData("current", { input: null }, ()=>{
+              let pattern = data.edit.dataset.pattern.filter((item) => 
+                (item.id === parseInt(data.edit.current.template,10) ))[0]
+              if(pattern){
+                pattern = update(pattern, {$merge: {
+                  notes: data.edit.current.item.fnote
+                }})
+                updatePattern([pattern])
+              }
+            })
+          },
+          cbCancel: ()=>{
+            setData("current", { input: null })
+          }
+        }})
+        break;
+      
+      case "new":
+        setData("current", { input: {
+          title: app.getText("msg_pattern_new"), message: app.getText("msg_pattern_name"),
+          value: "",
+          cbOK: (value)=>{
+            setData("current", { input: null }, async ()=>{
+              if(value !== ""){
+                let result = await app.requestData("/pattern?filter=description;==;"+value, {})
+                if(result.error){
+                  return app.resultError(result)
+                }
+                if(result.length > 0){
+                  return app.showToast({ type: "error", title: app.getText("msg_warning"), 
+                    message: app.getText("msg_value_exists") })
+                }
+                const pattern = update(initItem({tablename: "pattern", current: data.edit.current}), {$merge: {
+                  description: value,
+                  defpattern: (data.edit.dataset.pattern.length === 0) ? 1 : 0
+                }})
+                updatePattern([pattern])
+              }
+            })
+          },
+          cbCancel: ()=>{
+            setData("current", { input: null })
+          }
+        }})
+        break;
+
+      case "delete":
+        setData("current", { input: { 
+          title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
+          cbOK: ()=>{
+            setData("current", { input: null }, ()=>{
+              let pattern = data.edit.dataset.pattern.filter((item) => 
+                (item.id === parseInt(data.edit.current.template,10) ))[0]
+              if(pattern){
+                pattern = update(pattern, {$merge: {
+                  deleted: 1,
+                  defpattern: 0
+                }})
+                updatePattern([pattern])
+              }
+            })
+          },
+          cbCancel: ()=>{
+            setData("current", { input: null })
+          }
+        }})
+        break;
+    
+      default:
+        break;
+    }
+  }
   
   state.noteChange = (editorState) => {
     let edit = update(data.edit, { current: {$merge: {
       note: editorState,
-      dirty: true
     }}})
     edit = update(edit, { current: { item: {$merge: {
       fnote: convertToHTML(editorState.getCurrentContent())
     }}}})
+    edit = update(edit, {$merge: {
+      dirty: true
+    }})
     setData("edit", edit)
   }
   

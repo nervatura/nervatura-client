@@ -105,6 +105,12 @@ export const useEditor = () => {
           note: EditorState.createEmpty() 
         }}})
       }
+      if (edit.dataset.pattern){
+        const template = edit.dataset.pattern.filter((item) => (item.defpattern === 1))[0]
+        edit = update(edit, {current: {$merge: {
+          template: (template) ? template.id : "" 
+        }}})
+      }
     }
     if (edit.current.state === "normal" && edit.current.item.deleted === 1) {
       edit = update(edit, {current: {$merge: {
@@ -512,31 +518,35 @@ export const useEditor = () => {
       (data.edit.dirty === true && (data.edit.current.type==="template")) || 
       (data.edit.form_dirty === true && data.edit.current.form)) {
 
-        app.showToast({ type: "input", 
+        setData("current", { input: { 
           title: app.getText("msg_warning"), message: app.getText("msg_dirty_text"),
           infoText: app.getText("msg_dirty_info"),
           cbCancel: ()=>{
-            if (cbKeyFalse) {
-              setData("edit", { dirty: false, form_dirty: false })
-              cbNext(cbKeyFalse)
-            } else {
-              cbNext(cbKeyTrue)
-            }
+            setData("current", { input: null }, ()=>{
+              if (cbKeyFalse) {
+                setData("edit", { dirty: false, form_dirty: false })
+                cbNext(cbKeyFalse)
+              } else {
+                cbNext(cbKeyTrue)
+              }
+            })
           },
           cbOK: (value)=>{
-            if (data.edit.form_dirty) {
-              //dispatch(tableValidator(page_edit.current.form, 
-              //  ()=>{
-              //    dispatch(saveEditorForm(cbKeyTrue, cbKeyFalse, options));}));
-            } else {
-              if (data.edit.current.type==="template"){
-                //dispatch(saveTemplate(callback));
+            setData("current", { input: null }, ()=>{
+              if (data.edit.form_dirty) {
+                //dispatch(tableValidator(page_edit.current.form, 
+                //  ()=>{
+                //    dispatch(saveEditorForm(cbKeyTrue, cbKeyFalse, options));}));
               } else {
-                //dispatch(saveEditor(cbKeyTrue, cbKeyFalse, options));
+                if (data.edit.current.type==="template"){
+                  //dispatch(saveTemplate(callback));
+                } else {
+                  //dispatch(saveEditor(cbKeyTrue, cbKeyFalse, options));
+                }
               }
-            }
+            })
           }
-        })
+        }})
     } else if (cbKeyFalse) {
       cbNext(cbKeyFalse);
     } else {

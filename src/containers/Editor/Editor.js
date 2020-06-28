@@ -5,7 +5,7 @@ import {Editor as RtfEditor} from 'draft-js';
 import styles from './Editor.module.css';
 import { Label, FormRow, Select } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times, Comment } from 'components/Icons';
+import { Plus, Edit, Times, Comment, Home, Download, Upload } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -313,9 +313,9 @@ export const ReportEditor = memo((props) => {
 })
 
 export const NoteEditor = memo((props) => {
-  const { noteChange, currentView, noteState } = props
+  const { noteChange, currentView, noteState, getText, noteTemplate, setPattern } = props
   const { rtf_inline, rtf_block } = props.ui
-  const { current, template, audit } = props.data
+  const { current, template, audit, dataset } = props.data
   if ((current.item.id !== null) && (typeof current.item.fnote !== "undefined") && 
     (template.options.pattern === true)) {
     const currentStyle = current.note.getCurrentInlineStyle()
@@ -336,12 +336,53 @@ export const NoteEditor = memo((props) => {
           </div>
           {(current.view === "fnote")?<div className={`${styles.formPanel}`} >
             {(audit !== 'readonly')?<div>
+              <div className="row full" >
+                <div className={`${"cell padding-small"}`} >
+                  <div className="cell padding-tiny">
+                    <button className={`${"border-button"} ${styles.barButton}`}
+                      title={getText("pattern_default")}
+                      onClick={ ()=>setPattern("default") } >
+                      <Home />
+                    </button>
+                    <button className={`${"border-button"} ${styles.barButton}`}
+                      title={getText("pattern_load")}
+                      onClick={ ()=>setPattern("load") } >
+                      <Download />
+                    </button>
+                    <button className={`${"border-button"} ${styles.barButton}`}
+                      title={getText("pattern_save")}
+                      onClick={ ()=>setPattern("save") } >
+                      <Upload />
+                    </button>
+                  </div>
+                  <div className="cell padding-tiny">
+                    <button className={`${"border-button"} ${styles.barButton}`}
+                      title={getText("pattern_new")}
+                      onClick={ ()=>setPattern("new") } >
+                      <Plus />
+                    </button>
+                    <button className={`${"border-button"} ${styles.barButton}`}
+                      title={getText("pattern_delete")}
+                      onClick={ ()=>setPattern("delete") } >
+                      <Times />
+                    </button>
+                  </div>
+                  <div className="cell padding-tiny mobile" >
+                    <Select value={current.template} placeholder=""
+                      onChange={ (event)=>noteTemplate(event.target.value) }
+                      options={dataset.pattern.map( pattern => {
+                        return { value: pattern.id, 
+                          text: pattern.description+((pattern.defpattern === 1)?"*":"") 
+                      }})} />
+                  </div>
+                </div>
+              </div>
             </div>:null}
             <div className="row full" >
               <div className={`${"cell padding-small"} ${styles.viewPanel}`} >
                 <div className="cell padding-tiny">
                   {rtf_inline.map(
-                    type => <button key={type.label} 
+                    type => <button key={type.label} title={type.label}
                       className={`${"border-button"} ${styles.barButton} ${currentStyle.has(type.style)?styles.activeStyle:""}`} 
                         onClick={ ()=>noteState(type.style) } >
                         {createElement(type.icon)}
@@ -350,7 +391,7 @@ export const NoteEditor = memo((props) => {
                 </div>
                 <div className="cell padding-tiny">
                   {rtf_block.map(
-                    (type) => <button key={type.label} 
+                    (type) => <button key={type.label} title={type.label}
                       className={`${"border-button"} ${styles.barButton} ${(type.style === blockType)?styles.activeStyle:""}`} 
                         onClick={ ()=>noteState(type.style) } >
                         {createElement(type.icon)}

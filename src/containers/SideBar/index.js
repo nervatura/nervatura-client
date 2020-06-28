@@ -4,7 +4,7 @@ import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
-import { Search, SideBar } from './SideBar';
+import { Search, SideBar, Edit } from './SideBar';
 
 export default (props) => {
   const { data, setData } = useContext(AppStore)
@@ -46,7 +46,7 @@ export default (props) => {
       case "search":
         return <Search {...state} />
       case "edit":
-        return <SideBar {...state} />
+        return <Edit {...state} />
       case "setting":
         return <SideBar {...state} />
       case "help":

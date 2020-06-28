@@ -10,6 +10,7 @@ import 'styles/style.css';
 import { AppProvider } from './context'
 
 import Spinner from 'components/Spinner'
+import InputDialog from 'components/InputDialog'
 import MenuBar from 'containers/MenuBar'
 import SideBar from 'containers/SideBar'
 import modules from './modules'
@@ -40,10 +41,10 @@ class App extends Component {
       if(this.state.login.data){
         return (
           <div className={`${"main"}`} >
-            {(this.state.current.modal)?<div className={`${"modal"}`} />:null}
             <MenuBar />
             <SideBar />
             {createElement(modules[cModule], { name: cModule })}
+            {(this.state.current.input)?<InputDialog {...this.state.current.input} />:null}
           </div>
         )
       }

@@ -315,7 +315,6 @@ export const useApp = () => {
 
   const showToast = (params) => {
     const autoClose = (params.autoClose === false) ? false : data.ui.toastTime
-    const modal = (show, cb)=>setData("current", { modal: show }, cb )
     const toastId = params.key || params.type
     switch (params.type) {
       case "error":
@@ -340,39 +339,11 @@ export const useApp = () => {
       
       case "message":
         /* istanbul ignore next */
-        if (!toast.isActive(toastId)) {
-          toast(
-            <Toast type="message" message={params.message} title={params.title} />, { 
-              autoClose: autoClose, toastId: toastId,
-              position: "top-right", closeButton: false, transition: Zoom })
-        }
-        break;
-
-      case "input":
-        /* istanbul ignore next */
-        toast.dismiss()
-        modal(true)
+        toast.dismiss(toastId)
         toast(
-          <Toast type="input" 
-            message={params.message} infoText={params.infoText} title={params.title}
-            value={params.value} defaultOK={params.defaultOK}
-            labelCancel={params.labelCancel || getText("msg_cancel")}
-            labelOK={params.labelOK || getText("msg_ok")}  
-            cbCancel={()=>{ 
-              toast.dismiss(toastId);
-              modal(false, ()=>{
-                if(params.cbCancel){ params.cbCancel()
-              }});
-            }}
-            cbOK={(value)=>{ 
-              toast.dismiss(toastId); 
-              modal(false, ()=>{
-                if(params.cbOK){ params.cbOK(value) }
-              }); 
-            }} />, { 
-            autoClose: false, className: "input-box", toastId: toastId,
-            position: "top-center", draggable: false,
-            closeButton: false, transition: Zoom, closeOnClick: false })
+          <Toast type="message" message={params.message} title={params.title} />, { 
+            autoClose: autoClose, toastId: toastId,
+            position: "top-right", closeButton: false, transition: Zoom })
         break;
       
       case "custom":

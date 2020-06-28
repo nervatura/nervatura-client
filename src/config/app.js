@@ -66,9 +66,9 @@ export const store = {
       ["legal", "Legal"]
     ],
     rtf_inline: [
-      { label: 'B', style: 'BOLD', icon: Bold }, 
-      { label: 'I', style: 'ITALIC', icon: Italic  }, 
-      { label: 'U', style: 'UNDERLINE', icon: Underline }
+      { label: 'Bold', style: 'BOLD', icon: Bold }, 
+      { label: 'Italic', style: 'ITALIC', icon: Italic  }, 
+      { label: 'Underline', style: 'UNDERLINE', icon: Underline }
     ],
     rtf_block: [
       { label: 'UL', style: 'unordered-list-item', icon: ListUl }, 
