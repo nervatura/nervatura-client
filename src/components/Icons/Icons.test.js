@@ -8,7 +8,8 @@ import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   SquareEmpty, Check, CheckSquareEmpty, ToggleOff, ToggleOn, Home, Money, 
   ListOl, ListUl, Barcode, Dollar, Tag, Truck, Male, Magic, Th, Briefcase, Lock,
   Map, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, Book, TextHeight, 
-  Ticket, Wrench, Key, Comment, Bold, Italic, Underline, Upload } from './index';
+  Ticket, Wrench, Key, Comment, Bold, Italic, Underline, Upload, Copy,
+  Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code } from './index';
 
 describe('Icons', () => {
 
@@ -417,6 +418,54 @@ describe('Icons', () => {
   it('Upload should render a SVG', () => {
 
     const { container } = render(<Upload />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Copy should render a SVG', () => {
+
+    const { container } = render(<Copy />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Reply should render a SVG', () => {
+
+    const { container } = render(<Reply />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ArrowLeft should render a SVG', () => {
+
+    const { container } = render(<ArrowLeft />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ArrowRight should render a SVG', () => {
+
+    const { container } = render(<ArrowRight />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Sitemap should render a SVG', () => {
+
+    const { container } = render(<Sitemap />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Undo should render a SVG', () => {
+
+    const { container } = render(<Undo />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Link should render a SVG', () => {
+
+    const { container } = render(<Link />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Code should render a SVG', () => {
+
+    const { container } = render(<Code />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });

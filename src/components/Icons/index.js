@@ -4,4 +4,5 @@ export { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   Inbox, Print, Globe, Share, Times, Filter, Download, Columns, Plus, Check, Upload,
   ToggleOff, ToggleOn, Home, Money, ListOl, ListUl, Barcode, Dollar, Tag, Truck, Male,
   Magic, Th, Briefcase, Lock, Map, ShoppingCart, Flask, Clock, Strikethrough,
-  Keyboard, Book, TextHeight, Ticket, Wrench, Key, Comment, Bold, Italic, Underline } from './Icons';
+  Keyboard, Book, TextHeight, Ticket, Wrench, Key, Comment, Bold, Italic, Underline,
+  Copy, Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code } from './Icons';

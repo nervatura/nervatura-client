@@ -4,7 +4,7 @@ import { useApp } from 'containers/App/actions'
 import { User, Home, Phone, Calendar, FileText, Money, ListOl, Barcode, Dollar, 
   Tag, Truck, Male, Magic, Th, Briefcase, Search, InfoCircle, Lock, Map,
   Filter, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, ChartBar, 
-  Cog, Plus, Book, TextHeight, Ticket, Wrench, Key, Share } from 'components/Icons';
+  Cog, Plus, Book, TextHeight, Ticket, Wrench, Key, Share, Print, Check } from 'components/Icons';
 
 export const useForm = () => {
   const app = useApp()
@@ -1908,8 +1908,8 @@ export const useForm = () => {
           items: {
             type: "list",
             data: "items",
-            icon: "print",
-            edit_icon: "check",
+            icon: Print,
+            edit_icon: Check,
             title: app.getText("printqueue_selected_items"),
             actions: {
               new: null, 

@@ -344,12 +344,11 @@ export const useEditor = () => {
     edit = update(edit, {current: {$merge: {
       view: options.form||'form'
     }}})
-    setData("state", { edit: true })
     setData("edit", edit)
     if(data.preview.edit){
       setData("preview", { edit: false })
     }
-    setData("current", { module: "edit" })
+    setData("current", { module: "edit", edit: true })
   }
 
   const loadEditor = async (params) => {

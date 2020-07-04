@@ -57,7 +57,23 @@
 }
 
 .groupButton:hover {
+  background-color: --darkBlack;
+}
+
+.itemButton {
   background-color: --lightBlack;
+  border: 1px solid --primaryColor;
+  border-radius: 0px;
+}
+
+.itemButton:hover {
+  background-color: --darkBlack;
+}
+
+.itemButton:focus {
+  color: --whiteColor;
+  background-color: --lightBlack;
+  outline: none;
 }
 
 .panelGroup {
@@ -74,4 +90,8 @@
 
 .separator {
   height: 15px;
+}
+
+.stateLabel {
+  background-color: --primaryColor;
 }

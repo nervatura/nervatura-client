@@ -4,6 +4,8 @@ import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
+import { useForm } from 'containers/Editor//forms'
+
 import { Search, SideBar, Edit } from './SideBar';
 
 export default (props) => {
@@ -13,9 +15,15 @@ export default (props) => {
   const editor = useEditor()
   
   const [state] = useState({
-    login: data.login.data
+    login: data.login.data,
+    theme: data.session.theme,
+    forms: useForm()
   })
 
+  state.editState = () => {
+    setData("current", { edit: !state.data.edit })
+  }
+  
   state.changeData = (key, value) => {
     setData(state.data.module, { [key]: value })
   }

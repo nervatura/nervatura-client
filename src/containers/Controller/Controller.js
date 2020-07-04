@@ -59,7 +59,7 @@ export const Label = (props) => {
   if(props.rightIcon){
     return(
       <div className="row full">
-        <div className={`${styles.label_rightIcon_info} ${props.className||""}`}
+        <div className={`${styles.label_info_right} ${props.className||""}`}
           style={props.style||{}} >{value}</div>
         <div className={`${"cell"} ${styles.label_icon_right}`}
           style={{ width: props.col||"auto" }} >{props.rightIcon}</div>
