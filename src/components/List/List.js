@@ -29,7 +29,7 @@ export const ListView = memo((props) => {
           {(onEdit)?<div className={`${styles.editCell}`} onClick={()=>onEdit(row)} >
             {createElement(editIcon||Edit, { width:24, height:21.3 })}
           </div>:null}
-          <div className={`${styles.valueCell}`} onClick={()=>onEdit(row)}>
+          <div className={`${styles.valueCell} ${(onEdit)?styles.cursor:""}`} onClick={()=>onEdit(row)}>
             <div className={`${styles.label}`} >
               <span>{row.lslabel}</span>
             </div>

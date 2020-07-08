@@ -261,13 +261,13 @@ export const FormField = (props) => {
       if (fieldMap.extend === true || fieldMap.table === "extend") {
         reftable = current.extend
       } else {
-        if(typeof current[fieldMap.table] !== "undefined"){
+        if((typeof current[fieldMap.table] !== "undefined") && Array.isArray(current[fieldMap.table])){
           reftable = current[fieldMap.table].filter(item => (item.id === values.id))[0]
         } else {
           reftable = dataset[fieldMap.table].filter(item => (item.id === values.id))[0]
         }
       }        
-      if (typeof reftable === "undefined" && current[fieldMap.table]) {
+      if (typeof reftable === "undefined" && current[fieldMap.table] && Array.isArray(current[fieldMap.table])) {
         reftable = current[fieldMap.table].filter(item => 
           (item[fieldMap.fieldname] === selector.value))[0]
       }
@@ -275,7 +275,7 @@ export const FormField = (props) => {
         reftable = dataset[fieldMap.table].filter(item => 
           (item[fieldMap.fieldname] === selector.value))[0]
       }
-      if (typeof reftable === "undefined" && current[fieldMap.table]) {
+      if (typeof reftable === "undefined" && current[fieldMap.table] && Array.isArray(current[fieldMap.table])) {
         reftable = current[fieldMap.table].filter(item => (item.id === selector.value))[0]
       }
       if (typeof reftable === "undefined") {
@@ -450,7 +450,7 @@ export const FormField = (props) => {
         isEmpty={empty} disabled={(disabled || audit === 'readonly')}
         onChange={(value) => {
           if(datatype === "datetime"){
-            format(parseISO(value), data.ui.dateFormat+" "+data.ui.timeFormat)
+            onChange(format(parseISO(value), data.ui.dateFormat+" "+data.ui.timeFormat))
           } else {
             onChange(value)
           }

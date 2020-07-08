@@ -437,7 +437,7 @@ export const useInitItem = () => {
             refvalue = update(refvalue, {$merge: {
               seltype: "transitem",
             }})
-            if (dataset.translink.length > 0) {
+            if (dataset.translink && (dataset.translink.length > 0)) {
               refvalue = update(refvalue, {$merge: {
                 ref_id: dataset.translink[0].ref_id_2,
                 transtype: dataset.translink[0].transtype,

@@ -395,65 +395,6 @@ export const useSql = () => {
           where:["p.deleted","=","0"]}; 
         return sql;}
       },
-      
-    price: {
-      best_listprice: () => {
-        let _sql = {select:["min(p.pricevalue) as mp"],
-          from:"price p",
-          left_join:["link l","on",[["l.ref_id_1","=","p.id"],
-            ["and","l.nervatype_1","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'price'"]]}]],
-            ["and","l.deleted","=","0"]]],
-          where:[["p.deleted","=","0"],["and","p.discount","is","null"],["and","p.pricevalue","<>","0"], 
-            ["and","l.ref_id_2","is","null"],["and","p.vendorprice","=","@vendorprice"],
-            ["and","p.product_id","=","@product_id"],["and","p.validfrom","<=","@posdate"],
-            ["and",[["p.validto",">=","@posdate"],["or","p.validto","is","null"]]], 
-            ["and","p.curr","=","@curr"],["and","p.qty","<=","@qty"]]};
-        return _sql;},
-          
-      best_custprice: () => {
-        let _sql = {select:["min(p.pricevalue) as mp"],
-          from:"price p",
-          inner_join:["link l","on",[
-            ["l.ref_id_1","=","p.id"],
-            ["and","l.nervatype_1","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'price'"]]}]],
-            ["and","l.nervatype_2","=",[{select:["id"], from:"groups",
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]], 
-            ["and","l.deleted","=","0"]]],
-          where:[["p.deleted","=","0"],["and","p.discount","is","null"],
-            ["and","p.pricevalue","<>","0"],["and","p.vendorprice","=","@vendorprice"],
-            ["and","p.product_id","=","@product_id"],["and","p.validfrom","<=","@posdate"],
-            ["and",[["p.validto",">=","@posdate"],["or","p.validto","is","null"]]], 
-            ["and","p.curr","=","@curr"],["and","p.qty","<=","@qty"],
-            ["and","l.ref_id_2","=","@customer_id"]]};
-        return _sql;},
-      
-      best_grouprice: () => {
-        let _sql = {select:["min(p.pricevalue) as mp"], 
-          from:"price p",
-          inner_join: [
-            ["link l","on",[["l.ref_id_1","=","p.id"],["and","l.deleted","=","0"], 
-              ["and","l.nervatype_1","=",[{select:["id"], from:"groups", 
-                where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'price'"]]}]],
-              ["and","l.nervatype_2","=",[{select:["id"], from:"groups", 
-              where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'groups'"]]}]]]],
-            ["groups g","on",[["g.id","=","l.ref_id_2"],
-              ["and","g.id","in",[{
-                select:["l.ref_id_2"], from:"link l", 
-                where:[["l.deleted","=","0"],
-                  ["and","l.nervatype_1","=",[{select:["id"], from:"groups", 
-                    where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]], 
-                  ["and","l.nervatype_2","=",[{select:["id"], from:"groups", 
-                    where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'groups'"]]}]], 
-                  ["and","l.ref_id_1","=","@customer_id"]]}]]]]], 
-          where:[["p.deleted","=","0"],["and","p.discount","is","null"],
-            ["and","p.pricevalue","<>","0"],["and","p.vendorprice","=","@vendorprice"],
-            ["and","p.product_id","=","@product_id"],["and","p.validfrom","<=","@posdate"], 
-            ["and",[["p.validto",">=","@posdate"],["or","p.validto","is","null"]]], 
-            ["and","p.curr","=","@curr"],["and","p.qty","<=","@qty"]]}; 
-        return _sql;}
-    },
     
     printqueue: {
       server_printers: () => {

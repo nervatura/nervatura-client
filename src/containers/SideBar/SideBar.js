@@ -95,7 +95,7 @@ export const Search = memo((props) => {
 })
 
 export const Edit = memo((props) => {
-  const { editState, changeData } = props
+  const { editState, changeData, editorBack, editorNew } = props
   const { theme, login, forms } = props
   const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -108,7 +108,7 @@ export const Edit = memo((props) => {
     if (options.back === true || current.form) {
       panels.push(<button key="cmd_back"
         className={`${"full medium"} ${styles.itemButton} ${((current.form && form_dirty)||(!current.form && dirty))?styles.selected:""}`} 
-        onClick={()=>{}} >
+        onClick={ ()=>editorBack() } >
         <Label text={"label_back"} leftIcon={<Reply />} col={20}  />
       </button>)
       panels.push(<div key="back_sep" className={styles.separator} />)
@@ -173,7 +173,7 @@ export const Edit = memo((props) => {
     if (options.new !== false && options.state === "normal") {
       panels.push(<button key="cmd_new"
         className={`${"full medium"} ${styles.itemButton}`} 
-        onClick={()=>{}} >
+        onClick={ ()=>editorNew({}) } >
         <Label text={"label_new"} leftIcon={<Plus />} col={20}  />
       </button>)
     }
@@ -365,7 +365,7 @@ export const Edit = memo((props) => {
           {login.edit_new[0].map(transtype =>{
             if (login.audit_filter.trans[transtype][0] === "all"){ 
               return (<button key={transtype} className={`${"full medium primary"} ${styles.panelButton}`} 
-                onClick={()=>{} } >
+                onClick={ ()=>editorNew( {ntype: 'trans', ttype: transtype} ) } >
                 <Label text={"title_"+transtype} leftIcon={<FileText />} col={25}  />
               </button>) 
             } else { 
@@ -386,7 +386,7 @@ export const Edit = memo((props) => {
           {login.edit_new[1].map(transtype =>{
             if (login.audit_filter.trans[transtype][0] === "all"){ 
               return (<button key={transtype} className={`${"full medium primary"} ${styles.panelButton}`} 
-                onClick={()=>{} } >
+                onClick={ ()=>editorNew( {ntype: 'trans', ttype: transtype} ) } >
                 <Label text={"title_"+transtype} leftIcon={<Money />} col={25}  />
               </button>) 
             } else { 
@@ -409,19 +409,19 @@ export const Edit = memo((props) => {
               if(transtype === "delivery"){
                 return ([
                   <button key="shipping" className={`${"full medium primary"} ${styles.panelButton}`} 
-                    onClick={()=>{} } >
+                    onClick={ ()=>editorNew( {ntype: 'trans', ttype: "shipping"} ) } >
                     <Label text={"title_"+transtype} 
                       leftIcon={createElement(forms[transtype]().options.icon)} col={25}  />
                   </button>,
                   <button key={transtype} className={`${"full medium primary"} ${styles.panelButton}`} 
-                    onClick={()=>{} } >
+                    onClick={ ()=>editorNew( {ntype: 'trans', ttype: transtype} ) } >
                     <Label text={"title_transfer"} 
                       leftIcon={createElement(forms[transtype]().options.icon)} col={25}  />
                   </button>
                 ])
               } else {
                 return (<button key={transtype} className={`${"full medium primary"} ${styles.panelButton}`} 
-                  onClick={()=>{} } >
+                  onClick={ ()=>editorNew( {ntype: 'trans', ttype: transtype} ) } >
                   <Label text={"title_"+transtype} 
                     leftIcon={createElement(forms[transtype]().options.icon)} col={25}  />
                 </button>)
@@ -444,7 +444,7 @@ export const Edit = memo((props) => {
           {login.edit_new[3].map(ntype =>{
             if (login.audit_filter[ntype][0] === "all"){ 
               return (<button key={ntype} className={`${"full medium primary"} ${styles.panelButton}`} 
-                onClick={()=>{} } >
+                onClick={ ()=>editorNew( {ntype: ntype, ttype: null} ) } >
                 <Label text={"title_"+ntype} 
                   leftIcon={createElement(forms[ntype]().options.icon)} col={25}  />
               </button>) 

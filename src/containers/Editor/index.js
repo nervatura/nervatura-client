@@ -77,20 +77,204 @@ export default (props) => {
     return recordset
   }
 
-  state.editItem = (options) => {
+  const loadPrice = async (trans, item) => {
+    const options = { method: "POST", 
+      data: {
+        key: "getPriceValue",
+        values: {
+          vendorprice: item.vendorprice, 
+          product_id: item.product_id,
+          posdate: trans.transdate, 
+          curr: trans.curr, 
+          qty: item.qty, 
+          customer_id: trans.customer_id
+        }
+      }
+    }
+    return app.requestData("/function", options)
+  }
+
+  const calcPrice = (_calcmode, item) => {
+    const round = (n,dec) => {
+      n = parseFloat(n);
+      if(!isNaN(n)){
+        if(!dec) dec= 0;
+        let factor= Math.pow(10,dec);
+        return Math.floor(n*factor+((n*factor*10)%10>=5?1:0))/factor;
+      } else {
+        return n
+      }
+    }
+
+    let rate = data.edit.dataset.tax.filter(tax => (tax.id === parseInt(item.tax_id,10)))[0]
+    rate = (typeof rate !== "undefined") ? rate.rate : 0
+    let digit = data.edit.dataset.currency.filter(currency => 
+      (currency.curr === data.edit.current.item.curr))[0]
+    digit = (typeof digit !== "undefined") ? digit.digit : 2
+    
+    let netAmount = 0; let vatAmount = 0; let amount = 0; let fxPrice = 0;
+    switch(_calcmode) {
+      case "fxprice":
+        fxPrice = parseFloat(item.fxprice)
+        netAmount = round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty),parseInt(digit,10))
+        vatAmount = round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty)*parseFloat(rate),parseInt(digit,10))
+        amount = round(netAmount+vatAmount, parseInt(digit,10))
+        break;
+        
+      case "netamount":
+        netAmount = parseFloat(item.netamount)
+        if (parseFloat(item.qty)!==0) {
+          fxPrice = round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
+          vatAmount = round(netAmount*parseFloat(rate),parseInt(digit,10))
+        }
+        amount = round(netAmount+vatAmount,parseInt(digit,10))
+        break;
+
+      case "amount":
+        amount = parseFloat(item.amount)
+        if (parseFloat(item.qty)!==0) {
+          netAmount = round(amount/(1+parseFloat(rate)),parseInt(digit,10))
+          vatAmount = round(amount-netAmount,parseInt(digit,10))
+          fxPrice = round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
+        }
+        break;
+      default:
+    }
+    return update(item, {$merge: {
+      fxprice: fxPrice,
+      netamount: netAmount,
+      vatamount: vatAmount,
+      amount: amount
+    }})
+  }
+
+  state.editItem = async (options) => {
     let edit = update({}, {$set: data.edit})
     if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes") || (options.name === "fieldvalue_delete")){
       const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.id === options.id))
       if( (fieldvalue_idx > -1) && ((edit.audit==="all") || (edit.audit==="update"))){
-        edit = update(edit, {
+        edit = update(edit, {$merge: {
           dirty: true,
-        })
+        }})
         edit = update(edit, { current: { fieldvalue: { [fieldvalue_idx]: {$merge: {
           [options.name.split("_")[1]]: options.value.toString()
         }}}}})
       }
-    } else if (edit.current.form) { 
+    } else if (edit.current.form) {
+      edit = update(edit, {$merge: {
+        form_dirty: true
+      }})
+      if (typeof edit.current.form[options.name] !== "undefined") {
+        edit = update(edit, {current: {form: {$merge: {
+          [options.name]: options.value
+        }}}})
+      }
+      switch (edit.current.form_type) {
+        case "item":
+          if (options.name === "product_id" && (typeof options.item !== "undefined")) {
+            edit = update(edit, {current: {form: {$merge: {
+              description: options.item.description,
+              unit: options.item.unit,
+              tax_id: parseInt(options.item.tax_id,10)
+            }}}})
+            if (edit.current.form.qty === 0) {
+              edit = update(edit, {current: {form: {$merge: {
+                qty: 1
+              }}}})
+            }
+            const price = await loadPrice(edit.current.item, edit.current.form)
+            if(price.error){
+              return app.resultError(price)
+            }
+            edit = update(edit, {current: {form: {$merge: {
+              fxprice: !isNaN(parseFloat(price.price)) ? parseFloat(price.price) : 0,
+              discount: !isNaN(parseFloat(price.discount)) ? parseFloat(price.discount) : 0
+            }}}})
+            edit = update(edit, {current: {$merge: {
+              form : calcPrice("fxprice", edit.current.form)
+            }}})
+          } else {
+            switch(options.name) {
+              case "qty":
+                if (parseFloat(edit.current.form.fxprice) === 0) {
+                  const price = await loadPrice(edit.current.item, edit.current.form)
+                  if(price.error){
+                    return app.resultError(price)
+                  }
+                  edit = update(edit, {current: {form: {$merge: {
+                    fxprice: !isNaN(parseFloat(price.price)) ? parseFloat(price.price) : 0,
+                    discount: !isNaN(parseFloat(price.discount)) ? parseFloat(price.discount) : 0
+                  }}}})
+                }
+                edit = update(edit, {current: {$merge: {
+                  form : calcPrice("fxprice", edit.current.form)
+                }}})
+                break;
+              case "fxprice":
+              case "tax_id":
+              case "discount":
+                edit = update(edit, {current: {$merge: {
+                  form : calcPrice("fxprice", edit.current.form)
+                }}})
+                break;
+              case "amount":
+                edit = update(edit, {current: {$merge: {
+                  form : calcPrice("amount", edit.current.form)
+                }}})
+                break;
+              case "netamount":
+                edit = update(edit, {current: {$merge: {
+                  form : calcPrice("netamount", edit.current.form)
+                }}})
+                break;
+              default:
+                break;
+            }
+          }
+          break;
+        
+        case "price":
+        case "discount":
+          if (options.name === "customer_id") {
+            edit = update(edit, {current: {$merge: {
+              price_customer_id: options.value
+            }}})
+          }
+          break;
 
+        case "invoice_link":
+          if (options.name === "ref_id_1" && (typeof options.item !== "undefined")) {
+            edit = update(edit, {current: {invoice_link: {
+              0: {$merge: {
+                curr: options.item.curr
+              }}
+            }}})
+          } else if ((options.name === "link_qty") || (options.name === "link_rate")) {
+            edit = update(edit, { current: {$merge: {
+              invoice_link_fieldvalue: setFieldvalue(edit.current.invoice_link_fieldvalue, 
+                options.name, edit.current.form.id, null, options.value)
+            }}})
+          }
+          break;
+
+        case "payment_link":
+          if (options.name === "ref_id_2" && (typeof options.item !== "undefined")) {
+            edit = update(edit, {current: {payment_link: {
+              0: {$merge: {
+                curr: options.item.curr
+              }}
+            }}})
+          } else if ((options.name === "link_qty") || (options.name === "link_rate")) {
+            edit = update(edit, { current: {$merge: {
+              payment_link_fieldvalue: setFieldvalue(edit.current.payment_link_fieldvalue, 
+                options.name, edit.current.form.id, null, options.value)
+            }}})
+          }
+          break;
+
+        default:
+          break;
+      }
     } else {
       if ((typeof edit.current.item[options.name] !== "undefined") && (options.extend === false)) {
         edit = update(edit, {current: {item: {$merge: {

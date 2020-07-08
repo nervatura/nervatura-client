@@ -94,7 +94,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           bank = update(bank, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false, 
@@ -209,7 +209,7 @@ export const useForm = () => {
         }
         if (item.id === null) {
           cash = update(cash, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false, 
@@ -410,7 +410,7 @@ export const useForm = () => {
         }
         if (item.id === null) {
           customer = update(customer, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, 
@@ -538,7 +538,7 @@ export const useForm = () => {
           return (group.id === item.direction)
         })[0].groupvalue
         if (direction === "transfer") {
-          if (edit.dataset.translink.length > 0) {
+          if (edit.dataset.translink && (edit.dataset.translink.length > 0)) {
             delivery = update(delivery, { rows: { 0: { columns: { 1: {$set: {
               name:"id", 
               label: app.getText("document_ref_transnumber"), 
@@ -549,7 +549,7 @@ export const useForm = () => {
                 transtype: edit.dataset.translink[0].transtype
               }
             }}}}}})
-          } else if (edit.dataset.cancel_link.length > 0) {
+          } else if (edit.dataset.cancel_link && (edit.dataset.cancel_link.length > 0)) {
             delivery = update(delivery, { rows: { 0: { columns: { 1: {$set: {
               name: "id", 
               label: app.getText("document_ref_transnumber"), datatype: "link",
@@ -590,6 +590,7 @@ export const useForm = () => {
           ]}})
           if (item.id === null) {
             delivery = update(delivery, {
+              view: {$set: {}},
               options: { 
                 panel: {$merge: {
                   arrow: false, new: false, delete: false,
@@ -738,7 +739,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           employee = update(employee, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, 
@@ -785,7 +786,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           event = update(event, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, 
@@ -845,7 +846,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           formula = update(formula, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false, 
@@ -970,7 +971,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           inventory = update(inventory, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -1113,7 +1114,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           invoice = update(invoice, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -1502,7 +1503,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           offer = update(offer, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -1646,7 +1647,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           order = update(order, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -1721,7 +1722,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           link = update(link, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false,
@@ -1753,7 +1754,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           payment = update(payment, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, link: false
@@ -1819,7 +1820,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           place = update(place, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, report: false, bookmark: false
@@ -1880,7 +1881,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           price = update(price, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false
@@ -2002,7 +2003,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {            
         if (item.id === null) {
           product = update(product, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, 
@@ -2079,7 +2080,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           production = update(production, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -2158,7 +2159,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           project = update(project, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false,
@@ -2209,7 +2210,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           rate = update(rate, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false,
@@ -2331,7 +2332,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           receipt = update(receipt, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -2514,7 +2515,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           rent = update(rent, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false,
@@ -2805,7 +2806,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {            
         if (item.id === null) {
           tool = update(tool, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 new: false, delete: false, report: false, bookmark: false
@@ -2998,7 +2999,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           waybill = update(waybill, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false, 
@@ -3158,7 +3159,7 @@ export const useForm = () => {
       if (typeof item !== "undefined") {
         if (item.id === null) {
           worksheet = update(worksheet, {
-            view: {},
+            view: {$set: {}},
             options: { 
               panel: {$merge: {
                 arrow: false, new: false, delete: false, 

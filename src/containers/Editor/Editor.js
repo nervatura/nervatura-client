@@ -413,8 +413,41 @@ export const NoteEditor = memo((props) => {
   )
 })
 
+export const ItemEditor = memo((props) => {
+  const { getText, editItem } = props
+  const { current, audit, dataset } = props.data
+  return (
+    <Fragment >
+      <div className="row full" >
+        <div className={`${"cell padding-normal"} ${styles.itemTitle}` }>
+          <Label className={`${styles.itemTitlePre}` } 
+            value={(current.form.id === null) ? getText("label_new") : current.form.id} />
+          <Label value={current.form_template.options.title} />
+        </div>
+      </div>
+      <div className={`${styles.formPanel}`} >
+        {current.form_template.rows.map((row, index) =>
+          <FormRow key={index} row={row} 
+            values={current.form}
+            rowdata={{
+              audit: audit,
+              current: current,
+              dataset: dataset,
+              onEdit: editItem
+            }} 
+          />
+        )}
+      </div>
+    </Fragment>
+  )
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data)
+  )
+})
+
 export const Editor = memo((props) => {
-  const { caption, template } = props.data
+  const { current, caption, template } = props.data
   return (
     <div className="page padding-normal" >
       <div className={`${"panel"}`} >
@@ -422,15 +455,17 @@ export const Editor = memo((props) => {
           <Label bold primary xxxlarge value={caption} 
             leftIcon={createElement(template.options.icon)} col={20} />
         </div>
-        <div className="section container" >
-          <MainEditor {...props} />
-          <FieldEditor {...props} />
-          <ReportEditor {...props} />
-          <NoteEditor {...props} />
-          {Object.keys(template.view).filter(
-            (vname)=>(template.view[vname].view_audit !== "disabled")).map(
-              (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
-        </div>
+        {(current.form)?
+          <div className="section container" ><ItemEditor {...props}/></div>:
+          <div className="section container" >
+            <MainEditor {...props} />
+            <FieldEditor {...props} />
+            <ReportEditor {...props} />
+            <NoteEditor {...props} />
+            {Object.keys(template.view).filter(
+              (vname)=>(template.view[vname].view_audit !== "disabled")).map(
+                (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
+          </div>}
       </div>
     </div>
   )

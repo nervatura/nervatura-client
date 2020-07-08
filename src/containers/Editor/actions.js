@@ -479,10 +479,126 @@ export const useEditor = () => {
       }}})
       setData("edit", edit, ()=>{
         if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
-          return setEditor(params, forms[ntype](), edit)
+          return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, data.ui), edit)
         }
       })
     }
+  }
+
+  const setEditorItem = (options) => {
+    let edit = update(data.edit, {})
+    let dkey = forms[options.fkey]({}, edit, data.ui).options.data
+    if (typeof dkey === "undefined") {
+      dkey = options.fkey
+    }
+    edit = update(edit, {$merge: {
+      form_dirty: false
+    }})
+    edit = update(edit, {current: {$merge: {
+      form_type: options.fkey,
+      form_datatype: dkey,
+      form: initItem({tablename: dkey, dataset: edit.dataset, current: edit.current})
+    }}})
+
+    if (options.id!==null) {
+      edit = update(edit, {current: {$merge: {
+        form: edit.dataset[options.fkey].filter((item)=> {
+          return (item.id === parseInt(options.id,10))
+        })[0]
+      }}})
+    } else {
+      edit = update(edit, {current: {$merge: {
+        form_dirty: true
+      }}})
+    }
+    edit = update(edit, {current: {$merge: {
+      form_template: forms[options.fkey](edit.current.form, edit, data.ui)
+    }}})
+
+    switch (options.fkey) {
+      case "price":
+      case "discount":
+        edit = update(edit, {current: {$merge: {
+          price_link_customer: null,
+          price_customer_id: null
+        }}})
+        if (options.id!==null) {
+          edit = update(edit, {current: {$merge: {
+            price_link_customer: edit.current.form.link_customer,
+            price_customer_id: edit.current.form.customer_id
+          }}})
+        }
+        break;
+      
+      case "invoice_link":
+        edit = update(edit, {current: {$merge: {
+          invoice_link_fieldvalue: edit.dataset.invoice_link_fieldvalue
+        }}})
+        let invoice_props = { 
+          id: edit.current.form.id, ref_id_1: "", transnumber: "", curr: ""
+        }
+        let invoice_link = edit.dataset.invoice_link.filter((item)=> {
+          return (item.id === edit.current.form.id)
+        })[0]
+        if (typeof invoice_link !== "undefined") {
+          invoice_props = invoice_link
+        }
+        edit = update(edit, {current: {$merge: {
+          invoice_link: [invoice_props]
+        }}})
+        break;
+      
+      case "payment_link":
+        edit = update(edit, {current: {$merge: {
+          payment_link_fieldvalue: edit.dataset.payment_link_fieldvalue
+        }}})
+        let payment_props = { 
+          id: edit.current.form.id, ref_id_2: "", transnumber: "", curr: ""
+        }
+        let payment_link = edit.dataset.payment_link.filter((item)=> {
+          return (item.id === edit.current.form.id)
+        })[0]
+        if (typeof payment_link !== "undefined") {
+          payment_props = payment_link
+        }
+        edit = update(edit, {current: {$merge: {
+          payment_link: [payment_props]
+        }}})
+        if(options.link_field){
+          edit = update(edit, {current: {form: {$merge: {
+            [options.link_field]: options.link_id
+          }}}})
+        }
+        break;
+      
+      default:
+        break;}
+    
+    let panel = update(edit.current.form_template.options.panel, {$merge: {
+      form: true,
+      state: edit.current.state
+    }})
+    if (edit.panel.state !== "normal") {
+      edit = update(edit, {$merge: {
+        audit: "readonly"
+      }})
+    }
+    if (edit.audit === "readonly") {
+      panel = update(panel, {$merge: {
+        save: false,
+      }})
+    }
+    if (edit.audit !== "all") {
+      panel = update(panel, {$merge: {
+        link: false,
+        delete: false,
+        new: false
+      }})
+    }
+    edit = update(edit, {$merge: {
+      panel: panel
+    }})
+    setData("edit", edit)
   }
 
   const checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
@@ -492,7 +608,7 @@ export const useEditor = () => {
           loadEditor(options);
           break;
         case "SET_EDITOR_ITEM":
-          //dispatch(setEditorItem(options));
+          setEditorItem(options);
           break;
         case "LOAD_FORMULA":
           //dispatch(appData("modal", { type: 'formula', params: {formula: ""} }))
@@ -553,12 +669,53 @@ export const useEditor = () => {
     }
   }
   
-  const checkTranstype = (options, cbKeyTrue, cbKeyFalse) => {
-    
+  const checkTranstype = async (options, cbKeyTrue, cbKeyFalse) => {
+    if ((options.ntype==="trans" || options.ntype==="transitem" || 
+      options.ntype==="transmovement" || options.ntype==="transpayment") && 
+      options.ttype===null) {
+        const params = { 
+          method: "POST", 
+          data: [{ 
+            key: "transtype",
+            text: getSql(data.login.data.engine, {
+              select:["groupvalue"], from:"groups g", 
+              inner_join:["trans t","on",[["g.id","=","t.transtype"],["and","t.id","=","?"]]]}).sql,
+            values: [options.id] 
+          }]
+        }
+        let view = await app.requestData("/view", params)
+        if(view.error){
+          return app.resultError(view)
+        }
+        checkEditor({ntype:"trans", ttype:view[0].groupvalue, id:options.id}, cbKeyTrue, cbKeyFalse)
+    } else {
+      checkEditor(options, cbKeyTrue, cbKeyFalse)
+    }
   }
 
   const setFormActions = (params, _row) => {
 
+    const row = _row || {}
+    switch (params.action) {
+      case "loadEditor":
+        checkEditor({
+          ntype: params.ntype || data.edit.current.type, 
+          ttype: params.ttype || data.edit.current.transtype, 
+          id: row.id || null }, 
+          'LOAD_EDITOR')
+        break;
+      
+      case "newEditorItem":
+        checkEditor({fkey: params.fkey, id: null}, 'SET_EDITOR_ITEM')
+        break;
+      
+      case "editEditorItem":
+        setEditorItem({fkey: params.fkey, id: row.id})
+        break;
+    
+      default:
+        break;
+    }
   }
 
   return {

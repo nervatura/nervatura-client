@@ -118,3 +118,14 @@
 .activeStyle {
   background-color: --backgroundColor;
 }
+
+.itemTitle {
+  color: --whiteColor;
+  background-color: --secondaryColor;
+  font-weight: bold;
+}
+
+.itemTitlePre {
+  padding-right: 6px;
+  color: --backgroundColor;
+}
