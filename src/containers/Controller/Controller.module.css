@@ -180,6 +180,10 @@ option:disabled {
   min-width: 280px;
 }
 
+.reportSettings {
+  max-width: 400px;
+}
+
 .labelRow {
   background-color: --lightColor;
 }

@@ -1,4 +1,4 @@
-import React, { memo, createElement } from 'react';
+import React, { memo, createElement, Fragment } from 'react';
 
 import styles from './SideBar.module.css';
 import { Label } from 'containers/Controller'
@@ -6,7 +6,7 @@ import { FileText, ChartBar, Search as SearchIcon, Bolt, Inbox, Print,
   Globe, Share, Plus, Edit as EditIcon, Check, Times, Copy,
   Reply, ArrowLeft, ArrowRight, ExclamationTriangle, Lock, Sitemap,
   Undo, Magic, Link, Eye, Download, Code, Calendar, Star, QuestionCircle,
-  Money, Truck } from 'components/Icons';
+  Money, Truck, Retweet } from 'components/Icons';
 
 export const Search = memo((props) => {
   const { changeData, quickView, showBrowser, checkEditor } = props
@@ -95,9 +95,10 @@ export const Search = memo((props) => {
 })
 
 export const Edit = memo((props) => {
-  const { editState, changeData, editorBack, editorNew } = props
+  const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
+    prevTransNumber, nextTransNumber } = props
   const { theme, login, forms } = props
-  const { side, edit } = props.data
+  const { side, edit, selectorForm } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
   const editItems = (options)=>{
     if (typeof options === "undefined") {
@@ -107,7 +108,7 @@ export const Edit = memo((props) => {
 
     if (options.back === true || current.form) {
       panels.push(<button key="cmd_back"
-        className={`${"full medium"} ${styles.itemButton} ${((current.form && form_dirty)||(!current.form && dirty))?styles.selected:""}`} 
+        className={`${"medium"} ${styles.itemButton} ${styles.selected}`} 
         onClick={ ()=>editorBack() } >
         <Label text={"label_back"} leftIcon={<Reply />} col={20}  />
       </button>)
@@ -116,13 +117,13 @@ export const Edit = memo((props) => {
 
     if (options.arrow === true) {
       panels.push(<button key="cmd_arrow_left"
-        className={`${"full medium"} ${styles.itemButton} ${((current.form && form_dirty)||(!current.form && dirty))?styles.selected:""}`} 
-        onClick={()=>{}} >
+        className={`${"full medium"} ${styles.itemButton}`} 
+        onClick={ ()=>prevTransNumber() } >
         <Label text={"label_previous"} leftIcon={<ArrowLeft />} col={20}  />
       </button>)
       panels.push(<button key="cmd_arrow_right"
-        className={`${"full medium"} ${styles.itemButton} ${((current.form && form_dirty)||(!current.form && dirty))?styles.selected:""}`} 
-        onClick={()=>{}} >
+        className={`${"full medium"} ${styles.itemButton}`} 
+        onClick={ ()=>nextTransNumber() } >
         <Label text={"label_next"} rightIcon={<ArrowRight />} col={20}  />
       </button>)
       panels.push(<div key="arrow_sep" className={styles.separator} />)
@@ -166,7 +167,7 @@ export const Edit = memo((props) => {
     if (options.delete !== false && options.state === "normal") {
       panels.push(<button key="cmd_delete"
         className={`${"full medium"} ${styles.itemButton}`} 
-        onClick={()=>{}} >
+        onClick={ ()=>editorDelete() } >
         <Label text={"label_delete"} leftIcon={<Times />} col={20}  />
       </button>)
     }
@@ -251,7 +252,7 @@ export const Edit = memo((props) => {
       if (options.report !== false) {
         panels.push(<button key="cmd_report"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={ ()=>reportSettings() } >
           <Label text={"label_report"} leftIcon={<ChartBar />} col={20}  />
         </button>)
       }
@@ -459,30 +460,104 @@ export const Edit = memo((props) => {
     return mnu_items
   }
   return (
-    <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
-      {(!current.form && (current.form_type !== "transitem_shipping"))?
-       <div className="row full section-small container">
-         <div className="cell half">
-           <button className={`${"full medium"} ${(edit && current.item)?styles.groupButton:styles.selectButton}`} 
-            onClick={ ()=>editState() } >
-            <Label text={"label_new"} leftIcon={<Plus />} col={20}  />
-          </button>
-         </div>
-         <div className="cell half">
-           <button className={`${"full medium"} ${(edit && current.item)?styles.selectButton:styles.groupButton}`} 
-            disabled={(!current.item)?"disabled":""}
-            onClick={ ()=>editState() } >
-            <Label text={"label_edit"} leftIcon={<EditIcon />} col={20}  />
-          </button>
-         </div>
-       </div>:null}
-       {((!current.form && !current.item) || !edit)?newItems():(edit)?editItems(panel):null}
-    </div>
+    <Fragment>
+      {(selectorForm)?selectorForm:null}
+      <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+        {(!current.form && (current.form_type !== "transitem_shipping"))?
+        <div className="row full section-small container">
+          <div className="cell half">
+            <button className={`${"full medium"} ${(edit && current.item)?styles.groupButton:styles.selectButton}`} 
+              onClick={ ()=>editState() } >
+              <Label text={"label_new"} leftIcon={<Plus />} col={20}  />
+            </button>
+          </div>
+          <div className="cell half">
+            <button className={`${"full medium"} ${(edit && current.item)?styles.selectButton:styles.groupButton}`} 
+              disabled={(!current.item)?"disabled":""}
+              onClick={ ()=>editState() } >
+              <Label text={"label_edit"} leftIcon={<EditIcon />} col={20}  />
+            </button>
+          </div>
+        </div>:null}
+        {((!current.form && !current.item) || !edit)?newItems():(edit)?editItems(panel):null}
+      </div>
+    </Fragment>
   )
 }, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
     (prevProps.module === nextProps.module)
+  )
+})
+
+export const Preview = memo((props) => {
+  const { closePreview, changeOrientation, setScale, prevPage, nextPage } = props
+  const { side } = props.data
+  const { orient, pageNumber, totalPages } = props.preview
+  return (
+    <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+      <button
+        className={`${"medium"} ${styles.itemButton} ${styles.selected}`} 
+        onClick={ ()=>closePreview() } >
+        <Label text={"label_back"} leftIcon={<Reply />} col={20}  />
+      </button>
+      <div className={styles.separator} />
+
+      <div className={`${"full padding-small large"} ${styles.previewLabel}`} >
+        <Label text="report_page" value={`: ${pageNumber}/${totalPages}`} />
+      </div>
+      <div className={styles.separator} />
+
+      <button
+        className={`${"medium full"} ${styles.itemButton} ${styles.upper}`} 
+        onClick={ ()=>changeOrientation() } >
+        <Label 
+          text={(orient === "portrait")?"report_landscape":"report_portrait"} 
+          leftIcon={<Retweet />} col={20}  />
+      </button>
+      <div className={styles.separator} />
+
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        disabled={(pageNumber === 1)?"disabled":""}
+        onClick={ ()=>prevPage() } >
+        <Label text="report_previous" leftIcon={<ArrowLeft />} col={20}  />
+      </button>
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        disabled={(pageNumber === totalPages)?"disabled":""}
+        onClick={ ()=>nextPage() } >
+        <Label text="report_next" rightIcon={<ArrowRight />} col={20}  />
+      </button>
+      <div className={styles.separator} />
+      
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        onClick={ ()=>setScale(0.5) } >
+        <Label value="50%" leftIcon={<SearchIcon />} col={20}  />
+      </button>
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        onClick={ ()=>setScale(0.75) } >
+        <Label value="75%" leftIcon={<SearchIcon />} col={20}  />
+      </button>
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        onClick={ ()=>setScale(1) } >
+        <Label value="100%" leftIcon={<SearchIcon />} col={20}  />
+      </button>
+      <button
+        className={`${"medium full"} ${styles.itemButton}`} 
+        onClick={ ()=>setScale("page-width") } >
+        <Label text="report_full_width" leftIcon={<SearchIcon />} col={20}  />
+      </button>
+
+    </div>
+  )
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data) &&
+    (prevProps.preview === nextProps.preview)
   )
 })
 

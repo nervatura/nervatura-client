@@ -22,6 +22,7 @@ export const store = {
     toastTime: 7000,
     paginationPage: 10,
     selectorPage: 5,
+    history: 5,
     dateFormat: "yyyy-MM-dd",
     timeFormat: "HH:mm",
     timeIntervals: 15,
@@ -85,6 +86,6 @@ export const store = {
   },
   search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },
-  edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, history: [], selector: {} },
-  setting: {}, bookmark: {}, preview: {}
+  edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
+  setting: {}, bookmark: { history: [] }
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import update from 'immutability-helper';
 import { convertToHTML, convertFromHTML } from 'draft-convert'
 import { EditorState, RichUtils } from 'draft-js';
@@ -22,6 +22,34 @@ export default (props) => {
   })
 
   state.data = data.edit
+  
+  state.viewerRef = useRef(null)
+  state.canvasRef = useRef(null)
+  
+  useEffect(() => {
+    const { scale, page } = data.edit.preview || {}
+    if (page) {
+      const viewer = state.viewerRef.current
+      const canvas = state.canvasRef.current
+      const context = canvas.getContext('2d')
+      let viewport = page.getViewport({ scale: 1 })
+
+      if(scale === "page-width"){
+        viewport = page.getViewport({ scale: (viewer.clientWidth-48)/viewport.width })
+      } else if(scale !== 1){
+        viewport = page.getViewport({ scale: scale })
+      }
+
+      canvas.width = viewport.width
+      canvas.height = viewport.height
+
+      page.render({
+        canvasContext: context,
+        viewport
+      })
+
+    }
+  },[state.viewerRef, state.canvasRef, data.edit.preview])
 
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)
@@ -150,14 +178,14 @@ export default (props) => {
 
   state.editItem = async (options) => {
     let edit = update({}, {$set: data.edit})
-    if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes") || (options.name === "fieldvalue_delete")){
+    if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes") || (options.name === "fieldvalue_deleted")){
       const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.id === options.id))
       if( (fieldvalue_idx > -1) && ((edit.audit==="all") || (edit.audit==="update"))){
         edit = update(edit, {$merge: {
           dirty: true,
         }})
         edit = update(edit, { current: { fieldvalue: { [fieldvalue_idx]: {$merge: {
-          [options.name.split("_")[1]]: options.value.toString()
+          [options.name.split("_")[1]]: (options.name === "fieldvalue_deleted") ? 1 : options.value.toString()
         }}}}})
       }
     } else if (edit.current.form) {
@@ -603,7 +631,7 @@ export default (props) => {
   }
 
   if(data.edit.current.item){
-    if(data.preview.edit){
+    if(data.edit.preview){
       return <Preview {...state} />
     }
     return <Editor {...state} />

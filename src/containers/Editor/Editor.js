@@ -3,9 +3,9 @@ import update from 'immutability-helper';
 import {Editor as RtfEditor} from 'draft-js';
 
 import styles from './Editor.module.css';
-import { Label, FormRow, Select } from 'containers/Controller'
+import { Label, FormRow, Select, Input } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times, Comment, Home, Download, Upload } from 'components/Icons';
+import { Plus, Edit, Times, Comment, Home, Download, Upload, ChartBar } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -447,27 +447,30 @@ export const ItemEditor = memo((props) => {
 })
 
 export const Editor = memo((props) => {
-  const { current, caption, template } = props.data
+  const { current, caption, template, selectorForm } = props.data
   return (
-    <div className="page padding-normal" >
-      <div className={`${"panel"}`} >
-        <div className="panel-title">
-          <Label bold primary xxxlarge value={caption} 
-            leftIcon={createElement(template.options.icon)} col={20} />
+    <Fragment>
+      {(selectorForm)?selectorForm:null}
+      <div className="page padding-normal" >
+        <div className={`${"panel"}`} >
+          <div className="panel-title">
+            <Label bold primary xxxlarge value={caption} 
+              leftIcon={createElement(template.options.icon)} col={20} />
+          </div>
+          {(current.form)?
+            <div className="section container" ><ItemEditor {...props}/></div>:
+            <div className="section container" >
+              <MainEditor {...props} />
+              <FieldEditor {...props} />
+              <ReportEditor {...props} />
+              <NoteEditor {...props} />
+              {Object.keys(template.view).filter(
+                (vname)=>(template.view[vname].view_audit !== "disabled")).map(
+                  (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
+            </div>}
         </div>
-        {(current.form)?
-          <div className="section container" ><ItemEditor {...props}/></div>:
-          <div className="section container" >
-            <MainEditor {...props} />
-            <FieldEditor {...props} />
-            <ReportEditor {...props} />
-            <NoteEditor {...props} />
-            {Object.keys(template.view).filter(
-              (vname)=>(template.view[vname].view_audit !== "disabled")).map(
-                (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
-          </div>}
       </div>
-    </div>
+    </Fragment>
   )
 }, (prevProps, nextProps) => {
   return (
@@ -475,13 +478,93 @@ export const Editor = memo((props) => {
   )
 })
 
+export const ReportSettings = (props) => {
+  const { onClose, valueChange, reportOutput } = props
+  const { title, template, templates, orient, report_orientation, size, report_size, copy } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label value={title} leftIcon={<ChartBar />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="msg_template" />
+            </div>
+            <Select className="full" value={template}
+              onChange={ (event)=>valueChange("template", event.target.value) }
+              options={templates} />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="msg_report_prop" />
+            </div>
+            <Select value={orient}
+              onChange={ (event)=>valueChange("orient", event.target.value) }
+              options={report_orientation} />
+            <Select value={size}
+              onChange={ (event)=>valueChange("size", event.target.value) }
+              options={report_size} />
+            <Input className={`${styles.copyInput}`} itype="integer" value={copy} 
+              onChange={(event)=>valueChange("copy", event.target.value)} />
+          </div>
+        </div> 
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
+              onClick={()=>reportOutput("preview")} >
+              <Label text="msg_preview" />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
+              onClick={()=>reportOutput("pdf")} >
+              <Label text="msg_export_pdf" />
+            </button>
+          </div>
+        </div>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} onClick={()=>reportOutput("xml")} >
+              <Label text="msg_export_xml" />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
+              onClick={()=>reportOutput("printqueue")} >
+              <Label text="msg_printqueue" />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
 export const Preview = memo((props) => {
+  const { viewerRef, canvasRef } = props
   return (
-    <div className="page padding-normal" >
+    <div ref={viewerRef} className="page padding-normal" >
+      <div className="section center" >
+        <canvas ref={canvasRef} className={`${styles.pdfPage}`} />
+      </div>
     </div>
   )
 }, (prevProps, nextProps) => {
   return (
-    (prevProps.data === nextProps.data)
+    (prevProps.data.preview === nextProps.data.preview),
+    (prevProps.canvasRef.current === nextProps.canvasRef.current)
   )
 })

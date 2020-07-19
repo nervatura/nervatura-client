@@ -129,3 +129,27 @@
   padding-right: 6px;
   color: --backgroundColor;
 }
+
+.copyInput {
+  width: 60px;
+  display: inline-block;
+  text-align: right;
+  border-radius: 3px!important;
+}
+
+.closeIcon {
+  cursor: pointer;
+}
+
+.closeIcon:hover {
+  color: --redColor;
+}
+
+.pdfPage {
+  position: relative;
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  background-clip: content-box;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.54);
+}

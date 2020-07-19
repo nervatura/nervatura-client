@@ -8,6 +8,7 @@ import { useEditor } from 'containers/Editor/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useQueries } from 'containers/Search/queries'
 import { SelectorView } from 'containers/Search/Search'
+import { ReportSettings } from 'containers/Editor/Editor';
 import styles from './Controller.module.css';
 import DateTimeInput from 'components/DateTimeInput';
 import { ToggleOff, ToggleOn, Times, Search, CheckSquare, SquareEmpty } from 'components/Icons';
@@ -169,13 +170,141 @@ export const DateInput = (props) => {
   return <DateTimeInput {..._props}/>
 }
 
-export const FormField = (props) => {
+export const SelectorForm = (props) => {
   const app = useApp()
-  const editor = useEditor()
   const search = useSearch()
   const queries = useQueries()
   const { data } = useContext(AppStore);
+  return (params) => {
+    const { type, filter, onChange, onSelect } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog}`} >{createElement(SelectorView, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = {
+      getText: app.getText,
+      quickSearch: async ()=>{
+        const view = await search.quickSearch(type, formProps.filter)
+        if(view.error){
+          return app.resultError(view)
+        }
+        formProps = update(formProps, { data: {$merge: {
+          result: view.result
+        }}})
+        onChange(form(formProps))
+      },
+      editRow: (row)=>{
+        onSelect(row, formProps.filter)
+      },
+      onClose: ()=>onChange(null),
+      filterChange: (event)=>{
+        formProps = update(formProps, {$merge: {
+          filter: event.target.value
+        }})
+        onChange(form(formProps))
+      },
+      queries: queries, 
+      theme: data.session.theme,
+      ui: data.ui,
+      filter: filter,
+      data: {
+        qview: type,
+        result: []
+      }
+    }
+    onChange(form(formProps))
+  }
+}
+
+export const ReportForm = (props) => {
+  const { data } = useContext(AppStore);
+  const app = useApp()
+  return (params) => {
+    const { onChange, onOutput } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.reportSettings}`} >{createElement(ReportSettings, { ..._props })}</div> 
+      </div>)
+    }
+    const direction = (data.edit.current.type === "trans") ? 
+      data.edit.dataset.groups.filter(
+        item => (item.id === data.edit.current.item.direction))[0].groupvalue : "out"
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      reportOutput: (otype) => {
+        onOutput({ type: otype, template: formProps.template, title: formProps.title,
+          orient: formProps.orient, size: formProps.size, copy: formProps.copy })
+      },
+      orient: data.ui.page_orient,
+      report_orientation: data.ui.report_orientation.map(item => { return { value: item[0], text: app.getText(item[1]) } }),
+      size: data.ui.page_size,
+      report_size: data.ui.report_size.map(item => { return { value: item[0], text: item[1] } }),
+      copy: 1,
+      direction: direction,
+      template: (data.edit.current.type === "trans") ?
+        data.edit.dataset.settings.filter(
+          item => (item.fieldname === "default_trans_"+data.edit.current.transtype+"_"+direction+"_report"))[0] :
+        data.edit.dataset.settings.filter(
+          item => (item.fieldname === "default_"+data.edit.current.type+"_report"))[0],
+      templates: [],
+      title: data.edit.current.item[data.edit.template.options.title_field]
+    }})
+    data.edit.dataset.report.forEach(template => {
+      let audit = data.login.data.audit.filter(item => (
+        (item.nervatypeName === "report") && (item.subtype === template.id)))[0]
+      if(audit){
+        audit= audit.inputfilterName
+      } else {
+        audit = "all"
+      }
+      if (audit !== "disabled") {
+        if (data.edit.current.type==="trans") {
+          if (data.edit.current.item.direction === template.direction) {
+            formProps = update(formProps, { 
+              templates: {$push: [{
+                value: template.reportkey, text: template.repname
+              }]}
+            })
+          }
+        } else {
+          formProps = update(formProps, { 
+            templates: {$push: [{
+              value: template.reportkey, text: template.repname
+            }]}
+          })
+        }
+      }
+    })
+    if (typeof formProps.template !== "undefined") {
+      formProps = update(formProps, {$merge: {
+        template: formProps.template.value
+      }})
+    } else if(formProps.templates.length > 0){
+      formProps = update(formProps, {$merge: {
+        template: formProps.templates[0].value
+      }})
+    } else {
+      formProps = update(formProps, {$merge: {
+        template: ""
+      }})
+    }
+    onChange(form(formProps))
+  }
+}
+
+export const FormField = (props) => {
+  const app = useApp()
+  const editor = useEditor()
+  const { data } = useContext(AppStore);
   const [ state, setState ] = useState({})
+  const showSelector = SelectorForm()
 
   const { field, values } = props
   const { dataset, current, audit, onEdit } = props.rowdata;
@@ -232,7 +361,7 @@ export const FormField = (props) => {
       value: selector.id || ""
     }})
     
-    setState({...state, selector: selector })
+    setState({...state, selector: selector, form: null })
     onChange(selector.id, row)
   }
   
@@ -326,47 +455,6 @@ export const FormField = (props) => {
       }
     } 
     return selector
-  }
-
-  const setSelector = () => {
-    const form = (props) => {
-      return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog}`} >{createElement(SelectorView, { ...props })}</div> 
-      </div>)
-    }
-    let props = {
-      getText: app.getText,
-      quickSearch: async ()=>{
-        const view = await search.quickSearch(state.selector.type, props.filter)
-        if(view.error){
-          return app.resultError(view)
-        }
-        props = update(props, { data: {$merge: {
-          result: view.result
-        }}})
-        setState({...state, form: form(props) })
-      },
-      editRow: (row)=>{
-        onSelector(row, props.filter)
-      },
-      onClose: ()=>setState({...state, form: null }),
-      filterChange: (event)=>{
-        props = update(props, {$merge: {
-          filter: event.target.value
-        }})
-        setState({...state, form: form(props) })
-      },
-      queries: queries, 
-      theme: data.session.theme,
-      ui: data.ui,
-      filter: state.selector.filter,
-      data: {
-        qview: state.selector.type,
-        result: []
-      }
-    }
-    
-    setState({...state, form: form(props) })
   }
 
   if(!state.selector && (datatype === "selector")){
@@ -554,7 +642,14 @@ export const FormField = (props) => {
         columns.push(<div key="sel_show" className={` ${"cell"} ${styles.searchCol}`}>
           <button className={`${"border-button"} ${styles.selectorButton}`}
             disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}
-            onClick={ ()=>setSelector() } >
+            onClick={ ()=>showSelector({
+              type: state.selector.type, 
+              filter: state.selector.filter, 
+              onChange: (form) => {
+                setState({...state, form: form })
+              }, 
+              onSelect: onSelector
+            }) } >
             <Search />
           </button>
         </div>)
@@ -726,7 +821,7 @@ export const FormRow = (props) => {
           <div className="cell align-right container-small" >
             <span className={`${styles.fieldvalueDelete}`} 
               onClick={ ()=>rowdata.onEdit({ 
-                id: id, name: "fieldvalue_delete"}) }><Times /></span>
+                id: id, name: "fieldvalue_deleted"}) }><Times /></span>
           </div>
         </div>
         <div className="row full">

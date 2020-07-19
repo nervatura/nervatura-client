@@ -283,7 +283,17 @@ const request = (url, options) => {
     if (response.status === 204 || response.status === 205) {
       return null;
     }
-    return response.json();
+    switch (response.headers.get('content-type').split(";")[0]) {
+      case "application/pdf":
+      case "application/xml":
+        return response.blob()
+
+      case "application/json":
+        return response.json()
+    
+      default:
+        return response
+    }
   }
 
   const checkStatus = (response) => {
@@ -387,7 +397,7 @@ export const useApp = () => {
       if (!options.headers)
         options = update(options, {$merge: { headers: {} }})
       options = update(options, { 
-        headers: {$merge: { "Content-Type": "application/json " }}
+        headers: {$merge: { "Content-Type": "application/json" }}
       })
       if(token !== ""){
         options = update(options, { 
@@ -411,7 +421,7 @@ export const useApp = () => {
       if (!silent) {
         setData("current", { "request": false })
       }
-      if(result.code){
+      if(result && result.code){
         if(result.code === 401){
           signOut()
         }
