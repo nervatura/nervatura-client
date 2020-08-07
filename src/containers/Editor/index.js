@@ -88,23 +88,6 @@ export default (props) => {
     setData("edit", { current: current })
   }
 
-  const setFieldvalue = (recordset, fieldname, ref_id, defvalue, value) => {
-    const fieldvalue_idx = recordset.findIndex((item)=>((item.ref_id === ref_id)&&(item.fieldname === fieldname)))
-    if (fieldvalue_idx === -1) {
-      const fieldvalue = update(initItem({tablename: "fieldvalue", current: data.edit.current}), {$merge: {
-        fieldname: fieldname,
-        ref_id: ref_id,
-        value: value || defvalue
-      }})
-      recordset = update(recordset, {$push: [fieldvalue]})
-    } else if(value) {
-      recordset = update(recordset, { [fieldvalue_idx]: {$merge: {
-        value: value
-      }}})
-    }
-    return recordset
-  }
-
   const loadPrice = async (trans, item) => {
     const options = { method: "POST", 
       data: {
@@ -279,7 +262,7 @@ export default (props) => {
             }}})
           } else if ((options.name === "link_qty") || (options.name === "link_rate")) {
             edit = update(edit, { current: {$merge: {
-              invoice_link_fieldvalue: setFieldvalue(edit.current.invoice_link_fieldvalue, 
+              invoice_link_fieldvalue: editor.setFieldvalue(edit.current.invoice_link_fieldvalue, 
                 options.name, edit.current.form.id, null, options.value)
             }}})
           }
@@ -294,7 +277,7 @@ export default (props) => {
             }}})
           } else if ((options.name === "link_qty") || (options.name === "link_rate")) {
             edit = update(edit, { current: {$merge: {
-              payment_link_fieldvalue: setFieldvalue(edit.current.payment_link_fieldvalue, 
+              payment_link_fieldvalue: editor.setFieldvalue(edit.current.payment_link_fieldvalue, 
                 options.name, edit.current.form.id, null, options.value)
             }}})
           }
@@ -405,7 +388,9 @@ export default (props) => {
               break;
             case "ref_id":
               edit = update(edit, { current: { extend: {$merge: {
-                  refnumber: options.refnumber
+                  refnumber: options.refnumber,
+                  ntype: (edit.current.extend.seltype === "transitem") ? "trans" : edit.current.extend.seltype,
+                  transtype: (options.item && options.item.transtype) ? options.item.transtype.split("-")[0] : ""
               }}}})
               switch (edit.current.extend.seltype){
                 case "customer":
@@ -420,7 +405,7 @@ export default (props) => {
                   break;
                 case "transitem":
                   edit = update(edit, { current: { item: {$merge: {
-                    ref_transnumber: options.refnumber
+                    ref_transnumber: options.refnumber,
                   }}}})
                   break;
                 default:
@@ -435,7 +420,7 @@ export default (props) => {
             case "trans_wsnote":
             case "trans_rentnote":
               edit = update(edit, { current: {$merge: {
-                fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                fieldvalue: editor.setFieldvalue(edit.current.fieldvalue, 
                   options.name, edit.current.item.id, null, options.value)
               }}})
               break;

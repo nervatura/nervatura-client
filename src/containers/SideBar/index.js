@@ -90,6 +90,11 @@ export default (props) => {
     app.setSideBar()
     editor.checkEditor({}, 'REPORT_SETTINGS')
   }
+
+  state.loadFormula = () => {
+    app.setSideBar()
+    editor.checkEditor({}, 'LOAD_FORMULA')
+  }
   
   state.checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
     editor.checkEditor(options, cbKeyTrue, cbKeyFalse)
@@ -168,11 +173,31 @@ export default (props) => {
   }
 
   state.prevTransNumber = () => {
+    app.setSideBar()
     editor.prevTransNumber()
   }
 
   state.nextTransNumber = () => {
+    app.setSideBar()
     editor.nextTransNumber()
+  }
+
+  state.saveEditor = async () => {
+    app.setSideBar()
+    let edit = null
+    if(data.edit.current.form){
+      edit = await editor.saveEditorForm()
+    } else {
+      edit = await editor.saveEditor()
+    }
+    if(edit){
+      editor.loadEditor({
+        ntype: edit.current.type, 
+        ttype: edit.current.transtype, 
+        id: edit.current.item.id,
+        form: edit.current.form_type
+      })
+    }
   }
 
   state.data = data.current

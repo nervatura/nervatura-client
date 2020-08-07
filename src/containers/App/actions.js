@@ -38,7 +38,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FME_INT}/g, " as integer), 'N')");
         sql = sql.replace(/{FMS_DATE}/g, "convert(varchar(10),");
         sql = sql.replace(/{FME_DATE}/g, ", 120)");
-        sql = sql.replace(/{FMS_DATETIME}/g, "convert(varchar(16),");
+        sql = sql.replace(/{FMS_DATETIME}/g, "convert(varchar(19),");
         sql = sql.replace(/{FME_DATETIME}/g, ", 120)");
         sql = sql.replace(/{FMS_TIME}/g, "SUBSTRING(cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as nvarchar),0,6)");
@@ -70,7 +70,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FMS_DATE}/g, "substr("); //format to iso date - start
         sql = sql.replace(/{FME_DATE}/g, ",1,10)"); //format to iso date - end
         sql = sql.replace(/{FMS_DATETIME}/g, "substr("); //format to iso datetime - start
-        sql = sql.replace(/{FME_DATETIME}/g, ",1,16)"); //format to iso datetime - end
+        sql = sql.replace(/{FME_DATETIME}/g, ",1,19)"); //format to iso datetime - end
         sql = sql.replace(/{FMS_TIME}/g, "substr(time(");
         sql = sql.replace(/{FME_TIME}/g, "),0,6)");
         sql = sql.replace(/{JOKER}/g, "'%'");
@@ -101,7 +101,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FMS_DATE}/g, "date_format(");
         sql = sql.replace(/{FME_DATE}/g, ", '%Y-%m-%d')");
         sql = sql.replace(/{FMS_DATETIME}/g, "date_format(");
-        sql = sql.replace(/{FME_DATETIME}/g, ", '%Y-%m-%dT%H:%i')");
+        sql = sql.replace(/{FME_DATETIME}/g, ", '%Y-%m-%dT%H:%i:%s')");
         sql = sql.replace(/{FMS_TIME}/g, "cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as char)");
         sql = sql.replace(/{JOKER}/g, "'%'");
@@ -140,7 +140,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FMS_DATE}/g, "to_char(");
         sql = sql.replace(/{FME_DATE}/g, ", 'YYYY-MM-DD')");
         sql = sql.replace(/{FMS_DATETIME}/g, "to_char(");
-        sql = sql.replace(/{FME_DATETIME}/g, ", 'YYYY-MM-DD\"T\"HH24:MI')");
+        sql = sql.replace(/{FME_DATETIME}/g, ", 'YYYY-MM-DD\"T\"HH24:MI:SS')");
         sql = sql.replace(/{FMS_TIME}/g, "substr(cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as text), 0, 6)");
         sql = sql.replace(/{JOKER}/g, "chr(37)");
@@ -169,7 +169,7 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{FME_INT}/g, " as money),1), '.00','')");
         sql = sql.replace(/{FMS_DATE}/g, "convert(varchar(10),");
         sql = sql.replace(/{FME_DATE}/g, ", 120)");
-        sql = sql.replace(/{FMS_DATETIME}/g, "convert(varchar(16),");
+        sql = sql.replace(/{FMS_DATETIME}/g, "convert(varchar(19),");
         sql = sql.replace(/{FME_DATETIME}/g, ", 120)");
         sql = sql.replace(/{FMS_TIME}/g, "SUBSTRING(cast(cast(");
         sql = sql.replace(/{FME_TIME}/g, " as time) as nvarchar),0,6)");

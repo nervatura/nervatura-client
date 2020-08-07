@@ -3,7 +3,365 @@ import update from 'immutability-helper';
 import { formatISO, addDays } from 'date-fns'
 
 import AppStore from 'containers/App/context'
+import { useApp, getSql } from 'containers/App/actions'
 import { guid } from 'containers/App/actions'
+
+export const useValidator = () => {
+  const app = useApp()
+  const { data } = useContext(AppStore)
+  return async (typeName, values) => {
+    
+    const checkUniqueKey = async (whereFilter, whereValue) => {
+      const params = { 
+        method: "POST", 
+        data: [{ 
+          key: "check",
+          text: getSql(data.login.data.engine, 
+            {select:["count(*) as recnum"], from:typeName, where:[whereFilter]}).sql,
+          values: whereValue
+        }]
+      }
+      const view = await app.requestData("/view", params)
+      if(view.error){
+        return view.error.message || app.getText("error_internal")
+      }
+      if(view.check[0].recnum > 0){
+        return app.getText("msg_value_exists")
+      }
+      return ""
+    }
+
+    const nextNumber = async (numberkey, fieldname) => {
+      const options = { method: "POST", 
+        data: {
+          key: "nextNumber",
+          values: {
+            numberkey: numberkey, 
+            step: true
+          }
+        }
+      }
+      const result = await app.requestData("/function", options)
+      if(result.error){
+        return result.error.message || app.getText("error_internal")
+      }
+      values[fieldname] = result
+      return ""
+    }
+
+    let msg_err = ""
+
+    if (typeof values.id==="undefined") {
+      values.id = null
+    }
+    switch (typeName) {
+      case "address":
+        break;
+        
+      case "barcode":
+        if (values.code === null || values.code === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("barcode_code")
+        } else if (values.barcodetype === null || values.barcodetype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("barcode_barcodetype")
+        } else if(values.id === null) { 
+          msg_err = await checkUniqueKey(["code","=","?"], [values.code])
+        }
+        break;
+      
+      case "contact":
+        break;
+        
+      case "currency":
+        if (values.curr === null || values.curr === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("currency_curr")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("currency_description")
+        } else if(values.id === null) {
+          msg_err = await checkUniqueKey(["curr","=","?"], [values.curr])
+        }
+        break;
+      
+      case "customer":
+        if (values.custname === null || values.custname === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("customer_custname")
+        } else if (values.custtype === null || values.custtype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("customer_custtype")
+        }
+        else if(values.id === null && (values.custnumber !== null && values.custnumber !== "")) {
+          msg_err = await checkUniqueKey(["custnumber","=","?"], [values.custnumber])
+        } else if(values.custnumber === null) {
+          msg_err = await nextNumber("custnumber", "custnumber")
+        }
+        break;
+      
+      case "deffield":
+        if (values.nervatype === null || values.nervatype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("deffield_nervatype")
+        } else if (values.fieldtype === null || values.fieldtype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("deffield_fieldtype")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("deffield_description")
+        }
+        break;
+        
+      case "employee":
+        if (data.edit.current.extend.surname === null || 
+          data.edit.current.extend.surname === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("contact_surname")
+        } else if (values.usergroup === null || values.usergroup === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("employee_usergroup")
+        } else if(values.id === null && (values.empnumber !== null && values.empnumber !== "")) {
+          msg_err = await checkUniqueKey(["empnumber","=","?"], [values.empnumber])
+        } else if(values.empnumber === null) {
+          msg_err = await nextNumber("empnumber", "empnumber")
+        }
+        break;
+        
+      case "event":
+        if(values.calnumber === null) {
+          msg_err = await nextNumber("calnumber", "calnumber")
+        }
+        break;
+        
+      case "fieldvalue":
+        break;
+      case "formula":
+        break;
+        
+      case "groups":
+        if (values.groupvalue === null || values.groupvalue === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("groups_groupvalue")
+        } else if (values.groupname === null || values.groupname === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("groups_groupname")
+        } else if (values.groupname === "usergroup" && 
+          (values.description === "" || values.description === null)) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("groups_description")
+        } else if (values.groupname === "usergroup" && 
+          (values.transfilter === "" || values.transfilter === null)) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("groups_transfilter")
+        } else if(values.id === null) {
+          msg_err = await checkUniqueKey(
+            [["groupname","=","?"], ["and","groupvalue","=","?"]], [values.groupname, values.groupvalue])
+        }
+        break;
+        
+      case "item":
+        if (values.product_id === null || values.product_id === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_partnumber")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("item_description")
+        } else if (values.tax_id === null || values.tax_id === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("item_taxcode")
+        }
+        break;
+        
+      case "link":
+        if (values.ref_id_1 === null || values.ref_id_1 === "" || 
+          values.ref_id_2 === null || values.ref_id_2 === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("document_ref_transnumber")
+        }
+        break;
+        
+      case "log":
+        break;
+      
+      case "movement":          
+        switch (data.edit.current.transtype) {
+          case "delivery":
+            const direction = data.edit.dataset.groups.filter(
+              item => (item.id === data.edit.current.item.direction))[0].groupvalue
+            if (values.place_id === null || values.place_id === "") {
+              if (direction === "transfer") {
+                msg_err = app.getText("msg_required")  +" "+ app.getText("movement_target")
+              } else {
+                msg_err = app.getText("msg_required")  +" "+ app.getText("movement_place")
+              }
+            } else if ((direction === "transfer") && 
+              (data.edit.current.item.place_id === values.place_id)) {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("ms_diff_warehouse_err")
+            } else if (values.product_id === null || values.product_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("product_description")
+            }
+            break;
+          
+          case "inventory":
+            if (values.product_id === null || values.product_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("product_description")
+            }
+            break;
+              
+          case "production":
+            if (values.product_id === null || values.product_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("product_description")
+            } else if (values.place_id === null || values.place_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("movement_place")
+            }
+            break;
+          
+          case "formula":
+            if (values.product_id === null || values.product_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("product_description")
+            }
+            break;
+            
+          case "waybill":
+            if (values.tool_id === null || values.tool_id === "") {
+              msg_err = app.getText("msg_required")  +" "+ app.getText("tool_serial")
+            }
+            break;
+          
+          default:
+            break;}            
+        break;
+        
+      case "numberdef":
+        break;
+      case "pattern":
+        break;
+      case "payment":
+        break;
+        
+      case "place":
+        if ((values.id === null) && 
+          (parseInt(values.placetype,10) !== data.edit.dataset.placetype.filter(
+          item => (item.groupvalue === "warehouse"))[0].id)) {
+          values.curr = data.edit.dataset.currency[0].curr;}
+        if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("place_description")
+        } else if (values.placetype === null || values.placetype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("place_placetype")
+        } else if(values.planumber === null) {
+          msg_err = await nextNumber("planumber", "planumber")
+        }
+        break;
+      
+      case "price":
+        if (values.validfrom === null || values.validfrom === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("price_validfrom")
+        } else if (values.curr === null || values.curr === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("price_curr")
+        } else if (((values.calcmode === null) || (values.calcmode === "")) && (values.discount !== null)) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("price_calcmode")
+        }
+        break;
+        
+      case "product":
+        if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_description")
+        } else if (values.protype === null || values.protype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_protype")
+        } else if (values.unit === null || values.unit === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_unit")
+        } else if (values.tax === null || values.tax === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_tax")
+        } else if(values.id === null && (values.partnumber !== null && values.partnumber !== "")) {
+          msg_err = await checkUniqueKey(["partnumber","=","?"], [values.partnumber])
+        } else if(values.partnumber === null) {
+          msg_err = await nextNumber("partnumber", "partnumber")
+        }
+        break;
+      
+      case "project":
+        if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("project_description")
+        } else if(values.id === null && (values.pronumber !== null && values.pronumber !== "")) {
+          msg_err = await checkUniqueKey(["pronumber","=","?"], [values.pronumber])
+        } else if(values.pronumber === null) {
+          msg_err = await nextNumber("pronumber", "pronumber")
+        }
+        break;
+        
+      case "rate":
+        if (values.ratetype === null || values.ratetype === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("rate_ratetype")
+        } else if (values.ratedate === null || values.ratedate === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("rate_ratedate")
+        } else if (values.curr === null || values.curr === "") {
+          msg_err = app.getText("rate_curr")  +" "+ app.getText("rate_ratedate")
+        }
+        break;
+        
+      case "tax":
+        if (values.taxcode === null || values.taxcode === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("tax_taxcode")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("tax_description")
+        } else if(values.id === null) {
+          msg_err = await checkUniqueKey(["taxcode","=","?"], [values.taxcode])
+        }
+        break;
+      
+      case "tool":
+        if (values.product_id === null || values.product_id === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_partnumber")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("tool_description")
+        } else if(values.id === null && (values.serial !== null && values.serial !== "")) {
+          msg_err = await checkUniqueKey(["serial","=","?"], [values.serial])
+        } else if(values.serial === null) {
+          msg_err = await nextNumber("serial", "serial")
+        }
+        break;
+        
+      case "trans":
+        const transtype = data.edit.dataset.groups.filter(
+          item => (item.id === parseInt(values.transtype,10)))[0].groupvalue
+        const direction = data.edit.dataset.groups.filter(
+          item => (item.id === parseInt(values.direction,10)))[0].groupvalue
+        //if (values.duedate !== null) {
+          //values.duedate = getValidDateTime(values.duedate)
+        //}
+        if ((transtype==="offer" || transtype==="order" || transtype==="worksheet" || 
+          transtype==="rent" || transtype==="invoice") && 
+          (values.customer_id === null || values.customer_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("customer_custname")
+        } else if (transtype==="cash" && (values.place_id === null || values.place_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("payment_place_cash")
+        } else if (transtype==="bank" && (values.place_id === null || values.place_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("payment_place_bank")
+        } else if ((transtype==="inventory" || transtype==="production" || 
+          (transtype==="delivery" && direction === "transfer")) && 
+          (values.place_id === null || values.place_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("movement_place")
+        } else if (transtype==="production" && (values.duedate === null || values.duedate === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("production_duedate")
+        } else if ((transtype==="production" || transtype==="formula") && 
+          (data.edit.current.extend.product_id === null || 
+            data.edit.current.extend.product_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("product_partnumber")
+        } else if (transtype==="waybill" && (data.edit.current.extend.ref_id === null || 
+            data.edit.current.extend.ref_id === "")) {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("waybill_reference")
+        } else if(values.transnumber === null) {
+          if (transtype === "waybill" || transtype === "cash") {
+            msg_err = await nextNumber(transtype, "transnumber")
+          } else {
+            msg_err = await nextNumber(transtype+"_"+direction, "transnumber")
+          }
+        }
+        break;
+      
+      case "ui_menu":
+        if (values.menukey === null || values.menukey === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_menukey")
+        } else if (values.description === null || values.description === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_description")
+        } else if (values.funcname === null || values.funcname === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_funcname")
+        } else if(values.id === null) {
+          msg_err = await checkUniqueKey(["menukey","=","?"], [values.menukey])
+        }
+        break;
+      
+      default:
+        break;
+    }
+    if (msg_err !== "") {
+      return { error: { message: msg_err }}
+    }
+    return values
+  }
+}
 
 export const useInitItem = () => {
   const { data } = useContext(AppStore)
@@ -475,7 +833,7 @@ export const useInitItem = () => {
         if (typeof dataset.pattern !== "undefined") {
           let trans = update({}, {$set: {
             id: null,
-            movetype: dataset.groups.filter((group)=> {
+            transtype: dataset.groups.filter((group)=> {
               return ((group.groupname === "transtype") && (group.groupvalue === transtype))
             })[0].id,
             direction: dataset.groups.filter((group)=> {

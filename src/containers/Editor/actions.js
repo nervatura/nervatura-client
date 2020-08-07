@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
-import { formatISO, addDays } from 'date-fns'
+import { formatISO, addDays, parseISO, isEqual } from 'date-fns'
 import { EditorState } from 'draft-js';
 import { convertFromHTML } from 'draft-convert'
 
@@ -9,20 +9,22 @@ import pdfjsLib from 'pdfjs-dist/webpack';
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql, saveToDisk } from 'containers/App/actions'
-import { SelectorForm, ReportForm } from 'containers/Controller'
+import { SelectorForm, ReportForm, FormulaForm } from 'containers/Controller'
 import dataset from './dataset'
 import { useSql } from './sql'
 import { useForm } from './forms'
-import { useInitItem } from './items'
+import { useInitItem, useValidator } from './items'
 
 export const useEditor = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const initItem = useInitItem()
+  const validator = useValidator()
   const sql = useSql()
   const forms = useForm()
   const showSelector = SelectorForm()
   const showReport = ReportForm()
+  const showFormula = FormulaForm()
   
   const setEditor = (options, form, iedit) => {
     let edit = update(iedit||data.edit, {})
@@ -445,8 +447,8 @@ export const useEditor = () => {
       if(view.error){
         return app.resultError(view)
       }
-      edit = update(edit, {$merge: {
-        dataset: view
+      edit = update(edit, {dataset: {
+        $merge: view
       }})
       if (id===null) {
         if (proitem === null) {
@@ -501,7 +503,9 @@ export const useEditor = () => {
     }})
     edit = update(edit, {current: {$merge: {
       form_type: options.fkey,
-      form_datatype: dkey,
+      form_datatype: dkey
+    }}})
+    edit = update(edit, {current: {$merge: {
       form: initItem({tablename: dkey, dataset: edit.dataset, current: edit.current})
     }}})
 
@@ -769,7 +773,7 @@ export const useEditor = () => {
       if(result && result.error){
         return app.resultError(result)
       }
-      createHistory("delete")
+      await createHistory("delete")
       clearEditor()
     }
     setData("current", { input: { 
@@ -832,7 +836,7 @@ export const useEditor = () => {
         if(result && result.error){
           return app.resultError(result)
         }
-        createHistory("save")
+        await createHistory("save")
         reLoad()
       }
     }
@@ -942,6 +946,458 @@ export const useEditor = () => {
     return saveToDisk(resultUrl, filename)
   }
 
+  const setFieldvalue = (recordset, fieldname, ref_id, defvalue, value) => {
+    const fieldvalue_idx = recordset.findIndex((item)=>((item.ref_id === ref_id)&&(item.fieldname === fieldname)))
+    if (fieldvalue_idx === -1) {
+      const fieldvalue = update(initItem({tablename: "fieldvalue", current: data.edit.current}), {$merge: {
+        fieldname: fieldname,
+        ref_id: ref_id,
+        value: ((typeof value === "undefined") || (value === null)) ? defvalue : value
+      }})
+      recordset = update(recordset, {$push: [fieldvalue]})
+    } else if(value) {
+      recordset = update(recordset, { [fieldvalue_idx]: {$merge: {
+        value: value
+      }}})
+    }
+    return recordset
+  }
+
+  const tableValues = (type, item) => {
+    let values = {}
+    const baseValues = initItem({tablename: type, 
+      dataset: data.edit.dataset, current: data.edit.current})
+    for (const key in item) {
+      if (baseValues.hasOwnProperty(key)) {
+        values[key] = item[key]
+      }
+    }
+    return values
+  }
+
+  const saveEditorForm = async () => {
+    let edit = update(data.edit, {})
+
+    let values = tableValues(edit.current.form_datatype, edit.current.form)
+    values = await validator(edit.current.form_datatype, values)
+    if(values.error){
+      app.resultError(values)
+      return null
+    }
+    
+    let result = await app.requestData("/"+edit.current.form_datatype, { method: "POST", data: [values] })
+    if(result.error){
+      app.resultError(result)
+      return null
+    }
+    if (edit.current.form.id === null) {
+      edit = update(edit, {current: { form: {$merge: {
+        id: result[0]
+      }}}})
+    }
+    edit = update(edit, {$merge: {
+      form_dirty: false
+    }})
+    await createHistory("save")
+   
+    switch (edit.current.form_type) {
+      case "movement":
+        if (edit.current.transtype === "delivery") {
+          let movements = []; let mlink = null;
+          let movement = edit.dataset.movement_transfer.filter(
+            item => (item.id === edit.current.form.id))[0]
+          if (typeof movement !== "undefined") {
+            movement = edit.dataset.movement.filter(
+              item => (item.id === movement.ref_id))[0]
+            movement = update(
+              initItem({tablename: "movement", dataset: edit.dataset, current: edit.current}), 
+              {$merge: movement})
+          } else {
+            movement = update(
+              initItem({tablename: "movement", dataset: edit.dataset, current: edit.current}),
+              {$merge: {
+                place_id: edit.current.item.place_id
+              }}
+            )
+            mlink = update(
+              initItem({tablename: "link", dataset: edit.dataset, current: edit.current}),
+              {$merge: {
+                nervatype_1: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "movement")))[0].id,
+                nervatype_2: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "movement")))[0].id,
+                ref_id_2: edit.current.form.id
+              }}
+            )
+          }
+          movement = update(movement, {$merge: {
+            product_id: edit.current.form.product_id,
+            qty: -(edit.current.form.qty),
+            notes: edit.current.form.notes
+          }})
+          movements.push(tableValues("movement", movement));
+          edit.dataset.movement_transfer.forEach((mvt) => {
+            movement = update(
+              initItem({tablename: "movement", dataset: edit.dataset, current: edit.current}), 
+              {$merge: tableValues("movement", mvt)})
+            if ((movement.id !== edit.current.form.id) &&
+              (movement.place_id !== edit.current.form.place_id)){
+                movement = update(movement, {$merge: {
+                  place_id: edit.current.form.place_id
+                }})
+                movements.push(movement)
+            }
+          });
+          let result = await app.requestData("/movement", { method: "POST", data: movements })
+          if(result.error){
+            app.resultError(result)
+            return null
+          }
+          if (mlink !== null) {
+            mlink = update(mlink, {$merge: {
+              ref_id_1: result[0]
+            }})
+            result = await app.requestData("/link", { method: "POST", data: [mlink] })
+            if(result.error){
+              app.resultError(result)
+              return null
+            }
+          }
+        }
+        break;
+      
+      case "price":
+      case "discount":
+        if (edit.current.price_link_customer !== null || 
+            edit.current.price_customer_id !== null) {
+          if (edit.current.price_customer_id === null) {
+            //delete link
+            result = await app.requestData("/link", 
+              { method: "DELETE", query: { id: edit.current.price_link_customer } })
+            if(result && result.error){
+              app.resultError(result)
+              return null
+            }
+          } else {
+            let clink = update(
+              initItem({tablename: "link", dataset: edit.dataset, current: edit.current}),
+              {$merge: {
+                id: edit.current.price_link_customer, //update or insert
+                nervatype_1: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "price")))[0].id,
+                ref_id_1: edit.current.form.id,
+                nervatype_2: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "customer")))[0].id,
+                ref_id_2: edit.current.price_customer_id
+              }}
+            )
+            result = await app.requestData("/link", { method: "POST", data: [clink] })
+            if(result.error){
+              app.resultError(result)
+              return null
+            }
+          }
+        }
+        break;
+        
+      case "invoice_link":
+      case "payment_link":
+        let rsname = edit.current.form_type+"_fieldvalue"
+        for (let i=0; i < edit.current[rsname].length; i++) {
+          if (edit.current[rsname][i].ref_id === null) {
+            edit = update(edit, {
+              current:{
+                [rsname]: {
+                  [i]: {$merge: {
+                    ref_id: edit.current.form.id
+                  }}
+                }
+              }
+            })
+          }
+        }
+        let flist = { link_qty:"0", link_rate: "1" }
+        let fvalues = edit.current[rsname]
+        Object.keys(flist).forEach(function(fieldname) { 
+          fvalues = setFieldvalue(fvalues, 
+            fieldname, edit.current.form.id, flist[fieldname])
+        });
+        edit = update(edit, {
+          current: {$merge: {
+            [rsname]: fvalues
+          }}
+        })
+        result = await app.requestData("/fieldvalue", { method: "POST", data: fvalues })
+        if(result.error){
+          app.resultError(result)
+          return null
+        }
+        break;
+
+      default:
+        break;
+    }
+    
+    return edit
+  }
+
+  const checkSubtype = (type, subtype, item) => {
+    if(subtype !== null){
+      switch (type) {
+        case "customer":
+          return (subtype === item.custtype)
+        case "place":
+          return (subtype === item.placetype)
+        case "product":
+          return (subtype === item.protype)
+        case "tool":
+          return (subtype === item.toolgroup)
+        case "trans":
+          return (subtype === item.transtype)
+        default:
+          break
+      }
+    }
+    return true
+  }
+
+  const saveEditor = async () => {
+    let edit = update(data.edit, {})
+
+    let values = tableValues(edit.current.type, edit.current.item)
+    values = await validator(edit.current.type, values)
+    if(values.error){
+      return app.resultError(values)
+    }
+
+    if (edit.current.item.id === null && edit.dataset.deffield) {
+      edit.dataset.deffield.forEach((deffield) => {
+        if(deffield.addnew === 1){
+          const subtype = checkSubtype(edit.current.type,
+            deffield.subtype, edit.current.item);
+          const item = edit.current.fieldvalue.filter(item => (item.fieldname === deffield.fieldname))[0]
+          if(!item && subtype){
+            const fieldtype = edit.dataset.groups.filter(item => (item.id === deffield.fieldtype))[0].groupvalue
+            switch (fieldtype) {
+              case "bool":
+              case "integer":
+              case "float":
+                edit = update(edit, { current: {$merge: {
+                  fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                    deffield.fieldname, null, null, 0)
+                }}})
+                break;
+              case "valuelist":
+                edit = update(edit, { current: {$merge: {
+                  fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                    deffield.fieldname, null, null, deffield.valuelist.split("|")[0])
+                }}})
+                break;
+              default:
+            }
+          }
+        }
+      });
+    }
+
+    let result = await app.requestData("/"+edit.current.type, { method: "POST", data: [values] })
+    if(result.error){
+      app.resultError(result)
+      return null
+    }
+    if (edit.current.item.id === null) {
+      edit = update(edit, {current: { item: {$merge: {
+        id: result[0]
+      }}}})
+    }
+    edit = update(edit, {$merge: {
+      dirty: false
+    }})
+    await createHistory("save")
+
+    if (typeof edit.current.extend !== "undefined") {
+      if (edit.current.extend.ref_id === null) {
+        edit = update(edit, {current: { extend: {$merge: {
+          ref_id: edit.current.item.id
+        }}}})
+      }
+      if (edit.current.extend.trans_id === null) {
+        edit = update(edit, {current: { extend: {$merge: {
+          trans_id: edit.current.item.id
+        }}}})
+      }
+    }
+    if (typeof edit.current.fieldvalue !== "undefined") {
+      for (let i=0; i < edit.current.fieldvalue.length; i++) {
+        if (edit.current.fieldvalue[i].ref_id === null) {
+          edit = update(edit, {current: { fieldvalue: { [i]: {$merge: {
+            ref_id: edit.current.item.id
+          }}}}})
+        }
+      }
+    }
+
+    if (edit.current.type === "trans") {
+      edit = update(edit, { current: {$merge: {
+        fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+          "trans_transcast", edit.current.item.id, null, "normal")
+      }}})
+      switch (edit.current.transtype) {
+        case "invoice":
+          const params = { 
+            method: "POST", 
+            data: [{ 
+              key: "fields",
+              text: getSql(data.login.data.engine, sql.trans.invoice_customer()).sql,
+              values: [edit.current.item.customer_id]
+            }]
+          }
+          let view = await app.requestData("/view", params)
+          if(view.error){
+            return app.resultError(view)
+          }
+          if (view.fields.length > 0) {
+            Object.keys(view.fields[0]).forEach((fieldname) => {
+              edit = update(edit, { current: {$merge: {
+                fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                  fieldname, edit.current.item.id, null, view.fields[0][fieldname])
+              }}})
+            })
+          }
+          break;
+        case "worksheet":
+          let wlist = {trans_wsdistance:0, trans_wsrepair:0, trans_wstotal:0, trans_wsnote:""};
+          Object.keys(wlist).forEach((fieldname) => {
+            edit = update(edit, { current: {$merge: {
+              fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                fieldname, edit.current.item.id, null, wlist[fieldname])
+            }}})
+          })
+          break;
+        case "rent":
+          let rlist = {trans_reholiday:0, trans_rebadtool:0, trans_reother:0, trans_rentnote:""};
+          Object.keys(rlist).forEach((fieldname) => {
+            edit = update(edit, { current: {$merge: {
+              fieldvalue: setFieldvalue(edit.current.fieldvalue, 
+                fieldname, edit.current.item.id, null, rlist[fieldname])
+            }}})
+          })
+          break;
+        case "delivery":
+          let movements = [];
+          edit.dataset.movement.forEach((mvt) => {
+            let movement = update(
+              initItem({tablename: "movement", dataset: edit.dataset, current: edit.current}),
+              {$merge: mvt })
+            if (!isEqual(parseISO(movement.shippingdate), parseISO(edit.current.item.transdate))){
+              movement = update(movement, {$merge: {
+                shippingdate: formatISO(parseISO(edit.current.item.transdate))
+              }})
+              movements.push(movement)
+            }
+          })
+          if (movements.length > 0) {
+            result = await app.requestData("/movement", { method: "POST", data: movements })
+            if(result.error){
+              app.resultError(result)
+              return null
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (edit.current.fieldvalue.length > 0) {
+      result = await app.requestData("/fieldvalue", { method: "POST", data: edit.current.fieldvalue })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+      for (let index = 0; index < result.length; index++) {
+        if(!edit.current.fieldvalue[index].id){
+          edit = update(edit, { current: { fieldvalue: { [index]: {$merge: {
+            id: result[index]
+          }}}}})
+        }
+      }
+    }
+
+    if (typeof edit.current.extend !== "undefined") {
+      let ptype = String(edit.template.options.extend).split("_")[0]
+      let extend = update(edit.current.extend, {})
+      switch (edit.current.transtype) {
+        case "waybill":
+          ptype = extend.seltype
+          if (extend.seltype === "transitem") {
+            ptype = "link"
+            extend = initItem({tablename: "link", dataset: edit.dataset, current: edit.current})
+            if (edit.dataset.translink.length > 0) {
+              extend = update(extend, {$merge: edit.dataset.translink[0]})
+            } else {
+              extend = update(extend, {$merge: {
+                nervatype_1: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "trans")))[0].id,
+                nervatype_2: data.login.data.groups.filter(
+                  (item)=>((item.groupname === "nervatype") && (item.groupvalue === "trans")))[0].id,
+                ref_id_1: edit.current.item.id
+              }})
+            }
+            extend = update(extend, {$merge: {
+              ref_id_2: edit.current.extend.ref_id
+            }})
+          } else {
+            extend = null;
+            if (edit.dataset.translink.length > 0) {
+              result = await app.requestData("/link", 
+                { method: "DELETE", query: { id: edit.dataset.translink[0].id } })
+              if(result && result.error){
+                app.resultError(result)
+                return null
+              }
+            }
+          }
+          break;
+        case "formula":
+          extend = update(extend, {$unset: ["product"]})
+          extend = update(extend, {$merge: {
+            shippingdate: formatISO(parseISO(edit.current.item.transdate))
+          }})
+          break;
+        case "production":
+          extend = update(extend, {$unset: ["product"]})
+          extend = update(extend, {$merge: {
+            shippingdate: edit.current.item.duedate,
+            place_id: edit.current.item.place_id
+          }})
+          break;
+        default:
+      }
+      if (extend !== null) {
+        result = await app.requestData("/"+ptype, { method: "POST", data: [extend] })
+        if(result.error){
+          app.resultError(result)
+          return null
+        }
+        if(extend.id === null){
+          extend = update(extend, {$merge: {
+            id: result[0]
+          }})
+        }
+        edit = update(edit, { current: {$merge: {
+          extend: extend
+        }}})
+      }
+    }
+    
+    return edit
+  }
+
+  const calcFormula = (formula_id) => {
+
+  }
+
   const checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
     const cbNext = (cbKey) =>{
       switch (cbKey) {
@@ -952,7 +1408,14 @@ export const useEditor = () => {
           setEditorItem(options);
           break;
         case "LOAD_FORMULA":
-          //dispatch(appData("modal", { type: 'formula', params: {formula: ""} }))
+          showFormula({ 
+            onChange: (form) => {
+              setData("edit", { selectorForm: form })
+            }, 
+            calcFormula: (formula_id) => {
+              calcFormula(formula_id)
+            }
+          })
           break;
         case "NEW_FIELDVALUE":
           newFieldvalue(options.fieldname)
@@ -989,26 +1452,32 @@ export const useEditor = () => {
           cbCancel: ()=>{
             setData("current", { input: null }, ()=>{
               if (cbKeyFalse) {
-                setData("edit", { dirty: false, form_dirty: false })
-                cbNext(cbKeyFalse)
+                setData("edit", { dirty: false, form_dirty: false }, ()=>{
+                  cbNext(cbKeyFalse)
+                })
               } else {
                 cbNext(cbKeyTrue)
               }
             })
           },
           cbOK: (value)=>{
-            setData("current", { input: null }, ()=>{
+            setData("current", { input: null }, async ()=>{
+              let edit = false
               if (data.edit.form_dirty) {
-                //dispatch(tableValidator(data.edit.current.form, 
-                //  ()=>{
-                //    dispatch(saveEditorForm(cbKeyTrue, cbKeyFalse, options));}));
+                edit = await saveEditorForm()
               } else {
                 if (data.edit.current.type==="template"){
-                  //dispatch(saveTemplate(callback));
+                  
                 } else {
-                  //dispatch(saveEditor(cbKeyTrue, cbKeyFalse, options));
+                  edit = await saveEditor()
                 }
               }
+              if(edit){
+                return setData("edit", edit, ()=>{
+                  cbNext(cbKeyTrue)
+                })
+              }
+              return cbNext(cbKeyFalse)
             })
           }
         }})
@@ -1085,7 +1554,7 @@ export const useEditor = () => {
               "partname": row.partname, "unit": row.unit, 
               "batch_no":"", "qty":row.diff, "diff":0,
               "oqty":row.qty, "tqty":row.tqty});
-          appData("page_edit", data.edit)
+          appData("edit", data.edit)
           setEditor(data.edit.template, {shipping: true, form:"shipping_items"})
         }
         */
@@ -1108,14 +1577,14 @@ export const useEditor = () => {
         
         //item.diff = item.oqty - (item.tqty + item.qty);
         //data.edit.dataset.shiptemp[uitem.index] = item;
-        //appData("page_edit", data.edit)
+        //appData("edit", data.edit)
         //modalValue('type','')
         break;
       
       case "deleteShippingRow":
         //let sitem = getItemFromKey(data.edit.dataset.shiptemp, "id", row.id);
         //data.edit.dataset.shiptemp = deleteItem(data.edit.dataset.shiptemp, sitem.index);
-        //appData("page_edit", data.edit)
+        //appData("edit", data.edit)
         //setEditor(data.edit.template, {shipping: true, form:"shiptemp_items"})
         break;
 
@@ -1128,12 +1597,111 @@ export const useEditor = () => {
     }
   }
 
-  const prevTransNumber = () => {
+const getTransFilter = (_sql, values) => {
+  switch (data.login.data.transfilterName) {
+    case "usergroup":
+      _sql.where.push(
+        ["and","cruser_id","in",[{
+          select:["id"], from:"employee", 
+          where:["usergroup","=","?"]
+        }]])
+      values.push(data.login.data.employee.usergroup)
+      break;
+    case "own":
+      _sql.where.push(
+        ["and","cruser_id","=","?"]
+      )
+      values.push(data.login.data.employee.id)
+      break;
+    default:
+      break;
+  }
+  return [_sql, values]
+}
 
+  const prevTransNumber = async () => {
+    if (data.edit.current.type !== "trans" || data.edit.current.item.id === null) {
+      return
+    }
+    const transtype = data.edit.current.transtype
+    const direction = data.edit.dataset.groups.filter(
+      item => (item.id === data.edit.current.item.direction))[0].groupvalue
+    let _sql = {
+      select:["max(id) as id"], from:"trans", where:[["transtype","=","?"]]
+    }
+    let values = [data.edit.current.item.transtype]
+    if (transtype !== "cash" && transtype !== "waybill") {
+      _sql.where.push(["and","direction","=","?"])
+      values.push(data.edit.current.item.direction)
+    }
+    if (data.edit.current.item.id !== null) {
+      _sql.where.push(["and","id","<","?"])
+      values.push(data.edit.current.item.id)
+    }
+    if ((transtype === "invoice" && direction === "out") || 
+      (transtype === "receipt" && direction === "out")|| (transtype === "cash")) {
+      
+    } else {
+      _sql.where.push(["and","deleted","=","0"])
+    }
+    const filter = getTransFilter(_sql, values)
+    const params = { 
+      method: "POST", 
+      data: [{ 
+        key: "prev",
+        text: getSql(data.login.data.engine, filter[0]).sql,
+        values: filter[1]
+      }]
+    }
+    let view = await app.requestData("/view", params)
+    if(view.error){
+      return app.resultError(view)
+    }
+    if (view.prev[0].id !== null){
+      checkEditor({ntype: "trans", ttype: transtype, id: view.prev[0].id}, 'LOAD_EDITOR')
+    }
   }
 
-  const nextTransNumber = () => {
-
+  const nextTransNumber = async () => {
+    const transtype = data.edit.current.transtype
+    const direction = data.edit.dataset.groups.filter(
+      item => (item.id === data.edit.current.item.direction))[0].groupvalue
+    let _sql = {
+      select:["min(id) as id"], from:"trans", 
+      where:[["transtype","=","?"],["and","id",">","?"]]
+    }
+    let values = [data.edit.current.item.transtype, data.edit.current.item.id]
+    if (transtype !== "cash" && transtype !== "waybill") {
+      _sql.where.push(["and","direction","=","?"])
+      values.push(data.edit.current.item.direction)
+    }
+    if ((transtype === "invoice" && direction === "out") || 
+      (transtype === "receipt" && direction === "out") || (transtype === "cash")) {} 
+    else {
+      _sql.where.push(["and","deleted","=","0"])
+    }
+    const filter = getTransFilter(_sql, values)
+    const params = { 
+      method: "POST", 
+      data: [{ 
+        key: "next",
+        text: getSql(data.login.data.engine, filter[0]).sql,
+        values: filter[1]
+      }]
+    }
+    let view = await app.requestData("/view", params)
+    if(view.error){
+      return app.resultError(view)
+    }
+    if (view.next[0].id === null) {
+      if (transtype==="delivery" && direction!=="transfer") {
+        return
+      } else {
+        checkEditor({ntype: "trans", ttype: transtype, id: null}, 'LOAD_EDITOR')
+      }
+    } else {
+      checkEditor({ntype: "trans", ttype: transtype, id: view.next[0].id}, 'LOAD_EDITOR')
+    }
   }
 
   return {
@@ -1147,6 +1715,9 @@ export const useEditor = () => {
     loadPreview: loadPreview,
     setPreviewPage: setPreviewPage,
     prevTransNumber: prevTransNumber,
-    nextTransNumber: nextTransNumber
+    nextTransNumber: nextTransNumber,
+    setFieldvalue: setFieldvalue,
+    saveEditorForm: saveEditorForm,
+    saveEditor: saveEditor
   }
 }

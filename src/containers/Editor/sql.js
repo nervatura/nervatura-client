@@ -1221,7 +1221,7 @@ export const useSql = () => {
             where:[["l.deleted","=","0"],["and","l.ref_id_2","=","?"]]}; 
         return sql;},
         
-        invoice_customer: (customer_id) => {
+        invoice_customer: () => {
           let sql = {
             select:["comp.custname as trans_custinvoice_compname",
             "{CCS}comp.zipcode{SEP}' '{SEP}comp.city{SEP}' '"+
@@ -1259,7 +1259,7 @@ export const useSql = () => {
                 where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'customer'"]]}]],
                 ["and","deleted","=","0"]], 
                 group_by:["ref_id"]}]]}],"adr"],"on",["c.id","=","adr.customer_id"]],
-            where:["c.id","=",customer_id]}],"cust"]]}; 
+            where:["c.id","=","?"]}],"cust"]]}; 
           return sql;
         },
         

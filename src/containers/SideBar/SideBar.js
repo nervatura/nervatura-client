@@ -96,7 +96,7 @@ export const Search = memo((props) => {
 
 export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
-    prevTransNumber, nextTransNumber } = props
+    prevTransNumber, nextTransNumber, saveEditor, loadFormula } = props
   const { theme, login, forms } = props
   const { side, edit, selectorForm } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -160,7 +160,7 @@ export const Edit = memo((props) => {
     if (options.save !== false) {
       panels.push(<button key="cmd_save"
         className={`${"full medium"} ${styles.itemButton} ${((current.form && form_dirty)||(!current.form && dirty))?styles.selected:""}`} 
-        onClick={()=>{}} >
+        onClick={ ()=>saveEditor() } >
         <Label text={"label_save"} leftIcon={<Check />} col={20}  />
       </button>)
     }
@@ -171,7 +171,7 @@ export const Edit = memo((props) => {
         <Label text={"label_delete"} leftIcon={<Times />} col={20}  />
       </button>)
     }
-    if (options.new !== false && options.state === "normal") {
+    if (options.new !== false && options.state === "normal" && !current.form) {
       panels.push(<button key="cmd_new"
         className={`${"full medium"} ${styles.itemButton}`} 
         onClick={ ()=>editorNew({}) } >
@@ -212,7 +212,7 @@ export const Edit = memo((props) => {
       if (options.formula === true) {
         panels.push(<button key="cmd_formula"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={ ()=>loadFormula() } >
           <Label text={"label_formula"} leftIcon={<Magic />} col={20}  />
         </button>)
       }

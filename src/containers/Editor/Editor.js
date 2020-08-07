@@ -5,7 +5,7 @@ import {Editor as RtfEditor} from 'draft-js';
 import styles from './Editor.module.css';
 import { Label, FormRow, Select, Input } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times, Comment, Home, Download, Upload, ChartBar } from 'components/Icons';
+import { Plus, Edit, Times, Comment, Home, Download, Upload, ChartBar, Magic, Check } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -545,6 +545,65 @@ export const ReportSettings = (props) => {
             <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
               onClick={()=>reportOutput("printqueue")} >
               <Label text="msg_printqueue" />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const FormulaBox = (props) => {
+  const { onClose, valueChange, calcFormula } = props
+  const { formula, partnumber, description, formula_head } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="label_formula" leftIcon={<Magic />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="product_partnumber" />
+            </div>
+            <Input className="full" value={partnumber}
+              disabled="disabled" />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <Input className="full" value={description}
+              disabled="disabled" />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <Select className="full" value={formula} placeholder=""
+              onChange={ (event)=>valueChange("formula", event.target.value) }
+              options={formula_head} />
+          </div>
+        </div>
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `} disabled={(formula==="")?"disabled":""}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} disabled={(formula==="")?"disabled":""}
+              onClick={ ()=>calcFormula() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
             </button>
           </div>
         </div>

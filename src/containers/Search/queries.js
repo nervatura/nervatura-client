@@ -55,8 +55,8 @@ export const useQueries = () => {
             "{CCS}t.transnumber{SEP} case when tg.groupvalue='bank' "+
             "then {CCS}' ~ '{SEP} {CAS_TEXT}p.id {CAE_TEXT} {CCE} else '' end {CCE} as label",
             "{CCS}t.transnumber{SEP} case when tg.groupvalue='bank' "+
-            "then {CCS}' ~ '{SEP} {CAS_TEXT}p.id {CAE_TEXT} {CCE} else '' end {CCE} as transnumber",
-            "p.paiddate as paiddate", "tg.groupvalue as transtype", "dg.groupvalue as direction",
+            "then {CCS}' ~ '{SEP} {CAS_TEXT}p.id {CAE_TEXT} {CCE} else '' end {CCE} as paidnumber",
+            "{FMS_DATE}p.paiddate {FME_DATE} as paiddate", "tg.groupvalue as transtype", "dg.groupvalue as direction",
             "pl.curr as curr", "p.amount as amount", "t.id as trans_id"],
           from:"payment p",
           inner_join:[["trans t","on",[["p.trans_id","=","t.id"],["and","t.deleted","=","0"]]],
@@ -181,7 +181,7 @@ export const useQueries = () => {
         sql: {
           select: ["{CCS}'report'{SEP}'//'{SEP} {CAS_TEXT}r.id {CAE_TEXT}{CCE} as id",
             "r.repname as label",
-            "r.repname as repname", "r.label as label", "r.description as description", 
+            "r.repname as repname", "r.label as rlabel", "r.description as description", 
             "ft.groupvalue as ftype"],
           from: "ui_report r",
           inner_join:[["groups tg","on",["r.nervatype","=","tg.id"]], 
@@ -193,7 +193,7 @@ export const useQueries = () => {
               where:[["inf.groupvalue","=","'disabled'"],["and","a.usergroup","=", usergroupId]]}]]]},
         columns: [
           ["repname", "r.repname"],
-          ["label", "r.label"],
+          ["rlabel", "r.label"],
           ["description", "r.description"]]
       };},
       

@@ -8,7 +8,7 @@ import { useEditor } from 'containers/Editor/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useQueries } from 'containers/Search/queries'
 import { SelectorView } from 'containers/Search/Search'
-import { ReportSettings } from 'containers/Editor/Editor';
+import { ReportSettings, FormulaBox } from 'containers/Editor/Editor';
 import styles from './Controller.module.css';
 import DateTimeInput from 'components/DateTimeInput';
 import { ToggleOff, ToggleOn, Times, Search, CheckSquare, SquareEmpty } from 'components/Icons';
@@ -299,6 +299,35 @@ export const ReportForm = (props) => {
   }
 }
 
+export const FormulaForm = (props) => {
+  const { data } = useContext(AppStore);
+  return (params) => {
+    const { onChange, calcFormula } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.reportSettings}`} >{createElement(FormulaBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      calcFormula: () => {
+        calcFormula(parseInt(formProps.formula,10))
+      },
+      formula: "",
+      partnumber: data.edit.dataset.movement_head[0].partnumber,
+      description: data.edit.dataset.movement_head[0].description,
+      formula_head: data.edit.dataset.formula_head.map(formula => { return { value: formula.id, text: formula.transnumber } })
+    }})
+    onChange(form(formProps))
+  }
+}
+
 export const FormField = (props) => {
   const app = useApp()
   const editor = useEditor()
@@ -320,16 +349,22 @@ export const FormField = (props) => {
   const onChange = ( value, item ) => {
     let extend = false
     if (fieldMap){
+      if(fieldMap.fieldname){
+        fieldName = fieldMap.fieldname
+      }
       if(fieldMap.extend){
         extend = true;
         if(fieldMap.text){
-          fieldName = fieldMap.text; }}}
+          fieldName = fieldMap.text 
+        }
+      }
+    }
     onEdit({
       id: field.id || 1,
       name: fieldName, 
       value: value, 
       extend: extend, 
-      refnumber: (state && state.selector) ? state.selector.text : field.link_label, 
+      refnumber: (item && item.label) ? item.label : field.link_label, 
       item: item
     })
   }
@@ -518,21 +553,19 @@ export const FormField = (props) => {
     case "date":
     case "datetime":
       let dateValue = parseISO(value)
-      value = isValid(dateValue) ? formatISO(dateValue) : ""
       if (fieldMap) {
         if (fieldMap.extend) {
           dateValue = parseISO(current.extend[fieldMap.text])
-          value = isValid(dateValue) ? formatISO(dateValue) :""
           fieldName = fieldMap.text;
-      } else {
+        } else {
           const lnkDate = lnkValue()
           if (typeof lnkDate[0] !== "undefined") {
             dateValue = parseISO(lnkDate[0][fieldMap.text])
-            value = isValid(dateValue) ? formatISO(dateValue) : ""
             disabled = (lnkDate[1]) ? lnkDate[1] : disabled
           }
         }
       }
+      value = isValid(dateValue) ? formatISO(dateValue) : ""
       return <DateTimeInput value={value} 
         dateTime={(datatype === "datetime")}
         isEmpty={empty} disabled={(disabled || audit === 'readonly')}
@@ -638,13 +671,32 @@ export const FormField = (props) => {
     case "selector":
       let columns = []
       let selector_text = (state && state.selector) ? state.selector.text : ""
+      let selector_type = (state && state.selector) ? state.selector.type : ""
+      let selector_filter = (state && state.selector) ? state.selector.filter : ""
+      let selector_ntype = (state && state.selector) ? state.selector.ntype : ""
+      let selector_ttype = (state && state.selector) ? state.selector.ttype : ""
+      let selector_id = (state && state.selector) ? state.selector.id : ""
+      if (fieldMap){
+        if (fieldMap.extend === true || fieldMap.table === "extend") {
+          if(current.extend){
+            if(current.extend.seltype){
+              selector_text = current.extend[fieldMap.label_field]
+              selector_type = current.extend.seltype
+              selector_filter = selector_text
+              selector_ntype = current.extend.ntype || current.extend.seltype
+              selector_ttype = current.extend.transtype
+              selector_id = current.extend.ref_id
+            }
+          }
+        }
+      }
       if(!(disabled || audit === 'readonly')){
         columns.push(<div key="sel_show" className={` ${"cell"} ${styles.searchCol}`}>
           <button className={`${"border-button"} ${styles.selectorButton}`}
             disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}
             onClick={ ()=>showSelector({
-              type: state.selector.type, 
-              filter: state.selector.filter, 
+              type: selector_type, 
+              filter: selector_filter, 
               onChange: (form) => {
                 setState({...state, form: form })
               }, 
@@ -666,7 +718,7 @@ export const FormField = (props) => {
       columns.push(<div key="sel_text" className={`${styles.lnkBox}`}>
         {(selector_text !== "")?<span className={`${styles.lnkText}`}
           onClick={()=>editor.checkTranstype(
-          { ntype: state.selector.ntype, ttype: state.selector.ttype, id: state.selector.id }, 
+          { ntype: selector_ntype, ttype: selector_ttype, id: selector_id }, 
           'LOAD_EDITOR')} >{selector_text}</span>:null}
       </div>)
       return <Fragment>
@@ -699,7 +751,7 @@ export const FormField = (props) => {
           }
         }
       }
-      if (value === ""){ value = "0" }
+      if (value === ""){ value = 0 }
       if(datatype === "integer"){
         value = parseInt(String(value).replace(/[^0-9-]|-(?=.)/g,''),10);
         if (isNaN(value)){
@@ -735,11 +787,11 @@ export const FormField = (props) => {
         className="align-right" 
         onChange={(event) => {
           setState({...state, event_type: event.type })
-          onChange((field.opposite) ? getOppositeValue(event.target.value): event.target.value)
+          onChange((field.opposite) ? parseFloat(getOppositeValue(event.target.value)): parseFloat(event.target.value))
         }}
         onBlur={(event) => {
           setState({...state, event_type: event.type })
-          onChange((field.opposite) ? getOppositeValue(event.target.value): event.target.value)
+          onChange((field.opposite) ? parseFloat(getOppositeValue(event.target.value)): parseFloat(event.target.value))
         }}
         disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
     
