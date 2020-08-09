@@ -1132,13 +1132,13 @@ export const useSql = () => {
           where:[["t.deleted","=","0"],["and","pv.trans_id","=","?"]]}; 
         return sql;},
       
-      formula_items: (formula_id) => {
+      formula_items: () => {
         let sql = {
           select:["mv.*","{FMS_DATETIME}mv.shippingdate {FME_DATETIME} as shippingdate"], from:"trans t",
           inner_join:[
             ["movement mv","on",[["mv.trans_id","=","t.id"],["and","mv.deleted","=","0"]]],
             ["groups fmt","on",[["mv.movetype","=","fmt.id"],["and","fmt.groupvalue","=","'plan'"]]]],
-          where:["t.id","=",formula_id], order_by:["mv.id"]}; 
+          where:["t.id","=","?"], order_by:["mv.id"]}; 
         return sql;},
                 
       trans: () => {

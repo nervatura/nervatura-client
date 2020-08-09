@@ -26,6 +26,17 @@ export const useEditor = () => {
   const showReport = ReportForm()
   const showFormula = FormulaForm()
   
+  const round = (n,dec) => {
+    n = parseFloat(n);
+    if(!isNaN(n)){
+      if(!dec) dec= 0;
+      let factor= Math.pow(10,dec);
+      return Math.floor(n*factor+((n*factor*10)%10>=5?1:0))/factor;
+    } else {
+      return n
+    }
+  }
+
   const setEditor = (options, form, iedit) => {
     let edit = update(iedit||data.edit, {})
     if ((typeof edit.dataset[edit.current.type] === "undefined") || 
@@ -1395,7 +1406,64 @@ export const useEditor = () => {
   }
 
   const calcFormula = (formula_id) => {
-
+    setData("current", { input: { 
+      title: app.getText("msg_warning"), message: app.getText("ms_load_formula"),
+      infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"),
+      cbCancel: ()=>{
+        setData("current", { input: null })
+      },
+      cbOK: (value)=>{
+        setData("current", { input: null }, async ()=>{
+          const params = { 
+            method: "POST", 
+            data: [{ 
+              key: "formula",
+              text: getSql(data.login.data.engine, sql.trans.formula_items()).sql,
+              values: [formula_id]
+            }]
+          }
+          let view = await app.requestData("/view", params)
+          if(view.error){
+            return app.resultError(view)
+          }
+          let production_qty = data.edit.dataset.movement_head[0].qty
+          let production_place = data.edit.dataset.movement_head[0].place_id
+          let formula_qty = data.edit.dataset.formula_head.filter(item => (item.id === formula_id))[0].qty
+          let items = [] 
+          view.formula.forEach(fitem => {
+            let item = update(
+              initItem({tablename: "movement", dataset: data.edit.dataset, current: data.edit.current}), 
+              {$merge: {
+                product_id: fitem.product_id,
+                place_id: (fitem.place_id === null) ? production_place : fitem.place_id,
+                qty: (fitem.shared === 1) ? 
+                  -Math.ceil(production_qty/formula_qty) : 
+                  -round((production_qty/formula_qty)*fitem.qty,2)
+              }})
+            items.push(item);
+          })
+          for (let index = 0; index < data.edit.dataset.movement.length; index++) {
+            const result = await app.requestData(
+              "/movement", { method: "DELETE", query: { id: data.edit.dataset.movement[index].id } })
+            if(result && result.error){
+              return app.resultError(result)
+            }
+          }
+          const result = await app.requestData("/movement", { method: "POST", data: items })
+          if(result.error){
+            return app.resultError(result)
+          }
+          setData("edit", { selectorForm: null }, ()=>{
+            loadEditor({
+              ntype: data.edit.current.type, 
+              ttype: data.edit.current.transtype, 
+              id: data.edit.current.item.id, 
+              form: "movement"
+            })
+          })
+        })
+      }
+    }})
   }
 
   const checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
@@ -1705,6 +1773,7 @@ const getTransFilter = (_sql, values) => {
   }
 
   return {
+    round: round,
     checkEditor: checkEditor,
     checkTranstype: checkTranstype,
     loadEditor: loadEditor,

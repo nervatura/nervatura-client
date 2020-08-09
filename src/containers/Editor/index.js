@@ -106,16 +106,7 @@ export default (props) => {
   }
 
   const calcPrice = (_calcmode, item) => {
-    const round = (n,dec) => {
-      n = parseFloat(n);
-      if(!isNaN(n)){
-        if(!dec) dec= 0;
-        let factor= Math.pow(10,dec);
-        return Math.floor(n*factor+((n*factor*10)%10>=5?1:0))/factor;
-      } else {
-        return n
-      }
-    }
+    
 
     let rate = data.edit.dataset.tax.filter(tax => (tax.id === parseInt(item.tax_id,10)))[0]
     rate = (typeof rate !== "undefined") ? rate.rate : 0
@@ -127,26 +118,26 @@ export default (props) => {
     switch(_calcmode) {
       case "fxprice":
         fxPrice = parseFloat(item.fxprice)
-        netAmount = round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty),parseInt(digit,10))
-        vatAmount = round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty)*parseFloat(rate),parseInt(digit,10))
-        amount = round(netAmount+vatAmount, parseInt(digit,10))
+        netAmount = editor.round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty),parseInt(digit,10))
+        vatAmount = editor.round(fxPrice*(1-parseFloat(item.discount)/100)*parseFloat(item.qty)*parseFloat(rate),parseInt(digit,10))
+        amount = editor.round(netAmount+vatAmount, parseInt(digit,10))
         break;
         
       case "netamount":
         netAmount = parseFloat(item.netamount)
         if (parseFloat(item.qty)!==0) {
-          fxPrice = round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
-          vatAmount = round(netAmount*parseFloat(rate),parseInt(digit,10))
+          fxPrice = editor.round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
+          vatAmount = editor.round(netAmount*parseFloat(rate),parseInt(digit,10))
         }
-        amount = round(netAmount+vatAmount,parseInt(digit,10))
+        amount = editor.round(netAmount+vatAmount,parseInt(digit,10))
         break;
 
       case "amount":
         amount = parseFloat(item.amount)
         if (parseFloat(item.qty)!==0) {
-          netAmount = round(amount/(1+parseFloat(rate)),parseInt(digit,10))
-          vatAmount = round(amount-netAmount,parseInt(digit,10))
-          fxPrice = round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
+          netAmount = editor.round(amount/(1+parseFloat(rate)),parseInt(digit,10))
+          vatAmount = editor.round(amount-netAmount,parseInt(digit,10))
+          fxPrice = editor.round(netAmount/(1-parseFloat(item.discount)/100)/parseFloat(item.qty),parseInt(digit,10))
         }
         break;
       default:
