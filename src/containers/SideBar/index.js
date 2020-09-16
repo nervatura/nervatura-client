@@ -91,6 +91,29 @@ export default (props) => {
     editor.checkEditor({}, 'REPORT_SETTINGS')
   }
 
+  state.transCopy = (ctype) => {
+    app.setSideBar();
+    if (ctype === "create") {
+      editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
+    } else {
+      setData("current", {
+        input: {
+          title: app.getText("msg_warning"),
+          message: app.getText("msg_copy_text"),
+          infoText: app.getText("msg_delete_info"),
+          cbCancel: () => {
+            setData("current", { input: null })
+          },
+          cbOK: (value) => {
+            setData("current", { input: null }, () => {
+              editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
+            })
+          },
+        },
+      });
+    }
+  };
+
   state.loadFormula = () => {
     app.setSideBar()
     editor.checkEditor({}, 'LOAD_FORMULA')

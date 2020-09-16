@@ -3,13 +3,11 @@ import update from 'immutability-helper';
 import { formatISO, addDays, parseISO, isEqual } from 'date-fns'
 import { EditorState } from 'draft-js';
 import { convertFromHTML } from 'draft-convert'
-
-//import Report from 'nervatura-report/dist/report.module'
 import pdfjsLib from 'pdfjs-dist/webpack';
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql, saveToDisk } from 'containers/App/actions'
-import { SelectorForm, ReportForm, FormulaForm } from 'containers/Controller'
+import { SelectorForm, ReportForm, FormulaForm, ShippingForm, StockForm, TransForm } from 'containers/Controller'
 import dataset from './dataset'
 import { useSql } from './sql'
 import { useForm } from './forms'
@@ -25,6 +23,9 @@ export const useEditor = () => {
   const showSelector = SelectorForm()
   const showReport = ReportForm()
   const showFormula = FormulaForm()
+  const showShipping = ShippingForm()
+  const showStockInfo = StockForm()
+  const showTransOptions = TransForm()
   
   const round = (n,dec) => {
     n = parseFloat(n);
@@ -272,7 +273,8 @@ export const useEditor = () => {
       }}})
       edit.dataset.shipping_items.forEach((item, index) => {
         let oitem = update(item, {$merge: {
-          id: index+1
+          id: index+1,
+          qty: parseFloat(item.qty)
         }})
         const mitem = edit.dataset.transitem_shipping.filter((item)=> {
           return (item.id === oitem.item_id+"-"+oitem.product_id)
@@ -813,7 +815,7 @@ export const useEditor = () => {
                 return app.resultError(view)
               }
               if (view.state[0].sco > 0) {
-                app.showToast({ type: "error", //autoClose: false,
+                app.showToast({ type: "error",
                   title: app.getText("msg_warning"), 
                   message: app.getText("msg_integrity_err") })
               } else {
@@ -1466,6 +1468,535 @@ export const useEditor = () => {
     }})
   }
 
+  const createTrans = async (options) => {
+
+    const check_refnumber = (params) => {
+      if(params.transtype === "waybill"){
+        return "link";
+      }else if(params.transtype==="delivery" && (params.transcast === "normal") && 
+        (params.direction==="in" || params.direction==="out")){
+        return "";
+      } else if (params.cmdtype === "copy" && params.transcast === "normal") {
+        return "";
+      } else if ((params.transcast !== "normal") || params.refno){
+        return "reflink";
+      } else {
+        return "refnumber";
+      }
+    }
+
+    let base_trans = update(data.edit.dataset.trans[0], {});
+    //set base data
+    let transtype = data.edit.dataset.groups.filter(
+      (item) => (item.id === base_trans.transtype)
+    )[0].groupvalue
+    let transtype_id = base_trans.transtype;
+    let direction = data.edit.dataset.groups.filter(
+      (item) => (item.id === base_trans.direction)
+    )[0].groupvalue
+    let direction_id = base_trans.direction;  
+    if (typeof options.new_transtype !== "undefined" && typeof options.new_direction !== "undefined") {
+      transtype = options.new_transtype;
+      let audit = data.login.data.audit.filter(item => (
+        (item.nervatypeName === "trans") && (item.subtypeName === transtype)))[0]
+      if (typeof audit !== "undefined") {
+        if (audit.item.inputfilterName==="disabled"){
+          app.showToast({ type: "info",
+            title: app.getText("msg_warning"), 
+            message: app.getText("msg_create_disabled_err")+" "+transtype })
+          return false;
+        }
+      }
+      transtype_id = data.edit.dataset.groups.filter(
+        (item) => ((item.groupname === "transtype") && (item.groupvalue === transtype))
+      )[0].id
+      direction = options.new_direction;
+      direction_id = data.edit.dataset.groups.filter(
+        (item) => ((item.groupname === "direction") && (item.groupvalue === direction))
+      )[0].id
+    }
+
+    //to check some things...
+    if ((transtype==="receipt" || transtype==="worksheet") && direction === "in") {
+      app.showToast({ type: "info",
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_input_invalid")+" in" })
+      return false;
+    }
+    if (base_trans.transcast==="cancellation") {
+      app.showToast({ type: "info",
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_create_cancellation_err1") })
+      return false;
+    }
+    if (options.transcast==="cancellation" && (transtype==="invoice" || transtype==="receipt") 
+      && base_trans.deleted===0) {
+        app.showToast({ type: "info",
+          title: app.getText("msg_warning"), 
+          message: app.getText("msg_create_cancellation_err2") })
+        return false;
+    }
+    if (options.transcast==="cancellation" && (data.edit.dataset.cancel_link.length > 0)) {
+      app.showToast({ type: "info",
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_create_cancellation_err3"+data.edit.dataset.cancel_link[0].transnumber) })
+      return false;
+    }
+    if (options.transcast==="amendment" && base_trans.deleted===1) {
+      app.showToast({ type: "info",
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_create_amendment_err") })
+      return false;
+    }
+
+    //creat trans data from the original          
+    let values = update({},{$set: { 
+      id: null, 
+      transtype: transtype_id, 
+      transnumber: null, 
+      crdate: formatISO(new Date(), { representation: 'date' }), 
+      transdate: formatISO(new Date(), { representation: 'date' }), 
+      duedate: null,
+      customer_id: base_trans.customer_id, 
+      employee_id: base_trans.employee_id,
+      department: base_trans.department, 
+      project_id: base_trans.project_id,
+      place_id: base_trans.place_id, 
+      paidtype: base_trans.paidtype, 
+      curr: base_trans.curr,
+      notax: base_trans.notax, 
+      paid: 0, 
+      acrate: base_trans.acrate, 
+      notes: base_trans.notes,
+      intnotes: base_trans.intnotes, 
+      fnote: base_trans.fnote,
+      transtate: data.edit.dataset.transtate.filter(
+        item => ((item.groupname === "transtate") && (item.groupvalue === "ok")))[0].id,
+      closed: 0, deleted: 0, 
+      direction: direction_id, 
+      cruser_id: data.login.data.employee.id
+    }})
+    if (base_trans.duedate !== null) {
+      values.duedate = formatISO(new Date(), { representation: 'date' })+"T00:00:00";
+    }
+    if (transtype === "invoice" && direction === "out") {
+      let default_deadline = data.edit.dataset.settings.filter((group)=> {
+        return (group.fieldname === "default_deadline")
+      })[0]
+      if (typeof default_deadline !== "undefined") {
+        values.duedate = formatISO(addDays(new Date(), parseInt(default_deadline.value,10)), { representation: 'date' })+"T00:00:00"
+      }
+    } else if (transtype === "receipt") {
+      values.customer_id = null;
+    }
+    const _refnum = check_refnumber({
+      transtype: transtype, transcast: options.transcast, direction: direction, 
+      cmdtype: options.cmdtype, refno: options.refno})
+    if((_refnum === "refnumber") || (_refnum === "reflink")){
+      values.ref_transnumber = base_trans.transnumber
+    }
+    
+    let nextnumber = transtype+"_"+direction;
+    if (transtype === "waybill" || transtype === "cash") {
+      nextnumber = transtype;
+    }
+    let params = { method: "POST", 
+      data: {
+        key: "nextNumber",
+        values: {
+          numberkey: nextnumber, 
+          step: true
+        }
+      }
+    }
+    let result = await app.requestData("/function", params)
+    if(result.error){
+      app.resultError(result)
+      return null
+    }
+    if (options.transcast === "cancellation") {
+      values.transnumber = result+"/C";
+      if (transtype !== "delivery" && transtype !== "inventory") {
+        values.deleted = 1;
+      }
+      values.transdate = base_trans.transdate;
+      values.duedate = base_trans.duedate;
+    } else if (options.transcast === "amendment") {
+      values.transnumber = result+"/A";
+    } else {
+      values.transnumber = result
+    }
+
+    result = await app.requestData("/trans", { method: "POST", data: [values] })
+    if(result.error){
+      app.resultError(result)
+      return null
+    }
+    values.id = result[0];
+
+    let fieldvalue = [];
+    let transcast = data.edit.current.fieldvalue.filter(
+      item => (item.fieldname === "trans_transcast")
+    )[0]
+    if(transcast){
+      let transcast_ = tableValues("fieldvalue", transcast)
+      transcast_.id = null;
+      transcast_.value = options.transcast;  
+      transcast_.ref_id = values.id; 
+      fieldvalue.push(transcast_); 
+    } else {
+      fieldvalue = setFieldvalue(fieldvalue, "trans_transcast", values.id, options.transcast) 
+    }
+    data.edit.current.fieldvalue.forEach((cfield) => {
+      if(cfield.fieldname !== "trans_transcast"){
+        let deffield = data.edit.dataset.deffield.filter(
+          item => (item.fieldname === cfield.fieldname)
+        )[0]
+        let subtype = checkSubtype("trans", deffield.subtype, values);
+        if ((cfield.deleted===0 && deffield.visible===1 && subtype) 
+          || (cfield.deleted===0 && subtype && options.cmdtype === "copy")){
+          let field = tableValues("fieldvalue", cfield)
+          field.id = null; 
+          field.ref_id = values.id; 
+          fieldvalue.push(field);
+        } 
+      }
+    })
+    if (transtype === "invoice") {
+      const params = { 
+        method: "POST", 
+        data: [{ 
+          key: "fields",
+          text: getSql(data.login.data.engine, sql.trans.invoice_customer()).sql,
+          values: [values.customer_id]
+        }]
+      }
+      let view = await app.requestData("/view", params)
+      if(view.error){
+        return app.resultError(view)
+      }
+      if (view.fields.length > 0) {
+        Object.keys(view.fields[0]).forEach((fieldname) => {
+          fieldvalue = setFieldvalue(fieldvalue, fieldname, values.id, view.fields[0][fieldname]) 
+        })
+      }
+    }
+
+    result = await app.requestData("/fieldvalue", { method: "POST", data: fieldvalue })
+    if(result.error){
+      app.resultError(result)
+      return null
+    }
+
+    if((_refnum === "link") || (_refnum === "reflink")){
+      const link = update(initItem({tablename: "link"}), {$merge: {
+        nervatype_1: data.edit.dataset.groups.filter(
+          (item)=>((item.groupname === "nervatype") && (item.groupvalue === "trans")))[0].id,
+        ref_id_1: values.id,
+        nervatype_2: data.edit.dataset.groups.filter(
+          (item)=>((item.groupname === "nervatype") && (item.groupvalue === "trans")))[0].id,
+        ref_id_2: base_trans.id
+      }})
+      result = await app.requestData("/link", { method: "POST", data: [link] })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+    }
+
+    let items = [];
+    if (transtype==="invoice" || transtype==="receipt") {
+      
+      const get_product_qty = (items, product_id, deposit) => {
+        let retvalue = 0;
+        items.forEach((item) => {
+          if ((item.product_id === product_id) && (item.deposit === deposit)){
+            retvalue += item.qty;
+          }
+        });
+        return retvalue;
+      }
+      
+      const recalc_item = (item, rate, digit) => {
+        item.netamount = round(item.fxprice*(1-item.discount/100)*item.qty, digit);
+        item.vatamount = round(item.fxprice*(1-item.discount/100)*item.qty*rate, digit);
+        item.amount = round(item.netamount+item.vatamount, digit);
+        return item;
+      }
+      
+      let products = {};
+      if (options.from_inventory && data.edit.dataset.transitem_invoice) {
+        //create from order,worksheet and rent, on base the delivery rows
+        data.edit.dataset.transitem_shipping.forEach(inv_item => {
+          const item = data.edit.dataset.item.filter(
+            oitem => (oitem.id === inv_item.id)
+          )[0]
+          if (typeof item!=="undefined") {
+            let iqty = inv_item.sqty;
+            if(data.edit.dataset.groups.filter(
+              group => (group.id === base_trans.direction))[0].groupvalue === "out"){
+                iqty = -inv_item.sqty
+            }
+            if (item.deleted===0 && iqty>0) {
+              if (!Object.keys(products).includes(item.product_id)){
+                iqty -= get_product_qty(data.edit.dataset.transitem_invoice, 
+                  item.product_id, 0);
+                products[item.product_id] = true;
+              }
+              if (iqty !== 0){
+                let sitem = tableValues("item", item)
+                sitem.qty = iqty;
+                sitem = recalc_item(sitem, item.rate, base_trans.digit);
+                items.push(sitem);
+              }
+            }
+          }
+        });
+      } else {
+        data.edit.dataset.item.forEach(base_item => {
+          if (base_item.deleted===0) {
+            if (options.netto_qty && data.edit.dataset.transitem_invoice) {
+              //create from order,worksheet and rent, on base the invoice rows
+              let iqty = base_item.qty;
+              if (!Object.keys(products).includes(base_item.product_id)){
+                iqty -= get_product_qty(data.edit.dataset.transitem_invoice, 
+                  base_item.product_id, 0);
+                products[base_item.product_id] = true;
+              }
+              if (iqty !== 0){
+                let sitem = tableValues("item", base_item)
+                sitem.qty = iqty;
+                sitem = recalc_item(sitem, base_item.rate, base_trans.digit);
+                items.push(sitem);
+              }
+            } else {
+              items.push(tableValues("item", base_item))
+            }
+          }
+        });
+      }
+              
+      //put to deposit rows
+      items.forEach(item => {
+        if (item.deposit === 1) {
+          let dqty = get_product_qty(data.edit.dataset.transitem_invoice, 
+            item.product_id, 1);
+          if (dqty !== 0) {
+            let sitem = tableValues("item", item)
+            sitem.qty = -dqty;
+            items.unshift(sitem);
+          }
+        }
+      });
+    } else {
+      data.edit.dataset.item.forEach(item => {
+        if (item.deleted===0) {
+          items.push(tableValues("item", item))
+        }
+      });
+    }
+    
+    items.forEach(item => {
+      item.id = null;
+      item.trans_id = values.id;
+      item.ownstock = 0;
+      if (transtype!=="invoice" && transtype!=="receipt"){
+        item.deposit = 0;
+      }
+      if (options.transcast === "cancellation") {
+        item.qty = -item.qty;
+        item.netamount = -item.netamount;
+        item.vatamount = -item.vatamount;
+        item.amount = -item.amount;
+      }
+      if (options.transcast==="amendment") {
+        let sitem = tableValues("item", item)
+        sitem.qty = -sitem.qty;
+        sitem.netamount = -sitem.netamount;
+        sitem.vatamount = -sitem.vatamount;
+        sitem.amount = -sitem.amount;
+        items.push(sitem);
+      }
+    });
+
+    if (items.length > 0) {
+      result = await app.requestData("/item", { method: "POST", data: items })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+    }
+
+    let payments = [];
+    data.edit.dataset.payment.forEach((base_payment) => {
+      if (base_payment.deleted===0) {
+        let payment = tableValues("payment", base_payment)
+        payment.id = null;
+        payment.trans_id = values.id;
+        if (options.transcast === "cancellation") {
+          payment.amount = -payment.amount;
+        }
+        payments.push(payment);
+      }
+    });
+    if (payments.length > 0) {
+      result = await app.requestData("/payment", { method: "POST", data: payments })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+    }
+
+    let movements = []; let reflinks = [];
+    if (transtype === "formula" || transtype === "production") {
+      let movement = tableValues("movement", data.edit.dataset.movement_head[0])
+      movement.id = null; 
+      movement.trans_id = values.id;
+      movements.push(movement);
+    }
+    let base_movements = data.edit.dataset.movement || [];
+    base_movements.forEach((bmt) => {
+      if (bmt.deleted === 0) {
+        if(bmt.item_id || bmt.ref_id){
+          reflinks.push({
+            id:bmt.id, 
+            item_id: bmt.item_id, 
+            ref_id: bmt.ref_id 
+          });
+        }
+        let movement = tableValues("movement", bmt)
+        movement.id = null; 
+        movement.trans_id = values.id;
+        if (options.transcast==="cancellation") {
+          movement.qty = -movement.qty;
+        }
+        movements.push(movement);
+      }
+    });
+    if (movements.length > 0) {
+      result = await app.requestData("/movement", { method: "POST", data: movements })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+      let links = [];
+      let nt_movement = data.edit.dataset.groups.filter(
+        (item)=>((item.groupname === "nervatype") && (item.groupvalue === "movement")))[0].id
+      let nt_item = data.edit.dataset.groups.filter(
+        (item)=>((item.groupname === "nervatype") && (item.groupvalue === "item")))[0].id
+      for (let li=0; li < reflinks.length; li++) {
+        let ilink = update(initItem({tablename: "link"}), {$merge: {
+          nervatype_1: nt_movement
+        }})
+        if (reflinks[li].item_id !== null) { 
+          ilink.ref_id_1 = result[li].id;
+          ilink.nervatype_2 = nt_item;
+          ilink.ref_id_2 = reflinks[li].item_id;
+          links.push(ilink);
+        } else if (reflinks[li].ref_id !== null) {
+          ilink.ref_id_1 = result[data.edit.dataset.movement.findIndex(
+            item => (item.id === reflinks[li].ref_id)
+          )].id
+          ilink.nervatype_2 = nt_movement;
+          ilink.ref_id_2 = result[data.edit.dataset.movement.findIndex(
+            item => (item.id === reflinks[li].id)
+          )].id
+          links.push(ilink);
+        }
+      }
+      if (links.length > 0) {
+        result = await app.requestData("/link", { method: "POST", data: links })
+        if(result.error){
+          app.resultError(result)
+          return null
+        }
+      }
+    }
+
+    await createHistory("save")
+    loadEditor({ ntype: "trans", ttype: transtype, id: values.id })
+  }
+
+  const createTransOptions = () => {
+    let edit = update(data.edit, {})
+    let options = {
+      directions: ["in","out"],
+      base_transtype: edit.current.transtype,
+      transtype: edit.current.transtype,
+      direction: edit.dataset.groups.filter((group)=> {
+          return (group.id === edit.current.item.direction)
+        })[0].groupvalue,
+      element_count: parseInt(edit.dataset.element_count[0].pec,10),
+      doctypes: ["order","worksheet","rent","invoice","receipt"],
+      refno: true, netto: true, from: false,
+      netto_color: false, from_color: false
+    }
+    
+    switch (options.transtype) {
+      case "offer":
+        options.doctypes = ["offer","order","worksheet","rent"];
+        options.transtype = "order";
+        options.netto_color = false;
+        options.from_color = false;
+        break;
+      case "order":
+        options.doctypes = ["offer","order","worksheet","rent","invoice","receipt"];
+        options.transtype = "invoice";
+        options.netto_color = true;
+        if (options.element_count===0) {
+          options.from_color = true;
+        } else {
+          options.from_color = false;
+        }
+        break;
+      case "worksheet":
+        options.doctypes = ["offer","order","worksheet","rent","invoice","receipt"];
+        options.transtype = "invoice";
+        options.netto_color = true;
+        if (options.element_count===0) {
+          options.from_color = true;
+        } else {
+          options.from_color = false;
+        }
+        break;
+      case "rent":
+        options.doctypes = ["offer","order","worksheet","rent","invoice","receipt"];
+        options.transtype = "invoice";
+        options.netto_color = true;
+        if (options.element_count===0) {
+          options.from_color = true;
+        } else {
+          options.from_color = false;
+        }
+        break;
+      case "invoice":
+        options.doctypes = ["order","worksheet","rent","invoice","receipt"];
+        options.transtype = "order";
+        options.netto_color = false;
+        options.from_color = false;
+        break;
+      default:
+        options.transtype = "order";
+    }
+    showTransOptions({ 
+      options: options,
+      onChange: (form) => {
+        setData("edit", { selectorForm: form })
+      }, 
+      createTrans: (result) => {
+        setData("edit", { selectorForm: null });
+        createTrans({
+          cmdtype: "create", transcast: "normal", 
+          new_transtype: result.new_transtype, 
+          new_direction: result.new_direction, 
+          refno: result.refno, 
+          from_inventory: result.from_inventory, 
+          netto_qty: result.netto_qty
+        })
+      }
+    })
+  }
+
   const checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
     const cbNext = (cbKey) =>{
       switch (cbKey) {
@@ -1501,10 +2032,10 @@ export const useEditor = () => {
           })
           break;
         case "CREATE_TRANS":
-          //dispatch(createTrans(options));
+          createTrans(options)
           break;
         case "CREATE_TRANS_OPTIONS":
-          //dispatch(createTransOptions());
+          createTransOptions()
           break;
         default:
           break;
@@ -1580,14 +2111,61 @@ export const useEditor = () => {
     }
   }
 
-  const setFormActions = (params, _row) => {
+  const showStock = async (options) => {
+    const params = { 
+      method: "POST", 
+      data: [{ 
+        key: "stock",
+        text: getSql(data.login.data.engine, sql.trans.shipping_stock()).sql,
+        values: [options.product_id] 
+      }]
+    }
+    let view = await app.requestData("/view", params)
+    if(view.error){
+      return app.resultError(view)
+    }
+    if (view.stock.length === 0){
+      app.showToast({ type: "info",
+        title: app.getText("msg_warning"), 
+        message: app.getText("ms_no_stock") })
+    }
+    showStockInfo({ 
+      partnumber: options.partnumber,
+      partname: options.partname,
+      rows: view.stock,
+      onChange: (form) => {
+        setData("edit", { selectorForm: form })
+      }
+    })
+  }
+  
+  const exportQueue = async (edit, item) => {
+    const options = edit.current.item
+    await reportOutput({
+      dataset: edit.dataset, 
+      output: options.mode, 
+      reportkey: item.reportkey, 
+      filters: { id: item.ref_id }, 
+      orient: options.orientation, 
+      size: options.size, 
+      copy: item.copies, 
+      rename: false,
+      filename: item.refnumber+"_"+item.id+"."+options.mode
+    })
+    deleteEditorItem({
+      fkey: "items", table: "ui_printqueue", id: item.id, prompt: true
+    })
+  }
+
+  const setFormActions = (params, _row, _edit) => {
 
     const row = _row || {}
+    let edit = _edit || data.edit
     switch (params.action) {
       case "loadEditor":
         checkEditor({
-          ntype: params.ntype || data.edit.current.type, 
-          ttype: params.ttype || data.edit.current.transtype, 
+          ntype: params.ntype || edit.current.type, 
+          ttype: params.ttype || edit.current.transtype, 
           id: row.id || null }, 
           'LOAD_EDITOR')
         break;
@@ -1606,58 +2184,67 @@ export const useEditor = () => {
 
       case "loadShipping":
         checkEditor({
-          ntype: params.ntype || data.edit.current.type, 
-          ttype: params.ttype || data.edit.current.transtype, 
-          id: params.id || data.edit.current.item.id, 
+          ntype: params.ntype || edit.current.type, 
+          ttype: params.ttype || edit.current.transtype, 
+          id: params.id || edit.current.item.id, 
           shipping: true}, 'LOAD_EDITOR')
         break;
       
       case "addShippingRow":
-        /*
         if (row.edited !== true) {
-          data.edit.dataset.shiptemp.push(
-            { "id": row.item_id+"-"+row.product_id, 
+          edit = update(edit, {dataset: { shiptemp: {$push: [
+            { 
+              "id": row.item_id+"-"+row.product_id, 
               "item_id": row.item_id, "product_id": row.product_id,  
               "product": row.product, "partnumber": row.partnumber,
               "partname": row.partname, "unit": row.unit, 
               "batch_no":"", "qty":row.diff, "diff":0,
-              "oqty":row.qty, "tqty":row.tqty});
-          appData("edit", data.edit)
-          setEditor(data.edit.template, {shipping: true, form:"shipping_items"})
+              "oqty":row.qty, "tqty":row.tqty
+            }
+          ]}}})
+          setEditor({ shipping: true, form:"shipping_items" }, edit.template, edit)
         }
-        */
         break;
       
       case "showShippingStock":
-        //showStock({ 
-        //    product_id: row.product_id, 
-        //    partnumber: row.partnumber, 
-        //    partname: row.partname})
+        showStock({ 
+          product_id: row.product_id, 
+          partnumber: row.partnumber, 
+          partname: row.partname
+        })
         break;
 
       case "editShippingRow":
-        //appData("modal", { type: 'shipping', params: copyItem({}, row) })
-        break;
-      
-      case "updateShippingRow":
-        //const item = getState().store.modal.params;
-        //const uitem = getItemFromKey(data.edit.dataset.shiptemp, "id", item.id);
-        
-        //item.diff = item.oqty - (item.tqty + item.qty);
-        //data.edit.dataset.shiptemp[uitem.index] = item;
-        //appData("edit", data.edit)
-        //modalValue('type','')
+        showShipping({ 
+          ...row,
+          onChange: (form) => {
+            setData("edit", { selectorForm: form })
+          }, 
+          updateShipping: (batch_no, qty) => {
+            const index = edit.dataset.shiptemp.findIndex(item => (item.id === row.id))
+            edit = update(edit, { dataset: {shiptemp: { [index]: {$merge: {
+              batch_no: batch_no,
+              qty: qty,
+              diff: row.oqty - (row.tqty + qty)
+            }}}}})
+            edit = update(edit, {$merge: {
+              selectorForm: null
+            }})
+            setData("edit", edit)
+          }
+        })
         break;
       
       case "deleteShippingRow":
-        //let sitem = getItemFromKey(data.edit.dataset.shiptemp, "id", row.id);
-        //data.edit.dataset.shiptemp = deleteItem(data.edit.dataset.shiptemp, sitem.index);
-        //appData("edit", data.edit)
-        //setEditor(data.edit.template, {shipping: true, form:"shiptemp_items"})
+        const index = edit.dataset.shiptemp.findIndex(item => (item.id === row.id))
+        edit = update(edit, { dataset: {shiptemp: {
+          $splice: [[index, 1]]
+        }} })
+        setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
         break;
 
       case "exportQueueItem":
-        //exportQueue(row)
+        exportQueue(row)
         break;
     
       default:

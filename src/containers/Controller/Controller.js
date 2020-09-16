@@ -8,7 +8,7 @@ import { useEditor } from 'containers/Editor/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useQueries } from 'containers/Search/queries'
 import { SelectorView } from 'containers/Search/Search'
-import { ReportSettings, FormulaBox } from 'containers/Editor/Editor';
+import { ReportSettings, FormulaBox, ShippingBox, StockBox, TransBox } from 'containers/Editor/Editor';
 import styles from './Controller.module.css';
 import DateTimeInput from 'components/DateTimeInput';
 import { ToggleOff, ToggleOn, Times, Search, CheckSquare, SquareEmpty } from 'components/Icons';
@@ -323,6 +323,105 @@ export const FormulaForm = (props) => {
       partnumber: data.edit.dataset.movement_head[0].partnumber,
       description: data.edit.dataset.movement_head[0].description,
       formula_head: data.edit.dataset.formula_head.map(formula => { return { value: formula.id, text: formula.transnumber } })
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const TransForm = (props) => {
+  return (params) => {
+    const { onChange, createTrans } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.reportSettings}`} >{createElement(TransBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        if(key === "transtype"){
+          if((value === 'invoice' || value === 'receipt') && 
+            (formProps.base_transtype==='order' || formProps.base_transtype==='rent' || 
+              formProps.base_transtype==='worksheet')){
+                formProps.netto_color = true;
+          } else {
+            formProps.netto_color = false;
+          }
+          if((value === 'invoice' || value === 'receipt') && 
+            (formProps.base_transtype==='order' || formProps.base_transtype==='rent' || 
+              formProps.base_transtype==='worksheet') && (formProps.element_count===0)) {
+                formProps.from_color = true;
+          } else {
+            formProps.from_color = false;
+          }
+        }
+        onChange(form(formProps))
+      },
+      createTrans: () => {
+        createTrans({ 
+          new_transtype: formProps.transtype, 
+          new_direction: formProps.direction, 
+          refno: formProps.refno, 
+          from_inventory: (formProps.from && formProps.from_color), 
+          netto_qty: (formProps.netto && formProps.netto_color)
+        })
+      },
+      ...params.options,
+      doctypes: params.options.doctypes.map(dt => { return { value: dt, text: dt } }),
+      directions: params.options.directions.map(dir => { return { value: dir, text: dir } })
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const ShippingForm = (props) => {
+  return (params) => {
+    const { onChange, updateShipping } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.reportSettings}`} >{createElement(ShippingBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      updateShipping: () => {
+        updateShipping(formProps.batch_no, parseFloat(formProps.qty))
+      },
+      partnumber: params.partnumber, 
+      description: params.product, 
+      unit: params.unit, 
+      batch_no: params.batch_no, 
+      qty: params.qty
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const StockForm = (props) => {
+  const app = useApp()
+  return (params) => {
+    const { onChange } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.reportSettings}`} >{createElement(StockBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      getText: app.getText,
+      partnumber: params.partnumber,
+      partname: params.partname,
+      rows: params.rows,
+      paginationPage: 5
     }})
     onChange(form(formProps))
   }

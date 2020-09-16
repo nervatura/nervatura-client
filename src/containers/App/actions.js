@@ -290,6 +290,9 @@ const request = (url, options) => {
 
       case "application/json":
         return response.json()
+      
+      case "text/plain":
+        return response.text()
     
       default:
         return response

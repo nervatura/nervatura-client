@@ -603,7 +603,7 @@ export default (props) => {
   }
   
   state.setActions = (params, row) => {
-    editor.setFormActions(params, row)
+    editor.setFormActions(params, row, state.data)
   }
 
   if(data.edit.current.item){

@@ -1439,7 +1439,7 @@ export const useSql = () => {
         return sql;
         },
         
-        shipping_stock: (product_id) => {
+        shipping_stock: () => {
           let sql ={
             select:["pl.id","p.partnumber","p.description","p.unit","mv.notes as batch_no",
               "{CCS}pl.planumber{SEP}' | '{SEP}pl.description{CCE} as warehouse",
@@ -1451,7 +1451,7 @@ export const useSql = () => {
               ["place pl","on",["mv.place_id","=","pl.id"]],
               ["product p","on",["mv.product_id","=","p.id"]],
               ["trans t","on",[["mv.trans_id","=","t.id"],["and","t.deleted","=","0"]]]],
-            where:[["mv.deleted","=","0"],["and","p.id","=",product_id]],
+            where:[["mv.deleted","=","0"],["and","p.id","=","?"]],
             group_by:["pl.id","pl.planumber","pl.description","p.id","p.partnumber","p.description","p.unit","mv.notes"],
             order_by:["sum(mv.qty)"]};
           return sql;

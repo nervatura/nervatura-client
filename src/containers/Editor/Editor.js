@@ -5,7 +5,8 @@ import {Editor as RtfEditor} from 'draft-js';
 import styles from './Editor.module.css';
 import { Label, FormRow, Select, Input } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times, Comment, Home, Download, Upload, ChartBar, Magic, Check } from 'components/Icons';
+import { Plus, Edit, Times, Comment, Home, Download, Upload, ChartBar, 
+  Magic, Check, Truck, Book, FileText, CheckSquare, SquareEmpty } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -603,6 +604,224 @@ export const FormulaBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} disabled={(formula==="")?"disabled":""}
               onClick={ ()=>calcFormula() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const TransBox = (props) => {
+  const { onClose, valueChange, createTrans } = props
+  const { transtype, direction, doctypes, directions, refno, 
+    netto_color, netto, from_color, from } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="msg_create_title" leftIcon={<FileText />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="msg_create_new" />
+            </div>
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell half padding-small"}`} >
+            <Select className="full" value={transtype} 
+              onChange={ (event)=>valueChange("transtype", event.target.value) }
+              options={doctypes} />
+          </div>
+          <div className={`${"cell half padding-small"}`} >
+            <Select className="full" value={direction} 
+              onChange={ (event)=>valueChange("direction", event.target.value) }
+              options={directions} />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div className={`${"padding-small"} ${styles.editCol}`} 
+              onClick={() => valueChange("refno", !refno)}>
+              <Label className="bold" text="msg_create_setref" 
+                leftIcon={(refno)?<CheckSquare />:<SquareEmpty />} />
+            </div>
+          </div>
+        </div>
+        {(netto_color)?<div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div className={`${"padding-small"} ${styles.editCol}`} 
+              onClick={() => valueChange("netto", !netto)}>
+              <Label className="bold" text="msg_create_deduction" 
+                leftIcon={(netto)?<CheckSquare />:<SquareEmpty />} />
+            </div>
+          </div>
+        </div>:null}
+        {(from_color)?<div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div className={`${"padding-small"} ${styles.editCol}`} 
+              onClick={() => valueChange("from", !from)}>
+              <Label className="bold" text="msg_create_deduction" 
+                leftIcon={(from)?<CheckSquare />:<SquareEmpty />} />
+            </div>
+          </div>
+        </div>:null}
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`} 
+              onClick={ ()=>createTrans() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const ShippingBox = (props) => {
+  const { onClose, valueChange, updateShipping } = props
+  const { partnumber, description, unit, batch_no, qty } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="shipping_movement_product" leftIcon={<Truck />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="product_partnumber" />
+            </div>
+            <Input className="full" value={partnumber}
+              disabled="disabled" />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="product_description" />
+            </div>
+            <Input className="full" value={description}
+              disabled="disabled" />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="product_unit" />
+            </div>
+            <Input className="full" value={unit}
+              disabled="disabled" />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="movement_batchnumber" />
+            </div>
+            <Input className="full" value={batch_no} autoFocus={true}
+              onChange={ (event)=>valueChange("batch_no", event.target.value) } />
+          </div>
+        </div>
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" text="movement_qty" />
+            </div>
+            <Input className="full align-right" value={qty} itype="float"
+              onChange={ (event)=>valueChange("qty", event.target.value) } />
+          </div>
+        </div>
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`}
+              onClick={ ()=>updateShipping() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const StockBox = (props) => {
+  const { onClose, getText } = props
+  const { partnumber, partname, rows, paginationPage } = props
+  const fields = {
+    warehouse: { fieldtype:"string", label:getText("delivery_place") },
+    batch_no: { fieldtype:"string", label:getText("item_unit") },
+    description: { fieldtype:"string", label:getText("movement_batchnumber") },
+    sqty: { fieldtype:"number", label:getText("shipping_stock") }
+  }
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="shipping_stocks" leftIcon={<Book />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        <div className="row full">
+          <div className={`${"cell padding-small"}`} >
+            <div>
+              <Label className="bold" value={partnumber} />
+            </div>
+            <div>
+              <Label value={partname} />
+            </div>
+          </div>
+        </div>
+        <div className="row full">
+          <Table rowKey="id"
+            fields={fields} rows={rows} tableFilter={true}
+            filterPlaceholder={getText("placeholder_filter")} 
+            paginationPage={paginationPage} paginationTop={true}/>
+        </div>
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small"}`} >
+            <button className={`${"full primary"}`} onClick={onClose} >
               <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
             </button>
           </div>

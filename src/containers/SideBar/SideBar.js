@@ -96,7 +96,7 @@ export const Search = memo((props) => {
 
 export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
-    prevTransNumber, nextTransNumber, saveEditor, loadFormula } = props
+    prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy } = props
   const { theme, login, forms } = props
   const { side, edit, selectorForm } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -182,32 +182,44 @@ export const Edit = memo((props) => {
     if (options.trans === true) {
       panels.push(<div key="trans_sep" className={styles.separator} />)
       if (options.copy !== false) {
-        panels.push(<button key="cmd_copy"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
-          <Label text={"label_copy"} leftIcon={<Copy />} col={20}  />
-        </button>)
+        panels.push(
+          <button
+            key="cmd_copy"
+            className={`${"full medium"} ${styles.itemButton}`}
+            onClick={() => transCopy("normal")}>
+            <Label text={"label_copy"} leftIcon={<Copy />} col={20} />
+          </button>
+        );
       }
       if (options.create !== false) {
-        panels.push(<button key="cmd_create"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
-          <Label text={"label_create"} leftIcon={<Sitemap />} col={20}  />
-        </button>)
+        panels.push(
+          <button
+            key="cmd_create"
+            className={`${"full medium"} ${styles.itemButton}`}
+            onClick={() => transCopy("create")}>
+            <Label text={"label_create"} leftIcon={<Sitemap />} col={20} />
+          </button>
+        );
       }
       if (options.corrective === true && options.state === "normal") {
-        panels.push(<button key="cmd_corrective"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
-          <Label text={"label_corrective"} leftIcon={<Share />} col={20}  />
-        </button>)
+        panels.push(
+          <button
+            key="cmd_corrective"
+            className={`${"full medium"} ${styles.itemButton}`}
+            onClick={() => transCopy("amendment")}>
+            <Label text={"label_corrective"} leftIcon={<Share />} col={20} />
+          </button>
+        );
       }
       if (options.cancellation === true && options.state !== "cancellation") {
-        panels.push(<button key="cmd_cancellation"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
-          <Label text={"label_cancellation"} leftIcon={<Undo />} col={20}  />
-        </button>)
+        panels.push(
+          <button
+            key="cmd_cancellation"
+            className={`${"full medium"} ${styles.itemButton}`}
+            onClick={() => transCopy("cancellation")}>
+            <Label text={"label_cancellation"} leftIcon={<Undo />} col={20} />
+          </button>
+        );
       }
       if (options.formula === true) {
         panels.push(<button key="cmd_formula"

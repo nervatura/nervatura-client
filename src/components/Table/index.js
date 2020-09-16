@@ -204,7 +204,7 @@ export default (props) => {
                 if(fields[fieldname].format){
                   styles.fontWeight = "bold";
                   if(rowData.edited){
-                    styles.textDecornation = "line-through";
+                    styles.textDecoration = "line-through";
                   } else if(value !== 0){
                     styles.color = "red"
                   } else {
