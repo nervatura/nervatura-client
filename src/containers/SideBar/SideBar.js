@@ -96,9 +96,11 @@ export const Search = memo((props) => {
 
 export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
-    prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy } = props
+    prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy, setLink,
+    shippingAddAll, shippingCreate, searchItems, createReport, exportAll, eventExport,
+    printReport, bookmarkSave } = props
   const { theme, login, forms } = props
-  const { side, edit, selectorForm } = props.data
+  const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
   const editItems = (options)=>{
     if (typeof options === "undefined") {
@@ -233,7 +235,7 @@ export const Edit = memo((props) => {
     if (options.link === true) {
       panels.push(<button key="cmd_link"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>setLink(options.link_type, options.link_field)} >
           <Label value={options.link_label} leftIcon={<Link />} col={20}  />
         </button>)
     }
@@ -249,12 +251,12 @@ export const Edit = memo((props) => {
     if (options.shipping === true) {
       panels.push(<button key="cmd_shipping_all"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={() => shippingAddAll()} >
           <Label text={"shipping_all_label"} leftIcon={<Plus />} col={20}  />
         </button>)
       panels.push(<button key="cmd_shipping_create"
         className={`${"full medium"} ${styles.itemButton} ${(dataset.shiptemp.length > 0)?styles.selected:""}`} 
-        onClick={()=>{}} >
+        onClick={() => shippingCreate()} >
         <Label text={"shipping_create_label"} leftIcon={<Check />} col={20}  />
       </button>)
     }
@@ -271,63 +273,56 @@ export const Edit = memo((props) => {
       if (options.search === true) {
         panels.push(<button key="cmd_search"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>searchItems()} >
           <Label text={"label_search"} leftIcon={<SearchIcon />} col={20}  />
         </button>)
       }
       if (options.preview === true) {
         panels.push(<button key="cmd_preview"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>createReport("preview")} >
           <Label text={"label_preview"} leftIcon={<Eye />} col={20}  />
         </button>)
       }
       if (options.print === true) {
         panels.push(<button key="cmd_print"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>printReport() } >
           <Label text={"label_print"} leftIcon={<Print />} col={20}  />
         </button>)
       }
       if (options.export_all === true && options.state === "normal") {
         panels.push(<button key="cmd_export_all"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>exportAll()} >
           <Label text={"label_export_all"} leftIcon={<Download />} col={20}  />
         </button>)
       }
       if (options.export_pdf === true && options.state === "normal") {
         panels.push(<button key="cmd_export_pdf"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>createReport("pdf")} >
           <Label text={"label_export_pdf"} leftIcon={<Download />} col={20}  />
         </button>)
       }
       if (options.export_xml === true && options.state === "normal") {
         panels.push(<button key="cmd_export_xml"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>createReport("xml")} >
           <Label text={"label_export_xml"} leftIcon={<Code />} col={20}  />
         </button>)
       }
       if (options.export_xls === true && options.state === "normal") {
         panels.push(<button key="cmd_export_xls"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>createReport("xls")} >
           <Label text={"label_export_xls"} leftIcon={<Download />} col={20}  />
-        </button>)
-      }
-      if (options.in_browser === true && options.state === "normal") {
-        panels.push(<button key="cmd_in_browser"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
-          <Label text={"label_in_browser"} leftIcon={<Globe />} col={20}  />
         </button>)
       }
       if (options.export_event === true && options.state === "normal") {
         panels.push(<button key="cmd_export_event"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>eventExport()} >
           <Label text={"label_export_event"} leftIcon={<Calendar />} col={20}  />
         </button>)
       }
@@ -335,7 +330,7 @@ export const Edit = memo((props) => {
       if (options.bookmark !== false && options.state === "normal") {
         panels.push(<button key="cmd_bookmark"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>bookmarkSave(options.bookmark)} >
           <Label text={"label_bookmark"} leftIcon={<Star />} col={20}  />
         </button>)
       }
@@ -473,7 +468,6 @@ export const Edit = memo((props) => {
   }
   return (
     <Fragment>
-      {(selectorForm)?selectorForm:null}
       <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
         {(!current.form && (current.form_type !== "transitem_shipping"))?
         <div className="row full section-small container">

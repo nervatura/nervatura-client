@@ -8,12 +8,14 @@ import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useInitItem } from './items'
 import { Preview, Editor } from './Editor';
+import { InputForm } from 'containers/ModalForm'
 
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const editor = useEditor()
   const app = useApp()
   const initItem = useInitItem()
+  const showInput =  InputForm()
 
   const [state] = useState({
     engine: data.login.data.engine,
@@ -328,26 +330,29 @@ export default (props) => {
           switch (options.name) {
             case "closed":
               if (options.value === 1) {
-                setData("current", { input: { 
+                showInput({
                   title: app.getText("msg_warning"), message: app.getText("msg_close_text"),
-                  infoText: app.getText("msg_delete_info"),
-                  cbOK: ()=>{
-                    setData("current", { input: null }, ()=>{
-                      edit = update(edit, { current: {$merge: {
-                        closed: 1
-                      }}})
-                      setData("edit", edit)
-                    })
-                  },
-                  cbCancel: (value)=>{
-                    setData("current", { input: null }, ()=>{
+                  infoText: app.getText("msg_delete_info"), 
+                  onChange: (form) => {
+                    setData("current", { modalForm: form })
+                  }, 
+                  cbCancel: () => {
+                    setData("current", { modalForm: null }, ()=>{
                       edit = update(edit, { current: { item: {$merge: {
                         [options.name]: 0
                       }}}})
                       setData("edit", edit)
                     })
+                  },
+                  cbOK: (value) => {
+                    setData("current", { modalForm: null }, ()=>{
+                      edit = update(edit, { current: {$merge: {
+                        closed: 1
+                      }}})
+                      setData("edit", edit)
+                    })
                   }
-                }})
+                })
               }
               break;
             case "paiddate":
@@ -470,10 +475,16 @@ export default (props) => {
     }
     switch (key) {
       case "default":
-        setData("current", { input: {
-          title: app.getText("msg_warning"), message: app.getText("msg_pattern_default"),
-          cbOK: ()=>{
-            setData("current", { input: null }, ()=>{
+        showInput({
+          title: app.getText("msg_warning"), message: app.getText("msg_pattern_default"), 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, ()=>{
               let pattern = update(data.edit.dataset.pattern, {})
               pattern.forEach((element, index) => {
                 pattern = update(pattern, {
@@ -484,11 +495,8 @@ export default (props) => {
               });
               updatePattern(pattern)
             })
-          },
-          cbCancel: ()=>{
-            setData("current", { input: null })
           }
-        }})
+        })
         break;
 
       case "load":
@@ -513,10 +521,16 @@ export default (props) => {
         break;
 
       case "save":
-        setData("current", { input: {
+        showInput({
           title: app.getText("msg_warning"), message: app.getText("msg_pattern_save"),
-          cbOK: ()=>{
-            setData("current", { input: null }, ()=>{
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, ()=>{
               let pattern = data.edit.dataset.pattern.filter((item) => 
                 (item.id === parseInt(data.edit.current.template,10) ))[0]
               if(pattern){
@@ -526,19 +540,22 @@ export default (props) => {
                 updatePattern([pattern])
               }
             })
-          },
-          cbCancel: ()=>{
-            setData("current", { input: null })
           }
-        }})
+        })
         break;
       
       case "new":
-        setData("current", { input: {
+        showInput({
           title: app.getText("msg_pattern_new"), message: app.getText("msg_pattern_name"),
-          value: "",
-          cbOK: (value)=>{
-            setData("current", { input: null }, async ()=>{
+          value: "", 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, async ()=>{
               if(value !== ""){
                 let result = await app.requestData("/pattern?filter=description;==;"+value, {})
                 if(result.error){
@@ -555,18 +572,22 @@ export default (props) => {
                 updatePattern([pattern])
               }
             })
-          },
-          cbCancel: ()=>{
-            setData("current", { input: null })
           }
-        }})
+        })
         break;
 
       case "delete":
-        setData("current", { input: { 
+        showInput({
           title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-          cbOK: ()=>{
-            setData("current", { input: null }, ()=>{
+          infoText: app.getText("msg_delete_info"), 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, ()=>{
               let pattern = data.edit.dataset.pattern.filter((item) => 
                 (item.id === parseInt(data.edit.current.template,10) ))[0]
               if(pattern){
@@ -577,11 +598,8 @@ export default (props) => {
                 updatePattern([pattern])
               }
             })
-          },
-          cbCancel: ()=>{
-            setData("current", { input: null })
           }
-        }})
+        })
         break;
     
       default:

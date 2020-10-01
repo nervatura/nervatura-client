@@ -6,7 +6,7 @@ import { HandUp, Bars, Close, Exit, Search, Edit, Cog, Star, QuestionCircle } fr
 
 export const MenuBar = memo((props) => {
   const topMenu = useRef(null);
-  const { signOut, loadModule, sideBar, setScroll } = props
+  const { signOut, loadModule, sideBar, setScroll, showBookmarks } = props
   const { side, scrollTop } = props.data
   const selected = (key) => {
     if(key === props.data.module){
@@ -34,7 +34,7 @@ export const MenuBar = memo((props) => {
         <div className={`${"right"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
           <Label className="hide-small" leftIcon={<QuestionCircle />} text="menu_help" />
         </div>
-        <div className={`${"right"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => loadModule("bookmark") } >
+        <div className={`${"right"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >
           <Label className="hide-small" leftIcon={<Star />} text="menu_bookmark" />
         </div>
         <div className={`${"right"} ${selected("setting")} ${styles.menuitem}`} onClick={() => loadModule("setting") } >

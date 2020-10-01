@@ -87,5 +87,5 @@ export const store = {
   search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },
   edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
-  setting: {}, bookmark: { history: [] }
+  setting: {}, bookmark: { history: null, bookmark: [] }
 }

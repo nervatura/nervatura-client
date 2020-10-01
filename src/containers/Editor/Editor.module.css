@@ -130,13 +130,6 @@
   color: --backgroundColor;
 }
 
-.copyInput {
-  width: 60px;
-  display: inline-block;
-  text-align: right;
-  border-radius: 3px!important;
-}
-
 .closeIcon {
   cursor: pointer;
 }

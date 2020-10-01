@@ -4,10 +4,11 @@ import { formatISO, addDays, parseISO, isEqual } from 'date-fns'
 import { EditorState } from 'draft-js';
 import { convertFromHTML } from 'draft-convert'
 import pdfjsLib from 'pdfjs-dist/webpack';
+import { Component, Time, Event } from 'ical.js';
 
 import AppStore from 'containers/App/context'
-import { useApp, getSql, saveToDisk } from 'containers/App/actions'
-import { SelectorForm, ReportForm, FormulaForm, ShippingForm, StockForm, TransForm } from 'containers/Controller'
+import { useApp, getSql, saveToDisk, guid } from 'containers/App/actions'
+import { InputForm, ReportForm, FormulaForm, SelectorForm, ShippingForm, StockForm, TransForm } from 'containers/ModalForm'
 import dataset from './dataset'
 import { useSql } from './sql'
 import { useForm } from './forms'
@@ -20,6 +21,7 @@ export const useEditor = () => {
   const validator = useValidator()
   const sql = useSql()
   const forms = useForm()
+  const showInput =  InputForm()
   const showSelector = SelectorForm()
   const showReport = ReportForm()
   const showFormula = FormulaForm()
@@ -39,7 +41,7 @@ export const useEditor = () => {
   }
 
   const setEditor = (options, form, iedit) => {
-    let edit = update(iedit||data.edit, {})
+    let edit = update({}, {$set: iedit||data.edit })
     if ((typeof edit.dataset[edit.current.type] === "undefined") || 
       (edit.dataset[edit.current.type].length===0)) {
       app.showToast({ type: "error", autoClose: false,
@@ -698,10 +700,10 @@ export const useEditor = () => {
         showSelector({
           type: _fieldtype, filter: "", 
           onChange: (form) => {
-            setData("edit", { selectorForm: form })
+            setData("current", { modalForm: form })
           }, 
           onSelect: (row, filter) => {
-            setData("edit", { selectorForm: null }, ()=>{
+            setData("current", { modalForm: null }, ()=>{
               const params = row.id.split("/")
               item = update(item, {$merge: {
                 value: String(parseInt(params[2],10))
@@ -719,62 +721,6 @@ export const useEditor = () => {
     }
   }
 
-  const createHistory = async (ctype) => {
-    let history = update({}, {$set: {
-      datetime: formatISO(new Date()),
-      type: ctype, 
-      type_title: app.getText["label_"+ctype],
-      ntype: data.edit.current.type,
-      transtype: data.edit.current.transtype || "",
-      id: data.edit.current.item.id
-    }})
-    let title = (history.ntype === "trans") ?
-      data.edit.template.options.title+" | "+data.edit.current.item[data.edit.template.options.title_field] :
-      data.edit.template.options.title
-    if ((history.ntype !== "trans") && (typeof data.edit.template.options.title_field !== "undefined")){
-      title += " | "+data.edit.current.item[data.edit.template.options.title_field]
-    }
-    history = update(history, {$merge: {
-      title: title
-    }})
-    let bookmark = update(data.bookmark, {})
-    let userconfig = {}
-    if (bookmark.history.length > 0) {
-      userconfig = update(bookmark.history[0], {$merge: {
-        cfgroup: formatISO(new Date())
-      }})
-      let history_values = JSON.parse(userconfig.cfvalue);
-      history_values.unshift(history)
-      if (history_values.length> data.ui.history) {
-        history_values = history_values.slice(0, data.ui.history)
-      }
-      userconfig = update(userconfig, {$merge: {
-        cfname: history_values.length,
-        cfvalue: JSON.stringify(history_values)
-      }})
-      bookmark = update(bookmark, {history: {$merge: {
-        0: userconfig
-      }}})
-    } else {
-      userconfig = update(userconfig, {$merge: {
-        employee_id: data.login.data.employee.id,
-        section: "history",
-        cfgroup: formatISO(new Date()),
-        cfname: 1,
-        cfvalue: JSON.stringify([history])
-      }})
-      bookmark = update(bookmark, {history: 
-        {$push: [userconfig] }
-      })
-    }
-    setData("bookmark", bookmark)
-    const options = { method: "POST", data: [userconfig] }
-    const result = await app.requestData("/ui_userconfig", options)
-    if(result.error){
-      return app.resultError(result)
-    }
-  }
-
   const deleteEditor = () => {
     const clearEditor = () => {
       setData("edit", { dataset: {}, current: {}, dirty: false, form_dirty: false })
@@ -786,17 +732,20 @@ export const useEditor = () => {
       if(result && result.error){
         return app.resultError(result)
       }
-      await createHistory("delete")
+      await app.createHistory("delete")
       clearEditor()
     }
-    setData("current", { input: { 
+    showInput({
       title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-      infoText: app.getText("msg_delete_info"),
+      infoText: app.getText("msg_delete_info"), 
+      onChange: (form) => {
+        setData("current", { modalForm: form })
+      }, 
       cbCancel: () => {
-        setData("current", { input: null })
+        setData("current", { modalForm: null })
       },
       cbOK: (value) => {
-        setData("current", { input: null }, async () => {
+        setData("current", { modalForm: null }, async () => {
           if (data.edit.current.item.id === null) {
             clearEditor()
           } else {
@@ -827,7 +776,7 @@ export const useEditor = () => {
           }
         })
       }
-    }})
+    })
   }
 
   const deleteEditorItem = (params) => {
@@ -849,7 +798,7 @@ export const useEditor = () => {
         if(result && result.error){
           return app.resultError(result)
         }
-        await createHistory("save")
+        await app.createHistory("save")
         reLoad()
       }
     }
@@ -857,18 +806,21 @@ export const useEditor = () => {
     if(params.prompt){
       deleteItem()
     } else {
-      setData("current", { input: { 
+      showInput({
         title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
         infoText: app.getText("msg_delete_info"),
-        cbCancel: ()=>{
-          setData("current", { input: null })
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        cbCancel: () => {
+          setData("current", { modalForm: null })
         },
-        cbOK: (value)=>{
-          setData("current", { input: null }, ()=>{
+        cbOK: (value) => {
+          setData("current", { modalForm: null }, ()=>{
             deleteItem()
           })
         }
-      }})
+      })
     }
   }
 
@@ -878,8 +830,11 @@ export const useEditor = () => {
     query.append("orientation", params.orient)
     query.append("size", params.size)
     query.append("output", params.type)
-    query.append("nervatype", data.edit.current.type)
-    return `/report?${query.toString()}&filters[@id]=${data.edit.current.item.id}`
+    if(params.filters){
+      return `/report?${query.toString()}&${params.filters}`  
+    }
+    query.append("nervatype", params.nervatype||data.edit.current.type)
+    return `/report?${query.toString()}&filters[@id]=${params.id||data.edit.current.item.id}`
   }
 
   const setPreviewPage = (options) => {
@@ -942,6 +897,53 @@ export const useEditor = () => {
       message: app.getText("report_add_groups") })
   }
 
+  const createReport = async (output) => {
+    let _filters = [];
+    data.edit.current.fieldvalue.forEach((rfdata) => {
+      if (rfdata.selected) {
+        if(rfdata.fieldtype === "bool"){
+          _filters.push(`filters[${rfdata.name}]=${(rfdata.fieldtype)?"1":"0"}`)
+        } else {
+          _filters.push(`filters[${rfdata.name}]=${rfdata.value}`)
+        }
+      }
+    })
+    const report = data.edit.current.item
+    const params = {
+      type: "auto",
+      template: report.reportkey, 
+      title: report.reportkey,
+      orient: report.orientation, 
+      size: report.size,
+      filters: _filters.join("&")
+    }
+    switch (output) {
+      case "preview":
+        return loadPreview(params)
+      
+      case "xml":
+        params.type = "xml"
+        params.ctype = "application/xml; charset=UTF-8"
+        break;
+      
+      case "xls":
+        params.ctype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        break;
+
+      default:
+        params.ctype = "application/pdf"
+        break;
+    }
+    const result = await app.requestData(reportPath(params), {})
+    if(result && result.error){
+      return app.resultError(result)
+    }
+    const resultUrl = URL.createObjectURL(result, {type : params.ctype})
+    let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+output
+    filename = filename.split("/").join("_")
+    return saveToDisk(resultUrl, filename)
+  }
+
   const reportOutput = async (params) => {
     if(params.type === "printqueue"){
       return addPrintQueue(params.template, params.copy)
@@ -951,12 +953,14 @@ export const useEditor = () => {
     }
     const result = await app.requestData(reportPath(params), {})
     if(result && result.error){
-      return app.resultError(result)
+      app.resultError(result)
+      return false
     }
     const resultUrl = URL.createObjectURL(result, {type : (params.type === "pdf") ? "application/pdf" : "application/xml; charset=UTF-8"})
     let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+params.type
     filename = filename.split("/").join("_")
-    return saveToDisk(resultUrl, filename)
+    saveToDisk(resultUrl, filename)
+    return true
   }
 
   const setFieldvalue = (recordset, fieldname, ref_id, defvalue, value) => {
@@ -1011,7 +1015,7 @@ export const useEditor = () => {
     edit = update(edit, {$merge: {
       form_dirty: false
     }})
-    await createHistory("save")
+    await app.createHistory("save")
    
     switch (edit.current.form_type) {
       case "movement":
@@ -1226,7 +1230,7 @@ export const useEditor = () => {
     edit = update(edit, {$merge: {
       dirty: false
     }})
-    await createHistory("save")
+    await app.createHistory("save")
 
     if (typeof edit.current.extend !== "undefined") {
       if (edit.current.extend.ref_id === null) {
@@ -1408,14 +1412,17 @@ export const useEditor = () => {
   }
 
   const calcFormula = (formula_id) => {
-    setData("current", { input: { 
+    showInput({
       title: app.getText("msg_warning"), message: app.getText("ms_load_formula"),
-      infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"),
-      cbCancel: ()=>{
-        setData("current", { input: null })
+      infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"), 
+      onChange: (form) => {
+        setData("current", { modalForm: form })
+      }, 
+      cbCancel: () => {
+        setData("current", { modalForm: null })
       },
-      cbOK: (value)=>{
-        setData("current", { input: null }, async ()=>{
+      cbOK: (value) => {
+        setData("current", { modalForm: null }, async ()=>{
           const params = { 
             method: "POST", 
             data: [{ 
@@ -1455,7 +1462,7 @@ export const useEditor = () => {
           if(result.error){
             return app.resultError(result)
           }
-          setData("edit", { selectorForm: null }, ()=>{
+          setData("current", { modalForm: null }, ()=>{
             loadEditor({
               ntype: data.edit.current.type, 
               ttype: data.edit.current.transtype, 
@@ -1465,7 +1472,7 @@ export const useEditor = () => {
           })
         })
       }
-    }})
+    })
   }
 
   const createTrans = async (options) => {
@@ -1574,7 +1581,8 @@ export const useEditor = () => {
         item => ((item.groupname === "transtate") && (item.groupvalue === "ok")))[0].id,
       closed: 0, deleted: 0, 
       direction: direction_id, 
-      cruser_id: data.login.data.employee.id
+      cruser_id: data.login.data.employee.id,
+      trans_transcast: options.transcast || "normal"
     }})
     if (base_trans.duedate !== null) {
       values.duedate = formatISO(new Date(), { representation: 'date' })+"T00:00:00";
@@ -1635,18 +1643,6 @@ export const useEditor = () => {
     values.id = result[0];
 
     let fieldvalue = [];
-    let transcast = data.edit.current.fieldvalue.filter(
-      item => (item.fieldname === "trans_transcast")
-    )[0]
-    if(transcast){
-      let transcast_ = tableValues("fieldvalue", transcast)
-      transcast_.id = null;
-      transcast_.value = options.transcast;  
-      transcast_.ref_id = values.id; 
-      fieldvalue.push(transcast_); 
-    } else {
-      fieldvalue = setFieldvalue(fieldvalue, "trans_transcast", values.id, options.transcast) 
-    }
     data.edit.current.fieldvalue.forEach((cfield) => {
       if(cfield.fieldname !== "trans_transcast"){
         let deffield = data.edit.dataset.deffield.filter(
@@ -1682,10 +1678,12 @@ export const useEditor = () => {
       }
     }
 
-    result = await app.requestData("/fieldvalue", { method: "POST", data: fieldvalue })
-    if(result.error){
-      app.resultError(result)
-      return null
+    if(fieldvalue.length > 0){
+      result = await app.requestData("/fieldvalue", { method: "POST", data: fieldvalue })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
     }
 
     if((_refnum === "link") || (_refnum === "reflink")){
@@ -1913,7 +1911,7 @@ export const useEditor = () => {
       }
     }
 
-    await createHistory("save")
+    await app.createHistory("save")
     loadEditor({ ntype: "trans", ttype: transtype, id: values.id })
   }
 
@@ -1981,10 +1979,10 @@ export const useEditor = () => {
     showTransOptions({ 
       options: options,
       onChange: (form) => {
-        setData("edit", { selectorForm: form })
+        setData("current", { modalForm: form })
       }, 
       createTrans: (result) => {
-        setData("edit", { selectorForm: null });
+        setData("current", { modalForm: null });
         createTrans({
           cmdtype: "create", transcast: "normal", 
           new_transtype: result.new_transtype, 
@@ -2009,7 +2007,7 @@ export const useEditor = () => {
         case "LOAD_FORMULA":
           showFormula({ 
             onChange: (form) => {
-              setData("edit", { selectorForm: form })
+              setData("current", { modalForm: form })
             }, 
             calcFormula: (formula_id) => {
               calcFormula(formula_id)
@@ -2022,10 +2020,10 @@ export const useEditor = () => {
         case "REPORT_SETTINGS":
           showReport({ 
             onChange: (form) => {
-              setData("edit", { selectorForm: form })
+              setData("current", { modalForm: form })
             }, 
             onOutput: (params) => {
-              setData("edit", { selectorForm: null }, ()=>{
+              setData("current", { modalForm: null }, ()=>{
                 reportOutput(params)
               })
             }
@@ -2045,11 +2043,14 @@ export const useEditor = () => {
       (data.edit.dirty === true && (data.edit.current.type==="template")) || 
       (data.edit.form_dirty === true && data.edit.current.form)) {
 
-        setData("current", { input: { 
+        showInput({
           title: app.getText("msg_warning"), message: app.getText("msg_dirty_text"),
-          infoText: app.getText("msg_dirty_info"),
-          cbCancel: ()=>{
-            setData("current", { input: null }, ()=>{
+          infoText: app.getText("msg_dirty_info"), 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null }, ()=>{
               if (cbKeyFalse) {
                 setData("edit", { dirty: false, form_dirty: false }, ()=>{
                   cbNext(cbKeyFalse)
@@ -2059,8 +2060,8 @@ export const useEditor = () => {
               }
             })
           },
-          cbOK: (value)=>{
-            setData("current", { input: null }, async ()=>{
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, async ()=>{
               let edit = false
               if (data.edit.form_dirty) {
                 edit = await saveEditorForm()
@@ -2079,7 +2080,7 @@ export const useEditor = () => {
               return cbNext(cbKeyFalse)
             })
           }
-        }})
+        })
     } else if (cbKeyFalse) {
       cbNext(cbKeyFalse);
     } else {
@@ -2134,7 +2135,7 @@ export const useEditor = () => {
       partname: options.partname,
       rows: view.stock,
       onChange: (form) => {
-        setData("edit", { selectorForm: form })
+        setData("current", { modalForm: form })
       }
     })
   }
@@ -2142,19 +2143,84 @@ export const useEditor = () => {
   const exportQueue = async (edit, item) => {
     const options = edit.current.item
     await reportOutput({
-      dataset: edit.dataset, 
-      output: options.mode, 
-      reportkey: item.reportkey, 
-      filters: { id: item.ref_id }, 
+      type: options.mode, 
+      template: item.reportkey, 
+      title: item.refnumber,
       orient: options.orientation, 
       size: options.size, 
-      copy: item.copies, 
-      rename: false,
-      filename: item.refnumber+"_"+item.id+"."+options.mode
+      copy: item.copies,
+      nervatype: item.typename,
+      id: item.ref_id
     })
     deleteEditorItem({
       fkey: "items", table: "ui_printqueue", id: item.id, prompt: true
     })
+  }
+
+  const searchQueue = async () => {
+    let edit = update(data.edit, {})
+    const params = { 
+      method: "POST", 
+      data: [{ 
+        key: "items",
+        text: getSql(data.login.data.engine, sql.printqueue.items(edit.printqueue)).sql,
+        values: [edit.current.item.customer_id]
+      }]
+    }
+    let view = await app.requestData("/view", params)
+    if(view.error){
+      return app.resultError(view)
+    }
+    edit = update(edit, {dataset: {$merge: {
+      items: view.items
+    }}})
+    setData("edit", edit)
+  }
+
+  const exportQueueAll = () => {
+    const options = data.edit.current.item
+    if (data.edit.dataset.items.length > 0){
+      if (options.mode === "preview") {
+        return app.showToast({ type: "error",
+          title: app.getText("msg_warning"), 
+          message: app.getText("ms_export_invalid")+" "+app.getText("printqueue_mode_preview") })
+      }
+      showInput({
+        title: app.getText("msg_warning"), message: app.getText("label_export_all_selected"),
+        infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"), 
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        cbCancel: () => {
+          setData("current", { modalForm: null })
+        },
+        cbOK: (value) => {
+          setData("current", { modalForm: null }, async () => {
+            for (let index = 0; index < data.edit.dataset.items.length; index++) {
+              const item = data.edit.dataset.items[index];
+              let result = await reportOutput({
+                type: options.mode, 
+                template: item.reportkey, 
+                title: item.refnumber,
+                orient: options.orientation, 
+                size: options.size, 
+                copy: item.copies,
+                nervatype: item.typename,
+                id: item.ref_id
+              })
+              if(result){
+                result = await app.requestData(
+                  "/ui_printqueue", { method: "DELETE", query: { id: item.id } })
+                if(result && result.error){
+                  return app.resultError(result)
+                }
+              }
+            }
+            searchQueue()
+          })
+        }
+      })
+    }
   }
 
   const setFormActions = (params, _row, _edit) => {
@@ -2218,19 +2284,18 @@ export const useEditor = () => {
         showShipping({ 
           ...row,
           onChange: (form) => {
-            setData("edit", { selectorForm: form })
+            setData("current", { modalForm: form })
           }, 
           updateShipping: (batch_no, qty) => {
-            const index = edit.dataset.shiptemp.findIndex(item => (item.id === row.id))
-            edit = update(edit, { dataset: {shiptemp: { [index]: {$merge: {
-              batch_no: batch_no,
-              qty: qty,
-              diff: row.oqty - (row.tqty + qty)
-            }}}}})
-            edit = update(edit, {$merge: {
-              selectorForm: null
-            }})
-            setData("edit", edit)
+            setData("current", { modalForm: null }, ()=>{
+              const index = edit.dataset.shiptemp.findIndex(item => (item.id === row.id))
+              edit = update(edit, { dataset: {shiptemp: { [index]: {$merge: {
+                batch_no: batch_no,
+                qty: qty,
+                diff: row.oqty - (row.tqty + qty)
+              }}}}})
+              setData("edit", edit)
+            })
           }
         })
         break;
@@ -2244,7 +2309,7 @@ export const useEditor = () => {
         break;
 
       case "exportQueueItem":
-        exportQueue(row)
+        exportQueue(edit, row)
         break;
     
       default:
@@ -2252,27 +2317,27 @@ export const useEditor = () => {
     }
   }
 
-const getTransFilter = (_sql, values) => {
-  switch (data.login.data.transfilterName) {
-    case "usergroup":
-      _sql.where.push(
-        ["and","cruser_id","in",[{
-          select:["id"], from:"employee", 
-          where:["usergroup","=","?"]
-        }]])
-      values.push(data.login.data.employee.usergroup)
-      break;
-    case "own":
-      _sql.where.push(
-        ["and","cruser_id","=","?"]
-      )
-      values.push(data.login.data.employee.id)
-      break;
-    default:
-      break;
+  const getTransFilter = (_sql, values) => {
+    switch (data.login.data.transfilterName) {
+      case "usergroup":
+        _sql.where.push(
+          ["and","cruser_id","in",[{
+            select:["id"], from:"employee", 
+            where:["usergroup","=","?"]
+          }]])
+        values.push(data.login.data.employee.usergroup)
+        break;
+      case "own":
+        _sql.where.push(
+          ["and","cruser_id","=","?"]
+        )
+        values.push(data.login.data.employee.id)
+        break;
+      default:
+        break;
+    }
+    return [_sql, values]
   }
-  return [_sql, values]
-}
 
   const prevTransNumber = async () => {
     if (data.edit.current.type !== "trans" || data.edit.current.item.id === null) {
@@ -2359,6 +2424,200 @@ const getTransFilter = (_sql, values) => {
     }
   }
 
+  const createShipping = async () => {
+    if (data.edit.current.shipping_place_id === null) {
+      return app.showToast({ type: "error",
+        title: app.getText("msg_warning"), 
+        message: app.getText("msg_required")+" "+app.getText("inventory_warehouse") })
+    }
+    if (data.edit.dataset.shiptemp.length > 0){
+      let delivery_head = update(initItem({tablename: "trans", 
+          dataset: data.edit.dataset, current: data.edit.current}), {$merge: {
+        transtype: data.edit.dataset.groups.filter(
+          (item) => ((item.groupname === "transtype") && (item.groupvalue === "delivery"))
+        )[0].id,
+        direction: data.edit.dataset[data.edit.current.type][0].direction,
+        transdate: formatISO(parseISO(data.edit.current.item.shippingdate), { representation: 'date' }),
+        duedate: null, curr: null, paidtype: null
+      }})
+      let pattern = data.edit.dataset.delivery_pattern.filter(
+          (item) => (item.defpattern === 1)
+        )[0]
+      if (typeof pattern !== "undefined") {
+        delivery_head = update(delivery_head, {$merge: {
+          fnote: pattern.notes
+        }})
+      }
+      
+      let params = { method: "POST", 
+        data: {
+          key: "nextNumber",
+          values: {
+            numberkey: "delivery_"+data.edit.current.direction, 
+            step: true
+          }
+        }
+      }
+      let result = await app.requestData("/function", params)
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+      delivery_head = update(delivery_head, {$merge: {
+        transnumber: result
+      }})
+
+      result = await app.requestData("/trans", { method: "POST", data: [delivery_head] })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+      delivery_head.id = result[0];
+      await app.createHistory("save")
+
+      let movements = [];
+      data.edit.dataset.shiptemp.forEach((shiptemp) => {
+        let movement = update(
+          initItem({tablename: "movement", dataset: data.edit.dataset, current: data.edit.current}),
+          {$merge: {
+            trans_id: delivery_head.id,
+            shippingdate: formatISO(parseISO(data.edit.current.shippingdate)),
+            product_id: shiptemp.product_id,
+            place_id: data.edit.current.shipping_place_id,
+            notes: shiptemp.batch_no,
+            qty: (data.edit.current.direction === "out") ? -(shiptemp.qty) : shiptemp.qty
+        }})
+        movements.push(movement);
+      });
+      result = await app.requestData("/movement", { method: "POST", data: movements })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+
+      let links = [];
+      let nervatype_movement = data.edit.dataset.groups.filter(
+        (item)=>((item.groupname === "nervatype") && (item.groupvalue === "movement")))[0].id
+      let nervatype_item = data.edit.dataset.groups.filter(
+        (item)=>((item.groupname === "nervatype") && (item.groupvalue === "item")))[0].id
+      result.forEach((movement_id, index) => {
+        let link = update(initItem({tablename: "link", dataset: data.edit.dataset, current: data.edit.current}), {
+          $merge: {
+            nervatype_1: nervatype_movement,
+            ref_id_1: movement_id,
+            nervatype_2: nervatype_item,
+            ref_id_2: data.edit.dataset.shiptemp[index].item_id
+        }})
+        links.push(link);
+      });
+      result = await app.requestData("/link", { method: "POST", data: links })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+
+      loadEditor({
+        ntype: data.edit.current.type, 
+        ttype: data.edit.current.transtype, 
+        id: data.edit.current.item.id, 
+        shipping: true
+      })
+
+    }
+  }
+
+  const exportEvent = () => {
+    const event = data.edit.current.item;
+
+    let comp = new Component(['vcalendar', [], []]);
+    comp.updatePropertyWithValue('prodid', '-//nervatura.com/NONSGML Nervatura Calendar//EN');
+    comp.updatePropertyWithValue('version','2.0');
+    let vevent = new Component('vevent'), cevent = new Event(vevent);
+    if (event.uid !== null){
+      cevent.uid = event.uid
+    } else {
+      cevent.uid = guid();
+    }
+    if (event.fromdate !== null){
+      let fromdate = event.fromdate.split("T")[0].split("-");
+      let fromtime = event.fromdate.split("T")[1].split(":");
+      cevent.startDate = new Time({
+        year:parseInt(fromdate[0],10), month:parseInt(fromdate[1],10), day:parseInt(fromdate[2],10),
+        hour:parseInt(fromtime[0],10), minute:parseInt(fromtime[1],10), isDate:false});
+    }
+    if (event.todate !== null){
+      let todate = event.todate.split("T")[0].split("-");
+      let totime = event.todate.split("T")[1].split(":");
+      cevent.endDate = new Time({
+        year:parseInt(todate[0],10), month:parseInt(todate[1],10), day:parseInt(todate[2],10),
+        hour:parseInt(totime[0],10), minute:parseInt(totime[1],10), isDate:false});
+    }
+    if (event.subject !== null){
+      cevent.summary = event.subject;
+    }
+    if (event.place !== null){
+      cevent.location = event.place;
+    }
+    if (event.description !== null){
+      cevent.description = event.description;
+    }
+    if (event.eventgroup !== null){
+      let eventgroup = data.edit.dataset.eventgroup.filter(item => (item.id === event.eventgroup))[0]
+      if (typeof eventgroup !== "undefined") {
+        vevent.updatePropertyWithValue('category', eventgroup.groupvalue);
+      }
+    }
+    comp.addSubcomponent(vevent);
+
+    const filename = event.calnumber.replace(/\//g, "_")+".ics";
+    let icsUrl = URL.createObjectURL(new Blob([comp.toString()], 
+      {type : 'text/ics;charset=utf-8;'}));
+    saveToDisk(icsUrl, filename);
+  }
+
+  const printQueue = () => {
+    const options = data.edit.current.item
+    if (data.edit.dataset.items.length > 0){
+      if (options.server === "") {
+        return app.showToast({ type: "error",
+          title: app.getText("msg_warning"), 
+          message: app.getText("msg_required")+" "+app.getText("printqueue_server_printer") })
+      }
+      showInput({
+        title: app.getText("msg_warning"), message: app.getText("label_print"),
+        infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"), 
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        cbCancel: () => {
+          setData("current", { modalForm: null })
+        },
+        cbOK: (value) => {
+          setData("current", { modalForm: null }, async () => {
+            const items = data.edit.dataset.items.map(item => item.id)
+            let params = { method: "POST", 
+              data: {
+                key: "printQueue",
+                values: {
+                  printer: options.server, 
+                  items: items, 
+                  orientation: options.orientation, 
+                  size: options.size
+                }
+              }
+            }
+            let result = await app.requestData("/function", params)
+            if(result.error){
+              app.resultError(result)
+              return null
+            }
+            searchQueue()
+          })
+        }
+      })
+    }
+  }
+
   return {
     round: round,
     checkEditor: checkEditor,
@@ -2374,6 +2633,12 @@ const getTransFilter = (_sql, values) => {
     nextTransNumber: nextTransNumber,
     setFieldvalue: setFieldvalue,
     saveEditorForm: saveEditorForm,
-    saveEditor: saveEditor
+    saveEditor: saveEditor,
+    createShipping: createShipping,
+    createReport: createReport,
+    searchQueue: searchQueue,
+    exportQueueAll: exportQueueAll,
+    exportEvent: exportEvent,
+    printQueue: printQueue
   }
 }

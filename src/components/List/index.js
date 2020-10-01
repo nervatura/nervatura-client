@@ -17,17 +17,8 @@ export default (props) => {
     paginatonScroll: paginatonScroll,
     filter: "",
     listFilter: listFilter,
-    filterPlaceholder: filterPlaceholder || "",
-    onEdit: onEdit,
-    onDelete: onDelete,
-    onAddItem: onAddItem,
-    labelAdd: labelAdd,
-    editIcon: editIcon, 
-    deleteIcon: deleteIcon,
-    addIcon: addIcon
+    filterPlaceholder: filterPlaceholder || ""
   })
-
-  state.rows = rows
 
   state.rowFilter = () => {
     const getValidRow = (row, filter)=>{
@@ -71,6 +62,8 @@ export default (props) => {
   }
   
   return(
-    <ListView {...state}  />
+    <ListView {...state} rows={rows} 
+      onEdit={onEdit} onDelete={onDelete} onAddItem={onAddItem} 
+      labelAdd={labelAdd} editIcon={editIcon} deleteIcon={deleteIcon} addIcon={addIcon} />
   )
 }

@@ -6,7 +6,7 @@ import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useForm } from 'containers/Editor/forms'
-import { SelectorForm } from 'containers/Controller'
+import { SelectorForm, InputForm } from 'containers/ModalForm'
 
 import { Search, SideBar, Edit, Preview } from './SideBar';
 
@@ -16,6 +16,7 @@ export default (props) => {
   const search = useSearch()
   const editor = useEditor()
   const showSelector = SelectorForm()
+  const showInput =  InputForm()
   
   const [state] = useState({
     login: data.login.data,
@@ -49,10 +50,10 @@ export default (props) => {
       showSelector({
         type: "transitem_delivery", filter: "", 
         onChange: (form) => {
-          setData("current", { selectorForm: form })
+          setData("current", { modalForm: form })
         }, 
         onSelect: (row, filter) => {
-          setData("current", { selectorForm: null }, ()=>{
+          setData("current", { modalForm: null }, ()=>{
             const params = row.id.split("/")
             editor.checkEditor({ 
               ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
@@ -96,21 +97,21 @@ export default (props) => {
     if (ctype === "create") {
       editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
     } else {
-      setData("current", {
-        input: {
-          title: app.getText("msg_warning"),
-          message: app.getText("msg_copy_text"),
-          infoText: app.getText("msg_delete_info"),
-          cbCancel: () => {
-            setData("current", { input: null })
-          },
-          cbOK: (value) => {
-            setData("current", { input: null }, () => {
-              editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
-            })
-          },
+      showInput({
+        title: app.getText("msg_warning"), message: app.getText("msg_copy_text"),
+        infoText: app.getText("msg_delete_info"), 
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        cbCancel: () => {
+          setData("current", { modalForm: null })
         },
-      });
+        cbOK: (value) => {
+          setData("current", { modalForm: null }, () => {
+            editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
+          })
+        }
+      })
     }
   };
 
@@ -119,6 +120,43 @@ export default (props) => {
     editor.checkEditor({}, 'LOAD_FORMULA')
   }
   
+  state.setLink = (type, field) =>{
+    app.setSideBar()
+    let link_id = (data.edit.current.transtype === "cash") ? 
+      data.edit.current.extend.id : data.edit.current.form.id;
+    editor.checkEditor(
+      { fkey: type, id: null, link_field: field, link_id: link_id }, 'SET_EDITOR_ITEM')
+  }
+
+  state.shippingAddAll = () => {
+    app.setSideBar()
+    let edit = update({}, {$set: data.edit})
+    edit.dataset.shipping_items_.forEach(sitem => {
+      if (sitem.diff !== 0 && sitem.edited !== true) {
+        edit = update(edit, {dataset: { shiptemp: {$push: [{ 
+          "id": sitem.item_id+"-"+sitem.product_id,
+          "item_id": sitem.item_id, 
+          "product_id": sitem.product_id,  
+          "product": sitem.product, 
+          "partnumber": sitem.partnumber,
+          "partname": sitem.partname, 
+          "unit": sitem.unit, 
+          "batch_no":"", 
+          "qty":sitem.diff, 
+          "diff":0,
+          "oqty": sitem.qty, 
+          "tqty": sitem.tqty
+        }]}}})
+      }
+    });
+    editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
+  }
+
+  state.shippingCreate = () => {
+    app.setSideBar()
+    editor.createShipping()
+  }
+
   state.checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
     editor.checkEditor(options, cbKeyTrue, cbKeyFalse)
   }
@@ -221,6 +259,36 @@ export default (props) => {
         form: edit.current.form_type
       })
     }
+  }
+
+  state.searchItems = () => {
+    app.setSideBar()
+    editor.searchQueue()
+  }
+
+  state.createReport = (output) => {
+    app.setSideBar()
+    editor.createReport(output)
+  }
+
+  state.exportAll = () => {
+    app.setSideBar()
+    editor.exportQueueAll()
+  }
+
+  state.eventExport = () => {
+    app.setSideBar()
+    editor.exportEvent()
+  }
+
+  state.printReport = () => {
+    app.setSideBar()
+    editor.printQueue()
+  }
+
+  state.bookmarkSave = (params) => {
+    app.setSideBar()
+    app.saveBookmark(params)
   }
 
   state.data = data.current

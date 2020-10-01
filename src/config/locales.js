@@ -198,7 +198,6 @@ export const en = {
   label_export_xml: "XML EXPORT",
   label_export_xls: "XLS EXPORT",
   label_export_event: "iCAL EXPORT",
-  label_in_browser: "WEB BROWSER",
   label_barcode_scan: "BARCODE SCAN",
   label_export_data: "DATA EXPORT",
   label_print: "SERVER PRINT",

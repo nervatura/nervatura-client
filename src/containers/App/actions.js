@@ -1,12 +1,14 @@
 import React, { useContext, createElement } from 'react';
 import update from 'immutability-helper';
 import 'whatwg-fetch';
+import { formatISO } from 'date-fns'
 
 import { toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Toast from 'components/Toast'
 
 import AppStore from 'containers/App/context'
+import { InputForm } from 'containers/ModalForm'
 
 toast.configure({});
 
@@ -279,13 +281,14 @@ const request = (url, options) => {
     if (response.status === 401)
       return { code: 401, message: "Unauthorized" }
     if (response.status === 400)
-      return { code: 400, message: response.statusText }
+      return response.json()
     if (response.status === 204 || response.status === 205) {
       return null;
     }
     switch (response.headers.get('content-type').split(";")[0]) {
       case "application/pdf":
       case "application/xml":
+      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
         return response.blob()
 
       case "application/json":
@@ -316,6 +319,7 @@ const request = (url, options) => {
 
 export const useApp = () => {
   const { data, setData } = useContext(AppStore)
+  const showInput =  InputForm()
 
   const getText = (key, defValue) => {
     const locales = data.session.locales
@@ -481,6 +485,135 @@ export const useApp = () => {
     return retvalue;
   }
 
+  const createHistory = async (ctype) => {
+    let history = update({}, {$set: {
+      datetime: formatISO(new Date()),
+      type: ctype, 
+      type_title: getText["label_"+ctype],
+      ntype: data.edit.current.type,
+      transtype: data.edit.current.transtype || "",
+      id: data.edit.current.item.id
+    }})
+    let title = (history.ntype === "trans") ?
+      data.edit.template.options.title+" | "+data.edit.current.item[data.edit.template.options.title_field] :
+      data.edit.template.options.title
+    if ((history.ntype !== "trans") && (typeof data.edit.template.options.title_field !== "undefined")){
+      title += " | "+data.edit.current.item[data.edit.template.options.title_field]
+    }
+    history = update(history, {$merge: {
+      title: title
+    }})
+    let bookmark = update(data.bookmark, {})
+    let userconfig = {}
+    if (bookmark.history) {
+      userconfig = update(bookmark.history, {$merge: {
+        cfgroup: formatISO(new Date())
+      }})
+      let history_values = JSON.parse(userconfig.cfvalue);
+      history_values.unshift(history)
+      if (history_values.length> data.ui.history) {
+        history_values = history_values.slice(0, data.ui.history)
+      }
+      userconfig = update(userconfig, {$merge: {
+        cfname: history_values.length,
+        cfvalue: JSON.stringify(history_values)
+      }})
+    } else {
+      userconfig = update(userconfig, {$merge: {
+        employee_id: data.login.data.employee.id,
+        section: "history",
+        cfgroup: formatISO(new Date()),
+        cfname: 1,
+        cfvalue: JSON.stringify([history])
+      }})
+    }
+    const options = { method: "POST", data: [userconfig] }
+    const result = await requestData("/ui_userconfig", options)
+    if(result.error){
+      return resultError(result)
+    }
+    setData("bookmark", { history: userconfig})
+  }
+
+  const loadBookmark = async (params) => {
+    const result = await requestData("/ui_userconfig?filter=employee_id;==;"+params.user_id, {token: params.token})
+    if(result.error){
+      resultError(result)
+      return null
+    }
+    setData("bookmark", { 
+      bookmark: result.filter(item => (item.section === "bookmark")),
+      history: result.filter(item => (item.section === "history"))[0]||null
+    }, ()=>{
+      if(params.callback){
+        params.callback()
+      }
+    })
+  }
+
+  const saveBookmark = (params) => {
+    showInput({
+      title: getText("msg_bookmark_new"), message: getText("msg_bookmark_name"),
+      value: (params[0] === "browser") ? params[1] : data.edit.current.item[params[2]], 
+      onChange: (form) => {
+        setData("current", { modalForm: form })
+      }, 
+      cbCancel: () => {
+        setData("current", { modalForm: null })
+      },
+      cbOK: (value) => {
+        setData("current", { modalForm: null }, async () => {
+          if (value !== "") {
+            let userconfig = {
+              employee_id: data.login.data.employee.id,
+              section: "bookmark",
+              cfgroup: params[0],
+            }
+            if((params[0]) === "browser"){
+              userconfig = update(userconfig, {$merge: {
+                cfname: value,
+                cfvalue: JSON.stringify({
+                  date: formatISO(new Date(), { representation: 'date' }),
+                  vkey: data.search.vkey,
+                  view: data.search.view,
+                  filters: data.search.filters[data.search.view],
+                  columns: data.search.columns[data.search.view]
+                })
+              }})
+            } else {
+              userconfig = update(userconfig, {$merge: {
+                cfname: value,
+                cfvalue: JSON.stringify({
+                  date: formatISO(new Date(), { representation: 'date' }),
+                  ntype: data.edit.current.type,
+                  transtype: data.edit.current.transtype,
+                  id: data.edit.current.item.id,
+                  info: (data.edit.current.type === "trans") 
+                    ? (data.edit.dataset.trans[0].custname !== null) 
+                      ? data.edit.dataset.trans[0].custname 
+                      : data.edit.current.item.transdate 
+                    : data.edit.current.item[params[3]]
+                })
+              }})
+            }
+
+            const options = { method: "POST", data: [userconfig] }
+            const result = await requestData("/ui_userconfig", options)
+            if(result.error){
+              return resultError(result)
+            }
+            loadBookmark({user_id: data.login.data.employee.id})
+          }
+        })
+      }
+    })
+  }
+
+  const deleteBookmark = (id) => {
+    
+
+  }
+
   return {
     getText: getText,
     getAuditFilter: getAuditFilter,
@@ -488,6 +621,10 @@ export const useApp = () => {
     resultError: resultError,
     requestData: requestData,
     signOut: signOut,
-    setSideBar: setSideBar
+    setSideBar: setSideBar,
+    createHistory: createHistory,
+    loadBookmark: loadBookmark,
+    saveBookmark: saveBookmark,
+    deleteBookmark: deleteBookmark
   }
 }

@@ -210,6 +210,7 @@ export default (props) => {
       setData("login", { data: lData })
       localStorage.setItem("database", data.login.database);
       localStorage.setItem("username", data.login.username);
+      app.loadBookmark({ user_id: lData.employee.id, token: result.token })
 
     } else {
       app.resultError(result)

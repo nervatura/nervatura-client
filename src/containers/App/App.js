@@ -10,7 +10,6 @@ import 'styles/style.css';
 import { AppProvider } from './context'
 
 import Spinner from 'components/Spinner'
-import InputDialog from 'components/InputDialog'
 import MenuBar from 'containers/MenuBar'
 import SideBar from 'containers/SideBar'
 import modules from './modules'
@@ -37,14 +36,14 @@ class App extends Component {
 
   render() {
     const protector = () => {
-      let cModule = this.state.current.module
-      if(this.state.login.data){
+      const { login, current } = this.state
+      if(login.data){
         return (
           <div className={`${"main"}`} >
             <MenuBar />
             <SideBar />
-            {createElement(modules[cModule], { name: cModule })}
-            {(this.state.current.input)?<InputDialog {...this.state.current.input} />:null}
+            {createElement(modules[current.module], { name: current.module })}
+            {(current.modalForm)?current.modalForm:null}
           </div>
         )
       }

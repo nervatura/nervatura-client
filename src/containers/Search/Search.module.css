@@ -16,11 +16,6 @@
   padding-left: 16px;
 }
 
-.maxpanel {
-  max-width: 800px;
-  margin: auto;
-}
-
 .barButton {
   border-radius: 0px;
   border: 1px solid --backgroundColor;

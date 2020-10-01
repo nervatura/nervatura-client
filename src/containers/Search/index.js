@@ -424,6 +424,10 @@ export default (props) => {
     saveToDisk(csvUrl, filename)
   }
 
+  state.bookmarkSave = () => {
+    app.saveBookmark(['browser',queries[data.search.vkey]()[data.search.view].label])
+  }
+
   if(state.data.vkey){
     return (
       <BrowserView {...state} />
