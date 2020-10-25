@@ -994,3 +994,29 @@ export const History = (props) => {
     </svg>
   )
 }
+
+export const Desktop = (props) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+      className={props.className||""} style={props.style||{}}
+      width={props.width||18} height={props.height||16}
+      onClick={props.onClick} id={props.id}>
+      <g fill={props.color}>
+        <path d="M528 0H48C21.5 0 0 21.5 0 48v320c0 26.5 21.5 48 48 48h192l-16 48h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h272c13.3 0 24-10.7 24-24s-10.7-24-24-24h-72l-16-48h192c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-16 352H64V64h448v288z"/>
+      </g>
+    </svg>
+  )
+}
+
+export const Database = (props) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+      className={props.className||""} style={props.style||{}}
+      width={props.width||14} height={props.height||16}
+      onClick={props.onClick} id={props.id}>
+      <g fill={props.color}>
+        <path d="M448 73.143v45.714C448 159.143 347.667 192 224 192S0 159.143 0 118.857V73.143C0 32.857 100.333 0 224 0s224 32.857 224 73.143zM448 176v102.857C448 319.143 347.667 352 224 352S0 319.143 0 278.857V176c48.125 33.143 136.208 48.572 224 48.572S399.874 209.143 448 176zm0 160v102.857C448 479.143 347.667 512 224 512S0 479.143 0 438.857V336c48.125 33.143 136.208 48.572 224 48.572S399.874 369.143 448 336z"/>
+      </g>
+    </svg>
+  )
+}

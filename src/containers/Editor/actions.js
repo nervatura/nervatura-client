@@ -108,7 +108,7 @@ export const useEditor = () => {
 
     edit = update(edit, {current: {$merge: {
       state: "normal",
-      pagination: { page: 1, perPage: data.ui.selectorPage }
+      pagination: { page: 1, perPage: app.getSetting("selectorPage") }
     }}})
     if (edit.current.type === "trans") {
       if (typeof edit.dataset.trans[0].transcast !== "undefined") {
@@ -485,12 +485,12 @@ export const useEditor = () => {
         if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
           if (ntype==="trans") {
             if(params.shipping){
-              return setEditor(params, forms["shipping"](edit.dataset[ntype][0], edit, data.ui), edit)
+              return setEditor(params, forms["shipping"](edit.dataset[ntype][0], edit, app.getSetting("ui")), edit)
             } else {
-              return setEditor(params, forms[ttype](edit.dataset[ntype][0], edit, data.ui), edit)
+              return setEditor(params, forms[ttype](edit.dataset[ntype][0], edit, app.getSetting("ui")), edit)
             }
           } else {
-            return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, data.ui), edit)
+            return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, app.getSetting("ui")), edit)
           }
         }
       })
@@ -501,7 +501,7 @@ export const useEditor = () => {
       }}})
       setData("edit", edit, ()=>{
         if (!params.cb_key || (params.cb_key ==="SET_EDITOR")) {
-          return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, data.ui), edit)
+          return setEditor(params, forms[ntype](edit.dataset[ntype][0], edit, app.getSetting("ui")), edit)
         }
       })
     }
@@ -509,7 +509,7 @@ export const useEditor = () => {
 
   const setEditorItem = (options) => {
     let edit = update(data.edit, {})
-    let dkey = forms[options.fkey]({}, edit, data.ui).options.data
+    let dkey = forms[options.fkey]({}, edit, app.getSetting("ui")).options.data
     if (typeof dkey === "undefined") {
       dkey = options.fkey
     }
@@ -536,7 +536,7 @@ export const useEditor = () => {
       }}})
     }
     edit = update(edit, {current: {$merge: {
-      form_template: forms[options.fkey](edit.current.form, edit, data.ui)
+      form_template: forms[options.fkey](edit.current.form, edit, app.getSetting("ui"))
     }}})
 
     switch (options.fkey) {

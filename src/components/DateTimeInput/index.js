@@ -6,7 +6,7 @@ import { DateTimeInput } from "./DateTimeInput";
 export default (props) => {
 
   const { value, onChange, placeholder, dateTime,
-    dateFormat, timeFormat, className,
+    dateFormat, timeFormat, className, 
     minDate, maxDate, highlightDates, excludeDates, includeDates,
     showTimeSelectOnly, showTimeInput, excludeTimes, includeTimes,
     locale, isEmpty, readOnly, disabled } = props

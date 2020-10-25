@@ -428,7 +428,7 @@ export const useForm = () => {
       return customer;
     },
 
-    deffield: (item, edit) => {
+    deffield: (item, setting) => {
       let deffield = {
         options: {
           icon: Tag,
@@ -468,8 +468,8 @@ export const useForm = () => {
               disabled: true
             }}
           }}}})
-          if (item.fieldtype === edit.dataset.fieldtype.filter((group)=> {
-              return ((group.groupname === "valuelist"))
+          if (item.fieldtype === setting.dataset.fieldtype.filter((group)=> {
+              return ((group.groupvalue === "valuelist"))
             })[0].id) {
               deffield = update(deffield, { rows: { $push: [
                 { rowtype:"field", name:"valuelist", 
@@ -2229,7 +2229,7 @@ export const useForm = () => {
       return rate;
     },
 
-    program: (config) => { return {
+    program: () => { return {
       options: {
         title: app.getText("title_program"),
         title_field: "",
@@ -2240,14 +2240,17 @@ export const useForm = () => {
       view: {},
       rows: [
         {rowtype:"col3", columns: [
-          {name:"page", label: app.getText("program_page"), datatype:"integer"},
+          {name:"paginationPage", label: app.getText("program_page"), datatype:"integer"},
           {name:"history", label: app.getText("program_history"), datatype:"integer"},
           {name:"export_sep", label: app.getText("program_export_sep"), datatype:"string", length:1}]},
         {rowtype:"col3", columns: [
           {name:"page_size", label: app.getText("program_page_size"), datatype:"select", 
-            empty: false, options: config.report_size},
-          {name:"barcode_scanner", label: app.getText("program_barcode_scanner"), datatype:"flip", valuetype:"boolean"},
-          {name:"auto_focus", label: app.getText("program_auto_focus"), datatype:"flip", valuetype:"boolean"}]}
+            empty: false, options: app.getSetting("report_size")},
+          {name:"dateFormat", label: app.getText("program_date_format"), datatype:"select", 
+            empty: false, options: app.getSetting("dateStyle")},
+          {name:"calendar", label: app.getText("program_calendar"), datatype:"select", 
+            empty: false, options: app.getSetting("calendarLocales")},
+        ]}
       ]
     };},
 
@@ -2884,7 +2887,7 @@ export const useForm = () => {
       let usergroup = {
         options: {
           icon: Key,
-          data: "usergroup",
+          data: "groups",
           title: app.getText("title_usergroup"),
           panel: {
             page:"setting", more:false, help:"usergroup"
@@ -2927,10 +2930,6 @@ export const useForm = () => {
         ]
       };
       if (typeof item !== "undefined") {
-        if (item.transfilter === null) {
-          //item.transfilter = getItemFromKey(page_setting.dataset.transfilter, 
-          //    "groupvalue", "all").item.id;
-        }
         if (item.id !== null) {
           if (item.id !== null) {
             usergroup = update(usergroup, { rows: { 0: { columns: { 0: {$merge: {

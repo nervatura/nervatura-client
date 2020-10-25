@@ -330,8 +330,24 @@ export const useApp = () => {
     return defValue || locales["en"][key] || ""
   }
 
+  const getSetting = (key) => {
+    switch (key) {    
+      case "ui":
+        let values = update({}, {$set: data.ui})
+        for (const ikey in values) {
+          if(localStorage.getItem(ikey)){
+            values[ikey] = localStorage.getItem(ikey)
+          }
+        }
+        return values
+
+      default:
+        return localStorage.getItem(key) || data.ui[key] || "";
+    }
+  }
+
   const showToast = (params) => {
-    const autoClose = (params.autoClose === false) ? false : data.ui.toastTime
+    const autoClose = (params.autoClose === false) ? false : getSetting("toastTime")
     const toastId = params.key || params.type
     switch (params.type) {
       case "error":
@@ -511,8 +527,8 @@ export const useApp = () => {
       }})
       let history_values = JSON.parse(userconfig.cfvalue);
       history_values.unshift(history)
-      if (history_values.length> data.ui.history) {
-        history_values = history_values.slice(0, data.ui.history)
+      if (history_values.length > parseInt(getSetting("history"),10)) {
+        history_values = history_values.slice(0, parseInt(getSetting("history"),10))
       }
       userconfig = update(userconfig, {$merge: {
         cfname: history_values.length,
@@ -609,13 +625,9 @@ export const useApp = () => {
     })
   }
 
-  const deleteBookmark = (id) => {
-    
-
-  }
-
   return {
     getText: getText,
+    getSetting: getSetting,
     getAuditFilter: getAuditFilter,
     showToast: showToast,
     resultError: resultError,
@@ -624,7 +636,6 @@ export const useApp = () => {
     setSideBar: setSideBar,
     createHistory: createHistory,
     loadBookmark: loadBookmark,
-    saveBookmark: saveBookmark,
-    deleteBookmark: deleteBookmark
+    saveBookmark: saveBookmark
   }
 }

@@ -1,3 +1,6 @@
+import { registerLocale } from  "react-datepicker";
+import * as dateLocales from 'date-fns/locale/';
+
 import { version } from '../../package.json';
 import * as locales from './locales';
 import theme from '../styles/theme.css';
@@ -5,6 +8,18 @@ import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 
 const serverSide = true
 const languages = [{ value: "en", text:"English" }]
+const calendarLocales = [
+  ["bg", "bg"], ["cs", "cs"], ["da", "da"], ["de", "de"], ["el", "el"], 
+  ["en", "en"], ["es", "es"], ["fi", "fi"], ["fr", "fr"], ["he", "he"], 
+  ["hr", "hr"], ["hu", "hu"], ["id", "id"], ["is", "is"], ["it", "it"], 
+  ["ja", "ja"], ["ko", "ko"], ["lt", "lt"], ["nb", "nb"], ["nl", "nl"], 
+  ["nn", "nn"], ["pl", "pl"], ["pt", "pt"], ["ro", "ro"], ["ru", "ru"], 
+  ["sk", "sk"], ["sv", "sv"], ["th", "th"], ["tr", "tr"], ["uz", "uz"], 
+  ["vi", "vi"], ["zh", "zh"]
+]
+calendarLocales.forEach(loc => {
+  registerLocale(loc[0], dateLocales[loc[0]])
+});
 
 // Default read and write application context data 
 export const store = {
@@ -23,7 +38,14 @@ export const store = {
     paginationPage: 10,
     selectorPage: 5,
     history: 5,
+    calendar: "en",
+    calendarLocales: calendarLocales,
     dateFormat: "yyyy-MM-dd",
+    dateStyle: [
+      ["yyyy-MM-dd","yyyy-MM-dd"], 
+      ["dd-MM-yyyy","dd-MM-yyyy"], 
+      ["MM-dd-yyyy","MM-dd-yyyy"]
+    ],
     timeFormat: "HH:mm",
     timeIntervals: 15,
     searchSubtract: 3, //months
@@ -87,5 +109,6 @@ export const store = {
   search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },
   edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
-  setting: {}, bookmark: { history: null, bookmark: [] }
+  setting: { dirty: false, result: [] }, 
+  bookmark: { history: null, bookmark: [] }
 }

@@ -9,7 +9,7 @@ import { useQueries } from 'containers/Search/queries'
 
 import styles from './ModalForm.module.css';
 import { InputBox, ReportSettings, FormulaBox, SelectorView, ShippingBox, StockBox, 
-  TransBox, BookmarkBox } from './ModalForm'
+  TransBox, BookmarkBox, AuditBox, MenuBox } from './ModalForm'
 
 export const SelectorForm = (props) => {
   const app = useApp()
@@ -47,7 +47,7 @@ export const SelectorForm = (props) => {
       },
       queries: queries, 
       theme: data.session.theme,
-      ui: data.ui,
+      ui: app.getSetting("ui"),
       filter: filter,
       data: {
         qview: type,
@@ -83,10 +83,10 @@ export const ReportForm = (props) => {
         onOutput({ type: otype, template: formProps.template, title: formProps.title,
           orient: formProps.orient, size: formProps.size, copy: formProps.copy })
       },
-      orient: data.ui.page_orient,
-      report_orientation: data.ui.report_orientation.map(item => { return { value: item[0], text: app.getText(item[1]) } }),
-      size: data.ui.page_size,
-      report_size: data.ui.report_size.map(item => { return { value: item[0], text: item[1] } }),
+      orient: app.getSetting("page_orient"),
+      report_orientation: app.getSetting("report_orientation").map(item => { return { value: item[0], text: app.getText(item[1]) } }),
+      size: app.getSetting("page_size"),
+      report_size: app.getSetting("report_size").map(item => { return { value: item[0], text: item[1] } }),
       copy: 1,
       direction: direction,
       template: (data.edit.current.type === "trans") ?
@@ -213,7 +213,7 @@ export const StockForm = (props) => {
       partnumber: params.partnumber,
       partname: params.partname,
       rows: params.rows,
-      paginationPage: 5
+      paginationPage: app.getSetting("selectorPage")
     }})
     onChange(form(formProps))
   }
@@ -314,6 +314,7 @@ export const InputForm = (props) => {
 }
 
 export const BookmarkForm = (props) => {
+  const app = useApp()
   return (params) => {
     const { getText, onChange, onSelect, onDelete, bookmark } = params
     const form = (_props) => {
@@ -379,10 +380,120 @@ export const BookmarkForm = (props) => {
       },
       onClose: ()=>onChange(null),
       tabView: "bookmark",
-      paginationPage: 5,
+      paginationPage: app.getSetting("selectorPage"),
       bookmarkList: setBookmark(),
       historyList: setHistory()
     }
+    onChange(form(formProps))
+  }
+}
+
+export const AuditForm = (props) => {
+  const { data } = useContext(AppStore);
+  return (params) => {
+    const { onChange, updateAudit } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(AuditBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        if(key === "nervatype"){
+          formProps.nervatype_name = data.setting.dataset.nervatype.filter(
+            group => (group.id === parseInt(value,10)))[0].groupvalue
+          switch (value) {
+            case "trans":
+              formProps.subtype = data.setting.dataset.transtype[0].id
+              break;
+            
+            case "report":
+              if (data.setting.dataset.reportkey.length>0) {
+                formProps.subtype = data.setting.dataset.reportkey[0].id;
+              } else {
+                formProps.subtype = null
+              }
+              break;
+            
+            case "menu":
+              if (data.setting.dataset.menukey.length>0) {
+                formProps.subtype = data.setting.dataset.menukey[0].id;
+              } else {
+                formProps.subtype = null
+              }
+              break;
+          
+            default:
+              formProps.subtype = null
+              break;
+          }
+        }
+        onChange(form(formProps))
+      },
+      updateAudit: () => {
+        updateAudit(formProps)
+      },
+      subtypeOptions: () => {
+        switch (formProps.nervatype_name) {
+          case "trans":
+            return data.setting.dataset.transtype.map(group => { 
+              return { value: group.id, text: group.groupvalue } })
+          case "report":
+            return data.setting.dataset.reportkey.map(report => { 
+              return { value: report.id, text: report.reportkey } })
+          case "menu":
+            return data.setting.dataset.menukey.map(menu => { 
+              return { value: menu.id, text: menu.menukey } })
+          default:
+            return []
+        }
+      },
+      id: params.id,
+      usergroup: params.usergroup,
+      nervatype: params.nervatype,
+      subtype: params.subtype||null,
+      inputfilter: params.inputfilter,
+      supervisor: params.supervisor||0,
+      type_options: data.setting.dataset.nervatype.map(group => { return { value: group.id, text: group.groupvalue } }), 
+      nervatype_name: data.setting.dataset.nervatype.filter(group => (group.id === params.nervatype))[0].groupvalue,
+      inputfilter_options: data.setting.dataset.inputfilter.map(group => { return { value: group.id, text: group.groupvalue } }),
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const MenuForm = (props) => {
+  const { data } = useContext(AppStore);
+  return (params) => {
+    const { onChange, updateMenu } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(MenuBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      updateMenu: () => {
+        updateMenu(formProps)
+      },
+      id: params.id,
+      menu_id: params.menu_id,
+      fieldname: params.fieldname||"", 
+      description: params.description||"", 
+      fieldtype: params.fieldtype,
+      fieldtype_options: data.setting.dataset.fieldtype.map(group => { return { value: group.id, text: group.groupvalue } }), 
+      orderby: params.orderby
+    }})
     onChange(form(formProps))
   }
 }

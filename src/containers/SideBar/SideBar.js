@@ -6,7 +6,8 @@ import { FileText, ChartBar, Search as SearchIcon, Bolt, Inbox, Print,
   Globe, Share, Plus, Edit as EditIcon, Check, Times, Copy,
   Reply, ArrowLeft, ArrowRight, ExclamationTriangle, Lock, Sitemap,
   Undo, Magic, Link, Eye, Download, Code, Calendar, Star, QuestionCircle,
-  Money, Truck, Retweet } from 'components/Icons';
+  Money, Truck, Retweet, Cog, ListOl, Key, InfoCircle, Tag, Th, Map,
+  Dollar, Ticket, Home, TextHeight, Keyboard, Desktop, Database } from 'components/Icons';
 
 export const Search = memo((props) => {
   const { changeData, quickView, showBrowser, checkEditor } = props
@@ -98,7 +99,7 @@ export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
     prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy, setLink,
     shippingAddAll, shippingCreate, searchItems, createReport, exportAll, eventExport,
-    printReport, bookmarkSave } = props
+    printReport, bookmarkSave, setPassword } = props
   const { theme, login, forms } = props
   const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -243,7 +244,7 @@ export const Edit = memo((props) => {
     if (options.password === true) {
       panels.push(<button key="cmd_password"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>setPassword()} >
           <Label text={"title_password"} leftIcon={<Lock />} col={20}  />
         </button>)
     }
@@ -564,6 +565,167 @@ export const Preview = memo((props) => {
   return (
     (prevProps.data === nextProps.data) &&
     (prevProps.preview === nextProps.preview)
+  )
+})
+
+export const Setting = memo((props) => {
+  const { changeData, settingLoad, loadCompany, setPassword, settingBack, 
+    settingSave, setProgram, settingDelete, settingNew } = props
+  const { username } = props
+  const { side } = props.data
+  const { group_key, current, panel, dirty } = props.module
+  const { audit_filter } = props.login
+  const menuItems = (options)=>{
+    if (typeof options === "undefined") {
+      options = {}
+    }
+    let panels = []
+
+    panels.push(<button key="cmd_back"
+      className={`${"medium"} ${styles.itemButton} ${styles.selected}`} 
+      onClick={ ()=>settingBack() } >
+      <Label text={"label_back"} leftIcon={<Reply />} col={20}  />
+    </button>)
+    panels.push(<div key="back_sep" className={styles.separator} />)
+
+    if (options.save !== false) {
+      panels.push(<button key="cmd_save"
+        className={`${"full medium"} ${styles.itemButton} ${(dirty)?styles.selected:""}`} 
+        onClick={ ()=>settingSave() } >
+        <Label text={"label_save"} leftIcon={<Check />} col={20}  />
+      </button>)
+    }
+    if ((options.delete !== false) && (current.form.id !== null)) {
+      panels.push(<button key="cmd_delete"
+        className={`${"full medium"} ${styles.itemButton}`} 
+        onClick={ ()=>settingDelete() } >
+        <Label text={"label_delete"} leftIcon={<Times />} col={20}  />
+      </button>)
+    }
+    if ((options.new !== false) && (current.form.id !== null)) {
+      panels.push(<button key="cmd_new"
+        className={`${"full medium"} ${styles.itemButton}`} 
+        onClick={ ()=>settingNew({}) } >
+        <Label text={"label_new"} leftIcon={<Plus />} col={20}  />
+      </button>)
+    }
+    if (typeof options.help !== "undefined") {
+      panels.push(<div key="help_sep" className={styles.separator} />)
+      panels.push(<button key="cmd_help"
+        className={`${"full medium"} ${styles.itemButton}`} 
+        onClick={()=>{}} >
+        <Label text={"label_help"} leftIcon={<QuestionCircle />} col={20}  />
+      </button>)
+    }
+
+    return panels
+  }
+  /*
+  if(template){
+    return(
+      <div />
+    )
+  } else 
+  */
+  if(current && panel){
+    return(
+      <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+        {menuItems(panel)}
+      </div>
+    )
+  } else {
+    return (
+      <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+        {(audit_filter.setting[0]!=="disabled")?
+          <div className="row full">
+            <button className={`${"full medium"} ${(group_key === "group_admin")?styles.selectButton:styles.groupButton}`} 
+              onClick={()=>changeData("group_key","group_admin")} >
+              <Label text={"title_admin"} leftIcon={<ExclamationTriangle />} col={20}  />
+            </button>
+            {(group_key === "group_admin")?<div className={`${"row full"} ${styles.panelGroup}`} >
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'setting' })} >
+                <Label text={"title_dbsettings"} leftIcon={<Cog />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'numberdef' })} >
+                <Label text={"title_numberdef"} leftIcon={<ListOl />} col={20}  />
+              </button>
+              {(audit_filter.audit[0]!=="disabled")?
+                <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'usergroup' })} >
+                <Label text={"title_usergroup"} leftIcon={<Key />} col={20}  />
+              </button>:null}
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'ui_menu' })} >
+                <Label text={"title_menucmd"} leftIcon={<Share />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'log' })} >
+                <Label text={"title_log"} leftIcon={<InfoCircle />} col={20}  />
+              </button>
+            </div>:null}
+          </div>:null}
+        {(audit_filter.setting[0]!=="disabled")?
+          <div className="row full">
+            <button className={`${"full medium"} ${(group_key === "group_database")?styles.selectButton:styles.groupButton}`} 
+              onClick={()=>changeData("group_key","group_database")} >
+              <Label text={"title_database"} leftIcon={<Database />} col={20}  />
+            </button>
+            {(group_key === "group_database")?<div className={`${"row full"} ${styles.panelGroup}`} >
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'deffield' })} >
+                <Label text={"title_deffield"} leftIcon={<Tag />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'groups' })} >
+                <Label text={"title_groups"} leftIcon={<Th />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'place' })} >
+                <Label text={"title_place"} leftIcon={<Map />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'currency' })} >
+                <Label text={"title_currency"} leftIcon={<Dollar />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'tax' })} >
+                <Label text={"title_tax"} leftIcon={<Ticket />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>loadCompany()} >
+                <Label text={"title_company"} leftIcon={<Home />} col={20}  />
+              </button>
+              <button className={`${"full medium primary"} ${styles.panelButton}`} 
+                onClick={()=>settingLoad({ type: 'template' })} >
+                <Label text={"title_report_editor"} leftIcon={<TextHeight />} col={20}  />
+              </button>
+            </div>:null}
+          </div>:null}
+        <div className="row full">
+          <button className={`${"full medium"} ${(group_key === "group_user")?styles.selectButton:styles.groupButton}`} 
+            onClick={()=>changeData("group_key","group_user")} >
+            <Label text={"title_user"} leftIcon={<Desktop />} col={20}  />
+          </button>
+          {(group_key === "group_user")?<div className={`${"row full"} ${styles.panelGroup}`} >
+            <button className={`${"full medium primary"} ${styles.panelButton}`} 
+              onClick={()=>setProgram()} >
+              <Label text={"title_program"} leftIcon={<Keyboard />} col={20}  />
+            </button>
+            <button className={`${"full medium primary"} ${styles.panelButton}`} 
+              onClick={()=>setPassword(username)} >
+              <Label text={"title_password"} leftIcon={<Lock />} col={20}  />
+            </button>
+          </div>:null}
+        </div>
+      </div>
+    )
+  }
+}, (prevProps, nextProps) => {
+  return (
+    (prevProps.data === nextProps.data) &&
+    (prevProps.module === nextProps.module)
   )
 })
 

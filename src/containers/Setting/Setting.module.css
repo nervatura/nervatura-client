@@ -1,0 +1,36 @@
+:import('../../styles/theme.css') {
+  --lightColor: lightColor;
+  --greenColor: greenColor;
+  --redColor: redColor;
+  --backgroundColor: backgroundColor;
+  --whiteColor: whiteColor;
+}
+
+.formPanel {
+  width: 100%;
+  border: 1.5px solid --backgroundColor;
+  border-bottom: none;
+  background-color: --whiteColor;
+}
+
+.viewPanel {
+  width: 100%;
+  background-color: --lightColor;
+}
+
+.editCol {
+  cursor: pointer;
+}
+
+.deleteCol {
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.editCol:hover {
+  color: --greenColor;
+}
+
+.deleteCol:hover {
+  color: --redColor;
+}

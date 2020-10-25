@@ -1,6 +1,6 @@
 export const en = {
   key: "en",
-  en_US: "English",
+  en: "English",
   
   title_login: "Nervatura Client",
   login_username: "Username",
@@ -670,9 +670,11 @@ export const en = {
   program_history: "History size",
   program_export_sep: "Export data sep.",
   program_page_size: "Default paper size",
+  program_date_format: "Date representation",
   program_auto_focus: "Auto focus",
   program_barcode_scanner: "Barcode Scanner",
   program_disabled_scanner: "Missing or disabled Barcode Scanner.",
+  program_calendar: "Calendar location",
   
   report_previous: "PREVIOUS PAGE",
   report_next: "NEXT PAGE",

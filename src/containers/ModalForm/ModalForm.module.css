@@ -84,3 +84,7 @@
 .tabButton {
   border-radius: 0;
 }
+
+.reportField {
+  cursor: pointer;
+}

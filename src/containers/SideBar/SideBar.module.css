@@ -92,6 +92,10 @@
   height: 15px;
 }
 
+.separatorSmall {
+  height: 5px;
+}
+
 .stateLabel {
   background-color: --primaryColor;
 }

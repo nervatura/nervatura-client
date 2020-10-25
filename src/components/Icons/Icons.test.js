@@ -9,7 +9,8 @@ import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   ListOl, ListUl, Barcode, Dollar, Tag, Truck, Male, Magic, Th, Briefcase, Lock,
   Map, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, Book, TextHeight, 
   Ticket, Wrench, Key, Comment, Bold, Italic, Underline, Upload, Copy,
-  Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code, Retweet, History } from './index';
+  Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code, Retweet, History, Desktop,
+  Database } from './index';
 
 describe('Icons', () => {
 
@@ -478,6 +479,18 @@ describe('Icons', () => {
   it('History should render a SVG', () => {
 
     const { container } = render(<History />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Desktop should render a SVG', () => {
+
+    const { container } = render(<Desktop />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Database should render a SVG', () => {
+
+    const { container } = render(<Database />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });

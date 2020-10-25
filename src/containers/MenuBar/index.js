@@ -5,6 +5,7 @@ import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useSearch } from 'containers/Search/actions'
+import { useSetting } from 'containers/Setting/actions'
 import { BookmarkForm, InputForm } from 'containers/ModalForm'
 
 import { MenuBar } from './MenuBar';
@@ -14,7 +15,8 @@ export default (props) => {
   const app = useApp()
   const editor = useEditor()
   const search = useSearch()
-  const showBookmark = BookmarkForm({ui: data.ui})
+  const setting = useSetting()
+  const showBookmark = BookmarkForm({ui: app.getSetting("ui")})
   const showInput =  InputForm()
   
   const [state] = useState({})
@@ -31,7 +33,13 @@ export default (props) => {
   }
 
   state.loadModule = (key) => {
-    setData("current", { module: key, menu: "" })
+    setData("current", { module: key, menu: "" }, ()=>{
+      if(key === "setting" && !data.setting.group_key){
+        setData(state.data.module, { group_key: "group_admin" }, ()=>{
+          setting.loadSetting({ type: 'setting' })
+        })
+      }
+    })
   }
 
   state.showBookmarks = () => {

@@ -20,7 +20,8 @@ export default (props) => {
   const [state] = useState({
     engine: data.login.data.engine,
     theme: data.session.theme,
-    ui: data.ui
+    ui: app.getSetting("ui"),
+    getText: app.getText
   })
 
   state.data = data.edit
@@ -52,10 +53,6 @@ export default (props) => {
 
     }
   },[state.viewerRef, state.canvasRef, data.edit.preview])
-
-  state.getText = (key, defValue) => {
-    return app.getText(key, defValue)
-  }
 
   state.formatNumber = (number, digit) => {
     const value = (!isNaN(parseFloat(number))) ? parseFloat(number) : 0
@@ -153,7 +150,7 @@ export default (props) => {
   }
 
   state.editItem = async (options) => {
-    let edit = update({}, {$set: data.edit})
+    let edit = update({}, {$set: state.data})
     if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes") || (options.name === "fieldvalue_deleted")){
       const fieldvalue_idx = edit.current.fieldvalue.findIndex((item)=>(item.id === options.id))
       if( (fieldvalue_idx > -1) && ((edit.audit==="all") || (edit.audit==="update"))){

@@ -102,9 +102,6 @@ export const Input = (props) => {
     if (inputValue !== fvalue && inputValue !== fvalue+".") {
       inputValue = fvalue
     }
-    if (inputValue === "" || isNaN(inputValue) || inputValue === null) {
-      inputValue = 0
-    }
   }
   
   return <input id={props.id||""}
@@ -152,7 +149,6 @@ export const Select = (props) => {
 
 export const DateInput = (props) => {
   const app = useApp()
-  const store = useContext(AppStore);
   const placeholderText = app.getText(props.placeholder)
   const dateValue = useValues(props.keys, props.value)
   const change = useChange()
@@ -161,8 +157,9 @@ export const DateInput = (props) => {
     value: (props.default && (dateValue === "")) ? props.default : dateValue,
     placeholder: placeholderText,
     onChange: (props.onChange) ? props.onChange : (value) => change(props.keys, value),
-    dateFormat: store.data.ui.dateFormat,
-    timeFormat: store.data.ui.timeFormat
+    dateFormat: app.getSetting("dateFormat"),
+    timeFormat: app.getSetting("timeFormat"),
+    locale: app.getSetting("calendar")
   }})
   return <DateTimeInput {..._props}/>
 }
@@ -410,13 +407,14 @@ export const FormField = (props) => {
         isEmpty={empty} disabled={(disabled || audit === 'readonly')}
         onChange={(value) => {
           if(datatype === "datetime"){
-            onChange(format(parseISO(value), data.ui.dateFormat+" "+data.ui.timeFormat))
+            onChange(format(parseISO(value), app.getSetting("dateFormat")+" "+app.getSetting("timeFormat")))
           } else {
             onChange(value)
           }
         }}
-        dateFormat={data.ui.dateFormat}
-        timeFormat={data.ui.timeFormat} />
+        dateFormat={app.getSetting("dateFormat")}
+        timeFormat={app.getSetting("timeFormat")}
+        locale={app.getSetting("calendar")} />
 
     case "bool":
     case "flip":

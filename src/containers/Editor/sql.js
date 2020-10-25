@@ -336,7 +336,9 @@ export const useSql = () => {
           from:"log l",
           inner_join:[
             ["employee e","on",["l.employee_id","=","e.id"]],
-            ["groups ls","on",["l.logstate","=","ls.id"]]]}; 
+            ["groups ls","on",["l.logstate","=","ls.id"]]],
+          where: []
+        }; 
         return sql;}
       },
       

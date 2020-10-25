@@ -5,7 +5,7 @@ import styles from './ModalForm.module.css';
 import { Label, Select, Input } from 'containers/Controller'
 import { Times, ChartBar, Magic, Check, Search as SearchIcon, CaretRight,
   ExclamationTriangle, Truck, Book, FileText, CheckSquare, SquareEmpty, 
-  Star, History } from 'components/Icons';
+  Star, History, Key, Share } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -511,6 +511,169 @@ export const BookmarkBox = (props) => {
             onDelete={(tabView === "bookmark") ? (row)=>deleteRow(row) : null} />
         </div>
       </div>
+    </div>
+  )
+}
+
+export const AuditBox = (props) => {
+  const { onClose, valueChange, updateAudit, subtypeOptions } = props
+  const { id, type_options, nervatype, subtype, nervatype_name,
+    inputfilter, inputfilter_options, supervisor } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="title_usergroup" leftIcon={<Key />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="section-small">
+        <div className="row full container-small section-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="audit_nervatype" />
+              </div>
+              <Select className="full" value={nervatype}
+                disabled={(id)?"disabled":""}
+                onChange={ (event)=>valueChange("nervatype", parseInt(event.target.value,10)) }
+                options={type_options} />
+            </div>
+          </div>
+        </div>
+        {(["trans", "report","menu"].includes(nervatype_name))?
+          <div className="row full container-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="audit_subtype" />
+              </div>
+              <Select className="full" value={subtype||""}
+                onChange={ (event)=>valueChange("subtype", parseInt(event.target.value,10)) }
+                options={subtypeOptions()} />
+            </div>
+          </div>
+        </div>:null}
+        <div className="row full container-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="audit_inputfilter" />
+              </div>
+              <Select className="full" value={inputfilter}
+                onChange={ (event)=>valueChange("inputfilter", parseInt(event.target.value,10)) }
+                options={inputfilter_options} />
+            </div>
+          </div>
+        </div>
+        <div className="row full container-small">
+          <div className="row">
+            <div className={`${"cell padding-small"}`} >
+              <div className={`${"padding-small"} ${styles.reportField}`} 
+                onClick={(event)=>valueChange("supervisor", (supervisor===1)?0:1)}>
+                <Label className="bold" text="audit_supervisor" 
+                  leftIcon={(supervisor===1)?<CheckSquare />:<SquareEmpty />} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`}
+              onClick={ ()=>updateAudit() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const MenuBox = (props) => {
+  const { onClose, valueChange, updateMenu } = props
+  const { fieldname, description, fieldtype, fieldtype_options, orderby } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="title_menucmd" leftIcon={<Share />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="section-small">
+        <div className="row full container-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="menufields_fieldname" />
+              </div>
+              <Input className="full" value={fieldname}
+                onChange={ (event)=>valueChange("fieldname", event.target.value) } />
+            </div>
+          </div>
+        </div>
+        <div className="row full container-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="menufields_description" />
+              </div>
+              <Input className="full" value={description}
+                onChange={ (event)=>valueChange("description", event.target.value) } />
+            </div>
+          </div>
+        </div>
+        <div className="row full container-small">
+          <div className="cell padding-small half">
+            <div className="row full">
+              <Label className="bold" text="menufields_fieldtype" />
+            </div>
+            <Select className="full" value={fieldtype}
+              onChange={ (event)=>valueChange("fieldtype", parseInt(event.target.value,10)) }
+              options={fieldtype_options} />
+          </div>
+          <div className="cell padding-small half">
+            <div className="row full">
+              <Label className="bold" text="menufields_orderby" />
+            </div>
+            <Input className="full align-right" value={orderby} itype="integer"
+              onChange={ (event)=>valueChange("orderby", parseInt(event.target.value,10)) } />
+          </div>
+        </div>
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`}
+              onClick={ ()=>updateMenu() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
     </div>
   )
 }

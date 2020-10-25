@@ -365,11 +365,12 @@ export const useValidator = () => {
 
 export const useInitItem = () => {
   const { data } = useContext(AppStore)
+  const app = useApp()
   return (params) => {
     const dataset = params.dataset || data.edit.dataset
     const current = params.current || data.edit.current
     const store = data.login.data
-    const config = data.ui
+    const config = app.getSetting("ui")
     switch (params.tablename) {
       case "address":
         return update({}, {$set: {

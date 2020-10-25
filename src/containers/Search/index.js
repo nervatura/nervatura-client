@@ -20,7 +20,7 @@ export default (props) => {
     engine: data.login.data.engine,
     queries: queries,
     theme: data.session.theme,
-    ui: data.ui
+    ui: app.getSetting("ui")
   })
 
   state.data = data.search

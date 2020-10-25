@@ -5,20 +5,23 @@ import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
+import { useSetting } from 'containers/Setting/actions'
 import { useForm } from 'containers/Editor/forms'
 import { SelectorForm, InputForm } from 'containers/ModalForm'
 
-import { Search, SideBar, Edit, Preview } from './SideBar';
+import { Search, SideBar, Edit, Preview, Setting as SettingBar } from './SideBar';
 
 export default (props) => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const search = useSearch()
   const editor = useEditor()
+  const setting = useSetting()
   const showSelector = SelectorForm()
   const showInput =  InputForm()
   
   const [state] = useState({
+    username: data.login.username,
     login: data.login.data,
     theme: data.session.theme,
     forms: useForm()
@@ -189,6 +192,16 @@ export default (props) => {
     }
   }
 
+  state.settingBack = (back_type) => {
+    app.setSideBar()
+    if(data.setting.type === "password"){
+      return setData(state.data.module, { group_key: "group_admin" }, ()=>{
+        setting.loadSetting({ type: 'setting' })
+      })
+    }
+    setting.checkSetting({ type: back_type || data.setting.type }, 'LOAD_SETTING')
+  }
+
   state.closePreview = () => {
     app.setSideBar()
     const edit = update(data.edit, {$merge: {
@@ -291,6 +304,51 @@ export default (props) => {
     app.saveBookmark(params)
   }
 
+  state.settingLoad = (options) =>{
+    app.setSideBar()
+    setting.loadSetting(options)
+  }
+
+  state.setPassword = (username) =>{
+    app.setSideBar()
+    if(!username && data.edit.current){
+      username = data.edit.dataset[data.edit.current.type][0].username
+    }
+    setting.setPasswordForm(username)
+  }
+
+  state.loadCompany = (options) =>{
+    app.setSideBar()
+    editor.checkEditor({ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR')
+  }
+
+  state.setProgram = () => {
+    app.setSideBar()
+    setting.setProgramForm()
+  }
+
+  state.settingSave = async () => {
+    app.setSideBar()
+    if(data.setting.type === "password"){
+      setting.changePassword()
+    } else {
+      const result = await setting.saveSetting()
+      if(result){
+        setting.loadSetting({type: result.type, id: result.current.form.id})
+      }
+    }
+  }
+
+  state.settingDelete = () => {
+    app.setSideBar()
+    setting.deleteSetting(data.setting.current.form)
+  }
+
+  state.settingNew = () =>{
+    app.setSideBar()
+    setting.checkSetting({ type: data.setting.type, id: null }, 'LOAD_SETTING')
+  }
+
   state.data = data.current
   state.module = data[state.data.module]
   state.preview = data.edit.preview
@@ -304,7 +362,7 @@ export default (props) => {
       }
       return <Edit {...state} />
     case "setting":
-      return <SideBar {...state} />
+      return <SettingBar {...state} />
     case "help":
       return <SideBar {...state} />
     default:

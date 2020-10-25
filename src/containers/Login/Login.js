@@ -67,8 +67,8 @@ export const Login = memo((props) => {
           </div>
           <div className="container section-small s6 m6 l6" >
             <button id="login" autoFocus
-              disabled={((!username || (String(username).lenght===0) 
-                || !database || (String(database).lenght===0))?"disabled":"")} 
+              disabled={((!username || (String(username).length===0) 
+                || !database || (String(database).length===0))?"disabled":"")} 
               className="primary full"
               onClick={login} >
               <Label text="login_login"  />
