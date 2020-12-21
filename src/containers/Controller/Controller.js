@@ -669,13 +669,153 @@ export const FormField = (props) => {
 
 export const FormRow = (props) => {
   const { values, rowdata } = props
-  const { id, rowtype, label, columns, name, disabled, audit, notes, selected, empty } = props.row
+  const { id, rowtype, label, columns, name, disabled, audit, notes, selected, empty, 
+    datatype, info } = props.row
+  const imgValue = () => {
+    let img_value = values[name] || ""
+    if (img_value!=="" && img_value!==null) {
+      if (img_value.toString().substr(0,10)!=="data:image") {
+        if (typeof rowdata.dataset[img_value]!=="undefined") {
+          img_value = rowdata.dataset[img_value]
+        }
+      }
+    }
+    return img_value
+  }
   switch (rowtype) {
 
     case "label":
       return (<div className={`${"row full padding-small section-small border-bottom"} ${styles.labelRow}`} >
         <div className="cell padding-small" >{values[name] || label}</div>
       </div>)
+
+    case "flip":
+      const enabled = (typeof values[name] !== "undefined")
+      const checkbox = <div 
+        className={` ${styles.reportField}`}
+        onClick={(event) => rowdata.onEdit({
+          id: id,
+          selected: true,
+          datatype: datatype,
+          defvalue: props.row.default,
+          name: name, 
+          value: !enabled, 
+          extend: false
+        })}>
+        {(enabled)?
+          <ToggleOn className={`${styles.toggleOn}`} width={40} height={32.6} />:
+          <ToggleOff className={`${styles.toggleOff}`} width={40} height={32.6} />}
+        <Label className={`${"bold padding-tiny"} ${(enabled)?styles.toggleOn:""}`} value={name} />
+      </div>
+
+      switch (datatype) {
+        case "text":
+          return(<div className="row full padding-small section-small border-bottom">
+            <div className="row full">
+              <div className={`${"cell padding-small"}`} >
+                {checkbox}
+              </div>
+            </div>
+            {(enabled)?<div className="row full"><div className={`${"cell padding-small"}`} >
+              <FormField values={values} rowdata={rowdata} field={props.row} />
+            </div></div>:null}
+            {(info)?<div className="row full padding-small">
+              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+                {info}
+              </div>
+            </div>:null}
+          </div>)
+        
+        case "image":
+          return(<div className="row full padding-small section-small border-bottom">
+            <div className="row full">
+              <div className={`${"cell padding-small"}`} >
+                {checkbox}
+              </div>
+              {(enabled)?<div className={`${"cell padding-small"}`} >
+                <input className="full small" type="file"
+                  onChange={(event) => rowdata.onEdit({
+                    id: id,
+                    file: true,
+                    name: name, 
+                    value: event.target.files, 
+                    extend: false
+                  })} />
+              </div>:null}
+            </div>
+            {(enabled)?<div className="row full"><div className={`${"cell padding-small"}`} >
+              <textarea className="full small" value={imgValue()} rows={5}
+                onChange={(event) => rowdata.onEdit({
+                  id: id, 
+                  name: name, 
+                  value: event.target.value
+                })} />
+              <div className="full padding-normal center" >
+                <img src={imgValue()} alt="" />
+              </div>
+            </div></div>:null}
+            {(info)?<div className="row full padding-small">
+              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+                {info}
+              </div>
+            </div>:null}
+          </div>)
+
+        case "checklist":
+          let cb_value = values[name] || ""
+          let checklist = []
+          props.row.values.forEach((element, index) => {
+            let cvalue = element.split("|")
+            const value = (cb_value.indexOf(cvalue[0])>-1) ? true : false
+            checklist.push(<div key={index}
+              className={` ${"cell padding-small"} ${styles.reportField}`}
+              onClick={(event) => rowdata.onEdit({
+                id: id,
+                checklist: true,
+                name: name,
+                checked: !value,
+                value: cvalue[0],
+                extend: false
+              })}>
+              <Label className={`${"bold"} ${(value)?styles.toggleOn:""}`} value={cvalue[1]} 
+                leftIcon={(value)?<CheckSquare className={`${styles.toggleOn}`}  />:<SquareEmpty />} />
+            </div>)
+          });
+          return(<div className="row full padding-small section-small border-bottom">
+            <div className="row full">
+              <div className={`${"cell padding-small"}`} >
+                {checkbox}
+              </div>
+            </div>
+            {(enabled)?<div className="row full padding-small">
+              <div className={`${"cell padding-small"} ${styles.toggleBorder}`} >
+                {checklist}
+              </div>
+            </div>:null}
+            {(info)?<div className="row full padding-small">
+              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+                {info}
+              </div>
+            </div>:null}
+          </div>)
+      
+        default:
+          return(<div className="row full padding-small section-small border-bottom">
+            <div className="row full">
+              <div className={`${"cell padding-small half"}`} >
+                {checkbox}
+              </div>
+              {(enabled)?<div className={`${"cell padding-small half"}`} >
+                <FormField values={values} rowdata={rowdata} field={props.row} />
+              </div>:null}
+            </div>
+            {(info)?<div className="row full padding-small">
+              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+                {info}
+              </div>
+            </div>:null}
+          </div>)
+      }
 
     case "field":
       return(<div className="row full padding-small section-small border-bottom">

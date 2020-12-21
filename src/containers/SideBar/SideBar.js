@@ -99,7 +99,7 @@ export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
     prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy, setLink,
     shippingAddAll, shippingCreate, searchItems, createReport, exportAll, eventExport,
-    printReport, bookmarkSave, setPassword } = props
+    printReport, bookmarkSave, setPassword, showHelp } = props
   const { theme, login, forms } = props
   const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -338,7 +338,7 @@ export const Edit = memo((props) => {
       if (options.help !== false) {
         panels.push(<button key="cmd_help"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>{}} >
+          onClick={()=>showHelp(options.help)} >
           <Label text={"label_help"} leftIcon={<QuestionCircle />} col={20}  />
         </button>)
       }
@@ -348,7 +348,7 @@ export const Edit = memo((props) => {
       panels.push(<div key="help_sep" className={styles.separator} />)
       panels.push(<button key="cmd_help"
         className={`${"full medium"} ${styles.itemButton}`} 
-        onClick={()=>{}} >
+        onClick={()=>showHelp(options.help)} >
         <Label text={"label_help"} leftIcon={<QuestionCircle />} col={20}  />
       </button>)
     }
@@ -570,10 +570,12 @@ export const Preview = memo((props) => {
 
 export const Setting = memo((props) => {
   const { changeData, settingLoad, loadCompany, setPassword, settingBack, 
-    settingSave, setProgram, settingDelete, settingNew } = props
+    settingSave, setProgram, settingDelete, settingNew, templatePreview,
+    templateSave, templateCreate, templateNewBlank, templateNewSample,
+    template2xml, template2json, showHelp } = props
   const { username } = props
   const { side } = props.data
-  const { group_key, current, panel, dirty } = props.module
+  const { group_key, current, panel, dirty, template } = props.module
   const { audit_filter } = props.login
   const menuItems = (options)=>{
     if (typeof options === "undefined") {
@@ -613,21 +615,83 @@ export const Setting = memo((props) => {
       panels.push(<div key="help_sep" className={styles.separator} />)
       panels.push(<button key="cmd_help"
         className={`${"full medium"} ${styles.itemButton}`} 
-        onClick={()=>{}} >
+        onClick={()=>showHelp(options.help)} >
         <Label text={"label_help"} leftIcon={<QuestionCircle />} col={20}  />
       </button>)
     }
 
     return panels
   }
-  /*
   if(template){
     return(
-      <div />
+      <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
+        <button key="cmd_back"
+          className={`${"medium"} ${styles.itemButton} ${styles.selected}`} 
+          onClick={ ()=>settingBack("template") } >
+          <Label text={"label_back"} leftIcon={<Reply />} col={25}  />
+        </button>
+        <div key="tmp_sep_1" className={styles.separator} />
+        
+        <button key="cmd_preview"
+          className={`${"full medium"} ${styles.itemButton}`} 
+          onClick={()=>templatePreview()} >
+          <Label text={"label_preview"} leftIcon={<Eye />} col={25}  />
+        </button>
+
+        {((template.key !== "_blank") && (template.key !== "_sample"))?
+        <Fragment>
+          <div key="tmp_sep_2" className={styles.separator} />
+          <button key="cmd_save"
+            className={`${"full medium"} ${styles.itemButton} ${(dirty)?styles.selected:""}`} 
+            onClick={ ()=>templateSave() } >
+            <Label text={"template_save"} leftIcon={<Check />} col={25}  />
+          </button>
+          <button
+            key="cmd_create"
+            className={`${"full medium"} ${styles.itemButton}`}
+            onClick={() => templateCreate()}>
+            <Label text={"template_create_from"} leftIcon={<Sitemap />} col={25} />
+          </button>
+        </Fragment>:null}
+
+        <div key="tmp_sep_3" className={styles.separator} />
+        <button
+          key="cmd_blank"
+          className={`${"full medium"} ${styles.itemButton}`}
+          onClick={() => templateNewBlank()}>
+          <Label text={"template_new_blank"} leftIcon={<Plus />} col={25} />
+        </button>
+        <button
+          key="cmd_sample"
+          className={`${"full medium"} ${styles.itemButton}`}
+          onClick={() => templateNewSample()}>
+          <Label text={"template_new_sample"} leftIcon={<Plus />} col={25} />
+        </button>
+
+        <div key="tmp_sep_4" className={styles.separator} />
+        <button
+          key="cmd_xml"
+          className={`${"full medium"} ${styles.itemButton}`}
+          onClick={() => template2xml()}>
+          <Label text={"template_export_xml"} leftIcon={<Code />} col={25} />
+        </button>
+        <button
+          key="cmd_json"
+          className={`${"full medium"} ${styles.itemButton}`}
+          onClick={() => template2json()}>
+          <Label text={"template_export_json"} leftIcon={<Code />} col={25} />
+        </button>
+
+        <div key="tmp_sep_5" className={styles.separator} />
+        <button key="cmd_help"
+          className={`${"full medium"} ${styles.itemButton}`} 
+          onClick={()=>showHelp("editor")} >
+          <Label text={"label_help"} leftIcon={<QuestionCircle />} col={20}  />
+        </button>
+
+      </div>
     )
-  } else 
-  */
-  if(current && panel){
+  } else if(current && panel){
     return(
       <div className={`${styles.sidebar} ${((side !== "auto")? side : "")}`} >
         {menuItems(panel)}

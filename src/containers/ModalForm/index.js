@@ -5,11 +5,11 @@ import { format, parseISO } from 'date-fns'
 import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
-import { useQueries } from 'containers/Search/queries'
+import { useQueries } from 'containers/Controller/Queries'
 
 import styles from './ModalForm.module.css';
 import { InputBox, ReportSettings, FormulaBox, SelectorView, ShippingBox, StockBox, 
-  TransBox, BookmarkBox, AuditBox, MenuBox } from './ModalForm'
+  TransBox, BookmarkBox, AuditBox, MenuBox, TemplateBox } from './ModalForm'
 
 export const SelectorForm = (props) => {
   const app = useApp()
@@ -493,6 +493,38 @@ export const MenuForm = (props) => {
       fieldtype: params.fieldtype,
       fieldtype_options: data.setting.dataset.fieldtype.map(group => { return { value: group.id, text: group.groupvalue } }), 
       orderby: params.orderby
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const DataForm = (props) => {
+  return (params) => {
+    const { onChange, updateData } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(TemplateBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      updateData: () => {
+        updateData({name: formProps.name, type: formProps.type, columns: formProps.columns})
+      },
+      name: "", 
+      type: "string", 
+      type_options: [
+        { value: "string", text: "TEXT" },
+        { value: "list", text: "LIST" },
+        { value: "table", text: "TABLE" }
+      ], 
+      columns: ""
     }})
     onChange(form(formProps))
   }

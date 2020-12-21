@@ -2,7 +2,7 @@
 .s4 { float:left; width: 33.33333%; } .s5 { float:left; width: 41.66666%; } .s6 { float:left; width: 49.99999%; }
 .s7 { float:left; width: 58.33333%; } .s8 { float:left; width: 66.66666%; } .s9 { float:left; width: 74.99999%; }
 .s10 { float:left; width: 83.33333%; } .s11 { float:left; width: 91.66666%; } .s12 { float:left; width:99.99999%; }
-.half { width: 50%; }
+.half,.third,.quarter{ float:left; width:100% }
 
 .tiny { font-size:10px!important; }
 .small { font-size:12px!important; }
@@ -78,6 +78,7 @@
   .m4 { float:left; width: 33.33333%; } .m5 { float:left; width: 41.66666%; } .m6 { float:left; width: 49.99999%; }
   .m7 { float:left; width: 58.33333%; } .m8 { float:left; width: 66.66666%; } .m9 { float:left; width: 74.99999%; }
   .m10 { float:left; width: 83.33333%; } .m11 { float:left; width: 91.66666%; } .m12 { float:left; width: 99.99999%; }
+  .half { width:49.99999% } .third{ width:33.33333% } .quarter{ width:24.99999% }
 }
 
 @media (max-width:992px) and (min-width:601px){

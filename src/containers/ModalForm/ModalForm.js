@@ -5,7 +5,7 @@ import styles from './ModalForm.module.css';
 import { Label, Select, Input } from 'containers/Controller'
 import { Times, ChartBar, Magic, Check, Search as SearchIcon, CaretRight,
   ExclamationTriangle, Truck, Book, FileText, CheckSquare, SquareEmpty, 
-  Star, History, Key, Share } from 'components/Icons';
+  Star, History, Key, Share, Plus } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -669,6 +669,71 @@ export const MenuBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateMenu() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const TemplateBox = (props) => {
+  const { onClose, valueChange, updateData } = props
+  const { name, type, type_options, columns } = props
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title">
+        <div className="row full">
+          <div className="cell">
+            <Label text="template_label_new_data" leftIcon={<Plus />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="section-small">
+        <div className="row full container-small">
+          <div className="cell padding-small half">
+            <div className="row full">
+              <Label className="bold" text="template_data_type" />
+            </div>
+            <Select className="full" value={type} autoFocus={true}
+              onChange={ (event)=>valueChange("type", event.target.value) }
+              options={type_options} />
+          </div>
+          <div className="cell padding-small half">
+            <div className="row full">
+              <Label className="bold" text="template_data_name" />
+            </div>
+            <Input className="full" value={name} 
+                onChange={ (event)=>valueChange("name", event.target.value) } />
+          </div>
+        </div>
+        {(type === "table")?<div className="row full container-small">
+          <div className="row full">
+            <div className={`${"cell padding-small"}`} >
+              <div>
+                <Label className="bold" text="template_data_columns" />
+              </div>
+              <textarea className="full" value={columns} rows={3}
+                onChange={ (event)=>valueChange("columns", event.target.value) } />
+            </div>
+          </div>
+        </div>:null}
+      </div>
+      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
+        <div className={`${"row full"} ${styles.activeStyle}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`}
+              onClick={ ()=>updateData() } >
               <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
             </button>
           </div>

@@ -71,7 +71,7 @@
 }
 
 .ui-table tbody tr:nth-child(odd){
-  background-color: --whiteColor;
+  background-color: --lightColor;
 }
 
 .ui-table tbody tr:hover {

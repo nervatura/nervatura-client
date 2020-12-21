@@ -4,18 +4,27 @@
   --redColor: redColor;
   --backgroundColor: backgroundColor;
   --whiteColor: whiteColor;
+  --focusColor: focusColor;
+  --orangeColor: orangeColor;
+  --primaryColor: primaryColor;
+  --textColor: textColor;
+}
+
+.settingPanel {
+  width: 100%;
+  background-color: --whiteColor;
 }
 
 .formPanel {
   width: 100%;
   border: 1.5px solid --backgroundColor;
   border-bottom: none;
-  background-color: --whiteColor;
+  background-color: --lightColor;
 }
 
 .viewPanel {
   width: 100%;
-  background-color: --lightColor;
+  background-color: --whiteColor;
 }
 
 .editCol {
@@ -32,5 +41,100 @@
 }
 
 .deleteCol:hover {
+  color: --redColor;
+}
+
+.selected {
+  color: --focusColor;
+}
+
+.tabButton {
+  border-radius: 0;
+}
+
+.green {
+  color: --greenColor !important;
+  border-color: --greenColor !important;
+}
+
+.title {
+  width: 100%;
+  font-weight: bold;
+  color: --greenColor;
+  border: 1.5px solid --greenColor;
+  background-color: --lightColor;
+}
+
+.mapButton {
+  border-radius: 0px;
+  border: 1.5px solid --backgroundColor;
+  margin-top: -0.7px;
+  background: none;
+  background-color: --lightColor;
+  color: --textColor;
+}
+
+.mapButton:hover {
+  color: --hoverColor!important;
+  background: none;
+  border-color: --hoverColor;
+}
+
+.mapButton:focus {
+  color: inherit;
+  background-color: --lightColor;
+  outline: none;
+}
+
+.badgeBlack {
+  font-weight: bold;
+  font-size: 14px;
+  background-color: --primaryColor;
+  color: --whiteColor;
+  display: inline-block;
+  padding: 1px 6px 1px 5px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.badgeOrange {
+  font-weight: bold;
+  font-size: 14px;
+  background-color: --orangeColor;
+  color: --whiteColor;
+  display: inline-block;
+  padding: 1px 6px 1px 5px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.separator {
+  height: 15px;
+}
+
+.mapBox {
+  width: 100%;
+  text-align: center;
+  background-color: #dcdcdc;
+  padding: 10px 5px;
+  /*border-radius: 6px;*/
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.reportMap {
+	border: 1px solid #666; 
+	background-color: white;
+	width: 110px; 
+	height: 165px;
+}
+
+.closeIcon {
+  cursor: pointer;
+}
+
+.closeIcon:hover {
   color: --redColor;
 }

@@ -6,7 +6,9 @@ import { useApp } from 'containers/App/actions'
 import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useSetting } from 'containers/Setting/actions'
-import { useForm } from 'containers/Editor/forms'
+import { useTemplate } from 'containers/Controller/Template'
+import { useForm } from 'containers/Controller/Forms'
+import { useReport } from 'containers/Report/actions'
 import { SelectorForm, InputForm } from 'containers/ModalForm'
 
 import { Search, SideBar, Edit, Preview, Setting as SettingBar } from './SideBar';
@@ -19,12 +21,15 @@ export default (props) => {
   const setting = useSetting()
   const showSelector = SelectorForm()
   const showInput =  InputForm()
+  const template = useTemplate()
+  const report = useReport()
   
   const [state] = useState({
     username: data.login.username,
     login: data.login.data,
     theme: data.session.theme,
-    forms: useForm()
+    forms: useForm(),
+    showHelp: app.showHelp
   })
 
   state.editState = () => {
@@ -38,9 +43,7 @@ export default (props) => {
   state.quickView = (qview) => {
     setData(state.data.module, { 
       result: [], vkey: null, qview: qview, qfilter: "" })
-    if(state.data.side === "show"){
-      app.setSideBar()
-    }
+    setData("current", { side: app.getSideBar() })
   }
 
   state.showBrowser = (vkey, view) => {
@@ -48,116 +51,124 @@ export default (props) => {
   }
   
   state.editorNew = (params) =>{
-    app.setSideBar()
-    if(params.ttype === "shipping"){
-      showSelector({
-        type: "transitem_delivery", filter: "", 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        onSelect: (row, filter) => {
-          setData("current", { modalForm: null }, ()=>{
-            const params = row.id.split("/")
-            editor.checkEditor({ 
-              ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
-              shipping: true
-            }, 'LOAD_EDITOR')
-          })
-        }
-      })
-    } else if(data.edit.current.form){
-      editor.checkEditor({
-        fkey: params.fkey || data.edit.current.form_type, 
-        id: null}, 'SET_EDITOR_ITEM')
-    } else {
-      editor.checkEditor({
-        ntype: params.ntype || data.edit.current.type, 
-        ttype: params.ttype || data.edit.current.transtype, 
-        id: null}, 'LOAD_EDITOR')
-    }
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(params.ttype === "shipping"){
+        showSelector({
+          type: "transitem_delivery", filter: "", 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          onSelect: (row, filter) => {
+            setData("current", { modalForm: null }, ()=>{
+              const params = row.id.split("/")
+              editor.checkEditor({ 
+                ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
+                shipping: true
+              }, 'LOAD_EDITOR')
+            })
+          }
+        })
+      } else if(data.edit.current.form){
+        editor.checkEditor({
+          fkey: params.fkey || data.edit.current.form_type, 
+          id: null}, 'SET_EDITOR_ITEM')
+      } else {
+        editor.checkEditor({
+          ntype: params.ntype || data.edit.current.type, 
+          ttype: params.ttype || data.edit.current.transtype, 
+          id: null}, 'LOAD_EDITOR')
+      }
+    })
   }
 
   state.editorDelete = () => {
-    app.setSideBar()
-    if(data.edit.current.form){
-      editor.deleteEditorItem({
-        fkey: data.edit.current.form_type, 
-        table: data.edit.current.form_datatype, 
-        id: data.edit.current.form.id
-      })
-    } else {
-      editor.deleteEditor()
-    }
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(data.edit.current.form){
+        editor.deleteEditorItem({
+          fkey: data.edit.current.form_type, 
+          table: data.edit.current.form_datatype, 
+          id: data.edit.current.form.id
+        })
+      } else {
+        editor.deleteEditor()
+      }
+    })
   }
 
   state.reportSettings = () => {
-    app.setSideBar()
-    editor.checkEditor({}, 'REPORT_SETTINGS')
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.checkEditor({}, 'REPORT_SETTINGS')
+    })
   }
 
   state.transCopy = (ctype) => {
-    app.setSideBar();
-    if (ctype === "create") {
-      editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
-    } else {
-      showInput({
-        title: app.getText("msg_warning"), message: app.getText("msg_copy_text"),
-        infoText: app.getText("msg_delete_info"), 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, () => {
-            editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
-          })
-        }
-      })
-    }
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if (ctype === "create") {
+        editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
+      } else {
+        showInput({
+          title: app.getText("msg_warning"), message: app.getText("msg_copy_text"),
+          infoText: app.getText("msg_delete_info"), 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, () => {
+              editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
+            })
+          }
+        })
+      }
+    })
   };
 
   state.loadFormula = () => {
-    app.setSideBar()
-    editor.checkEditor({}, 'LOAD_FORMULA')
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.checkEditor({}, 'LOAD_FORMULA')
+    })
   }
   
   state.setLink = (type, field) =>{
-    app.setSideBar()
-    let link_id = (data.edit.current.transtype === "cash") ? 
+    setData("current", { side: app.getSideBar() }, ()=>{
+      let link_id = (data.edit.current.transtype === "cash") ? 
       data.edit.current.extend.id : data.edit.current.form.id;
-    editor.checkEditor(
-      { fkey: type, id: null, link_field: field, link_id: link_id }, 'SET_EDITOR_ITEM')
+      editor.checkEditor(
+        { fkey: type, id: null, link_field: field, link_id: link_id }, 'SET_EDITOR_ITEM')
+    })    
   }
 
   state.shippingAddAll = () => {
-    app.setSideBar()
-    let edit = update({}, {$set: data.edit})
-    edit.dataset.shipping_items_.forEach(sitem => {
-      if (sitem.diff !== 0 && sitem.edited !== true) {
-        edit = update(edit, {dataset: { shiptemp: {$push: [{ 
-          "id": sitem.item_id+"-"+sitem.product_id,
-          "item_id": sitem.item_id, 
-          "product_id": sitem.product_id,  
-          "product": sitem.product, 
-          "partnumber": sitem.partnumber,
-          "partname": sitem.partname, 
-          "unit": sitem.unit, 
-          "batch_no":"", 
-          "qty":sitem.diff, 
-          "diff":0,
-          "oqty": sitem.qty, 
-          "tqty": sitem.tqty
-        }]}}})
-      }
-    });
-    editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      let edit = update({}, {$set: data.edit})
+      edit.dataset.shipping_items_.forEach(sitem => {
+        if (sitem.diff !== 0 && sitem.edited !== true) {
+          edit = update(edit, {dataset: { shiptemp: {$push: [{ 
+            "id": sitem.item_id+"-"+sitem.product_id,
+            "item_id": sitem.item_id, 
+            "product_id": sitem.product_id,  
+            "product": sitem.product, 
+            "partnumber": sitem.partnumber,
+            "partname": sitem.partname, 
+            "unit": sitem.unit, 
+            "batch_no":"", 
+            "qty":sitem.diff, 
+            "diff":0,
+            "oqty": sitem.qty, 
+            "tqty": sitem.tqty
+          }]}}})
+        }
+      });
+      editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
+    })
   }
 
   state.shippingCreate = () => {
-    app.setSideBar()
-    editor.createShipping()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.createShipping()
+    })
   }
 
   state.checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
@@ -165,193 +176,260 @@ export default (props) => {
   }
 
   state.editorBack = () =>{
-    if(data.edit.current.form){
-      editor.checkEditor({
-        ntype: data.edit.current.type, 
-        ttype: data.edit.current.transtype, 
-        id: data.edit.current.item.id,
-        form: data.edit.current.form_type}, 'LOAD_EDITOR')
-    } else {
-      if(data.edit.current.form_type === "transitem_shipping"){
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(data.edit.current.form){
         editor.checkEditor({
           ntype: data.edit.current.type, 
           ttype: data.edit.current.transtype, 
           id: data.edit.current.item.id,
           form: data.edit.current.form_type}, 'LOAD_EDITOR')
       } else {
-        let reftype = state.login.groups.filter((item)=> {
-          return (item.id === data.edit.current.item.nervatype)
-        })[0].groupvalue
-        editor.checkEditor({ntype: reftype, 
-          ttype: null, id: data.edit.current.item.ref_id,
-          form: data.edit.current.type}, 'LOAD_EDITOR')
+        if(data.edit.current.form_type === "transitem_shipping"){
+          editor.checkEditor({
+            ntype: data.edit.current.type, 
+            ttype: data.edit.current.transtype, 
+            id: data.edit.current.item.id,
+            form: data.edit.current.form_type}, 'LOAD_EDITOR')
+        } else {
+          let reftype = state.login.groups.filter((item)=> {
+            return (item.id === data.edit.current.item.nervatype)
+          })[0].groupvalue
+          editor.checkEditor({ntype: reftype, 
+            ttype: null, id: data.edit.current.item.ref_id,
+            form: data.edit.current.type}, 'LOAD_EDITOR')
+        }
       }
-    }
-    if(state.data.side === "show"){
-      app.setSideBar()
-    }
+    })
   }
 
   state.settingBack = (back_type) => {
-    app.setSideBar()
-    if(data.setting.type === "password"){
-      return setData(state.data.module, { group_key: "group_admin" }, ()=>{
-        setting.loadSetting({ type: 'setting' })
-      })
-    }
-    setting.checkSetting({ type: back_type || data.setting.type }, 'LOAD_SETTING')
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(data.setting.type === "password"){
+        return setData(state.data.module, { group_key: "group_admin" }, ()=>{
+          setting.loadSetting({ type: 'setting' })
+        })
+      }
+      setting.checkSetting({ type: back_type || data.setting.type }, 'LOAD_SETTING')
+    })
   }
 
   state.closePreview = () => {
-    app.setSideBar()
-    const edit = update(data.edit, {$merge: {
-      preview: null
-    }})
-    setData("edit", edit)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      const preview = update(data[state.data.module], {$merge: {
+        preview: null
+      }})
+      setData(state.data.module, preview)
+    })
   }
 
   state.changeOrientation = () => {
-    app.setSideBar()
-    const options = update(state.preview, {$merge: {
-      orient: (state.preview.orient === "portrait") ? "landscape" : "portrait"
-    }})
-    editor.loadPreview(options)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      const options = update(state.preview, {$merge: {
+        orient: (state.preview.orient === "portrait") ? "landscape" : "portrait",
+        module: state.data.module
+      }})
+      report.loadPreview(options)
+    })
   }
 
   state.prevPage = () => {
     if(state.preview.pageNumber > 1){
-      app.setSideBar()
-      const options = update(state.preview, {$merge: {
-        pageNumber: state.preview.pageNumber - 1
-      }})
-      editor.setPreviewPage(options)
+      setData("current", { side: app.getSideBar() }, ()=>{
+        const options = update(state.preview, {$merge: {
+          pageNumber: state.preview.pageNumber - 1,
+          module: state.data.module
+        }})
+        report.setPreviewPage(options)
+      })
     }
   }
 
   state.nextPage = () => {
     if(state.preview.pageNumber < state.preview.totalPages){
-      app.setSideBar()
-      const options = update(state.preview, {$merge: {
-        pageNumber: state.preview.pageNumber + 1
-      }})
-      editor.setPreviewPage(options)
+      setData("current", { side: app.getSideBar() }, ()=>{
+        const options = update(state.preview, {$merge: {
+          pageNumber: state.preview.pageNumber + 1,
+          module: state.data.module
+        }})
+        report.setPreviewPage(options)
+      })
     }
   }
   
   state.setScale = (value) => {
-    app.setSideBar()
-    const options = update(state.preview, {$merge: {
-      scale: value
-    }})
-    editor.setPreviewPage(options)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      const options = update(state.preview, {$merge: {
+        scale: value,
+        module: state.data.module
+      }})
+      report.setPreviewPage(options)
+    })
   }
 
   state.prevTransNumber = () => {
-    app.setSideBar()
-    editor.prevTransNumber()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.prevTransNumber()
+    })
   }
 
   state.nextTransNumber = () => {
-    app.setSideBar()
-    editor.nextTransNumber()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.nextTransNumber()
+    })
   }
 
-  state.saveEditor = async () => {
-    app.setSideBar()
-    let edit = null
-    if(data.edit.current.form){
-      edit = await editor.saveEditorForm()
-    } else {
-      edit = await editor.saveEditor()
-    }
-    if(edit){
-      editor.loadEditor({
-        ntype: edit.current.type, 
-        ttype: edit.current.transtype, 
-        id: edit.current.item.id,
-        form: edit.current.form_type
-      })
-    }
+  state.saveEditor = () => {
+    setData("current", { side: app.getSideBar() }, async ()=>{
+      let edit = null
+      if(data.edit.current.form){
+        edit = await editor.saveEditorForm()
+      } else {
+        edit = await editor.saveEditor()
+      }
+      if(edit){
+        editor.loadEditor({
+          ntype: edit.current.type, 
+          ttype: edit.current.transtype, 
+          id: edit.current.item.id,
+          form: edit.current.form_type
+        })
+      }
+    })
   }
 
   state.searchItems = () => {
-    app.setSideBar()
-    editor.searchQueue()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      report.searchQueue()
+    })
   }
 
   state.createReport = (output) => {
-    app.setSideBar()
-    editor.createReport(output)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      report.createReport(output)
+    })
   }
 
   state.exportAll = () => {
-    app.setSideBar()
-    editor.exportQueueAll()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      report.exportQueueAll()
+    })
   }
 
   state.eventExport = () => {
-    app.setSideBar()
-    editor.exportEvent()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.exportEvent()
+    })
   }
 
   state.printReport = () => {
-    app.setSideBar()
-    editor.printQueue()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      report.printQueue()
+    })
   }
 
   state.bookmarkSave = (params) => {
-    app.setSideBar()
-    app.saveBookmark(params)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      app.saveBookmark(params)
+    })
   }
 
   state.settingLoad = (options) =>{
-    app.setSideBar()
-    setting.loadSetting(options)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.loadSetting(options)
+    })
   }
 
   state.setPassword = (username) =>{
-    app.setSideBar()
-    if(!username && data.edit.current){
-      username = data.edit.dataset[data.edit.current.type][0].username
-    }
-    setting.setPasswordForm(username)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(!username && data.edit.current){
+        username = data.edit.dataset[data.edit.current.type][0].username
+      }
+      setting.setPasswordForm(username)
+    })
   }
 
   state.loadCompany = (options) =>{
-    app.setSideBar()
-    editor.checkEditor({ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR')
+    setData("current", { side: app.getSideBar() }, ()=>{
+      editor.checkEditor({ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR')
+    })
   }
 
   state.setProgram = () => {
-    app.setSideBar()
-    setting.setProgramForm()
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.setProgramForm()
+    })
   }
 
-  state.settingSave = async () => {
-    app.setSideBar()
-    if(data.setting.type === "password"){
-      setting.changePassword()
-    } else {
-      const result = await setting.saveSetting()
-      if(result){
-        setting.loadSetting({type: result.type, id: result.current.form.id})
+  state.settingSave = () => {
+    setData("current", { side: app.getSideBar() }, async ()=>{
+      if(data.setting.type === "password"){
+        setting.changePassword()
+      } else {
+        const result = await setting.saveSetting()
+        if(result){
+          setting.loadSetting({type: result.type, id: result.current.form.id})
+        }
       }
-    }
+    })
   }
 
   state.settingDelete = () => {
-    app.setSideBar()
-    setting.deleteSetting(data.setting.current.form)
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.deleteSetting(data.setting.current.form)
+    })
   }
 
   state.settingNew = () =>{
-    app.setSideBar()
-    setting.checkSetting({ type: data.setting.type, id: null }, 'LOAD_SETTING')
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.checkSetting({ type: data.setting.type, id: null }, 'LOAD_SETTING')
+    })
+  }
+
+  state.templatePreview = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      template.showPreview()
+    })
+  }
+
+  state.templateSave = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      template.saveTemplate(true)
+    })
+  }
+
+  state.templateCreate = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.createTemplate(data.setting)
+    })
+  }
+
+  state.templateNewBlank = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.checkSetting({ type: "template" }, 'NEW_BLANK')
+    })
+  }
+
+  state.templateNewSample = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      setting.checkSetting({ type: "template" }, 'NEW_SAMPLE')
+    })
+  }
+
+  state.template2xml = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      template.exportTemplate("xml")
+    })
+  }
+
+  state.template2json = () => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      template.exportTemplate("json")
+    })
   }
 
   state.data = data.current
   state.module = data[state.data.module]
-  state.preview = data.edit.preview
+  state.preview = data[state.data.module].preview
 
   switch (state.data.module) {
     case "search":
@@ -362,6 +440,9 @@ export default (props) => {
       }
       return <Edit {...state} />
     case "setting":
+      if(data.setting.preview){
+        return <Preview {...state} />
+      }
       return <SettingBar {...state} />
     case "help":
       return <SideBar {...state} />

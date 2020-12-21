@@ -6,4 +6,4 @@ export { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   Magic, Th, Briefcase, Lock, Map, ShoppingCart, Flask, Clock, Strikethrough,
   Keyboard, Book, TextHeight, Ticket, Wrench, Key, Comment, Bold, Italic, Underline,
   Copy, Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code, Retweet, History, Desktop,
-  Database } from './Icons';
+  Database, Tags, ArrowUp, ArrowDown } from './Icons';

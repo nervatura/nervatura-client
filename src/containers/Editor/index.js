@@ -6,8 +6,9 @@ import { EditorState, RichUtils } from 'draft-js';
 import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
-import { useInitItem } from './items'
-import { Preview, Editor } from './Editor';
+import { useInitItem } from 'containers/Controller/Items'
+import { Preview, pageRender } from 'containers/Report'
+import { Editor } from './Editor';
 import { InputForm } from 'containers/ModalForm'
 
 export default (props) => {
@@ -30,29 +31,8 @@ export default (props) => {
   state.canvasRef = useRef(null)
   
   useEffect(() => {
-    const { scale, page } = data.edit.preview || {}
-    if (page) {
-      const viewer = state.viewerRef.current
-      const canvas = state.canvasRef.current
-      const context = canvas.getContext('2d')
-      let viewport = page.getViewport({ scale: 1 })
-
-      if(scale === "page-width"){
-        viewport = page.getViewport({ scale: (viewer.clientWidth-48)/viewport.width })
-      } else if(scale !== 1){
-        viewport = page.getViewport({ scale: scale })
-      }
-
-      canvas.width = viewport.width
-      canvas.height = viewport.height
-
-      page.render({
-        canvasContext: context,
-        viewport
-      })
-
-    }
-  },[state.viewerRef, state.canvasRef, data.edit.preview])
+    pageRender(state.viewerRef.current, state.canvasRef.current, state.data.preview)
+  },[state.viewerRef, state.canvasRef, state.data.preview])
 
   state.formatNumber = (number, digit) => {
     const value = (!isNaN(parseFloat(number))) ? parseFloat(number) : 0
@@ -106,7 +86,6 @@ export default (props) => {
 
   const calcPrice = (_calcmode, item) => {
     
-
     let rate = data.edit.dataset.tax.filter(tax => (tax.id === parseInt(item.tax_id,10)))[0]
     rate = (typeof rate !== "undefined") ? rate.rate : 0
     let digit = data.edit.dataset.currency.filter(currency => 
@@ -621,8 +600,8 @@ export default (props) => {
     editor.setFormActions(params, row, state.data)
   }
 
-  if(data.edit.current.item){
-    if(data.edit.preview){
+  if(state.data.current.item){
+    if(state.data.preview){
       return <Preview {...state} />
     }
     return <Editor {...state} />

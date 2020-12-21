@@ -10,7 +10,7 @@ import { UserLock, ExclamationTriangle, CheckCircle, InfoCircle, HandUp, Bars, E
   Map, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, Book, TextHeight, 
   Ticket, Wrench, Key, Comment, Bold, Italic, Underline, Upload, Copy,
   Reply, ArrowLeft, ArrowRight, Sitemap, Undo, Link, Code, Retweet, History, Desktop,
-  Database } from './index';
+  Database, Tags, ArrowUp, ArrowDown } from './index';
 
 describe('Icons', () => {
 
@@ -491,6 +491,24 @@ describe('Icons', () => {
   it('Database should render a SVG', () => {
 
     const { container } = render(<Database />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('Tags should render a SVG', () => {
+
+    const { container } = render(<Tags />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ArrowDown should render a SVG', () => {
+
+    const { container } = render(<ArrowDown />);
+    expect(container.querySelector('svg').childElementCount).toEqual(1)
+  });
+
+  it('ArrowUp should render a SVG', () => {
+
+    const { container } = render(<ArrowUp />);
     expect(container.querySelector('svg').childElementCount).toEqual(1)
   });
 });

@@ -100,6 +100,7 @@ option:disabled {
   text-align: center;
   cursor: pointer;
   width: 100%;
+  background-color: --whiteColor;
   border: 1px solid --backgroundColor;
   border-radius: 3px;
 }
@@ -158,7 +159,6 @@ option:disabled {
 }
 
 .selectorButton {
-  background-color: --lightColor!important;
   padding: 7px 8px;
 }
 
@@ -189,5 +189,20 @@ option:disabled {
 }
 
 .reportField {
+  cursor: pointer;
+}
+
+.leftbar{
+  border-left: 6px solid --backgroundColor!important;
+  padding: 8px;
+  font-style: italic;
+  font-size: 13px;
+  background-color: --lightColor;
+}
+
+input[type=color]{
+  height: 34px;
+  border: none;
+  padding: 0px;
   cursor: pointer;
 }

@@ -861,7 +861,9 @@ export const useSql = () => {
         return sql;},
       template_reportfields: () => {
         let sql = {
-          select:["rf.id","rf.report_id","rf.fieldname","fg.groupvalue as fieldtype","wg.groupvalue as wheretype",
+          select:["rf.id","rf.report_id","rf.fieldname",
+            "rf.fieldtype as fieldtype_id", "fg.groupvalue as fieldtype",
+            "rf.wheretype as wheretype_id", "wg.groupvalue as wheretype",
             "rf.description","rf.orderby","rf.sqlstr","rf.parameter","rf.dataset","rf.defvalue","rf.valuelist"],
           from:"ui_reportfields rf",
           inner_join:[

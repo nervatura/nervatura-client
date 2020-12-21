@@ -476,19 +476,3 @@ export const Editor = memo((props) => {
     (prevProps.data === nextProps.data)
   )
 })
-
-export const Preview = memo((props) => {
-  const { viewerRef, canvasRef } = props
-  return (
-    <div ref={viewerRef} className="page padding-normal" >
-      <div className="section center" >
-        <canvas ref={canvasRef} className={`${styles.pdfPage}`} />
-      </div>
-    </div>
-  )
-}, (prevProps, nextProps) => {
-  return (
-    (prevProps.data.preview === nextProps.data.preview),
-    (prevProps.canvasRef.current === nextProps.canvasRef.current)
-  )
-})

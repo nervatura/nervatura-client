@@ -1020,3 +1020,42 @@ export const Database = (props) => {
     </svg>
   )
 }
+
+export const Tags = (props) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"
+      className={props.className||""} style={props.style||{}}
+      width={props.width||20} height={props.height||16}
+      onClick={props.onClick} id={props.id}>
+      <g fill={props.color}>
+        <path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"/>
+      </g>
+    </svg>
+  )
+}
+
+export const ArrowUp = (props) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+      className={props.className||""} style={props.style||{}}
+      width={props.width||14} height={props.height||16}
+      onClick={props.onClick} id={props.id}>
+      <g fill={props.color}>
+        <path d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"/>
+      </g>
+    </svg>
+  )
+}
+
+export const ArrowDown = (props) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+      className={props.className||""} style={props.style||{}}
+      width={props.width||14} height={props.height||16}
+      onClick={props.onClick} id={props.id}>
+      <g fill={props.color}>
+        <path d="M413.1 222.5l22.2 22.2c9.4 9.4 9.4 24.6 0 33.9L241 473c-9.4 9.4-24.6 9.4-33.9 0L12.7 278.6c-9.4-9.4-9.4-24.6 0-33.9l22.2-22.2c9.5-9.5 25-9.3 34.3.4L184 343.4V56c0-13.3 10.7-24 24-24h32c13.3 0 24 10.7 24 24v287.4l114.8-120.5c9.3-9.8 24.8-10 34.3-.4z"/>
+        </g>
+    </svg>
+  )
+}

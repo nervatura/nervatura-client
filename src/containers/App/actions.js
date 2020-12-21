@@ -458,7 +458,7 @@ export const useApp = () => {
     }
   }
 
-  const setSideBar = (value) => {
+  const getSideBar = (value) => {
     if(!value){
       switch (data.current.side) {
         case "auto":
@@ -473,7 +473,7 @@ export const useApp = () => {
         default:
           break;}}
     if(data.current.side !== value){
-      setData("current", { side: value })
+      return value
     }
   }
 
@@ -625,6 +625,10 @@ export const useApp = () => {
     })
   }
 
+  const showHelp = (key) => {
+    
+  }
+
   return {
     getText: getText,
     getSetting: getSetting,
@@ -633,9 +637,10 @@ export const useApp = () => {
     resultError: resultError,
     requestData: requestData,
     signOut: signOut,
-    setSideBar: setSideBar,
+    getSideBar: getSideBar,
     createHistory: createHistory,
     loadBookmark: loadBookmark,
-    saveBookmark: saveBookmark
+    saveBookmark: saveBookmark,
+    showHelp: showHelp
   }
 }

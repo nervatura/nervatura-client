@@ -2,7 +2,7 @@
   --backgroundColor: backgroundColor;
   --greenColor: greenColor;
   --redColor: redColor;
-  --whiteColor: whiteColor;
+  --lightColor: lightColor;
 }
 
 .list {
@@ -18,7 +18,7 @@
 }
 
 .list li:nth-child(odd){
-  background-color: --whiteColor;
+  background-color: --lightColor;
 }
 
 .listRow {

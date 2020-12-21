@@ -29,7 +29,7 @@ export default (props) => {
   }
 
   state.sideBar = () => {
-    app.setSideBar()
+    setData("current", { side: app.getSideBar() })
   }
 
   state.loadModule = (key) => {

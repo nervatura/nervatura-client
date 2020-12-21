@@ -6,7 +6,7 @@ import AppStore from 'containers/App/context'
 import { getSql, saveToDisk, useApp } from 'containers/App/actions'
 import { useSearch } from './actions'
 import { useEditor } from 'containers/Editor/actions'
-import { useQueries } from './queries'
+import { useQueries } from 'containers/Controller/Queries'
 import { QuickView, BrowserView } from './Search';
 
 export default (props) => {
@@ -20,15 +20,13 @@ export default (props) => {
     engine: data.login.data.engine,
     queries: queries,
     theme: data.session.theme,
-    ui: app.getSetting("ui")
+    ui: app.getSetting("ui"),
+    getText: app.getText,
+    showHelp: app.showHelp
   })
 
   state.data = data.search
   state.current = data.current
-
-  state.getText = (key, defValue) => {
-    return app.getText(key, defValue)
-  }
 
   state.editRow = (row, rowIndex) => {
     const params = row.id.split("/")

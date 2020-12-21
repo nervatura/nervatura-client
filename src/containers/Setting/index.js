@@ -1,28 +1,73 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback, useRef, useEffect } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useSetting } from './actions'
 import { Setting } from './Setting';
-import { Preview } from 'containers/Editor/Editor'
+import { useTemplate } from 'containers/Controller/Template'
+import { Preview, pageRender } from 'containers/Report'
 
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const app = useApp()
   const setting = useSetting()
+  const template = useTemplate()
 
   const [state] = useState({
     engine: data.login.data.engine,
     theme: data.session.theme,
     ui: app.getSetting("ui"),
-    getText: app.getText
+    getText: app.getText,
+    getMapCtr: template.getMapCtr,
+    getElementType: template.getElementType
   })
 
   state.data = data.setting
 
+  state.viewerRef = useRef(null)
+  state.canvasRef = useRef(null)
+  
+  useEffect(() => {
+    pageRender(state.viewerRef.current, state.canvasRef.current, state.data.preview)
+  },[state.viewerRef, state.canvasRef, state.data.preview])
+
+  state.mapRef = useCallback(map => {
+    if (map) {
+      template.createMap(map)
+    }
+  }, [template]);
+
   state.setViewActions = (params, _row) => {
     setting.setViewActions(params, _row)
+  }
+
+  state.editTemplate = (options) => {
+    template.editItem({...options, setting: state.data})
+  }
+
+  state.mapNext = () => {
+    template.goNext(state.data)
+  }
+
+  state.mapPrevious = () => {
+    template.goPrevious(state.data)
+  }
+
+  state.moveUp = () => {
+    template.moveUp(state.data)
+  }
+
+  state.moveDown = () => {
+    template.moveDown(state.data)
+  }
+
+  state.deleteItem = () => {
+    template.deleteItem(state.data)
+  }
+
+  state.addItem = (value) => {
+    template.addItem(value, state.data)
   }
 
   state.editItem = async (options) => {
@@ -56,7 +101,49 @@ export default (props) => {
     setData("setting", settings)
   }
 
-  if(data.preview){
+  state.changeTemplateData = (key, value) => {
+    let setting = update(data.setting, {template: {$merge: {
+      [key]: value
+    }}})
+    setData("setting", setting)
+  }
+
+  state.changeCurrentData = (key, value) => {
+    let setting = update(data.setting, {template: {current: {$merge: {
+      [key]: value
+    }}}})
+    setData("setting", setting)
+  }
+
+  state.setCurrent = (tmp_id, set_dirty) => {
+    template.setCurrent({tmp_id: tmp_id, set_dirty: set_dirty, setting: state.data})
+  }
+
+  state.addTemplateData = () => {
+    template.addTemplateData()
+  }
+
+  state.setCurrentData = (data) => {
+    template.setCurrentData(data)
+  }
+
+  state.setCurrentDataItem = (value) => {
+    template.setCurrentDataItem(value)
+  }
+
+  state.deleteDataItem = (options) => {
+    template.deleteDataItem(options)
+  }
+
+  state.deleteData = (dskey) => {
+    template.deleteData(dskey)
+  }
+
+  state.editDataItem = (options) => {
+    template.editDataItem(options)
+  }
+
+  if(state.data.preview){
     return <Preview {...state} />
   }
   if(state.data.type){

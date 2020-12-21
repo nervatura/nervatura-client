@@ -12,7 +12,7 @@ import Table from 'components/Table';
 export const BrowserView = memo((props) => {
   const { browserFilter, dropDown, showBrowser, getText, browserView, onEdit, 
     setColumns, showColumns, addFilter, editFilter, deleteFilter, checkTotalFields,
-    showTotal, exportResult, setActions, bookmarkSave } = props
+    showTotal, exportResult, setActions, bookmarkSave, showHelp } = props
   const { paginationPage, dateFormat, timeFormat, filter_opt_1, filter_opt_2 } = props.ui
   const { queries } = props
   const { vkey, view, browser_filter, dropdown, result, columns, filters, deffield } = props.data
@@ -103,7 +103,8 @@ export const BrowserView = memo((props) => {
                   onClick={ ()=>exportResult(viewDef.fields) } >
                   <Label text="browser_export" leftIcon={<Download height="14" width="14" />} />
                 </button>
-                <button className={`${"border-button small-button"} ${styles.barButton}`} onClick={()=>{}} >
+                <button className={`${"border-button small-button"} ${styles.barButton}`} 
+                  onClick={()=>showHelp("browser")} >
                   <Label text="browser_help" leftIcon={<QuestionCircle height="14" width="14" />} />
                 </button>
               </div>

@@ -14,7 +14,7 @@ let store = {
   actions: {
     getText: (key)=>{ return key },
     setData: jest.fn(),
-    setSideBar: jest.fn()
+    getSideBar: jest.fn()
   } 
 }
 

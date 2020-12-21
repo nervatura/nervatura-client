@@ -815,6 +815,29 @@ export const useInitItem = () => {
           description: null, label: null, filetype: null, report: null,
           orientation: config.page_orient, size: config.page_size
         }})
+
+      case "reportfields":
+        //ui_reportfields
+        return update({}, {$set: {
+          id: null,
+          report_id: null, fieldname: null, fieldtype: null, wheretype: null,
+          description: null, orderby: 0, sqlstr: null, parameter: 0,
+          dataset: null, defvalue: null, valuelist: null
+        }})
+
+      case "reportsources":
+        //ui_reportsources
+        return update({}, {$set: {
+          id: null,
+          report_id:	null, dataset: null, sqlstr: null
+        }})
+      
+      case "message":
+        //ui_message
+        return update({}, {$set: {
+          id: null,
+          secname: null, fieldname: null, lang: null, msg: null
+        }})
         
       case "tax":
         return update({}, {$set: {

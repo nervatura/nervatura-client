@@ -1,15 +1,16 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
+import { format } from 'date-fns'
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { InputForm, AuditForm, MenuForm } from 'containers/ModalForm'
-import { useSql } from 'containers/Editor/sql'
-import dataset from 'containers/Editor/dataset'
-import { useForm } from 'containers/Editor/forms'
-import { useInitItem, useValidator } from 'containers/Editor/items'
-//import { useTemplate } from './template'
+import { useSql } from 'containers/Controller/Sql'
+import dataset from 'containers/Controller/Dataset'
+import { useForm } from 'containers/Controller/Forms'
+import { useInitItem, useValidator } from 'containers/Controller/Items'
+import { useTemplate } from 'containers/Controller/Template'
 
 export const useSetting = () => {
   const { data, setData } = useContext(AppStore)
@@ -19,7 +20,7 @@ export const useSetting = () => {
   const forms = useForm()
   const validator = useValidator()
   const initItem = useInitItem()
-  //const template = useTemplate()
+  const template = useTemplate()
   const showInput =  InputForm()
   const showAudit =  AuditForm()
   const showMenu = MenuForm()
@@ -201,7 +202,8 @@ export const useSetting = () => {
         edit: form.view.setting.actions.edit, 
         delete: (audit !== "all") ? null : form.view.setting.actions.delete
       },
-      audit: audit
+      audit: audit,
+      template: null
     }})
     setData("setting", setting)
     setData("current", { module: "setting" })
@@ -214,7 +216,8 @@ export const useSetting = () => {
 
   const loadSetting = async (options) => {
     let setting = update(options, {$merge: {
-      dataset: {}
+      dataset: {},
+      dirty: false
     }})
     if(dataset[setting.type]){
       let views = []
@@ -260,8 +263,7 @@ export const useSetting = () => {
         $merge: view
       }})
       if ((setting.type === "template") && (typeof setting.id !== "undefined")) {
-        return
-        //return template.setTemplate(setting) 
+        return template.setTemplate(setting) 
       }
     }
     setSettingData(setting)
@@ -464,10 +466,10 @@ export const useSetting = () => {
           setSettingForm(options.id)
           break;
         case "NEW_BLANK":
-          //newBlank()
+          template.newBlank()
           break;
         case "NEW_SAMPLE":
-          //newSample()
+          template.newSample()
           break;
         default:
           break;
@@ -494,7 +496,12 @@ export const useSetting = () => {
           cbOK: (value) => {
             setData("current", { modalForm: null }, async ()=>{
               if (data.setting.type === "template_editor"){
-                
+                const setting = await template.saveTemplate()
+                if(setting){
+                  return setData("setting", setting, ()=>{
+                    cbNext(cbKeyTrue)
+                  })
+                }
               } else {
                 const setting = await saveSetting()
                 if(setting){
@@ -581,7 +588,24 @@ export const useSetting = () => {
         break;
 
       case "deleteTemplate":
-        //deleteTemplate(row.id)
+        showInput({
+          title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
+          infoText: app.getText("msg_delete_info"), 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, async ()=>{
+              const result  = await template.deleteTemplate(row.id)
+              if(result){
+                loadSetting({type: "template"})
+              }
+            })
+          }
+        })
         break;
 
       case "editAudit":
@@ -689,6 +713,92 @@ export const useSetting = () => {
     }
   }
 
+  const createTemplate = (setting) => {
+    let reportkey = setting.dataset.template[0].ntype;
+    if (reportkey === "trans") {
+      reportkey = setting.dataset.template[0].ttype+"_"+setting.dataset.template[0].dirtype;
+    }
+    reportkey += "_"+format(new Date(),"yyyyMMddHHmm")
+    showInput({
+      title: app.getText("template_label_new"), message: reportkey,
+      value: setting.dataset.template[0].repname, 
+      onChange: (form) => {
+        setData("current", { modalForm: form })
+      }, 
+      cbCancel: () => {
+        setData("current", { modalForm: null })
+      },
+      cbOK: (value) => {
+        setData("current", { modalForm: null }, async ()=>{
+          let values = update(tableValues("report", setting.dataset.template[0]), {$merge: {
+            id: null,
+            reportkey: reportkey,
+            repname: value,
+            report: template.json2xml({template: setting.template.template})
+          }})
+          values = update(values, {
+            $unset: ["orientation", "size"]
+          })
+          let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
+          if(result.error){
+            return app.resultError(result)
+          }
+          const id = result[0]
+
+          values = []
+          for (let index = 0; index < setting.dataset.template_reportfields.length; index++) {
+            const reportfield = setting.dataset.template_reportfields[index]
+            values.push(update(tableValues("reportfields", reportfield), {$merge: {
+              id: null,
+              report_id: id,
+              fieldtype: reportfield.fieldtype_id, 
+              wheretype: reportfield.wheretype_id
+            }}))
+          }
+          if(values.length > 0){
+            result = await app.requestData("/ui_reportfields", { method: "POST", data: values })
+            if(result.error){
+              return app.resultError(result)
+            }
+          }
+
+          values = []
+          for (let index = 0; index < setting.dataset.template_sources.length; index++) {
+            const reportsources = setting.dataset.template_sources[index]
+            values.push(update(tableValues("reportsources", reportsources), {$merge: {
+              id: null,
+              report_id: id
+            }}))
+          }
+          if(values.length > 0){
+            result = await app.requestData("/ui_reportsources", { method: "POST", data: values })
+            if(result.error){
+              return app.resultError(result)
+            }
+          }
+
+          values = []
+          for (let index = 0; index < setting.dataset.template_message.length; index++) {
+            const message = setting.dataset.template_message[index]
+            values.push(update(tableValues("message", message), {$merge: {
+              id: null,
+              secname: message.secname.replace(
+                setting.dataset.template[0].reportkey, reportkey)
+            }}))
+          }
+          if(values.length > 0){
+            result = await app.requestData("/ui_message", { method: "POST", data: values })
+            if(result.error){
+              return app.resultError(result)
+            }
+          }
+
+          checkSetting({ type: "template", id: id }, 'LOAD_SETTING')
+        })
+      }
+    })
+  }
+
   return {
     checkSetting: checkSetting,
     loadSetting: loadSetting,
@@ -698,6 +808,7 @@ export const useSetting = () => {
     changePassword: changePassword,
     setProgramForm: setProgramForm,
     deleteSetting: deleteSetting,
-    loadLog: loadLog
+    loadLog: loadLog,
+    createTemplate: createTemplate
   }
 }
