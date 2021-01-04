@@ -1,12 +1,3 @@
-:import('./theme.css') {
-  --primaryFont: primaryFont;
-  --fontSize: fontSize;
-  --textColor: textColor;
-  --primaryColor: primaryColor;
-  --secondaryColor: secondaryColor;
-  --backgroundColor: backgroundColor;
-}
-
 html,
 body {
   width: 100%;
@@ -17,21 +8,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: --textColor;
-  font-family: --primaryFont;
-  font-size: --fontSize;
-  background-color: --backgroundColor;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
 }
 ::-webkit-scrollbar {
   width: 10px;
   height: 5px;
 }
 ::-webkit-scrollbar-thumb {
-  background: --primaryColor;
+  background: var(--primary);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 5px --secondaryColor;
-  box-shadow: inset 0 0 5px --secondaryColor;
+  -webkit-box-shadow: inset 0 0 5px var(--secondary);
+  box-shadow: inset 0 0 5px var(--secondary);
   border-radius: 10px;
 }

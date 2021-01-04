@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import Toast from "./Toast";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
 
   const { type, icon, title, message } = props

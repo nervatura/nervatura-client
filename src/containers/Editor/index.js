@@ -11,6 +11,7 @@ import { Preview, pageRender } from 'containers/Report'
 import { Editor } from './Editor';
 import { InputForm } from 'containers/ModalForm'
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const editor = useEditor()
@@ -20,8 +21,8 @@ export default (props) => {
 
   const [state] = useState({
     engine: data.login.data.engine,
-    theme: data.session.theme,
     ui: app.getSetting("ui"),
+    theme: data.current.theme,
     getText: app.getText
   })
 

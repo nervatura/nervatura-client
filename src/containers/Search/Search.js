@@ -14,7 +14,7 @@ export const BrowserView = memo((props) => {
     setColumns, showColumns, addFilter, editFilter, deleteFilter, checkTotalFields,
     showTotal, exportResult, setActions, bookmarkSave, showHelp } = props
   const { paginationPage, dateFormat, timeFormat, filter_opt_1, filter_opt_2 } = props.ui
-  const { queries } = props
+  const { queries, current } = props
   const { vkey, view, browser_filter, dropdown, result, columns, filters, deffield } = props.data
   const keyMap = queries[vkey]()
   const viewDef = keyMap[view]
@@ -71,20 +71,20 @@ export const BrowserView = memo((props) => {
   })
   const totalFields = checkTotalFields(viewDef.fields, deffield)
   return (
-    <div className="page padding-normal" >
+    <div className={`${"page padding-normal"} ${current.theme}`} >
       <div className={`${"panel"}`} >
-        <div className="panel-title">
+        <div className="panel-title primary">
           <Label bold primary xxxlarge text={"browser_"+vkey} />
         </div>
         <div className="section container" >
           <div className="row full" >
             <div className="cell" >
-              <button className={`${"full"}`} onClick={browserFilter} >
+              <button className={`${"full primary"}`} onClick={browserFilter} >
                 <Label value={viewDef.label} leftIcon={<Filter />} />
               </button>
             </div>
           </div>
-          {(browser_filter)?<div className={`${styles.filterPanel}`} >
+          {(browser_filter)?<div className={`${styles.filterPanel} ${"border"}`} >
             <div className="row full section-small" >
               <div className="cell" >
                 <button className={`${"border-button"} ${styles.barButton}`} 
@@ -118,7 +118,7 @@ export const BrowserView = memo((props) => {
                     <Label className="hide-small" text="browser_views" 
                       leftIcon={<Eye height="18" width="20.25" />} />
                   </button>
-                  {(dropdown === vkey+"_view")?<div className={`${styles.dropdownContent}`} >
+                  {(dropdown === vkey+"_view")?<div className={`${styles.dropdownContent} ${"border"} ${current.theme} `} >
                     {Object.keys(keyMap).map((vname, index) => (vname !== "options")?
                       <div key={index} onClick={ ()=>showBrowser(vkey, vname) }
                         className={`${styles.dropItem} ${(vname === view)?styles.active:null}`} >
@@ -146,7 +146,7 @@ export const BrowserView = memo((props) => {
                 </button>
               </div>
             </div>
-            {(props.data[vkey+"_columns"])?<div className={styles.colBox} >
+            {(props.data[vkey+"_columns"])?<div className={`${styles.colBox} ${"border"}`} >
               {Object.keys(viewDef.fields).map(fieldname =>
                 <div key={fieldname} className={`${"cell padding-tiny tiny left"} 
                   ${(columns[view][fieldname]===true)?styles.selectCol:styles.editCol}`}
@@ -195,7 +195,7 @@ export const BrowserView = memo((props) => {
                     onChange={(event)=>editFilter(index, "value", event.target.value) } />:null}
                 </div>:null}
                 <div className="cell" >
-                  <button className={`${styles.filterDelete}`} 
+                  <button className={` ${"border-button"} ${styles.filterDelete}`} 
                     onClick={ ()=>deleteFilter(index) } ><Times />
                   </button>
                 </div>
@@ -203,15 +203,17 @@ export const BrowserView = memo((props) => {
             </div>)}
           </div>:null}
           <div className="row full section-small-top" >
-            <div className={`${"cell"} ${styles.resultTitle}`} >
-              {result.length} <Label text="browser_result" />
+            <div className={`${"row full border"}`} >
+              <div className={`${"cell"} ${styles.resultTitle}`} >
+                {result.length} <Label text="browser_result" />
+              </div>
+              {(viewDef.actions_new)?<div className={`${"cell"} ${styles.resultTitlePlus}`}>
+                <button className={`${"small-button"}`} 
+                  onClick={ ()=>setActions(viewDef.actions_new) } >
+                  <Plus />
+                </button>
+              </div>:null}
             </div>
-            {(viewDef.actions_new)?<div className={`${"cell"} ${styles.resultTitlePlus}`}>
-              <button className={`${"primary small-button"}`} 
-                onClick={ ()=>setActions(viewDef.actions_new) } >
-                <Plus />
-              </button>
-            </div>:null}
           </div>
           <div className="row full" >
             <Table rowKey="row_id"
@@ -234,8 +236,9 @@ export const BrowserView = memo((props) => {
 })
 
 export const QuickView = memo((props) => { 
+  const { current } = props
   return (
-    <div className="page padding-normal" >
+    <div className={`${"page padding-normal"} ${current.theme}`} >
       <SelectorView {...props} />
     </div>
   )

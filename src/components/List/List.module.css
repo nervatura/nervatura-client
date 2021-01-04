@@ -1,30 +1,16 @@
-:import('../../styles/theme.css') {
-  --backgroundColor: backgroundColor;
-  --greenColor: greenColor;
-  --redColor: redColor;
-  --lightColor: lightColor;
-}
-
 .list {
   overflow-x: auto;
   width: 100%;
-  color: --textColor;
   font-size: 14px;
-  border: 1.5px solid --backgroundColor;
-  border-bottom: none;
+  border-bottom: none!important;
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
 
-.list li:nth-child(odd){
-  background-color: --lightColor;
-}
-
 .listRow {
   display: table;
   width: 100%;
-  border-bottom: 1px solid --backgroundColor;
 }
 
 .editCell {
@@ -36,7 +22,7 @@
 }
 
 .editCell:hover {
-  color: --greenColor;
+  color: var(--success);
 }
 
 .valueCell {
@@ -53,14 +39,13 @@
 }
 
 .deleteCell:hover {
-  color: --redColor;
+  color: var(--danger);
 }
 
 .label {
   width: 100%;
   font-weight: bold;
   padding: 5px 8px 2px;
-  border-bottom: 1px solid --backgroundColor;
 }
 
 .value {

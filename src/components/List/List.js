@@ -23,14 +23,14 @@ export const ListView = memo((props) => {
           onClick={ ()=>onAddItem() } >{createElement(addIcon || Plus)}<span className="addLabel">{labelAdd}</span>
         </button></div>:null}
       </div>: null}
-      <ul className={`${styles.list}`} >
+      <ul className={`${"list"} ${styles.list}`} >
         {listRows.rows.map((row, index) => <li key={index} 
-          className={`${styles.listRow}`} >
+          className={`${"border-bottom"} ${styles.listRow}`} >
           {(onEdit)?<div className={`${styles.editCell}`} onClick={()=>onEdit(row)} >
             {createElement(editIcon||Edit, { width:24, height:21.3 })}
           </div>:null}
           <div className={`${styles.valueCell} ${(onEdit)?styles.cursor:""}`} onClick={()=>onEdit(row)}>
-            <div className={`${styles.label}`} >
+            <div className={`${"border-bottom"} ${styles.label}`} >
               <span>{row.lslabel}</span>
             </div>
             <div className={`${styles.value}`} >

@@ -6,6 +6,7 @@ import { format, formatISO, isValid, parseISO } from 'date-fns'
 import { CheckSquare, SquareEmpty } from 'components/Icons';
 import { TableView } from "./Table";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   
   const { rowKey, rows, fields,

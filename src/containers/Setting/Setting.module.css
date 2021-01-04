@@ -1,30 +1,14 @@
-:import('../../styles/theme.css') {
-  --lightColor: lightColor;
-  --greenColor: greenColor;
-  --redColor: redColor;
-  --backgroundColor: backgroundColor;
-  --whiteColor: whiteColor;
-  --focusColor: focusColor;
-  --orangeColor: orangeColor;
-  --primaryColor: primaryColor;
-  --textColor: textColor;
-}
-
 .settingPanel {
   width: 100%;
-  background-color: --whiteColor;
 }
 
 .formPanel {
   width: 100%;
-  border: 1.5px solid --backgroundColor;
   border-bottom: none;
-  background-color: --lightColor;
 }
 
 .viewPanel {
   width: 100%;
-  background-color: --whiteColor;
 }
 
 .editCol {
@@ -37,15 +21,15 @@
 }
 
 .editCol:hover {
-  color: --greenColor;
+  color: var(--success);
 }
 
 .deleteCol:hover {
-  color: --redColor;
+  color: var(--danger);
 }
 
 .selected {
-  color: --focusColor;
+  color: var(--warning);
 }
 
 .tabButton {
@@ -53,44 +37,34 @@
 }
 
 .green {
-  color: --greenColor !important;
-  border-color: --greenColor !important;
+  color: var(--success) !important;
+  border-color: var(--success) !important;
 }
 
 .title {
   width: 100%;
   font-weight: bold;
-  color: --greenColor;
-  border: 1.5px solid --greenColor;
-  background-color: --lightColor;
+  color: var(--success);
+  border: 1.5px solid var(--success);
+}
+
+.templateRow {
+  border-bottom: none!important;
+  border-top: none!important;
 }
 
 .mapButton {
   border-radius: 0px;
-  border: 1.5px solid --backgroundColor;
   margin-top: -0.7px;
-  background: none;
-  background-color: --lightColor;
-  color: --textColor;
-}
-
-.mapButton:hover {
-  color: --hoverColor!important;
-  background: none;
-  border-color: --hoverColor;
 }
 
 .mapButton:focus {
-  color: inherit;
-  background-color: --lightColor;
   outline: none;
 }
 
 .badgeBlack {
   font-weight: bold;
   font-size: 14px;
-  background-color: --primaryColor;
-  color: --whiteColor;
   display: inline-block;
   padding: 1px 6px 1px 5px;
   text-align: center;
@@ -100,8 +74,6 @@
 .badgeOrange {
   font-weight: bold;
   font-size: 14px;
-  background-color: --orangeColor;
-  color: --whiteColor;
   display: inline-block;
   padding: 1px 6px 1px 5px;
   text-align: center;
@@ -115,10 +87,8 @@
 .mapBox {
   width: 100%;
   text-align: center;
-  background-color: #dcdcdc;
   padding: 10px 5px;
   /*border-radius: 6px;*/
-  border: 1px solid #ccc;
   box-sizing: border-box;
   margin-top: 5px;
 	margin-bottom: 5px;
@@ -136,5 +106,5 @@
 }
 
 .closeIcon:hover {
-  color: --redColor;
+  color: var(--danger);
 }

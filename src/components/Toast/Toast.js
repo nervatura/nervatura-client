@@ -3,8 +3,9 @@ import styles from './Toast.module.css';
 
 import { ExclamationTriangle, CheckCircle, InfoCircle } from 'components/Icons';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
-  const { type, icon, title, message } = props
+  const { icon, message } = props
 
   const getIcon = () => {
     if (icon === "exclamation"){
@@ -17,14 +18,6 @@ export default (props) => {
       return <InfoCircle height="24px" width="24px" />
     }
     return <InfoCircle height="24px" width="24px" />
-  }
-  if(type === "message"){
-    return (
-      <div className={styles.box}>
-        {(title)?<div className={styles.header} >{title}</div>:null}
-        <div className={styles.mbody} dangerouslySetInnerHTML={{ __html: message }} />
-      </div>
-    )
   }
   return(
     <div className="row" >

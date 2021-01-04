@@ -10,6 +10,7 @@ import { BookmarkForm, InputForm } from 'containers/ModalForm'
 
 import { MenuBar } from './MenuBar';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const app = useApp()

@@ -5,7 +5,7 @@ import styles from './ModalForm.module.css';
 import { Label, Select, Input } from 'containers/Controller'
 import { Times, ChartBar, Magic, Check, Search as SearchIcon, CaretRight,
   ExclamationTriangle, Truck, Book, FileText, CheckSquare, SquareEmpty, 
-  Star, History, Key, Share, Plus } from 'components/Icons';
+  Star, History, Key, Share, Plus, InfoCircle } from 'components/Icons';
 import Table from 'components/Table';
 import List from 'components/List';
 
@@ -14,7 +14,7 @@ export const InputBox = (props) => {
   const { title, message, infoText, value, labelCancel, labelOK, defaultOK, showValue } = props
   return (
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label value={title} />
@@ -32,8 +32,8 @@ export const InputBox = (props) => {
             onKeyDown={valueKey} /></div>:null}
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={inputCancel} >
@@ -55,7 +55,7 @@ export const InputBox = (props) => {
 
 export const SelectorView = (props) => {
   const { getText, quickSearch, editRow, onClose, filterChange } = props
-  const { queries, theme, filter } = props
+  const { queries, filter } = props
   const { paginationPage, selectorPage } = props.ui
   const { qview, result } = props.data
   const query = queries.quick[qview]()
@@ -68,7 +68,7 @@ export const SelectorView = (props) => {
         formatters: [
         (value, { rowData }) => {
           if(rowData.deleted === 1)
-            return <ExclamationTriangle  color={theme.orangeColor} />
+            return <ExclamationTriangle className={styles.exclamation} />
           return <CaretRight width={9} height={24} />
         }] }
     }}
@@ -80,7 +80,7 @@ export const SelectorView = (props) => {
   });
   return(
     <div className={`${"panel"} ${styles.width800}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         {(onClose)?<div className="row full">
           <div className="cell">
             <Label value={getText("search_"+qview)} leftIcon={<SearchIcon />} col={20} />
@@ -124,7 +124,7 @@ export const ReportSettings = (props) => {
   const { title, template, templates, orient, report_orientation, size, report_size, copy } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label value={title} leftIcon={<ChartBar />} col={20} />
@@ -161,8 +161,8 @@ export const ReportSettings = (props) => {
           </div>
         </div> 
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
               onClick={()=>reportOutput("preview")} >
@@ -176,7 +176,7 @@ export const ReportSettings = (props) => {
             </button>
           </div>
         </div>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} onClick={()=>reportOutput("xml")} >
               <Label text="msg_export_xml" />
@@ -199,7 +199,7 @@ export const FormulaBox = (props) => {
   const { formula, partnumber, description, formula_head } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="label_formula" leftIcon={<Magic />} col={20} />
@@ -233,8 +233,8 @@ export const FormulaBox = (props) => {
           </div>
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `} disabled={(formula==="")?"disabled":""}
               onClick={ ()=>onClose() } >
@@ -258,7 +258,7 @@ export const ShippingBox = (props) => {
   const { partnumber, description, unit, batch_no, qty } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="shipping_movement_product" leftIcon={<Truck />} col={20} />
@@ -315,8 +315,8 @@ export const ShippingBox = (props) => {
           </div>
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
@@ -346,7 +346,7 @@ export const StockBox = (props) => {
   }
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="shipping_stocks" leftIcon={<Book />} col={20} />
@@ -374,8 +374,8 @@ export const StockBox = (props) => {
             paginationPage={paginationPage} paginationTop={true}/>
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small"}`} >
             <button className={`${"full primary"}`} onClick={onClose} >
               <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
@@ -393,7 +393,7 @@ export const TransBox = (props) => {
     netto_color, netto, from_color, from } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="msg_create_title" leftIcon={<FileText />} col={20} />
@@ -451,8 +451,8 @@ export const TransBox = (props) => {
           </div>
         </div>:null}
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
@@ -476,7 +476,7 @@ export const BookmarkBox = (props) => {
   const { tabView, paginationPage, bookmarkList, historyList } = props
   return(
     <div className={`${"panel"} ${styles.width800}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="title_bookmark" leftIcon={<Star />} col={20} />
@@ -521,7 +521,7 @@ export const AuditBox = (props) => {
     inputfilter, inputfilter_options, supervisor } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="title_usergroup" leftIcon={<Key />} col={20} />
@@ -582,8 +582,8 @@ export const AuditBox = (props) => {
           </div>
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
@@ -607,7 +607,7 @@ export const MenuBox = (props) => {
   const { fieldname, description, fieldtype, fieldtype_options, orderby } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="title_menucmd" leftIcon={<Share />} col={20} />
@@ -658,8 +658,8 @@ export const MenuBox = (props) => {
           </div>
         </div>
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
@@ -683,7 +683,7 @@ export const TemplateBox = (props) => {
   const { name, type, type_options, columns } = props
   return(
     <div className={`${"panel"}`} >
-      <div className="panel-title">
+      <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
             <Label text="template_label_new_data" leftIcon={<Plus />} col={20} />
@@ -723,8 +723,8 @@ export const TemplateBox = (props) => {
           </div>
         </div>:null}
       </div>
-      <div className={`${"row full section container-small"} ${styles.activeStyle}`}>
-        <div className={`${"row full"} ${styles.activeStyle}`}>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
@@ -734,6 +734,50 @@ export const TemplateBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateData() } >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const TotalBox = (props) => {
+  const { onClose } = props
+  const { total } = props
+  const formatNumber = (number) => {
+    return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+  }
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title primary">
+        <div className="row full">
+          <div className="cell">
+            <Label text="browser_total" leftIcon={<InfoCircle />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      <div className="row full container-small section-small">
+        {Object.keys(total.totalFields).map(fieldname => 
+          <div key={fieldname} className="row full">
+            <div className="cell bold padding-tiny half">
+              <Label className="bold" value={total.totalLabels[fieldname]} />
+            </div>
+            <div className="cell padding-tiny half">
+              <Input className="full align-right bold" 
+                value={formatNumber(total.totalFields[fieldname])} 
+                disabled="disabled" />
+            </div>
+          </div>)}
+      </div>
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
+          <div className={`${"cell padding-small"}`} >
+            <button className={`${"full primary"}`} onClick={onClose} >
               <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
             </button>
           </div>

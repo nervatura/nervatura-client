@@ -5,7 +5,8 @@ import segmentize from 'segmentize';
 import 'react-pagify/style.css';
 import './Paginator.css';
 
-export default ({ pagination, pages, onSelect, theme }) => (
+// eslint-disable-next-line import/no-anonymous-default-export
+export default ({ pagination, pages, onSelect }) => (
   <div id="pagination" className="pagination" >
     <Pagify.Context
       className="pagify-pagination"

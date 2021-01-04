@@ -1,7 +1,3 @@
-:import('../../styles/theme.css') {
-  --whiteColor: whiteColor;
-}
-
 @keyframes lds-roller {
 	 0% {
 		 transform: rotate(0deg);
@@ -27,7 +23,7 @@
 	 width: 7px;
 	 height: 7px;
 	 border-radius: 50%;
-	 background: --whiteColor;
+	 background: var(--warning);
 	 margin: -3px 0 0 -3px;
 }
  .loading div:nth-child(1) {

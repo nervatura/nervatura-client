@@ -101,7 +101,7 @@ export const SettingForm = memo((props) => {
   }
   return (
     <Fragment >
-      <div className={`${styles.formPanel}`} >
+      <div className={`${"border"} ${styles.formPanel}`} >
         {current.template.rows.map((row, index) =>
           <FormRow key={index} row={row} 
             values={current.fieldvalue || current.form}
@@ -210,13 +210,13 @@ export const TemplateEditor = memo((props) => {
         const pinfo = setListIcon(item);
         maplist.push(<div key={mkey}><button 
           onClick={() => setCurrent(mkey) } 
-          className={`${styles.mapButton} ${"full"} ${(pinfo.color!=="")?styles.green:""}`}>
+          className={`${styles.mapButton} ${"full border-button"} ${(pinfo.color!=="")?styles.green:""}`}>
             <div className="row full" >
               <div className="cell" >
                 <Label value={etype.toUpperCase()} leftIcon={createElement(pinfo.icon)} col={20} />
               </div>
               <div className="cell align-right" >
-                <span className={`${styles.badgeBlack}`} >{index+1}</span>
+                <span className={`${"primary"} ${styles.badgeBlack}`} >{index+1}</span>
               </div>
             </div>
           </button>
@@ -226,13 +226,13 @@ export const TemplateEditor = memo((props) => {
           const cinfo = setListIcon(item, index+1)
           maplist.push(<div key={mkey}><button 
             onClick={() => setCurrent(mkey) } 
-            className={`${styles.mapButton} ${"full"} ${(cinfo.color!=="")?styles.green:""}`}>
+            className={`${styles.mapButton} ${"full border-button"} ${(cinfo.color!=="")?styles.green:""}`}>
               <div className="row full" >
                 <div className="cell" >
                   <Label value={etype.toUpperCase()} leftIcon={createElement(cinfo.icon)} col={20} />
                 </div>
                 {(cinfo.badge>0)?<div className="cell align-right" >
-                  <span className={`${styles.badgeBlack}`} >{cinfo.badge}</span>
+                  <span className={`${"primary"} ${styles.badgeBlack}`} >{cinfo.badge}</span>
                 </div>:null}
               </div>
             </button>
@@ -246,13 +246,13 @@ export const TemplateEditor = memo((props) => {
               const sinfo = setListIcon(subitem);
               maplist.push(<div key={skey}><button 
                 onClick={() => setCurrent(skey) } 
-                className={`${styles.mapButton} ${"full"} ${(sinfo.color!=="")?styles.green:""}`}>
+                className={`${styles.mapButton} ${"full border-button"} ${(sinfo.color!=="")?styles.green:""}`}>
                   <div className="row full" >
                     <div className="cell" >
                       <Label value={subtype.toUpperCase()} leftIcon={createElement(sinfo.icon)} col={20} />
                     </div>
                     {(sinfo.badge>0)?<div className="cell align-right" >
-                      <span className={`${styles.badgeBlack}`} >{sinfo.badge}</span>
+                      <span className={`${"primary"} ${styles.badgeBlack}`} >{sinfo.badge}</span>
                     </div>:null}
                   </div>
                 </button>
@@ -274,13 +274,13 @@ export const TemplateEditor = memo((props) => {
       }
       maplist.push(<div key={mkey}><button 
         onClick={() => setCurrent("tmp_"+mkey) } 
-        className={`${styles.mapButton} ${"full"} ${(info.color!=="")?styles.green:""}`}>
+        className={`${styles.mapButton} ${"full border-button"} ${(info.color!=="")?styles.green:""}`}>
           <div className="row full" >
             <div className="cell" >
               <Label value={mkey.toUpperCase()} leftIcon={createElement(info.icon)} col={20} />
             </div>
             {(info.badge>0)?<div className="cell align-right" >
-              <span className={`${styles.badgeOrange}`} >{info.badge}</span>
+              <span className={`${"warning"} ${styles.badgeOrange}`} >{info.badge}</span>
             </div>:null}
           </div>
         </button>
@@ -347,14 +347,14 @@ export const TemplateEditor = memo((props) => {
           <div className="row full border section container-small" >
             <div className="cell padding-small third" >
               <button onClick={() => mapPrevious() } 
-                className={`${styles.mapButton} ${"full"}`}>
+                className={`${styles.mapButton} ${"full border-button"}`}>
                   <Label text="label_previous" leftIcon={<ArrowLeft />} col={20} />
               </button>
-              <div key="map_box" className={styles.mapBox} >
-                <canvas ref={mapRef} className={styles.reportMap} />
+              <div key="map_box" className={`${"secondary-title border"} ${styles.mapBox}`} >
+                <canvas ref={mapRef} className={`${styles.reportMap}`} />
               </div>
               <button onClick={() => mapNext() } 
-                className={`${styles.mapButton} ${"full"}`}>
+                className={`${styles.mapButton} ${"full border-button"}`}>
                   <Label text="label_next" rightIcon={<ArrowRight />} col={20} />
               </button>
             </div>
@@ -364,22 +364,22 @@ export const TemplateEditor = memo((props) => {
             <div className="cell padding-small third" >
               {(getMapCtr(current.type, "map_edit"))?<div>
                 <button onClick={() => moveUp() } 
-                  className={`${styles.mapButton} ${"full"}`}>
+                  className={`${styles.mapButton} ${"full border-button"}`}>
                     <Label text="label_move_up" leftIcon={<ArrowUp />} col={20} />
                 </button>
                 <button onClick={() => moveDown() } 
-                  className={`${styles.mapButton} ${"full"}`}>
+                  className={`${styles.mapButton} ${"full border-button"}`}>
                     <Label text="label_move_down" leftIcon={<ArrowDown />} col={20} />
                 </button>
                 <button onClick={() => deleteItem() } 
-                  className={`${styles.mapButton} ${"full"}`}>
+                  className={`${styles.mapButton} ${"full border-button"}`}>
                     <Label text="label_delete" leftIcon={<Times />} col={20} />
                 </button>
                 <div className={styles.separator} />
               </div>:null}
               {(getMapCtr(current.type, "map_insert"))?<div>
                 <button onClick={() => addItem(current.add_item||"") } 
-                  className={`${styles.mapButton}`}>
+                  className={`${styles.mapButton} ${"border-button"}`}>
                     <Label text="label_add_item" leftIcon={<Plus />} col={20} />
                 </button>
                 <Select value={current.add_item||""} placeholder=""
@@ -394,8 +394,9 @@ export const TemplateEditor = memo((props) => {
             <Label value={current.type.toUpperCase()} leftIcon={<Tag />} col={20} />
           </div>:null}
           {(current.type)?
-          current.form.rows.map((row, index) =><FormRow 
-            key={index} row={row} 
+          current.form.rows.map((row, index) =><div 
+            className={`${"row full border"} ${styles.templateRow}`} key={index} ><FormRow
+            row={row} 
             values={(current.type==="row" || current.type==="datagrid") ? current.item_base : current.item}
             rowdata={{
               audit: "all",
@@ -403,12 +404,12 @@ export const TemplateEditor = memo((props) => {
               dataset: template.data,
               onEdit: editTemplate
             }} 
-          />):null}
+          /></div>):null}
         </Fragment>:
         <div className="row full border padding-normal" >
         {(current_data && (current_data.type === "string"))?
           <div className="row full section-small">
-            <div className="panel-title">
+            <div className="panel-title primary">
               <div className="row full">
                 <div className="cell">
                   <Label value={current_data.name} />
@@ -424,7 +425,7 @@ export const TemplateEditor = memo((props) => {
           </div>:null}
         {(current_data && (current_data.type === "list") && current_data.item)?
           <div className="row full section-small">
-            <div className="panel-title">
+            <div className="panel-title primary">
               <div className="row full">
                 <div className="cell">
                   <Label value={current_data.item} />
@@ -440,7 +441,7 @@ export const TemplateEditor = memo((props) => {
           </div>:null}
         {(current_data && (current_data.type === "table") && current_data.item)?
           <div className="row full section-small">
-            <div className="panel-title">
+            <div className="panel-title primary">
               <div className="row full">
                 <div className="cell">
                   <Label value={current_data.name+" - "+String(current_data.item._index+1)} />
@@ -461,7 +462,7 @@ export const TemplateEditor = memo((props) => {
           </div>:null}
         {(current_data && (current_data.type === "list") && !current_data.item)?
           <div className="section-small" >
-            <div className="panel-title">
+            <div className="panel-title primary">
               <div className="row full">
                 <div className="cell">
                   <Label value={current_data.name} />
@@ -481,7 +482,7 @@ export const TemplateEditor = memo((props) => {
           </div>:null}
           {(current_data && (current_data.type === "table") && !current_data.item)?
           <div className="section-small" >
-            <div className="panel-title">
+            <div className="panel-title primary">
               <div className="row full">
                 <div className="cell">
                   <Label value={current_data.name} />
@@ -522,6 +523,7 @@ export const TemplateEditor = memo((props) => {
 
 export const Setting = memo((props) => {
   const { caption, icon, current, template } = props.data
+  const { theme } = props
   const pageView = () => {
     if(template){
       return <TemplateEditor {...props} />
@@ -532,9 +534,9 @@ export const Setting = memo((props) => {
   }
   return (
     <Fragment>
-      <div className="page padding-normal" >
+      <div className={`${"page padding-normal"} ${theme}`} >
         <div className={`${"panel"}`} >
-          <div className="panel-title">
+          <div className="panel-title primary">
             <Label bold primary xxxlarge value={caption} 
               leftIcon={createElement(icon)} col={20} />
           </div>

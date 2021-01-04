@@ -420,13 +420,13 @@ export const FormField = (props) => {
     case "flip":
       const toggleDisabled = (disabled || audit === 'readonly')?styles.toggleDisabled:""
       if(value===1 || value==="1" || value==="true"|| value===true){
-        return <div className={` ${styles.toggleBorder} ${toggleDisabled}`}
+        return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
             ()=>onChange((field.name === 'fieldvalue_value') ? false : 0):null}>
           <ToggleOn className={`${styles.toggleOn}`} width={40} height={32.6} />
         </div>
       } else {
-        return <div className={` ${styles.toggleBorder} ${toggleDisabled}`}
+        return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
             ()=>onChange((field.name === 'fieldvalue_value') ? true : 1):null}>
           <ToggleOff className={`${styles.toggleOff}`} width={40} height={32.6} />
@@ -499,7 +499,7 @@ export const FormField = (props) => {
           llabel = litem[fieldMap.label_field];
         }
       }
-      return <div className={`${styles.lnkBox}`}>
+      return <div className={`${"link"} ${styles.link}`}>
         <span className={`${styles.lnkText}`} onClick={()=>editor.checkEditor(
           {ntype: fieldMap.lnktype, ttype: fieldMap.transtype, id: value}, 
           'LOAD_EDITOR')} >{llabel}</span>
@@ -552,7 +552,7 @@ export const FormField = (props) => {
           </button>
         </div>)
       }
-      columns.push(<div key="sel_text" className={`${styles.lnkBox}`}>
+      columns.push(<div key="sel_text" className={`${"link"} ${styles.link}`}>
         {(selector_text !== "")?<span className={`${styles.lnkText}`}
           onClick={()=>editor.checkTranstype(
           { ntype: selector_ntype, ttype: selector_ttype, id: selector_id }, 
@@ -720,7 +720,7 @@ export const FormRow = (props) => {
               <FormField values={values} rowdata={rowdata} field={props.row} />
             </div></div>:null}
             {(info)?<div className="row full padding-small">
-              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+              <div className={`${"cell padding-small info"} ${styles.leftbar}`} >
                 {info}
               </div>
             </div>:null}
@@ -755,7 +755,7 @@ export const FormRow = (props) => {
               </div>
             </div></div>:null}
             {(info)?<div className="row full padding-small">
-              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+              <div className={`${"cell padding-small info"} ${styles.leftbar}`} >
                 {info}
               </div>
             </div>:null}
@@ -788,12 +788,12 @@ export const FormRow = (props) => {
               </div>
             </div>
             {(enabled)?<div className="row full padding-small">
-              <div className={`${"cell padding-small"} ${styles.toggleBorder}`} >
+              <div className={`${"cell padding-small toggle"} ${styles.toggle}`} >
                 {checklist}
               </div>
             </div>:null}
             {(info)?<div className="row full padding-small">
-              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+              <div className={`${"cell padding-small info"} ${styles.leftbar}`} >
                 {info}
               </div>
             </div>:null}
@@ -810,7 +810,7 @@ export const FormRow = (props) => {
               </div>:null}
             </div>
             {(info)?<div className="row full padding-small">
-              <div className={`${"cell padding-small"} ${styles.leftbar}`} >
+              <div className={`${"cell padding-small info"} ${styles.leftbar}`} >
                 {info}
               </div>
             </div>:null}

@@ -8,6 +8,7 @@ import { Setting } from './Setting';
 import { useTemplate } from 'containers/Controller/Template'
 import { Preview, pageRender } from 'containers/Report'
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const app = useApp()
@@ -16,8 +17,8 @@ export default (props) => {
 
   const [state] = useState({
     engine: data.login.data.engine,
-    theme: data.session.theme,
     ui: app.getSetting("ui"),
+    theme: data.current.theme,
     getText: app.getText,
     getMapCtr: template.getMapCtr,
     getElementType: template.getElementType

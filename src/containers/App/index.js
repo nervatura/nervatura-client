@@ -3,6 +3,7 @@ import update from 'immutability-helper';
 import { default as App } from "./App";
 import { store } from 'config/app'
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default class extends App {
 
   constructor(props) {

@@ -22,13 +22,13 @@ export const MainEditor = memo((props) => {
     <Fragment >
       <div className="row full" >
         <div className="cell" >
-          <button className={` ${styles.tabButton} ${"full"}`} onClick={()=>currentView("form")} >
+          <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("form")} >
             <Label value={label} 
               leftIcon={createElement(template.options.icon)} col={20} />
           </button>
         </div>
       </div>
-      {(current.view === "form")?<div className={`${styles.formPanel}`} >
+      {(current.view === "form")?<div className={`${styles.formPanel} ${"border"}`} >
         {template.rows.map((row, index) => <FormRow key={index} row={row} 
           values={current.item}
           rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }} />)}
@@ -113,7 +113,7 @@ export const FieldEditor = memo((props) => {
         <Fragment >
           <div className="row full" >
             <div className="cell" >
-              <button className={` ${styles.tabButton} ${"full"}`} onClick={()=>currentView("fieldvalue")} >
+              <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fieldvalue")} >
                 <div className="row full" >
                   <div className="cell" >
                     <Label text="fields_view" leftIcon={createElement(template.options.icon)} col={20} />
@@ -125,7 +125,7 @@ export const FieldEditor = memo((props) => {
               </button>
             </div>
           </div>
-          {(current.view === "fieldvalue")?<div className={`${styles.formPanel}`} >
+          {(current.view === "fieldvalue")?<div className={`${styles.formPanel} ${"border"}`} >
             {((audit !== 'readonly')||((fieldRows.amount) && (fieldRows.amount > 1)))?
             <div className="row full container-small section-small border-bottom" >
               {(audit !== 'readonly')?<div className="cell mobile">
@@ -226,7 +226,7 @@ export const ViewEditor = memo((props) => {
     <Fragment >
       <div className="row full" >
         <div className="cell" >
-          <button className={` ${styles.tabButton} ${"full"}`} onClick={()=>currentView(vname)} >
+          <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView(vname)} >
             <div className="row full" >
               <div className="cell" >
                 <Label value={vtemplate.title} leftIcon={createElement(vtemplate.icon)} col={20} />
@@ -242,21 +242,21 @@ export const ViewEditor = memo((props) => {
         {(vtemplate.total)?<div className="row full border">
           <div className="cell l4 m4 s12 padding-normal align-right">
             <span className={`${styles.totalLabel}`}>{vtemplate.total[Object.keys(vtemplate.total)[0]]+":"}</span>
-            <span className={`${styles.totalValue}`}>
+            <span className={`${styles.totalValue} ${"border"} `}>
               {formatNumber(dataset[current.type][0][Object.keys(vtemplate.total)[0]],
                 dataset[current.type][0].digit||2)}
             </span>
           </div>
           <div className="cell l4 m4 s12 padding-normal align-right">
             <span className={`${styles.totalLabel}`}>{vtemplate.total[Object.keys(vtemplate.total)[1]]+":"}</span>
-            <span className={`${styles.totalValue}`}>
+            <span className={`${styles.totalValue} ${"border"}`}>
               {formatNumber(dataset[current.type][0][Object.keys(vtemplate.total)[1]],
                 dataset[current.type][0].digit || 2)}
             </span>
           </div>
           <div className="cell l4 m4 s12 padding-normal align-right">
             <span className={`${styles.totalLabel}`}>{vtemplate.total[Object.keys(vtemplate.total)[2]]+":"}</span>
-            <span className={`${styles.totalValue}`}>
+            <span className={`${styles.totalValue} ${"border"}`}>
               {formatNumber(dataset[current.type][0][Object.keys(vtemplate.total)[2]],
                 dataset[current.type][0].digit || 2)}
             </span>
@@ -325,7 +325,7 @@ export const NoteEditor = memo((props) => {
       <Fragment >
           <div className="row full" >
             <div className="cell" >
-              <button className={` ${styles.tabButton} ${"full"}`} onClick={()=>currentView("fnote")} >
+              <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fnote")} >
                 <div className="row full" >
                   <div className="cell" >
                     <Label text="fnote_view" leftIcon={<Comment />} col={20} />
@@ -334,7 +334,7 @@ export const NoteEditor = memo((props) => {
               </button>
             </div>
           </div>
-          {(current.view === "fnote")?<div className={`${styles.formPanel}`} >
+          {(current.view === "fnote")?<div className={`${styles.formPanel} ${"border"}`} >
             {(audit !== 'readonly')?<div>
               <div className="row full" >
                 <div className={`${"cell padding-small"}`} >
@@ -379,7 +379,7 @@ export const NoteEditor = memo((props) => {
               </div>
             </div>:null}
             <div className="row full" >
-              <div className={`${"cell padding-small"} ${styles.viewPanel}`} >
+              <div className={`${"cell padding-small border-bottom"} ${styles.viewPanel}`} >
                 <div className="cell padding-tiny">
                   {rtf_inline.map(
                     type => <button key={type.label} title={type.label}
@@ -400,7 +400,7 @@ export const NoteEditor = memo((props) => {
                 </div>
               </div>
             </div>
-            <div className={`${styles.rtfEditor}`} >
+            <div className={`${styles.rtfEditor} ${"rtf"}`} >
               <RtfEditor editorState={current.note} onChange={noteChange} />
             </div>
         </div>:null}
@@ -419,13 +419,13 @@ export const ItemEditor = memo((props) => {
   return (
     <Fragment >
       <div className="row full" >
-        <div className={`${"cell padding-normal"} ${styles.itemTitle}` }>
-          <Label className={`${styles.itemTitlePre}` } 
+        <div className={`${"cell padding-normal border secondary-title"} ${styles.itemTitle}` }>
+          <Label className={` ${styles.itemTitlePre}` } 
             value={(current.form.id === null) ? getText("label_new") : current.form.id} />
           <Label value={current.form_template.options.title} />
         </div>
       </div>
-      <div className={`${styles.formPanel}`} >
+      <div className={`${styles.formPanel} ${"border"}`} >
         {current.form_template.rows.map((row, index) =>
           <FormRow key={index} row={row} 
             values={current.form}
@@ -448,11 +448,12 @@ export const ItemEditor = memo((props) => {
 
 export const Editor = memo((props) => {
   const { current, caption, template } = props.data
+  const { theme } = props
   return (
     <Fragment>
-      <div className="page padding-normal" >
+      <div className={`${"page padding-normal"} ${theme}`} >
         <div className={`${"panel"}`} >
-          <div className="panel-title">
+          <div className="panel-title primary">
             <Label bold primary xxxlarge value={caption} 
               leftIcon={createElement(template.options.icon)} col={20} />
           </div>

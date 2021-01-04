@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   currency: () => { return [
     {infoName:"currency_view", infoType:"view"}

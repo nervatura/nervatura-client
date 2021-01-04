@@ -4,8 +4,10 @@ import connectToDevTools from 'remotedev-react-state'
 // Import CSS reset and Global Styles
 import 'sanitize.css/sanitize.css';
 import 'styles/fonts.css';
+import 'styles/theme.css';
 import 'styles/global.css';
 import 'styles/style.css';
+import './App.css';
 
 import { AppProvider } from './context'
 
@@ -13,7 +15,6 @@ import Spinner from 'components/Spinner'
 import MenuBar from 'containers/MenuBar'
 import SideBar from 'containers/SideBar'
 import modules from './modules'
-import './App.css';
 
 class App extends Component {
 
@@ -39,7 +40,7 @@ class App extends Component {
       const { login, current } = this.state
       if(login.data){
         return (
-          <div className={`${"main"}`} >
+          <div className={`${"main"} ${current.theme}`} >
             <MenuBar />
             <SideBar />
             {createElement(modules[current.module], { name: current.module })}

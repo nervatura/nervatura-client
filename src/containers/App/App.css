@@ -1,17 +1,3 @@
-:import('../../styles/theme.css') {
-  --primaryFont: primaryFont;
-  --whiteColor: whiteColor;
-  --lightColor: lightColor;
-  --primaryColor: primaryColor;
-  --secondaryColor: secondaryColor;
-  --backgroundColor: backgroundColor;
-  --focusColor: focusColor;
-  --hoverColor: hoverColor;
-  --topMenuHeight: topMenuHeight;
-  --sideMenuWidth: sideMenuWidth;
-  --textColor: textColor;
-}
-
 .main {
   height: 100%;
   width: 100%;
@@ -28,7 +14,7 @@
   width:100%;
   height: 100%;
   overflow: auto;
-  background-color: #0000009f;
+  background-color: rgba(var(--dark-rgb), 0.5);
   padding: 10px 5px;
 }
 
@@ -39,19 +25,16 @@
 
 .page {
   transition: margin-left .4s;
-  margin-top: --topMenuHeight;
-  margin-left: --sideMenuWidth;
+  margin-top: var(--menu-top-height);
+  margin-left: var(--menu-side-width);
 }
 
 .panel {
   box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
   border-radius: 4px;
-  background-color: --lightColor;
 }
 
 .panel-title {
-  color: --whiteColor;
-  background-color: --primaryColor;
   border-radius: 3px;
   font-weight: bold;
   padding: 8px 16px;
@@ -65,49 +48,12 @@
   }
 }
 
-.primary {
-  background-color: --primaryColor;
-}
-
-.primary:hover {
-  color: --hoverColor;
-}
-
-.primary:focus {
-  color: --focusColor;
-}
-
-.border {
-  border: 1px solid --backgroundColor;
-}
-
-.border-bottom {
-  border-bottom: 1px solid --backgroundColor;
-}
-
-.border-button {
-  background: none;
-  border: 2px solid --backgroundColor;
-  color: --textColor;
-}
-
-.border-button:hover {
-  background: none;
-  border-color: --hoverColor;
-}
-
 .small-button {
   font-size: 12px;
   padding: 6px 8px;
 }
 
-button:focus {
-  background-color: --primaryColor;
-  color: --focusColor;
-}
-
 button {
-  font-family: --primaryFont;
   font-weight: bold;
   font-size: 14px;
   display: inline-block;
@@ -115,8 +61,6 @@ button {
   vertical-align: middle;
   overflow: hidden;
   text-decoration: none;
-  color: --whiteColor;
-  background-color: --secondaryColor;
   text-align: center;
   cursor:pointer;
   white-space:nowrap;
@@ -126,15 +70,8 @@ button {
   -moz-user-select:none;
   -ms-user-select:none;
   user-select:none;
-  border-image: linear-gradient(to right,--primaryColor,--secondaryColor) 1 stretch;
-  border: 0px solid --secondaryColor;
   border-radius: 3px;
   transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-}
-
-button:hover {
-  color: --hoverColor;
-  background: --primaryColor;
 }
 
 button:disabled {
@@ -145,5 +82,51 @@ button:disabled {
 
 button:disabled:hover {
   box-shadow:none;
-};
+}
 
+input {
+  border-radius: 3px;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
+}
+
+input[type=color]{
+  height: 34px;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+}
+
+textarea{
+  border-radius: 3px;
+  overflow: auto;
+}
+
+input:disabled, textarea:disabled {
+  opacity: 0.5;
+}
+
+input::placeholder, input::-ms-input-placeholder, textarea::placeholder, textarea::-ms-input-placeholder {
+  opacity: 0.5;
+}
+
+select {
+  border-radius: 3px;
+  font-size: 13px;
+  padding: 9px 8px 8px;
+  opacity: 1;
+}
+
+select:disabled {
+  opacity: 0.5;
+}
+
+option {
+  font-size: 14px;
+  border: none;
+}
+
+option:disabled {
+  opacity: 0.5;
+}

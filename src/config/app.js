@@ -3,7 +3,6 @@ import * as dateLocales from 'date-fns/locale/';
 
 import { version } from '../../package.json';
 import * as locales from './locales';
-import theme from '../styles/theme.css';
 import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 
 const serverSide = true
@@ -26,7 +25,6 @@ export const store = {
   session: {
     version: version,
     locales: locales,
-    theme: theme,
     serverSide: serverSide,
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
     languages: languages,
@@ -100,7 +98,8 @@ export const store = {
   },
   current: { 
     home: "search", module: "login", side: "auto",
-    lang: localStorage.getItem("lang") || "en" 
+    lang: localStorage.getItem("lang") || "en",
+    theme: localStorage.getItem("theme") || "light"
   },
   login: { 
     username: localStorage.getItem("username") || "",

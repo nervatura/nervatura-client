@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
 
@@ -27,7 +28,6 @@ export default (props) => {
   const [state] = useState({
     username: data.login.username,
     login: data.login.data,
-    theme: data.session.theme,
     forms: useForm(),
     showHelp: app.showHelp
   })
@@ -58,7 +58,7 @@ export default (props) => {
           onChange: (form) => {
             setData("current", { modalForm: form })
           }, 
-          onSelect: (row, filter) => {
+          onSelect: (row) => {
             setData("current", { modalForm: null }, ()=>{
               const params = row.id.split("/")
               editor.checkEditor({ 
@@ -115,7 +115,7 @@ export default (props) => {
           cbCancel: () => {
             setData("current", { modalForm: null })
           },
-          cbOK: (value) => {
+          cbOK: () => {
             setData("current", { modalForm: null }, () => {
               editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
             })
@@ -348,7 +348,7 @@ export default (props) => {
     })
   }
 
-  state.loadCompany = (options) =>{
+  state.loadCompany = () =>{
     setData("current", { side: app.getSideBar() }, ()=>{
       editor.checkEditor({ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR')
     })

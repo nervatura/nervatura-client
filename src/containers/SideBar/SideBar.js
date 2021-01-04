@@ -29,11 +29,11 @@ export const Search = memo((props) => {
           <Label text={"search_"+key} leftIcon={<FileText />} col={20}  />
         </button>
         {(group_key === key)?<div className={`${"row full"} ${styles.panelGroup}`} >
-          <button className={`${"full medium primary"} ${styles.panelButton}`} 
+          <button className={`${"full medium"} ${styles.panelButton}`} 
             onClick={()=>quickView(key)} >
             <Label text={"quick_search"} leftIcon={<Bolt />} col={20}  />
           </button>
-          <button className={`${"full medium primary"} ${styles.panelButton}`} 
+          <button className={`${"full medium"} ${styles.panelButton}`} 
             onClick={()=>showBrowser(key)} >
             <Label text={"browser_"+key} leftIcon={<SearchIcon />} col={20}  />
           </button>
@@ -100,7 +100,7 @@ export const Edit = memo((props) => {
     prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy, setLink,
     shippingAddAll, shippingCreate, searchItems, createReport, exportAll, eventExport,
     printReport, bookmarkSave, setPassword, showHelp } = props
-  const { theme, login, forms } = props
+  const { login, forms } = props
   const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
   const editItems = (options)=>{
@@ -133,21 +133,19 @@ export const Edit = memo((props) => {
     }
 
     if (options.state !== "normal") {
-      let color = theme.whiteColor
+      let color = "white"
       let icon = ExclamationTriangle
       switch (options.state) {
         case "deleted":
-          color = theme.redColor
+          color = "red"
           break;
         case "cancellation":
-          color = theme.orangeColor
+          color = "orange"
           break;
         case "closed":
-          color = theme.whiteColor
           icon = Lock
           break;
         case "readonly":
-          color = theme.whiteColor
           icon = Lock
           break;
         default:

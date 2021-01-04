@@ -1,34 +1,19 @@
-:import('../../styles/theme.css') {
-  --primaryFont: primaryFont;
-  --primaryColor: primaryColor;
-  --secondaryColor: secondaryColor;
-  --whiteColor: whiteColor;
-  --backgroundColor: backgroundColor;
-  --textColor: textColor;
-  --lightColor: lightColor;
-  --greenColor: greenColor;
-  --redColor: redColor;
-}
-
 .formPanel {
   width: 100%;
-  border: 1.5px solid --backgroundColor;
   border-top: none;
   border-bottom: none;
   border-radius: 0px;
-  background-color: --whiteColor;
 }
 
 .viewPanel {
   width: 100%;
-  background-color: --lightColor;
 }
 
 .badge {
   font-weight: bold;
   font-size: 14px;
-  background-color: --whiteColor;
-  color: --textColor;
+  color: rgba(var(--primary-rgb),0.85);
+  background-color: var(--light);
   display: inline-block;
   padding: 1px 6px 1px 5px;
   text-align: center;
@@ -45,7 +30,6 @@
 }
 
 .addButton {
-  background-color: --lightColor!important;
   padding: 6px 16px;
 }
 
@@ -59,19 +43,11 @@
 }
 
 .editCol:hover {
-  color: --greenColor;
+  color: var(--success);
 }
 
 .deleteCol:hover {
-  color: --redColor;
-}
-
-.resultTitlePlus {
-  background-color: --secondaryColor;
-  vertical-align: middle;
-  padding: 0px 16px;
-  width: 40px;
-  text-align: right;
+  color: var(--danger);
 }
 
 .totalLabel {
@@ -85,8 +61,6 @@
   white-space: nowrap;
   font-weight: bold;
   padding: 4px 6px;
-  background-color: --whiteColor;
-  border: 1px solid --backgroundColor;
   border-radius: 3px;
   margin-left: 8px;
 }
@@ -94,40 +68,30 @@
 .rtfEditor {
   padding: 8px;
   width: 100%;
-  border-bottom: 1px solid --backgroundColor;
   min-height: 65px;
 }
 
 .barButton {
   border-radius: 0px;
-  background-color: --whiteColor;
-  border: 1px solid --backgroundColor;
   margin-left: -0.7px;
 }
 
-.barButton:hover {
-  color: --hoverColor!important;
-}
-
 .barButton:focus {
-  color: inherit;
-  background-color: --lightColor;
   outline: none;
 }
 
 .activeStyle {
-  background-color: --backgroundColor;
+  background-color: var(--info);
 }
 
 .itemTitle {
-  color: --whiteColor;
-  background-color: --secondaryColor;
   font-weight: bold;
 }
 
 .itemTitlePre {
+  font-weight: bold;
   padding-right: 6px;
-  color: --backgroundColor;
+  opacity: 0.5;
 }
 
 .closeIcon {
@@ -135,7 +99,7 @@
 }
 
 .closeIcon:hover {
-  color: --redColor;
+  color: var(--danger);
 }
 
 .pdfPage {

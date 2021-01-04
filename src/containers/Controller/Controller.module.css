@@ -1,19 +1,3 @@
-:import('../../styles/theme.css') {
-  --primaryFont: primaryFont;
-  --primaryColor: primaryColor;
-  --secondaryColor: secondaryColor;
-  --whiteColor: whiteColor;
-  --backgroundColor: backgroundColor;
-  --greenColor: greenColor;
-  --focusColor: focusColor;
-  --linkColor: linkColor;
-  --redColor: redColor;
-  --hoverColor: hoverColor;
-  --lightColor: lightColor;
-  --textColor: textColor;
-  --lightBlack: lightBlack;
-}
-
 .label_info_left {
   padding: 2px 0px 0px 3px;
 }
@@ -34,58 +18,8 @@
   margin: auto;
 }
 
-select {
-  font-family: --primaryFont;
-  border-radius: 3px;
-  border: 1px solid --backgroundColor;
-  background: --whiteColor;
-  color: --primaryColor;
-  font-size: 13px;
-  padding: 8px;
-  opacity: 1;
-}
-
-select:disabled {
-  opacity: 0.5;
-}
-
-input, textarea {
-  font-family: --primaryFont;
-  border-radius: 3px;
-  border: 1px solid --backgroundColor;
-  background: --whiteColor;
-  color: --primaryColor;
-  font-size: 14px;
-  padding: 8px;
-  display: block;
-  opacity: 1;
-}
-
-textarea{
-  overflow: auto;
-}
-
-input:disabled, textarea:disabled {
-  opacity: 0.5;
-}
-
-input::placeholder, input::-ms-input-placeholder, textarea::placeholder, textarea::-ms-input-placeholder {
-  opacity: 0.5;
-};
-
-option {
-  font-family: --primaryFont;
-  background-color: --whiteColor;
-  color: --primaryColor;
-  font-size: 14px;
-}
-
-option:disabled {
-  opacity: 0.5;
-}
-
 .optionPlaceholder {
-  color: --secondaryColor;
+  color: var(--info);
 }
 
 .fieldCell {
@@ -93,40 +27,28 @@ option:disabled {
 }
 
 .toggleOn {
-  color: --greenColor;
+  color: var(--success);
 }
 
-.toggleBorder {
+.toggle {
   text-align: center;
   cursor: pointer;
   width: 100%;
-  background-color: --whiteColor;
-  border: 1px solid --backgroundColor;
   border-radius: 3px;
 }
 
-.toggleBorder:hover {
-  border: 1px solid --focusColor;
-}
-
-.lnkBox {
+.link {
   width: 100%;
-  border: 1px solid --backgroundColor;
   border-radius: 3px;
   padding: 6px 8px 5px;
   vertical-align: middle;
   min-height: 35px;
 }
 
-.lnkBox:hover {
-  border: 1px solid --focusColor;
-}
-
 .lnkText {
-  font-family: --primaryFont;
   font-size: 14px;
   cursor: pointer;
-  color: --linkColor;
+  color: var(--info);
 }
 
 .lnkText:hover {
@@ -134,7 +56,7 @@ option:disabled {
 }
 
 .toggleOff {
-  color: --backgroundColor;
+  opacity: 0.5;
 }
 
 .toggleDisabled {
@@ -147,7 +69,7 @@ option:disabled {
 }
 
 .fieldvalueDelete:hover {
-  color: --redColor;
+  color: var(--danger);
 }
 
 .searchCol {
@@ -168,24 +90,8 @@ option:disabled {
   padding-top: 30px!important;
 }
 
-.dialog {
-  border-radius: 5px;
-  border: 1px solid --lightBlack;
-  box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
-  margin: 0 auto;
-  animation: animatezoom 0.6s;
-  background: --whiteColor;
-  width: 100%;
-  max-width: 600px;
-  min-width: 280px;
-}
-
-.reportSettings {
-  max-width: 400px;
-}
-
 .labelRow {
-  background-color: --lightColor;
+  color: rgba(var(--info-rgb),0.6);
 }
 
 .reportField {
@@ -193,16 +99,8 @@ option:disabled {
 }
 
 .leftbar{
-  border-left: 6px solid --backgroundColor!important;
+  border-left: 8px solid rgba(var(--warning-rgb),0.8)!important;
   padding: 8px;
   font-style: italic;
   font-size: 13px;
-  background-color: --lightColor;
-}
-
-input[type=color]{
-  height: 34px;
-  border: none;
-  padding: 0px;
-  cursor: pointer;
 }

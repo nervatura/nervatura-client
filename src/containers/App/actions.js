@@ -1,9 +1,9 @@
-import React, { useContext, createElement } from 'react';
+import React, { useContext } from 'react';
 import update from 'immutability-helper';
 import 'whatwg-fetch';
 import { formatISO } from 'date-fns'
 
-import { toast, Zoom } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Toast from 'components/Toast'
 
@@ -348,7 +348,6 @@ export const useApp = () => {
 
   const showToast = (params) => {
     const autoClose = (params.autoClose === false) ? false : getSetting("toastTime")
-    const toastId = params.key || params.type
     switch (params.type) {
       case "error":
         toast.error(
@@ -368,25 +367,6 @@ export const useApp = () => {
       case "info":
         toast.info(
           <Toast icon="info" message={params.message} />, { autoClose: autoClose })
-        break;
-      
-      case "message":
-        /* istanbul ignore next */
-        toast.dismiss(toastId)
-        toast(
-          <Toast type="message" message={params.message} title={params.title} />, { 
-            autoClose: autoClose, toastId: toastId,
-            position: "top-right", closeButton: false, transition: Zoom })
-        break;
-      
-      case "custom":
-        /* istanbul ignore next */
-        toast.dismiss()
-        //modal(true)
-        toast(createElement(params.form, { ...params.props }), { 
-          autoClose: false, className: "input-box", toastId: toastId,
-          position: "top-center", draggable: false,
-          closeButton: false, transition: Zoom, closeOnClick: false })
         break;
     
       default:

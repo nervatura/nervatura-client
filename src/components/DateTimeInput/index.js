@@ -3,6 +3,7 @@ import { formatISO, isValid, parseISO } from 'date-fns'
 
 import { DateTimeInput } from "./DateTimeInput";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
 
   const { value, onChange, placeholder, dateTime,

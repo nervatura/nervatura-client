@@ -9,18 +9,17 @@ import { useQueries } from 'containers/Controller/Queries'
 
 import styles from './ModalForm.module.css';
 import { InputBox, ReportSettings, FormulaBox, SelectorView, ShippingBox, StockBox, 
-  TransBox, BookmarkBox, AuditBox, MenuBox, TemplateBox } from './ModalForm'
+  TransBox, BookmarkBox, AuditBox, MenuBox, TemplateBox, TotalBox } from './ModalForm'
 
 export const SelectorForm = (props) => {
   const app = useApp()
   const search = useSearch()
   const queries = useQueries()
-  const { data } = useContext(AppStore);
   return (params) => {
     const { type, filter, onChange, onSelect } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog}`} >{createElement(SelectorView, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog}`} >{createElement(SelectorView, { ..._props })}</div> 
       </div>)
     }
     let formProps = {
@@ -46,7 +45,6 @@ export const SelectorForm = (props) => {
         onChange(form(formProps))
       },
       queries: queries, 
-      theme: data.session.theme,
       ui: app.getSetting("ui"),
       filter: filter,
       data: {
@@ -65,7 +63,7 @@ export const ReportForm = (props) => {
     const { onChange, onOutput } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(ReportSettings, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(ReportSettings, { ..._props })}</div> 
       </div>)
     }
     const direction = (data.edit.current.type === "trans") ? 
@@ -146,7 +144,7 @@ export const FormulaForm = (props) => {
     const { onChange, calcFormula } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(FormulaBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(FormulaBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -174,7 +172,7 @@ export const ShippingForm = (props) => {
     const { onChange, updateShipping } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(ShippingBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(ShippingBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -204,7 +202,7 @@ export const StockForm = (props) => {
     const { onChange } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(StockBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(StockBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -224,7 +222,7 @@ export const TransForm = (props) => {
     const { onChange, createTrans } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(TransBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(TransBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -274,7 +272,7 @@ export const InputForm = (props) => {
       labelOK, cbOK, cbCancel, onChange } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(InputBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(InputBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -319,7 +317,7 @@ export const BookmarkForm = (props) => {
     const { getText, onChange, onSelect, onDelete, bookmark } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog}`} >{createElement(BookmarkBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog}`} >{createElement(BookmarkBox, { ..._props })}</div> 
       </div>)
     }
     const setBookmark = ()=> bookmark.bookmark.map(item => {
@@ -394,7 +392,7 @@ export const AuditForm = (props) => {
     const { onChange, updateAudit } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(AuditBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(AuditBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -472,7 +470,7 @@ export const MenuForm = (props) => {
     const { onChange, updateMenu } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(MenuBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(MenuBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -503,7 +501,7 @@ export const DataForm = (props) => {
     const { onChange, updateData } = params
     const form = (_props) => {
       return (<div className={`${"modal"} ${styles.modal}`} >
-        <div className={`${styles.dialog} ${styles.width400}`} >{createElement(TemplateBox, { ..._props })}</div> 
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(TemplateBox, { ..._props })}</div> 
       </div>)
     }
     let formProps = update({}, {$set: {
@@ -525,6 +523,28 @@ export const DataForm = (props) => {
         { value: "table", text: "TABLE" }
       ], 
       columns: ""
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const TotalForm = (props) => {
+  return (params) => {
+    const { onChange } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(TotalBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {$merge: {
+          [key]: value
+        }})
+        onChange(form(formProps))
+      },
+      total: params.total
     }})
     onChange(form(formProps))
   }

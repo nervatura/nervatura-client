@@ -7,7 +7,7 @@ describe('Controls', () => {
 
   it('Spinner with Loading', () => {
 
-    const testRenderer = create(<Spinner theme={{primaryColor: "white"}} />);
+    const testRenderer = create(<Spinner />);
     expect(testRenderer.root.findAllByType("svg").length).toBe(0)
   });
 });

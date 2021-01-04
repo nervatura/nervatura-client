@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { ListView } from "./List";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { rows, labelAdd, addIcon, editIcon, deleteIcon,
     listFilter, filterPlaceholder,

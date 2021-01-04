@@ -6,6 +6,7 @@ import { getSql, useApp } from 'containers/App/actions'
 
 import { Login } from './Login';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const app = useApp()
@@ -16,6 +17,7 @@ export default (props) => {
 
   state.data = data.login
   state.user = data.session.user
+  state.theme = data.current.theme
   
   const userLog = async (loginData) => {
     let options = { 
@@ -215,6 +217,12 @@ export default (props) => {
     } else {
       app.resultError(result)
     }
+  }
+
+  state.setTheme = () => {
+    const theme = (state.theme === "light") ? "dark" : "light"
+    setData("current", { theme: theme })
+    localStorage.setItem("theme", theme);
   }
 
   return(

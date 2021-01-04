@@ -8,18 +8,20 @@ import { useSearch } from './actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useQueries } from 'containers/Controller/Queries'
 import { QuickView, BrowserView } from './Search';
+import { TotalForm } from 'containers/ModalForm'
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
   const search = useSearch()
   const editor = useEditor()
   const queries = useQueries()
   const app = useApp()
+  const showTotal =  TotalForm()
 
   const [state] = useState({
     engine: data.login.data.engine,
     queries: queries,
-    theme: data.session.theme,
     ui: app.getSetting("ui"),
     getText: app.getText,
     showHelp: app.showHelp
@@ -359,9 +361,6 @@ export default (props) => {
         return parseFloat(value)
       }
     }
-    const formatNumber = (number) => {
-      return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-    }
     state.data.result.forEach(row => {
       if (deffield) {
         if (typeof total.totalFields[row.fieldname] !== "undefined") {
@@ -389,19 +388,15 @@ export default (props) => {
       }
     });
     if(df){
-      const content = Object.keys(total.totalFields).map(fieldname => 
-        `<div class="row full">
-          <div class="cell bold padding-tiny half">
-            <span>${total.totalLabels[fieldname]}</span>
-          </div>
-          <div class="cell padding-tiny half">
-            <input class="align-right bold right full" 
-              type="text" disabled="disabled"
-              value="${formatNumber(total.totalFields[fieldname])}"/>
-          </div>
-        </div>`)
-      app.showToast({ type: "message", autoClose: false,
-        title: app.getText("browser_total"), message: content.join("") })
+      showTotal({
+        total: total, 
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        cbCancel: () => {
+          setData("current", { modalForm: null })
+        }
+      })
     }
   }
 

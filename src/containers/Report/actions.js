@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
-import pdfjsLib from 'pdfjs-dist/webpack';
 import { formatISO } from 'date-fns'
 
 import AppStore from 'containers/App/context'
@@ -60,7 +59,8 @@ export const useReport = (props) => {
 
   const loadPreview = (params) => {
     setData("current", { "request": true })
-    pdfjsLib.getDocument({
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.min.worker.js';
+    window.pdfjsLib.getDocument({
       url: data.session.proxy+data.session.basePath+reportPath(params),
       httpHeaders: { Authorization: `Bearer ${data.login.data.token}` }
     }).promise.then((pdf) => {
