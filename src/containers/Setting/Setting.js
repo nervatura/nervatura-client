@@ -535,7 +535,7 @@ export const Setting = memo((props) => {
   return (
     <Fragment>
       <div className={`${"page padding-normal"} ${theme}`} >
-        <div className={`${"panel"}`} >
+        <div className={`${"panel"} ${styles.width800}`} >
           <div className="panel-title primary">
             <Label bold primary xxxlarge value={caption} 
               leftIcon={createElement(icon)} col={20} />

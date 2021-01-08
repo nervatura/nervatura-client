@@ -22,8 +22,7 @@ export default (props) => {
   const [state] = useState({
     engine: data.login.data.engine,
     ui: app.getSetting("ui"),
-    theme: data.current.theme,
-    getText: app.getText
+    theme: data.current.theme
   })
 
   state.data = data.edit
@@ -34,6 +33,10 @@ export default (props) => {
   useEffect(() => {
     pageRender(state.viewerRef.current, state.canvasRef.current, state.data.preview)
   },[state.viewerRef, state.canvasRef, state.data.preview])
+  
+  state.getText = (key, defValue) => {
+    return app.getText(key, defValue)
+  }
 
   state.formatNumber = (number, digit) => {
     const value = (!isNaN(parseFloat(number))) ? parseFloat(number) : 0

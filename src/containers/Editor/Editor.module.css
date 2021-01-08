@@ -5,6 +5,10 @@
   border-radius: 0px;
 }
 
+.width800 {
+  max-width: 800px;
+}
+
 .viewPanel {
   width: 100%;
 }

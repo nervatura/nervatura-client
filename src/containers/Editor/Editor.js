@@ -452,22 +452,24 @@ export const Editor = memo((props) => {
   return (
     <Fragment>
       <div className={`${"page padding-normal"} ${theme}`} >
-        <div className={`${"panel"}`} >
-          <div className="panel-title primary">
-            <Label bold primary xxxlarge value={caption} 
-              leftIcon={createElement(template.options.icon)} col={20} />
+        <div className={`${styles.width800}`}>
+          <div className={`${"panel"}`} >
+            <div className="panel-title primary">
+              <Label bold primary xxxlarge value={caption} 
+                leftIcon={createElement(template.options.icon)} col={20} />
+            </div>
+            {(current.form)?
+              <div className="section container" ><ItemEditor {...props}/></div>:
+              <div className="section container" >
+                <MainEditor {...props} />
+                <FieldEditor {...props} />
+                <ReportEditor {...props} />
+                <NoteEditor {...props} />
+                {Object.keys(template.view).filter(
+                  (vname)=>(template.view[vname].view_audit !== "disabled")).map(
+                    (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
+              </div>}
           </div>
-          {(current.form)?
-            <div className="section container" ><ItemEditor {...props}/></div>:
-            <div className="section container" >
-              <MainEditor {...props} />
-              <FieldEditor {...props} />
-              <ReportEditor {...props} />
-              <NoteEditor {...props} />
-              {Object.keys(template.view).filter(
-                (vname)=>(template.view[vname].view_audit !== "disabled")).map(
-                  (vname) =><ViewEditor key={vname} vname={vname} {...props} />)}
-            </div>}
         </div>
       </div>
     </Fragment>

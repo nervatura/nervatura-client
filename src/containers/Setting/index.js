@@ -19,7 +19,6 @@ export default (props) => {
     engine: data.login.data.engine,
     ui: app.getSetting("ui"),
     theme: data.current.theme,
-    getText: app.getText,
     getMapCtr: template.getMapCtr,
     getElementType: template.getElementType
   })
@@ -38,6 +37,10 @@ export default (props) => {
       template.createMap(map)
     }
   }, [template]);
+
+  state.getText = (key, defValue) => {
+    return app.getText(key, defValue)
+  }
 
   state.setViewActions = (params, _row) => {
     setting.setViewActions(params, _row)

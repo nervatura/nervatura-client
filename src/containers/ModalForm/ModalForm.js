@@ -475,7 +475,7 @@ export const BookmarkBox = (props) => {
   const { getText, valueChange, selectRow, deleteRow, onClose } = props
   const { tabView, paginationPage, bookmarkList, historyList } = props
   return(
-    <div className={`${"panel"} ${styles.width800}`} >
+    <div className={`${"panel"}`} >
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">

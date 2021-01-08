@@ -23,6 +23,22 @@ export const MenuBar = memo((props) => {
               leftIcon={<Close className={`${styles.selected} ${styles.exit}`} />} text="menu_hide" />:
             <Label leftIcon={<Bars width="24" height="24" />} text="menu_side" />}
         </div>
+        <div className={`${"hide-small hide-medium"} ${selected("search")} ${styles.menuitem}`} onClick={() => loadModule("search") } >
+          <Label leftIcon={<Search />} text="menu_search" />
+        </div>
+        <div className={`${"hide-small hide-medium"} ${selected("edit")} ${styles.menuitem}`} onClick={() => loadModule("edit") } >
+          <Label leftIcon={<Edit />} text="menu_edit" />
+        </div>
+        <div className={`${"hide-small hide-medium"} ${selected("setting")} ${styles.menuitem}`} onClick={() => loadModule("setting") } >
+          <Label leftIcon={<Cog />} text="menu_setting" />
+        </div>
+        <div className={`${"hide-small hide-medium"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >
+          <Label leftIcon={<Star />} text="menu_bookmark" />
+        </div>
+        <div className={`${"hide-small hide-medium"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
+          <Label leftIcon={<QuestionCircle />} text="menu_help" />
+        </div>
+
         {(scrollTop)?<div className={`${styles.menuitem}`} onClick={() => setScroll() } >
           <HandUp />
         </div>:null}
@@ -31,19 +47,19 @@ export const MenuBar = memo((props) => {
         <Exit width="24" height="24"/>
       </div>
       <div className={`${"cell"} ${"right"} ${styles.container}`}>
-        <div className={`${"right"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
+        <div className={`${"right hide-large"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
           <Label className="hide-small" leftIcon={<QuestionCircle />} text="menu_help" />
         </div>
-        <div className={`${"right"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >
+        <div className={`${"right hide-large"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >
           <Label className="hide-small" leftIcon={<Star />} text="menu_bookmark" />
         </div>
-        <div className={`${"right"} ${selected("setting")} ${styles.menuitem}`} onClick={() => loadModule("setting") } >
+        <div className={`${"right hide-large"} ${selected("setting")} ${styles.menuitem}`} onClick={() => loadModule("setting") } >
           <Label className="hide-small" leftIcon={<Cog />} text="menu_setting" />
         </div>
-        <div className={`${"right"} ${selected("edit")} ${styles.menuitem}`} onClick={() => loadModule("edit") } >
+        <div className={`${"right hide-large"} ${selected("edit")} ${styles.menuitem}`} onClick={() => loadModule("edit") } >
           <Label className="hide-small" leftIcon={<Edit />} text="menu_edit" />
         </div>
-        <div className={`${"right"} ${selected("search")} ${styles.menuitem}`} onClick={() => loadModule("search") } >
+        <div className={`${"right hide-large"} ${selected("search")} ${styles.menuitem}`} onClick={() => loadModule("search") } >
           <Label className="hide-small" leftIcon={<Search />} text="menu_search" />
         </div>
       </div>
