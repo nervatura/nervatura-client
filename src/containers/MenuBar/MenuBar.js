@@ -6,7 +6,7 @@ import { HandUp, Bars, Close, Exit, Search, Edit, Cog, Star, QuestionCircle } fr
 
 export const MenuBar = memo((props) => {
   const topMenu = useRef(null);
-  const { signOut, loadModule, sideBar, setScroll, showBookmarks } = props
+  const { signOut, loadModule, sideBar, setScroll, showBookmarks, showHelp } = props
   const { side, scrollTop } = props.data
   const selected = (key) => {
     if(key === props.data.module){
@@ -35,19 +35,22 @@ export const MenuBar = memo((props) => {
         <div className={`${"hide-small hide-medium"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >
           <Label leftIcon={<Star />} text="menu_bookmark" />
         </div>
-        <div className={`${"hide-small hide-medium"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
+        <div className={`${"hide-small hide-medium"} ${selected("help")} ${styles.menuitem}`} onClick={() => showHelp() } >
           <Label leftIcon={<QuestionCircle />} text="menu_help" />
+        </div>
+        <div className={`${"hide-small hide-medium"} ${styles.menuitem} ${styles.exit}`} onClick={() => signOut() } >
+          <Label leftIcon={<Exit />} text="menu_logout" />
         </div>
 
         {(scrollTop)?<div className={`${styles.menuitem}`} onClick={() => setScroll() } >
           <HandUp />
         </div>:null}
       </div>
-      <div className={`${"right"} ${styles.menuitem} ${styles.exit}`} onClick={() => signOut() } >
+      <div className={`${"right hide-large"} ${styles.menuitem} ${styles.exit}`} onClick={() => signOut() } >
         <Exit width="24" height="24"/>
       </div>
       <div className={`${"cell"} ${"right"} ${styles.container}`}>
-        <div className={`${"right hide-large"} ${selected("help")} ${styles.menuitem}`} onClick={() => loadModule("help") } >
+        <div className={`${"right hide-large"} ${selected("help")} ${styles.menuitem}`} onClick={() => showHelp() } >
           <Label className="hide-small" leftIcon={<QuestionCircle />} text="menu_help" />
         </div>
         <div className={`${"right hide-large"} ${selected("bookmark")} ${styles.menuitem}`} onClick={() => showBookmarks() } >

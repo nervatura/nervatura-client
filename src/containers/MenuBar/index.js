@@ -33,6 +33,10 @@ export default (props) => {
     setData("current", { side: app.getSideBar() })
   }
 
+  state.showHelp = () => {
+    app.showHelp("")
+  }
+
   state.loadModule = (key) => {
     setData("current", { module: key, menu: "" }, ()=>{
       if(key === "setting" && !data.setting.group_key){

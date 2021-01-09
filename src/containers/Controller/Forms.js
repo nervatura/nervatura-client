@@ -2217,13 +2217,11 @@ export const useForm = () => {
               }} 
             }
           })
-          //item.ratetype = getItemFromKey(page_edit.dataset.ratetype, 
-          //  "groupvalue", "rate").item.id;
-          //let def_rate_currency = getItemFromKey(page_edit.dataset.settings, 
-          //  "fieldname", "default_currency");
-          //if (typeof def_rate_currency !== "undefined") {
-          //  item.curr = def_rate_currency.item.value;
-          //}
+          item.ratetype = edit.dataset.ratetype.filter(item => (item.groupvalue === "rate"))[0].id
+          let def_rate_currency = edit.dataset.settings.filter(item => (item.fieldname === "default_currency"))[0]
+          if (typeof def_rate_currency !== "undefined") {
+            item.curr = def_rate_currency.value;
+          }
         }
       }
       return rate;

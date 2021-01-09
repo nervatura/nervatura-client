@@ -2,7 +2,7 @@ import React from 'react';
 import update from 'immutability-helper';
 
 import styles from './ModalForm.module.css';
-import { Label, Select, Input } from 'containers/Controller'
+import { Label, Select, Input, FormRow } from 'containers/Controller'
 import { Times, ChartBar, Magic, Check, Search as SearchIcon, CaretRight,
   ExclamationTriangle, Truck, Book, FileText, CheckSquare, SquareEmpty, 
   Star, History, Key, Share, Plus, InfoCircle } from 'components/Icons';
@@ -778,6 +778,57 @@ export const TotalBox = (props) => {
         <div className={`${"row full"}`}>
           <div className={`${"cell padding-small"}`} >
             <button className={`${"full primary"}`} onClick={onClose} >
+              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+            </button>
+          </div>
+        </div>
+      </div> 
+    </div>
+  )
+}
+
+export const ServerBox = (props) => {
+  const { onClose, valueChange, sendServerCmd } = props
+  const { cmd, fields, values } = props.params
+  return(
+    <div className={`${"panel"}`} >
+      <div className="panel-title primary">
+        <div className="row full">
+          <div className="cell">
+            <Label value={cmd.description} leftIcon={<Share />} col={20} />
+          </div>
+          <div className={`${"cell align-right"} ${styles.closeIcon}`}>
+            <Times onClick={onClose} />
+          </div>
+        </div>
+      </div>
+      {fields.map((field, index) =>
+        <FormRow key={index}
+          row={{
+            rowtype: "field", 
+            name: field.fieldname,
+            datatype: field.fieldtypeName,
+            label: field.description }} 
+          values={values}
+          rowdata={{
+            audit: "all",
+            current: {},
+            dataset: {},
+            onEdit: (options)=>valueChange(options.name, options.value)
+          }} 
+        />
+      )}
+      <div className={`${"row full section container-small secondary-title"}`}>
+        <div className={`${"row full"}`}>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full"} ${styles.closeIcon} `}
+              onClick={ ()=>onClose() } >
+              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+            </button>
+          </div>
+          <div className={`${"cell padding-small half"}`} >
+            <button className={`${"full primary"}`}
+              onClick={ ()=>sendServerCmd() } >
               <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
             </button>
           </div>

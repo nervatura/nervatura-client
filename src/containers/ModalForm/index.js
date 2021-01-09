@@ -9,7 +9,7 @@ import { useQueries } from 'containers/Controller/Queries'
 
 import styles from './ModalForm.module.css';
 import { InputBox, ReportSettings, FormulaBox, SelectorView, ShippingBox, StockBox, 
-  TransBox, BookmarkBox, AuditBox, MenuBox, TemplateBox, TotalBox } from './ModalForm'
+  TransBox, BookmarkBox, AuditBox, MenuBox, TemplateBox, TotalBox, ServerBox } from './ModalForm'
 
 export const SelectorForm = (props) => {
   const app = useApp()
@@ -523,6 +523,31 @@ export const DataForm = (props) => {
         { value: "table", text: "TABLE" }
       ], 
       columns: ""
+    }})
+    onChange(form(formProps))
+  }
+}
+
+export const ServerForm = (props) => {
+  return (params) => {
+    const { onChange, sendServerCmd } = params
+    const form = (_props) => {
+      return (<div className={`${"modal"} ${styles.modal}`} >
+        <div className={`${"dialog"} ${styles.dialog} ${styles.width400}`} >{createElement(ServerBox, { ..._props })}</div> 
+      </div>)
+    }
+    let formProps = update({}, {$set: {
+      onClose: ()=>onChange(null),
+      valueChange: (key, value)=>{
+        formProps = update(formProps, {params: {values: {$merge: {
+          [key]: value
+        }}}})
+        onChange(form(formProps))
+      },
+      sendServerCmd: () => {
+        sendServerCmd(formProps.params)
+      },
+      params: params.params
     }})
     onChange(form(formProps))
   }

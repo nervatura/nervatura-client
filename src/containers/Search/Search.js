@@ -12,10 +12,10 @@ import Table from 'components/Table';
 export const BrowserView = memo((props) => {
   const { browserFilter, dropDown, showBrowser, getText, browserView, onEdit, 
     setColumns, showColumns, addFilter, editFilter, deleteFilter, checkTotalFields,
-    showTotal, exportResult, setActions, bookmarkSave, showHelp } = props
+    showTotal, exportResult, setActions, bookmarkSave, showHelp, onPage } = props
   const { paginationPage, dateFormat, timeFormat, filter_opt_1, filter_opt_2 } = props.ui
   const { queries, current } = props
-  const { vkey, view, browser_filter, dropdown, result, columns, filters, deffield } = props.data
+  const { vkey, view, browser_filter, dropdown, result, columns, filters, deffield, page } = props.data
   const keyMap = queries[vkey]()
   const viewDef = keyMap[view]
   let fields = {
@@ -222,7 +222,8 @@ export const BrowserView = memo((props) => {
               labelYes={getText("label_yes")} labelNo={getText("label_no")}
               dateFormat={dateFormat} timeFormat={timeFormat} 
               paginationPage={paginationPage} paginationTop={true}
-              onEditCell={onEdit} />
+              onEditCell={onEdit} 
+              currentPage={page||1} onCurrentPage={onPage} />
           </div>
         </div>
       </div>

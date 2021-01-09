@@ -41,7 +41,7 @@ export default (props) => {
       id: parseInt(params[2],10), item:row 
     }})
     if (options.ntype === "servercmd") {
-      //showServerCmd(options.id)
+      search.showServerCmd(options.id)
     } else {
       editor.checkEditor(options, 'LOAD_EDITOR')
     }
@@ -65,6 +65,10 @@ export default (props) => {
       }})
     }
     editor.checkEditor(options, 'LOAD_EDITOR')
+  }
+
+  state.onPage = (page) => {
+    setData("search", { page: page })
   }
 
   state.setColumns = (fieldname, value) => {
@@ -322,12 +326,12 @@ export default (props) => {
     if(view.error){
       return app.resultError(view)
     }
-    setData("search", { result: view.result, dropdown: "" })
+    setData("search", { result: view.result, dropdown: "", page: 1 })
   }
   
   state.checkTotalFields = (fields, deffield) => {
     let retval = { totalFields: {}, totalLabels: {}, count: 0 }
-    if (Object.keys(fields).includes("deffield_value")) {
+    if (deffield && Object.keys(fields).includes("deffield_value")) {
       deffield.filter((df)=>((df.fieldtype==="integer")||(df.fieldtype==="float")))
       .forEach((df) => {
          retval = update(retval, { 

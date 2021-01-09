@@ -5,15 +5,23 @@ import update from 'immutability-helper';
 import AppStore from 'containers/App/context'
 import { getSql, useApp } from 'containers/App/actions'
 import { useQueries } from 'containers/Controller/Queries'
+import { ServerForm } from 'containers/ModalForm'
 
 export const useSearch = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const queries = useQueries()
+  const showServer = ServerForm()
 
   const showBrowser = (vkey, view) => {
     setData("current", { side: app.getSideBar() }, async ()=>{
-      let search = update(data.search, {})
+      let search = update(data.search, {$merge: {
+        vkey: vkey, view: view,
+        filters: {}, 
+        columns: {}, 
+        result: [],
+        page: 1
+      }})
       if((search.vkey !== vkey) && queries[vkey]){
         let views = [
           { key: "deffield",
@@ -179,10 +187,82 @@ export const useSearch = () => {
     return await app.requestData("/view", options)
   }
 
+  const showServerCmd = (menu_id) => {
+    const menuCmd = data.login.data.menuCmds.filter(item => (item.id === parseInt(menu_id, 10)))[0]
+    if(menuCmd){
+      const menuFields = data.login.data.menuFields.filter(item => (item.menu_id === parseInt(menu_id, 10)))
+      let params =update({}, {$set: {
+        cmd: menuCmd, 
+        fields: menuFields, 
+        values: {}
+      }})
+      menuFields.forEach(mfield => {
+        switch (mfield.fieldtypeName) {
+          case "bool":
+            params.values[mfield.fieldname] = false
+            break;
+          case "float":
+          case "integer":
+            params.values[mfield.fieldname] = 0
+            break;
+          default:
+            params.values[mfield.fieldname] = ""
+            break;
+        }
+      });
+      showServer({ 
+        params: params,
+        onChange: (form) => {
+          setData("current", { modalForm: form })
+        }, 
+        sendServerCmd: (options) => {
+          setData("current", { modalForm: null }, async ()=>{
+            let query = new URLSearchParams();
+            let values = update({}, {$set: options.values})
+            options.fields.forEach(function(field) {
+              if (field.fieldtypeName === "bool") {
+                query.append(field.fieldname, (field.values[field.fieldname])?1:0)
+                values[field.fieldname] = (field.values[field.fieldname])?1:0
+              } else {
+                query.append(field.fieldname, options.values[field.fieldname])
+              }
+            })
+            if (options.cmd.url === 1) {
+              let server = options.cmd.address || ""
+              if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
+                server = data.session.proxy+data.session.basePath+"/"+options.cmd.funcname
+              }
+              if (server!=="") {
+                window.open(server+"?"+query.toString(), '_system')
+              }
+            } else {
+              if(options.cmd.funcname && (options.cmd.funcname !== "")){
+                let params = { method: "POST", 
+                  data: {
+                    key: options.cmd.funcname,
+                    values: values
+                  }
+                }
+                let result = await app.requestData("/function", params)
+                if(result.error){
+                  app.resultError(result)
+                  return null
+                }
+                app.showToast({ type: "success", title: app.getText("ms_server_response"), 
+                  message: result.result })
+              }
+            }
+          })
+        }
+      })
+    }
+  }
+
   return {
     showBrowser: showBrowser,
     quickSearch: quickSearch,
     getUserFilter: getUserFilter,
-    getDataFilter: getDataFilter
+    getDataFilter: getDataFilter,
+    showServerCmd: showServerCmd
   }
 }
