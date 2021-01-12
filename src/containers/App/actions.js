@@ -606,7 +606,11 @@ export const useApp = () => {
   }
 
   const showHelp = (key) => {
-    
+    const element = document.createElement("A")
+    element.setAttribute("href", data.session.helpPage+key)
+    element.setAttribute("target", "_blank")
+    document.body.appendChild(element)
+    element.click()
   }
 
   return {
