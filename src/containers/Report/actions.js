@@ -61,7 +61,7 @@ export const useReport = (props) => {
     setData("current", { "request": true })
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.min.worker.js';
     window.pdfjsLib.getDocument({
-      url: data.session.proxy+data.session.basePath+reportPath(params),
+      url: data.login.server+reportPath(params),
       httpHeaders: { Authorization: `Bearer ${data.login.data.token}` }
     }).promise.then((pdf) => {
       setData("current", { "request": false })

@@ -104,9 +104,9 @@ export const Input = (props) => {
     }
   }
   
-  return <input id={props.id||""}
+  return <input id={props.id}
     type={props.type||"text"}
-    className={`${props.className||""}`} style={props.style||{}}
+    className={`${props.className}`} style={props.style}
     placeholder={placeholderText} 
     onChange={(props.onChange) ? props.onChange : (evt) => change(props.keys, evt.target.value)}
     onFocus={()=> { setState({...state, focus: true }) }}
@@ -137,8 +137,8 @@ export const Select = (props) => {
     });
   }
   
-  return <select id={props.id||""}
-    className={`${props.className||""}`} style={props.style||{}}
+  return <select id={props.id}
+    className={`${props.className}`} style={props.style}
     onChange={(props.onChange) ? props.onChange : (evt) => change(props.keys, evt.target.value)}
     onFocus={()=> { setState({...state, focus: true }) }}
     onBlur={()=> { setState({...state, focus: false }) }}

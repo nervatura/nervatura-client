@@ -230,7 +230,7 @@ export const useSearch = () => {
             if (options.cmd.url === 1) {
               let server = options.cmd.address || ""
               if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
-                server = data.session.proxy+data.session.basePath+"/"+options.cmd.funcname
+                server = data.login.server+"/"+options.cmd.funcname
               }
               if (server!=="") {
                 window.open(server+"?"+query.toString(), '_system')

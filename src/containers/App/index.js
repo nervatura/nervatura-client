@@ -24,6 +24,19 @@ export default class extends App {
 
   /* istanbul ignore next */
   getPath() {
+    const getParams = (prmString) => {
+      let params = {}
+      prmString.split('&').forEach(prm => {
+        params[prm.split("=")[0]] = prm.split("=")[1]
+      });
+      return params
+    }
+    if(window.location.hash){
+      return ["hash", getParams(window.location.hash.substring(1))]
+    }
+    if(window.location.search){
+      return ["search", getParams(window.location.search.substring(1))]
+    }
     const path = window.location.pathname.substring(1).split("/")
     return [path[0], path.slice(1)]
   }

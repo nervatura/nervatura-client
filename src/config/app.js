@@ -5,7 +5,9 @@ import { version } from '../../package.json';
 import * as locales from './locales';
 import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 
-const serverSide = true
+const publicHost = "nervatura.github.io"
+const basePath = "/api"
+
 const languages = [{ value: "en", text:"English" }]
 const calendarLocales = [
   ["bg", "bg"], ["cs", "cs"], ["da", "da"], ["de", "de"], ["el", "el"], 
@@ -25,11 +27,9 @@ export const store = {
   session: {
     version: version,
     locales: locales,
-    serverSide: serverSide,
+    configServer: false,
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
     languages: languages,
-    proxy: process.env.REACT_APP_PROXY||"",
-    basePath: "/api",
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -104,7 +104,11 @@ export const store = {
   },
   login: { 
     username: localStorage.getItem("username") || "",
-    database: localStorage.getItem("database") || ""  
+    database: localStorage.getItem("database") || "",
+    server: 
+      (!localStorage.getItem("server") || (localStorage.getItem("server") === ""))
+      ? (window.location.hostname !== publicHost) ? window.location.origin+basePath : ""
+      : localStorage.getItem("server")
   },
   search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },

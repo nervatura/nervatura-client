@@ -35,11 +35,11 @@
     "ical.js": "^1.4.0",
     "immutability-helper": "^3.1.1",
     "react": "^17.0.1",
-    "react-datepicker": "^3.3.0",
+    "react-datepicker": "^3.4.1",
     "react-dom": "^17.0.1",
     "react-pagify": "^2.4.0",
-    "react-scripts": "4.0.1",
-    "react-toastify": "^6.2.0",
+    "react-scripts": "4.0.2",
+    "react-toastify": "^7.0.3",
     "reactabular-table": "^8.14.0",
     "sanitize.css": "^12.0.1",
     "segmentize": "^0.4.1",
@@ -50,11 +50,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage --watchAll"
+    "test:coverage": "react-scripts test --coverage --watchAll",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -b build -d build"
   },
   "eslintConfig": {
     "extends": [
-      "react-app"
+      "react-app",
+      "react-app/jest"
     ]
   },
   "jest": {
@@ -75,9 +78,10 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.11.8",
-    "@testing-library/react": "^11.2.2",
-    "@testing-library/user-event": "^12.6.0",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
+    "@testing-library/user-event": "^12.7.1",
+    "gh-pages": "^3.1.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "pdfjs-dist": "2.6.347",
     "react-test-renderer": "^17.0.1",

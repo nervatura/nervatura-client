@@ -6,7 +6,7 @@ import { Moon, Sun } from 'components/Icons';
 
 export const Login = memo((props) => {
   const { login, setTheme } = props
-  const { version, languages, serverSide } = props.session
+  const { version, languages, configServer } = props.session
   const { username, database } = props.data
   const { theme } = props
   return (
@@ -29,7 +29,7 @@ export const Login = memo((props) => {
                 </div>
                 <div className="container s12 m8 l8" >
                   <Input id="username" type="text" className="full"
-                    keys={["login","username"]} onEnter={login} />
+                    keys={["login","username"]} />
                 </div>
               </div>
               <div className="row full" >
@@ -52,7 +52,7 @@ export const Login = memo((props) => {
                     keys={["login","database"]} onEnter={login} />
                 </div>
               </div>
-              {(!serverSide)?<div className="row full" >
+              {(!configServer)?<div className="row full" >
                 <div className="padding-normal full" >
                   <Label text="login_server" className="bold" />
                 </div>

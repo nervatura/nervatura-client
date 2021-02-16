@@ -43,7 +43,7 @@ export default (props) => {
           inner_join: ["groups ug", "on", ["e.usergroup", "=", "ug.id"]],
           left_join: ["groups dp", "on", ["e.department", "=", "dp.id"]], 
           where: ["username", "=", "?"] }).sql,
-        values: [data.login.username] },
+        values: [state.data.username] },
       { key: "menuCmds",
         text: getSql(params.engine, { 
           select: ["*"], from: "ui_menu" }).sql,
@@ -187,7 +187,7 @@ export default (props) => {
   state.login = async () => {
     const options = {
       method: "POST",
-      data: update({}, { $set: data.login }) 
+      data: update({}, { $set: state.data }) 
     }
     let result = await app.requestData("/auth/login", options)
     if(result.token && result.engine ){
@@ -210,8 +210,9 @@ export default (props) => {
       //setData("setting", { dirty: false, result: [] })
       setData("current", { module: "search" })
       setData("login", { data: lData })
-      localStorage.setItem("database", data.login.database);
-      localStorage.setItem("username", data.login.username);
+      localStorage.setItem("database", state.data.database);
+      localStorage.setItem("username", state.data.username);
+      localStorage.setItem("server", state.data.server);
       app.loadBookmark({ user_id: lData.employee.id, token: result.token })
 
     } else {
