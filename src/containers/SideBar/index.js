@@ -224,11 +224,16 @@ export default (props) => {
 
   state.changeOrientation = () => {
     setData("current", { side: app.getSideBar() }, ()=>{
-      const options = update(state.preview, {$merge: {
-        orient: (state.preview.orient === "portrait") ? "landscape" : "portrait",
-        module: state.data.module
-      }})
-      report.loadPreview(options)
+      const orient = (state.preview.orient === "portrait") ? "landscape" : "portrait"
+      if(state.preview.template === "template"){
+        template.showPreview(orient)
+      } else {
+        const options = update(state.preview, {$merge: {
+          orient: orient,
+          module: state.data.module
+        }})
+        report.loadPreview(options)
+      }
     })
   }
 

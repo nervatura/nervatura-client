@@ -295,6 +295,7 @@ const request = (url, options) => {
         return response.json()
       
       case "text/plain":
+      case "text/csv":
         return response.text()
     
       default:

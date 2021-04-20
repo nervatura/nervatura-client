@@ -5,7 +5,7 @@ import AppStore from 'containers/App/context'
 import { useApp, saveToDisk } from 'containers/App/actions'
 import { InputForm, DataForm } from 'containers/ModalForm'
 import { Report } from 'containers/Report'
-//import { useReport } from 'containers/Report/actions'
+import { useReport } from 'containers/Report/actions'
 import { TextHeight } from 'components/Icons';
 
 export const useTemplate = () => {
@@ -13,7 +13,7 @@ export const useTemplate = () => {
   const app = useApp()
   const showInput =  InputForm()
   const addData =  DataForm()
-  //const report = useReport()
+  const report = useReport()
 
   const elements = {
     report:{
@@ -1282,40 +1282,65 @@ export const useTemplate = () => {
     })
   }
 
-  const showPreview = () => {
+  const showPreview = (orient) => {
+    const loadPreview = async (data) => {
+      let result = await app.requestData("/report", { method: "POST", data: data })
+      if(result.error){
+        app.resultError(result)
+        return null
+      }
+      report.loadPreview({ 
+        module: "setting",
+        pdf: URL.createObjectURL(result, {type : "application/pdf"}), 
+        refnumber: data.refnumber||"",
+        nervatype: data.nervatype||"",
+        orient: params.orientation,
+        size: params.size,
+        template: "template"
+      })
+    }
     let setting = update(data.setting, {})
     const params = {
-      module: "setting",
-      type: "auto",
-      template: setting.template.key, 
-      title: setting.template.title,
-      orient: app.getSetting("page_orient"), 
+      reportkey: setting.template.key,
+      orientation: orient || app.getSetting("page_orient"),
       size: app.getSetting("page_size"),
-      report: json2xml({ template: setting.template.template })
+      output: "pdf",
+      title: setting.template.title,
+      template: JSON.stringify(setting.template.template)
     }
     if((setting.template.key === "_blank") || (setting.template.key === "_sample")){
-      //report.loadPreview(params)
+      params.reportkey = ""
+      loadPreview(params)
     } else {
       params.nervatype = setting.dataset.template[0].ntype
-      showInput({
-        title: app.getText("template_preview_data"), 
-        message: app.getText("template_preview_input").replace("docname",params.nervatype),
-        value: setting.template.docnumber, 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, async ()=>{
-            if(value !== ""){
-              params.refnumber = value
-              //report.loadPreview(params)
-            }
-          })
-        }
-      })
+      if(setting.preview && (setting.template.docnumber !== "")){
+        params.refnumber = setting.template.docnumber
+        loadPreview(params)
+      } else {
+        showInput({
+          title: app.getText("template_preview_data"), 
+          message: app.getText("template_preview_input").replace("docname",params.nervatype),
+          value: setting.template.docnumber, 
+          onChange: (form) => {
+            setData("current", { modalForm: form })
+          }, 
+          cbCancel: () => {
+            setData("current", { modalForm: null })
+          },
+          cbOK: (value) => {
+            setData("current", { modalForm: null }, async ()=>{
+              if(value !== ""){
+                const template = update(setting.template, {$merge: {
+                  docnumber: value
+                }})
+                setData("setting", { template: template })
+                params.refnumber = value
+                loadPreview(params)
+              }
+            })
+          }
+        })
+      }
     }
   }
 

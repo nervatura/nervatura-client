@@ -187,7 +187,10 @@ export default (props) => {
   state.login = async () => {
     const options = {
       method: "POST",
-      data: update({}, { $set: state.data }) 
+      data: {
+        username: state.data.username, password: state.data.password,
+        database: state.data.database
+      }
     }
     let result = await app.requestData("/auth/login", options)
     if(result.token && result.engine ){

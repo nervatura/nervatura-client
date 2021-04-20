@@ -32,38 +32,36 @@ export const useReport = (props) => {
     pageNumber = pageNumber < 1 ? 1 : pageNumber
     pageNumber = pageNumber > options.pdf.numPages ? options.pdf.numPages : pageNumber
     options.pdf.getPage(pageNumber).then((page) => {
-      let preview = update(data[module], {})
-      preview = update(preview, {$merge: {
-        preview: {
-          type: "pdf",
-          template: options.template,
-          size: options.size,
-          orient: options.orient,
-          pdf: options.pdf,
-          page: page,
-          scale: options.scale || 1,
-          pageNumber: pageNumber,
-          totalPages: options.pdf.numPages
-        }
+      let preview = update({}, {$merge: {
+        type: "pdf",
+        template: options.template,
+        size: options.size,
+        orient: options.orient,
+        pdf: options.pdf,
+        page: page,
+        scale: options.scale || 1,
+        pageNumber: pageNumber,
+        totalPages: options.pdf.numPages
       }})
       if((options.id || options.refnumber) && options.nervatype){
-        preview = update(preview, {preview: {$merge: {
+        preview = update(preview, {$merge: {
           id: options.id,
           refnumber: options.refnumber,
           nervatype: options.nervatype
-        }}})
+        }})
       }
-      setData(module, preview)
+      setData(module, {preview: preview})
     })
   }
 
   const loadPreview = (params) => {
     setData("current", { "request": true })
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.min.worker.js';
-    window.pdfjsLib.getDocument({
+    const pdata = (params.template === "template") ? params.pdf : {
       url: data.login.server+reportPath(params),
       httpHeaders: { Authorization: `Bearer ${data.login.data.token}` }
-    }).promise.then((pdf) => {
+    }
+    window.pdfjsLib.getDocument(pdata).promise.then((pdf) => {
       setData("current", { "request": false })
       setPreviewPage(update(params, {$merge: {
         pdf: pdf
@@ -210,7 +208,8 @@ export const useReport = (props) => {
         break;
       
       case "xls":
-        params.ctype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        //params.ctype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        params.ctype = "text/csv; charset=UTF-8"
         break;
 
       default:
@@ -221,7 +220,14 @@ export const useReport = (props) => {
     if(result && result.error){
       return app.resultError(result)
     }
-    const resultUrl = URL.createObjectURL(result, {type : params.ctype})
+    let resultUrl
+    if((output === "xls") || (output === "csv")){
+      var blob = new Blob([result], { type: 'text/csv;charset=utf-8;' })
+      resultUrl = URL.createObjectURL(blob)
+      output = "csv"
+    } else {
+      resultUrl = URL.createObjectURL(result, {type : params.ctype})
+    }
     let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+output
     filename = filename.split("/").join("_")
     return saveToDisk(resultUrl, filename)
