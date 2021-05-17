@@ -734,7 +734,7 @@ export const useSetting = () => {
             id: null,
             reportkey: reportkey,
             repname: value,
-            report: template.json2xml({template: setting.template.template})
+            report: setting.template.template
           }})
           values = update(values, {
             $unset: ["orientation", "size"]
@@ -743,57 +743,7 @@ export const useSetting = () => {
           if(result.error){
             return app.resultError(result)
           }
-          const id = result[0]
-
-          values = []
-          for (let index = 0; index < setting.dataset.template_reportfields.length; index++) {
-            const reportfield = setting.dataset.template_reportfields[index]
-            values.push(update(tableValues("reportfields", reportfield), {$merge: {
-              id: null,
-              report_id: id,
-              fieldtype: reportfield.fieldtype_id, 
-              wheretype: reportfield.wheretype_id
-            }}))
-          }
-          if(values.length > 0){
-            result = await app.requestData("/ui_reportfields", { method: "POST", data: values })
-            if(result.error){
-              return app.resultError(result)
-            }
-          }
-
-          values = []
-          for (let index = 0; index < setting.dataset.template_sources.length; index++) {
-            const reportsources = setting.dataset.template_sources[index]
-            values.push(update(tableValues("reportsources", reportsources), {$merge: {
-              id: null,
-              report_id: id
-            }}))
-          }
-          if(values.length > 0){
-            result = await app.requestData("/ui_reportsources", { method: "POST", data: values })
-            if(result.error){
-              return app.resultError(result)
-            }
-          }
-
-          values = []
-          for (let index = 0; index < setting.dataset.template_message.length; index++) {
-            const message = setting.dataset.template_message[index]
-            values.push(update(tableValues("message", message), {$merge: {
-              id: null,
-              secname: message.secname.replace(
-                setting.dataset.template[0].reportkey, reportkey)
-            }}))
-          }
-          if(values.length > 0){
-            result = await app.requestData("/ui_message", { method: "POST", data: values })
-            if(result.error){
-              return app.resultError(result)
-            }
-          }
-
-          checkSetting({ type: "template", id: id }, 'LOAD_SETTING')
+          checkSetting({ type: "template", id: result[0] }, 'LOAD_SETTING')
         })
       }
     })

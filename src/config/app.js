@@ -8,7 +8,6 @@ import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 const publicHost = "nervatura.github.io"
 const basePath = "/api"
 
-const languages = [{ value: "en", text:"English" }]
 const calendarLocales = [
   ["bg", "bg"], ["cs", "cs"], ["da", "da"], ["de", "de"], ["el", "el"], 
   ["en", "en"], ["es", "es"], ["fi", "fi"], ["fr", "fr"], ["he", "he"], 
@@ -29,7 +28,6 @@ export const store = {
     locales: locales,
     configServer: false,
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    languages: languages,
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -99,7 +97,7 @@ export const store = {
   },
   current: { 
     home: "search", module: "login", side: "auto",
-    lang: localStorage.getItem("lang") || "en",
+    lang: (localStorage.getItem("lang") && locales[localStorage.getItem("lang")]) ? localStorage.getItem("lang") : "en",
     theme: localStorage.getItem("theme") || "light"
   },
   login: { 

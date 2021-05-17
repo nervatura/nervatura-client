@@ -1,5 +1,3 @@
-import NtReport from './NtReport'
-
 export { Preview } from './Report'
 
 export const pageRender = (viewerRef, canvasRef, data) => {
@@ -24,33 +22,4 @@ export const pageRender = (viewerRef, canvasRef, data) => {
       viewport
     })
   }
-}
-
-export class Report extends NtReport {
-	constructor(_orientation, _unit, _format) {
-    
-    let options = { 
-      orientation: _orientation || "portrait",
-      unit: _unit || "mm",
-      format: _format || "a4",
-      textFilter: [["Ő","Ô"],["ő","ô"],["Ű","Û"],["ű","û"]],
-      fontFamily: "times", fontSize: 11
-    }
-    super(options);
-  }
-
-  getXmlTemplate() {
-    return super.getXmlTemplate(new DOMParser(), new XMLSerializer())
-  }
-
-  loadDefinition(data) {
-    return super.loadDefinition(data, new DOMParser())
-  }
-
-  save2PdfFile(fileName){
-  }
-
-  save2DataUrl(){
-  }
-
 }

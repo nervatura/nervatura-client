@@ -346,8 +346,8 @@ export const useValidator = () => {
           msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_menukey")
         } else if (values.description === null || values.description === "") {
           msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_description")
-        } else if (values.funcname === null || values.funcname === "") {
-          msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_funcname")
+        } else if (values.method === null || values.method === "") {
+          msg_err = app.getText("msg_required")  +" "+ app.getText("menucmd_method")
         } else if(values.id === null) {
           msg_err = await checkUniqueKey(["menukey","=","?"], [values.menukey])
         }
@@ -547,7 +547,9 @@ export const useInitItem = () => {
       case "ui_menu":
         return update({}, {$set: {
           id: null, menukey: null, description: null, modul: null, icon: null, 
-          funcname: null, url: 0, address: null
+          funcname: null, method: dataset.method.filter((group)=> {
+            return (group.groupvalue === "post")
+          })[0].id, address: null
         }})
       
       case "ui_menufields":
@@ -814,29 +816,6 @@ export const useInitItem = () => {
           reportkey: null, nervatype: null, transtype: null, direction: null, repname: null,
           description: null, label: null, filetype: null, report: null,
           orientation: config.page_orient, size: config.page_size
-        }})
-
-      case "reportfields":
-        //ui_reportfields
-        return update({}, {$set: {
-          id: null,
-          report_id: null, fieldname: null, fieldtype: null, wheretype: null,
-          description: null, orderby: 0, sqlstr: null, parameter: 0,
-          dataset: null, defvalue: null, valuelist: null
-        }})
-
-      case "reportsources":
-        //ui_reportsources
-        return update({}, {$set: {
-          id: null,
-          report_id:	null, dataset: null, sqlstr: null
-        }})
-      
-      case "message":
-        //ui_message
-        return update({}, {$set: {
-          id: null,
-          secname: null, fieldname: null, lang: null, msg: null
         }})
         
       case "tax":

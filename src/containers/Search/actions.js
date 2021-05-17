@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
-import { getSql, useApp } from 'containers/App/actions'
+import { getSql, useApp, request } from 'containers/App/actions'
 import { useQueries } from 'containers/Controller/Queries'
 import { ServerForm } from 'containers/ModalForm'
 
@@ -221,13 +221,13 @@ export const useSearch = () => {
             let values = update({}, {$set: options.values})
             options.fields.forEach(function(field) {
               if (field.fieldtypeName === "bool") {
-                query.append(field.fieldname, (field.values[field.fieldname])?1:0)
-                values[field.fieldname] = (field.values[field.fieldname])?1:0
+                query.append(field.fieldname, (options.values[field.fieldname])?1:0)
+                values[field.fieldname] = (options.values[field.fieldname])?1:0
               } else {
                 query.append(field.fieldname, options.values[field.fieldname])
               }
             })
-            if (options.cmd.url === 1) {
+            if (options.cmd.methodName === "get") {
               let server = options.cmd.address || ""
               if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
                 server = data.login.server+"/"+options.cmd.funcname
@@ -236,21 +236,33 @@ export const useSearch = () => {
                 window.open(server+"?"+query.toString(), '_system')
               }
             } else {
-              if(options.cmd.funcname && (options.cmd.funcname !== "")){
-                let params = { method: "POST", 
-                  data: {
-                    key: options.cmd.funcname,
-                    values: values
-                  }
+              let params = { method: "POST", 
+                data: {
+                  key: options.cmd.funcname || options.cmd.menukey,
+                  values: values
                 }
-                let result = await app.requestData("/function", params)
-                if(result.error){
-                  app.resultError(result)
+              }
+              let result
+              if(options.cmd.address && (options.cmd.address !== "")){
+                try {
+                  result = await request(options.cmd.address, options)
+                } catch (error) {
+                  app.resultError(error)
                   return null
                 }
-                app.showToast({ type: "success", title: app.getText("ms_server_response"), 
-                  message: result.result })
+              } else {
+                result = await app.requestData("/function", params)
               }
+              if(result.error){
+                app.resultError(result)
+                return null
+              }
+              let message = result
+              if(typeof result === "object"){
+                message = JSON.stringify(result,null,"  ")
+              }
+              app.showToast({ type: "success", title: app.getText("ms_server_response"), 
+                message: message })
             }
           })
         }

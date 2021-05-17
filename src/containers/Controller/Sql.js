@@ -401,12 +401,9 @@ export const useSql = () => {
     printqueue: {
       server_printers: () => {
         let sql = {
-          select:["t.id","t.serial"],
-          from:"tool t",
-          inner_join:[
-            ["product p","on",[["t.product_id","=","p.id"],["and","p.deleted","=","0"]]],
-            ["groups g","on",[["t.toolgroup","=","g.id"],["and","g.groupvalue","=","'printer'"]]]],
-          where:[["t.deleted","=","0"],["and","t.inactive","=","0"]]}; 
+          select:["m.*"], from:"ui_menu m",
+          inner_join:["groups g","on",[["m.method","=","g.id"],["and","g.groupvalue","=","'printer'"]]],
+        }; 
         return sql;},
               
       items: (params) => {
@@ -706,108 +703,9 @@ export const useSql = () => {
                 ["groups ig","on",["au.inputfilter","=","ig.id"]]],
               where:[["r.nervatype","=",[{select:["id"], from:"groups", 
                 where:[["groupname","=","'nervatype'"],["and","groupvalue","=","?"]]}]],
-                  ["and","fg.groupvalue","in",[[],"'ntr'"]],["and","r.repname","is not null"]], 
+                  ["and","fg.groupvalue","in",[[],"'pdf'"]],["and","r.repname","is not null"]], 
               order_by:["r.repname"]};
-        }},
-            
-      reportfields: (ntype) => {
-        switch (ntype) {
-          case "report":
-            return {
-              select:["rf.id","rf.report_id","rf.fieldname","fg.groupvalue as fieldtype","wg.groupvalue as wheretype",
-                "rf.description","rf.orderby","rf.sqlstr","rf.parameter","rf.dataset","rf.defvalue","rf.valuelist"],
-              from:"ui_reportfields rf",
-              inner_join:[
-                ["groups fg","on",["rf.fieldtype","=","fg.id"]],
-                ["groups wg","on",["rf.wheretype","=","wg.id"]],
-                ["ui_report r","on",["rf.report_id","=","r.id"]]],
-              where:["rf.report_id","=","?"], 
-              order_by:["orderby"]};
-          default:
-            return {
-              select:["rf.id","rf.report_id","rf.fieldname","fg.groupvalue as fieldtype","wg.groupvalue as wheretype",
-                "rf.description","rf.orderby","rf.sqlstr","rf.parameter","rf.dataset","rf.defvalue","rf.valuelist"],
-              from:"ui_reportfields rf",
-              inner_join:[
-                ["groups fg","on",["rf.fieldtype","=","fg.id"]],
-                ["groups wg","on",["rf.wheretype","=","wg.id"]],
-                ["ui_report r","on",["rf.report_id","=","r.id"]],
-                ["groups ffg","on",[["r.filetype","=","ffg.id"],["and","ffg.groupvalue","in",[[],"'ntr'"]]]]],
-              where:[["r.nervatype","=",[{select:["id"], from:"groups", 
-                where:[["groupname","=","'nervatype'"],["and","groupvalue","=","?"]]}]],
-                  ["and","r.repname","is not null"]]};
-        }},
-            
-      sources: (ntype) => {
-        switch (ntype) {
-          case "report":
-            return {select:["*"], from:"ui_reportsources", where:["report_id","=","?"]};
-          case "printqueue":
-            return {select:["*"], from:"ui_reportsources",
-              where:["report_id","in",[{select_distinct:["report_id"], from:"ui_printqueue"}]]};
-          default:
-            return {
-              select:["rs.*"], from:"ui_reportsources rs",
-              inner_join:[ 
-                ["ui_report r","on",["rs.report_id","=","r.id"]],
-                ["groups ffg","on",[["r.filetype","=","ffg.id"],["and","ffg.groupvalue","in",[[],"'ntr'"]]]]],
-              where:[["r.nervatype","=",[{select:["id"], from:"groups", 
-                where:[["groupname","=","'nervatype'"],["and","groupvalue","=","?"]]}]],
-                ["and","r.repname","is not null"]]};
-        }},
-          
-      message: (ntype) => {
-        switch (ntype) {
-          case "report":
-            return {
-              select:["*"], from:"ui_message", 
-              where:[
-                ["secname","in",[
-                  {select:["foo.skey"], from:[[[
-                    {select:["{CCS}r.reportkey{SEP}'_'{SEP}rs.dataset{CCE} as skey"],
-                      from:"ui_reportsources rs",
-                      inner_join:["ui_report r","on",["rs.report_id","=","r.id"]],
-                      where:["r.id","=","?"]},
-                    {union_select:["{CCS}r.reportkey{SEP}'_report'{CCE} as skey"],
-                      from:"ui_report r", where:["r.id","=","?"]}]],"foo"]}
-                ]],
-              ["and","lang","is null"]]};
-          case "printqueue":
-            return {
-              select:["*"], from:"ui_message", 
-              where:[
-                ["secname","in",[
-                  {select:["foo.skey"], from:[[[
-                    {select:["{CCS}r.reportkey{SEP}'_'{SEP}rs.dataset{CCE} as skey"],
-                      from:"ui_reportsources rs",
-                      inner_join:["ui_report r","on",["rs.report_id","=","r.id"]],
-                      where:["r.id","in",[{select_distinct:["report_id"], from:"ui_printqueue"}]]},
-                    {union_select:["{CCS}r.reportkey{SEP}'_report'{CCE} as skey"],
-                      from:"ui_report r", 
-                      where:["r.id","in",[{select_distinct:["report_id"], from:"ui_printqueue"}]]}]],"foo"]}
-                  ]],
-                ["and","lang","is null"]]};
-          default:
-            return {
-              select:["*"], from:"ui_message", 
-              where:[
-                ["secname","in",[
-                  {select:["foo.skey"], from:[[[
-                    {select:["{CCS}r.reportkey{SEP}'_'{SEP}rs.dataset{CCE} as skey"],
-                      from:"ui_reportsources rs",
-                      inner_join:["ui_report r","on",["rs.report_id","=","r.id"]],
-                      where:[["r.nervatype","=",[
-                        {select:["id"], from:"groups", 
-                        where:[["groupname","=","'nervatype'"],["and","groupvalue","=","?"]]}],
-                        ["and","r.repname","is not null"]]]},
-                    {union_select:["{CCS}r.reportkey{SEP}'_report'{CCE} as skey"],
-                      from:"ui_report r",
-                      where:[["r.nervatype","=",[
-                        {select:["id"], from:"groups", 
-                        where:[["groupname","=","'nervatype'"],["and","groupvalue","=","?"]]}],
-                        ["and","r.repname","is not null"]]]}]],"foo"]}
-                  ]], 
-                ["and","lang","is null"]]};}}
+        }}
     },
     
     setting: {
@@ -859,51 +757,6 @@ export const useSql = () => {
             ["groups dir","on",["r.direction","=","dir.id"]]],
           where:["r.id","=","?"]}; 
         return sql;},
-      template_reportfields: () => {
-        let sql = {
-          select:["rf.id","rf.report_id","rf.fieldname",
-            "rf.fieldtype as fieldtype_id", "fg.groupvalue as fieldtype",
-            "rf.wheretype as wheretype_id", "wg.groupvalue as wheretype",
-            "rf.description","rf.orderby","rf.sqlstr","rf.parameter","rf.dataset","rf.defvalue","rf.valuelist"],
-          from:"ui_reportfields rf",
-          inner_join:[
-            ["groups fg","on",["rf.fieldtype","=","fg.id"]],
-            ["groups wg","on",["rf.wheretype","=","wg.id"]],
-            ["ui_report r","on",["rf.report_id","=","r.id"]]],
-          where:["rf.report_id","=","?"], 
-          order_by:["orderby"]};
-        return sql;
-      },
-      template_sources: () => {
-        let sql = {select:["*"], from:"ui_reportsources", where:["report_id","=","?"]};
-        return sql;},
-      template_message: () => {
-        let sql = {
-          select:["*"], from:"ui_message", 
-          where:[["secname","in",[
-            {select:["foo.skey"], from:[[[
-              {select:["{CCS}r.reportkey{SEP}'_'{SEP}rs.dataset{CCE} as skey"],
-                from:"ui_reportsources rs",
-                inner_join:["ui_report r","on",["rs.report_id","=","r.id"]],
-                where:["r.id","=","?"]},
-              {union_select:["{CCS}r.reportkey{SEP}'_report'{CCE} as skey"],
-                from:"ui_report r", where:["r.id","=","?"]}]],"foo"]}]], 
-            ["and","lang","is null"]]};
-        return sql;},
-      insert_reportsources: (old_id, new_id) => {
-        let sql = {
-          insert_into:["ui_reportsources",[[],"report_id","dataset","sqlstr"]],
-          select:[new_id,"dataset","sqlstr"], from:"ui_reportsources",
-          where:["report_id","=",old_id]};
-        return sql;},
-      insert_reportfields: (old_id, new_id) => {
-          let sql = {
-          insert_into:["ui_reportfields",[[],"report_id","fieldname","fieldtype","wheretype",
-            "description","orderby","sqlstr","parameter","dataset","defvalue","valuelist"]],
-          select:[new_id,"fieldname","fieldtype","wheretype","description","orderby","sqlstr",
-            "parameter","dataset","defvalue","valuelist"], from:"ui_reportfields",
-          where:["report_id","=",old_id]};
-        return sql;},
       template_view: () => {
         let sql = {
           select:["r.*","r.reportkey as lslabel","r.repname as lsvalue"],
@@ -911,7 +764,7 @@ export const useSql = () => {
           inner_join:[
             ["groups fg","on",["r.filetype","=","fg.id"]],
             ["groups ng","on",["r.nervatype","=","ng.id"]]],
-          where:["fg.groupvalue","=","'ntr'"]}; 
+          where:["fg.groupvalue","=","'pdf'"]}; 
         return sql;}
       },
       

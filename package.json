@@ -30,21 +30,21 @@
   },
   "homepage": ".",
   "dependencies": {
-    "draft-convert": "^2.1.10",
+    "draft-convert": "^2.1.11",
     "draft-js": "^0.11.7",
     "ical.js": "^1.4.0",
     "immutability-helper": "^3.1.1",
-    "react": "^17.0.1",
-    "react-datepicker": "^3.4.1",
-    "react-dom": "^17.0.1",
+    "react": "^17.0.2",
+    "react-datepicker": "^3.8.0",
+    "react-dom": "^17.0.2",
     "react-pagify": "^2.4.0",
-    "react-scripts": "4.0.2",
-    "react-toastify": "^7.0.3",
+    "react-scripts": "4.0.3",
+    "react-toastify": "^7.0.4",
     "reactabular-table": "^8.14.0",
     "sanitize.css": "^12.0.1",
     "segmentize": "^0.4.1",
     "sortabular": "^1.6.0",
-    "whatwg-fetch": "^3.5.0"
+    "whatwg-fetch": "^3.6.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -78,13 +78,13 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/jest-dom": "^5.12.0",
+    "@testing-library/react": "^11.2.6",
+    "@testing-library/user-event": "^13.1.8",
     "gh-pages": "^3.1.0",
-    "jest-environment-jsdom-sixteen": "^1.0.3",
-    "pdfjs-dist": "2.6.347",
-    "react-test-renderer": "^17.0.1",
+    "jest-environment-jsdom-sixteen": "^2.0.0",
+    "pdfjs-dist": "^2.8.335",
+    "react-test-renderer": "^17.0.2",
     "remotedev-react-state": "^0.1.0"
   }
 }

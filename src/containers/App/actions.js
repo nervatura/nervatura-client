@@ -276,7 +276,7 @@ export const guid = () => {
   return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
-const request = (url, options) => {
+export const request = (url, options) => {
   const parseJSON = (response) => {
     if (response.status === 401)
       return { code: 401, message: "Unauthorized" }

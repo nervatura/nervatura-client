@@ -3,7 +3,6 @@ import connectToDevTools from 'remotedev-react-state'
 
 // Import CSS reset and Global Styles
 import 'sanitize.css/sanitize.css';
-import 'styles/fonts.css';
 import 'styles/theme.css';
 import 'styles/global.css';
 import 'styles/style.css';
@@ -27,7 +26,15 @@ class App extends Component {
       }
     window.addEventListener("scroll", this.onScroll.bind(this), {passive: true});
     window.addEventListener('resize', this.onResize.bind(this), {passive: true})
-    this.onResize()
+    const [ current, params ] = this.getPath()
+    if(current === "hash" && params.access_token){
+      this.setHashToken(params)
+    } else if(current === "search" && params.code){
+      this.setCodeToken(params)
+    } else {
+      this.loadConfig()
+      this.onResize()
+    }
   }
 
   componentWillUnmount() {

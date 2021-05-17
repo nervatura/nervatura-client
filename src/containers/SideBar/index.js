@@ -420,15 +420,9 @@ export default (props) => {
     })
   }
 
-  state.template2xml = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      template.exportTemplate("xml")
-    })
-  }
-
   state.template2json = () => {
     setData("current", { side: app.getSideBar() }, ()=>{
-      template.exportTemplate("json")
+      template.exportTemplate()
     })
   }
 

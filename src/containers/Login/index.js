@@ -18,6 +18,8 @@ export default (props) => {
   state.data = data.login
   state.user = data.session.user
   state.theme = data.current.theme
+  state.locales = data.session.locales
+  state.lang = data.current.lang
   
   const userLog = async (loginData) => {
     let options = { 
@@ -46,7 +48,9 @@ export default (props) => {
         values: [state.data.username] },
       { key: "menuCmds",
         text: getSql(params.engine, { 
-          select: ["*"], from: "ui_menu" }).sql,
+          select: ["m.*", "st.groupvalue as methodName"], 
+          from: "ui_menu m",
+          inner_join: ["groups st", "on", ["m.method", "=", "st.id"]], }).sql,
         values: [] },
       { key: "menuFields",
         text: getSql(params.engine, { 
@@ -65,7 +69,7 @@ export default (props) => {
         text: getSql(params.engine, {
           select: ["*"], from: "groups",
           where: ["groupname", "in", [[], "'usergroup'", "'nervatype'", "'transtype'", "'inputfilter'",
-            "'transfilter'", "'department'", "'logstate'", "'fieldtype'"]]
+            "'transfilter'", "'department'", "'logstate'", "'fieldtype'", "'service'"]]
         }).sql,
         values: [] }
     ]
@@ -227,6 +231,11 @@ export default (props) => {
     const theme = (state.theme === "light") ? "dark" : "light"
     setData("current", { theme: theme })
     localStorage.setItem("theme", theme);
+  }
+
+  state.SetLocale = (key) => {
+    setData("current", { lang: key })
+    localStorage.setItem("lang", key);
   }
 
   return(

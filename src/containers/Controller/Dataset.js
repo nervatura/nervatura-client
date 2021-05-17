@@ -211,10 +211,7 @@ export default {
         "'log_deleted'","'log_rate_update'","'log_rate_deleted'","'default_currency'"]]}
   ]},
   report: () => { return [
-    {infoName:"report", infoType:"view"},
-    {infoName:"reportfields", infoType:"view"},
-    {infoName:"sources", infoType:"view"},
-    {infoName:"message", infoType:"view"}
+    {infoName:"report", infoType:"view"}
   ]},
   setting: () => { return [
     {infoName:"setting_view", infoType:"view"}
@@ -224,9 +221,6 @@ export default {
   ]},
   template: () => { return [
     {infoName:"template", infoType:"view"},
-    {infoName:"template_reportfields", infoType:"view"},
-    {infoName:"template_sources", infoType:"view"},
-    {infoName:"template_message", infoType:"view"},
     {infoName:"template_view", infoType:"view"}
   ]},
   tool: () => { return [
@@ -379,6 +373,9 @@ export default {
     {infoName:"fieldtype", infoType:"table", classAlias:"groups", 
       where:[["deleted","=","0"],["and","groupname","=","'fieldtype'"], 
         ["and","groupvalue","in",[[],"'bool'","'date'","'integer'","'float'","'string'"]]], 
+      order:"groupname, groupvalue"},
+    {infoName:"method", infoType:"table", classAlias:"groups", 
+      where:[["deleted","=","0"],["and","groupname","=","'method'"]], 
       order:"groupname, groupvalue"},
     {infoName:"ui_menu_view", infoType:"view"}
   ]},

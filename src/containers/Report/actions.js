@@ -3,7 +3,7 @@ import update from 'immutability-helper';
 import { formatISO } from 'date-fns'
 
 import AppStore from 'containers/App/context'
-import { useApp, getSql, saveToDisk } from 'containers/App/actions'
+import { useApp, getSql, saveToDisk, request } from 'containers/App/actions'
 import { InputForm } from 'containers/ModalForm'
 import { useSql } from 'containers/Controller/Sql'
 
@@ -56,7 +56,7 @@ export const useReport = (props) => {
 
   const loadPreview = (params) => {
     setData("current", { "request": true })
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.min.worker.js';
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.REACT_APP_PDFJS_PATH+'/pdf.worker.min.js';
     const pdata = (params.template === "template") ? params.pdf : {
       url: data.login.server+reportPath(params),
       httpHeaders: { Authorization: `Bearer ${data.login.data.token}` }
@@ -207,8 +207,7 @@ export const useReport = (props) => {
         params.ctype = "application/xml; charset=UTF-8"
         break;
       
-      case "xls":
-        //params.ctype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      case "csv":
         params.ctype = "text/csv; charset=UTF-8"
         break;
 
@@ -221,7 +220,7 @@ export const useReport = (props) => {
       return app.resultError(result)
     }
     let resultUrl
-    if((output === "xls") || (output === "csv")){
+    if(output === "csv"){
       var blob = new Blob([result], { type: 'text/csv;charset=utf-8;' })
       resultUrl = URL.createObjectURL(blob)
       output = "csv"
@@ -236,10 +235,16 @@ export const useReport = (props) => {
   const printQueue = () => {
     const options = data.edit.current.item
     if (data.edit.dataset.items.length > 0){
-      if (options.server === "") {
+      const server = data.edit.dataset.server_printers.filter(item => (item.menukey === options.server))[0]
+      if (!server) {
         return app.showToast({ type: "error",
           title: app.getText("msg_warning"), 
           message: app.getText("msg_required")+" "+app.getText("printqueue_server_printer") })
+      }
+      if(!server.address || (server.address === "")){
+        return app.showToast({ type: "error",
+          title: app.getText("msg_warning"), 
+          message: app.getText("msg_required")+" "+server.description+" - "+app.getText("menucmd_address") })
       }
       showInput({
         title: app.getText("msg_warning"), message: app.getText("label_print"),
@@ -255,21 +260,24 @@ export const useReport = (props) => {
             const items = data.edit.dataset.items.map(item => item.id)
             let params = { method: "POST", 
               data: {
-                key: "printQueue",
-                values: {
-                  printer: options.server, 
+                key: server.funcname || server.menukey,
+                values: { 
                   items: items, 
                   orientation: options.orientation, 
                   size: options.size
                 }
               }
             }
-            let result = await app.requestData("/function", params)
-            if(result.error){
-              app.resultError(result)
-              return null
+            try {
+              let result = await request(server.address, params)
+              if(result.error){
+                app.resultError(result)
+                return null
+              }
+              searchQueue()
+            } catch (error) {
+              app.resultError(error)
             }
-            searchQueue()
           })
         }
       })

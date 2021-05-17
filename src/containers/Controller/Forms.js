@@ -1929,7 +1929,7 @@ export const useForm = () => {
             {name:"transnumber", label: app.getText("printqueue_transnumber"), datatype:"string"},
             {name:"username", label: app.getText("printqueue_username"), datatype:"string"},
             {name:"server", label: app.getText("printqueue_server_printer"), datatype:"select", empty: true,
-              map: {source:"server_printers", value:"serial", text:"serial"}}]},
+              map: {source:"server_printers", value:"menukey", text:"description"}}]},
           {rowtype:"col3", columns: [
             {name:"mode", label: app.getText("printqueue_mode"), datatype:"select", 
               empty: false, options: config.printqueue_mode},
@@ -2566,12 +2566,12 @@ export const useForm = () => {
               empty: false, options: config.report_size, default: config.page_size}]}
         ]};
       if (typeof item !== "undefined") {
-        if (item.ftype === "xls") {
+        if (item.ftype === "csv") {
           report = update(report, {
             rows: {$set: [{rowtype:"label", name:"description"}]},
             options: { 
               panel: {$merge: {
-                preview: false, export_pdf: false, export_xml: false, export_xls: true
+                preview: false, export_pdf: false, export_xml: false, export_csv: true
               }} 
             }
           })
@@ -2863,9 +2863,11 @@ export const useForm = () => {
             {name:"menukey", label: app.getText("menucmd_menukey"), datatype:"string"},
             {name:"description", label: app.getText("menucmd_description"), datatype:"string"}]},
           {rowtype:"col3", columns: [
+            {name:"method", label:app.getText("menucmd_method"), datatype:"select", 
+              map: {source:"method", value:"id", text:"groupvalue" }},
             {name:"modul", label: app.getText("menucmd_modul"), datatype:"string"},
-            {name:"icon", label: app.getText("menucmd_icon"), datatype:"string"},
-            {name:"url", label: app.getText("menucmd_url"), datatype:"flip"}]},
+            {name:"icon", label: app.getText("menucmd_icon"), datatype:"string"}
+          ]},
           {rowtype:"col2", columns: [
             {name:"funcname", label: app.getText("menucmd_funcname"), datatype:"string"},
             {name:"address", label: app.getText("menucmd_address"), datatype:"string"}]}

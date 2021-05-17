@@ -166,15 +166,17 @@ export const useEditor = () => {
     });
 
     if (edit.current.type === "report") {
-      edit.dataset.reportfields.forEach(rfdata => {
+      const template = JSON.parse(edit.dataset.report[0].report)
+      Object.keys(template.fields).forEach((fieldname, index) => {
+        const rfdata = template.fields[fieldname]
         const selected = (rfdata.selected)?
           rfdata.selected:
           (rfdata.wheretype === 'in')?true:false
         let tfrow = update({}, {$set: {
-          id: rfdata.id,
+          id: index+1,
           rowtype: "reportfield", 
           datatype: rfdata.fieldtype,
-          name: rfdata.fieldname, 
+          name: fieldname, 
           label: rfdata.description, 
           selected: selected,
           empty: (rfdata.wheretype === 'in') ? 'false' : 'true',
@@ -191,7 +193,7 @@ export const useEditor = () => {
             break;
           case "date":
             if(typeof(tfrow.value) === "undefined"){
-              if (rfdata.defvalue !== null) {
+              if (rfdata.defvalue) {
                 tfrow = update(tfrow, {$merge: {
                   value: formatISO(addDays(new Date(), parseInt(rfdata.defvalue,10)), { representation: 'date' })
                 }})
@@ -210,7 +212,7 @@ export const useEditor = () => {
           case "float":
             if(typeof(tfrow.value) === "undefined"){
               tfrow = update(tfrow, {$merge: {
-                value: (rfdata.defvalue !== null && rfdata.defvalue !== "") ? rfdata.defvalue : "0"
+                value: (rfdata.defvalue && rfdata.defvalue !== "") ? rfdata.defvalue : "0"
               }})
             }
             break;
@@ -222,7 +224,7 @@ export const useEditor = () => {
         }
         if (typeof tfrow.value === "undefined") {
           tfrow = update(tfrow, {$merge: {
-            value: (rfdata.defvalue !== null) ? rfdata.defvalue : ""
+            value: (rfdata.defvalue) ? rfdata.defvalue : ""
           }})
         }
         edit = update(edit, {current: {fieldvalue: {

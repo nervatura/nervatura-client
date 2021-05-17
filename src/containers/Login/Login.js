@@ -5,10 +5,10 @@ import { Label, Input, Select } from 'containers/Controller'
 import { Moon, Sun } from 'components/Icons';
 
 export const Login = memo((props) => {
-  const { login, setTheme } = props
-  const { version, languages, configServer } = props.session
+  const { login, setTheme, SetLocale } = props
+  const { version, configServer } = props.session
   const { username, database } = props.data
-  const { theme } = props
+  const { theme, locales, lang } = props
   return (
     <div className={styles.modal}>
       <div className={styles.middle}>
@@ -68,8 +68,13 @@ export const Login = memo((props) => {
               <button className="border-button" onClick={setTheme} >
                 {(theme === "dark")?<Sun />:<Moon />}
               </button>
-              <Select id="lang" options={languages} 
-                keys={["current","lang"]} />
+              <Select id="lang" value={lang}
+                options={Object.keys(locales).map(key => {
+                  return {
+                    value: key, text: locales[key][key] || key 
+                  }
+                })} 
+                onChange={(ev)=>SetLocale(ev.target.value)} />
             </div>
             <div className="container section-small s6 m6 l6" >
               <button id="login" autoFocus
@@ -88,6 +93,8 @@ export const Login = memo((props) => {
 }, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.theme === nextProps.theme)
+    (prevProps.theme === nextProps.theme) &&
+    (prevProps.locales === nextProps.locales) &&
+    (prevProps.lang === nextProps.lang)
   )
 })

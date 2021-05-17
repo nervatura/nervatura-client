@@ -4,7 +4,6 @@ import update from 'immutability-helper';
 import AppStore from 'containers/App/context'
 import { useApp, saveToDisk } from 'containers/App/actions'
 import { InputForm, DataForm } from 'containers/ModalForm'
-import { Report } from 'containers/Report'
 import { useReport } from 'containers/Report/actions'
 import { TextHeight } from 'components/Icons';
 
@@ -26,9 +25,6 @@ export const useTemplate = () => {
         {rowtype:"flip", name:"subject", datatype:"string"},
         {rowtype:"flip", name:"keywords", datatype:"string"},
         {rowtype:"groupline"},
-        {rowtype:"flip", name:"font-family", datatype:"select", default: "times", 
-          options: [["times","times"],["helvetica","helvetica"],["courier","courier"]], 
-          info: app.getText("info_font-family")},
         {rowtype:"flip", name:"font-style", datatype:"select", default: "",
           options: [["",""],["bold","bold"],["italic","italic"],["bolditalic","bolditalic"]], 
           info: app.getText("info_font-style")},
@@ -65,9 +61,6 @@ export const useTemplate = () => {
         {rowtype:"flip", name:"multiline", datatype:"select", default: "false",
           options: [["false","false"],["true","true"]], info: app.getText("info_multiline")},
         {rowtype:"groupline"},
-        {rowtype:"flip", name:"font-family", datatype:"select", default: "times", 
-          options: [["times","times"],["helvetica","helvetica"],["courier","courier"]], 
-          info: app.getText("info_font-family")},
         {rowtype:"flip", name:"font-style", datatype:"select", default: "",
           options: [["",""],["bold","bold"],["italic","italic"],["bolditalic","bolditalic"]], 
           info: app.getText("info_font-style")},
@@ -86,7 +79,7 @@ export const useTemplate = () => {
         title: "IMAGE"},
       rows: [
         {rowtype:"flip", name:"src", datatype:"image", info: app.getText("info_src")},
-        {rowtype:"flip", name:"width", datatype:"percent", info: app.getText("info_width")}
+        {rowtype:"flip", name:"height", datatype:"float", default: 0, info: app.getText("info_height_image")}
       ]
     },
     barcode:{
@@ -94,7 +87,7 @@ export const useTemplate = () => {
         title: "BARCODE"},
       rows: [
         {rowtype:"flip", name:"code-type", datatype:"select", default: "ITF",
-          options: [["ITF","ITF"],["CODE_39","CODE_39"]], info: app.getText("info_code-type")},
+          options: [["ITF","ITF"],["CODE_39","CODE_39"],["CODE_128","CODE_128"],["EAN","EAN"],["QR","QR"]], info: app.getText("info_code-type")},
         {rowtype:"flip", name:"value", datatype:"string", default: "", info: app.getText("info_barcode_value")},
         {rowtype:"flip", name:"visible-value", datatype:"select", default: "0",
           options: [["0","0"],["1","1"]], info: app.getText("info_visible-value")},
@@ -194,24 +187,6 @@ export const useTemplate = () => {
     } else {
       return null;
     }
-  }
-  
-  const xml2json = (options) => {
-    let rpt = new Report(
-      options.orient || app.getSetting("page_orient"), "pt", 
-      options.size || app.getSetting("page_size")
-    );
-    rpt.loadDefinition(options.template);
-    return rpt.template.elements;
-  }
-
-  const json2xml = (options) => {
-    let rpt = new Report(
-      options.orient || app.getSetting("page_orient"), "pt", 
-      options.size || app.getSetting("page_size")
-    )
-    rpt.loadJsonDefinition(options.template);
-    return rpt.getXmlTemplate();
   }
  
   const getDataset = (data)=>{
@@ -345,7 +320,7 @@ export const useTemplate = () => {
       template: {
         key: options.dataset.template[0].reportkey,
         title: options.dataset.template[0].repname,
-        template: xml2json({template: options.dataset.template[0].report}),
+        template: JSON.parse(options.dataset.template[0].report),
         current: {},
         current_data: null,
         dataset: [],
@@ -828,14 +803,12 @@ export const useTemplate = () => {
     }
   }
 
-  const exportTemplate = (ftype) => {
+  const exportTemplate = () => {
     const { template } = data.setting
-    const xtempl = (ftype === "xml") ? 
-      json2xml({template: template.template}) : 
-      JSON.stringify(template.template)
+    const xtempl = JSON.stringify(template.template)
     let fUrl = URL.createObjectURL(new Blob([xtempl], 
-      {type : 'text/'+ftype+';charset=utf-8;'}));
-    saveToDisk(fUrl, template.key+"."+ftype)
+      {type : 'text/json;charset=utf-8;'}));
+    saveToDisk(fUrl, template.key+".json")
   }
 
   const newBlank = () => {
@@ -901,7 +874,7 @@ export const useTemplate = () => {
       let setting = update(data.setting, {})
       let values = { 
         id: setting.dataset.template[0].id,
-        report: json2xml({ template: setting.template.template })
+        report: JSON.stringify(setting.template.template)
       }
       let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
       if(result.error){
@@ -1362,7 +1335,6 @@ export const useTemplate = () => {
     newSample: newSample,
     saveTemplate: saveTemplate,
     deleteTemplate: deleteTemplate,
-    json2xml: json2xml,
     deleteData: deleteData,
     addTemplateData: addTemplateData,
     setCurrentData: setCurrentData,

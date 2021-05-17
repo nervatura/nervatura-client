@@ -311,11 +311,11 @@ export const Edit = memo((props) => {
           <Label text={"label_export_xml"} leftIcon={<Code />} col={20}  />
         </button>)
       }
-      if (options.export_xls === true && options.state === "normal") {
-        panels.push(<button key="cmd_export_xls"
+      if (options.export_csv === true && options.state === "normal") {
+        panels.push(<button key="cmd_export_csv"
           className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>createReport("xls")} >
-          <Label text={"label_export_xls"} leftIcon={<Download />} col={20}  />
+          onClick={()=>createReport("csv")} >
+          <Label text={"label_export_csv"} leftIcon={<Download />} col={20}  />
         </button>)
       }
       if (options.export_event === true && options.state === "normal") {
@@ -570,7 +570,7 @@ export const Setting = memo((props) => {
   const { changeData, settingLoad, loadCompany, setPassword, settingBack, 
     settingSave, setProgram, settingDelete, settingNew, templatePreview,
     templateSave, templateCreate, templateNewBlank, templateNewSample,
-    template2xml, template2json, showHelp } = props
+    template2json, showHelp } = props
   const { username } = props
   const { side } = props.data
   const { group_key, current, panel, dirty, template } = props.module
@@ -667,12 +667,6 @@ export const Setting = memo((props) => {
         </button>
 
         <div key="tmp_sep_4" className={styles.separator} />
-        <button
-          key="cmd_xml"
-          className={`${"full medium"} ${styles.itemButton}`}
-          onClick={() => template2xml()}>
-          <Label text={"template_export_xml"} leftIcon={<Code />} col={25} />
-        </button>
         <button
           key="cmd_json"
           className={`${"full medium"} ${styles.itemButton}`}
