@@ -165,8 +165,8 @@ export const ReportSettings = (props) => {
         <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
-              onClick={()=>reportOutput("preview")} >
-              <Label text="msg_preview" />
+              onClick={()=>reportOutput("print")} >
+              <Label text="msg_print" />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >

@@ -52,7 +52,7 @@ export const store = {
     page_size: "a4",
     page_orient: "portrait",
     printqueue_mode: [
-      ["preview", "printqueue_mode_preview"],
+      ["print", "printqueue_mode_print"],
       ["pdf", "printqueue_mode_pdf"],
       ["xml", "printqueue_mode_xml"]
     ],

@@ -5,7 +5,7 @@ import { Label } from 'containers/Controller'
 import { FileText, ChartBar, Search as SearchIcon, Bolt, Inbox, Print, 
   Globe, Share, Plus, Edit as EditIcon, Check, Times, Copy,
   Reply, ArrowLeft, ArrowRight, ExclamationTriangle, Lock, Sitemap,
-  Undo, Magic, Link, Eye, Download, Code, Calendar, Star, QuestionCircle,
+  Undo, Magic, Link, Download, Code, Calendar, Star, QuestionCircle,
   Money, Truck, Retweet, Cog, ListOl, Key, InfoCircle, Tag, Th, Map,
   Dollar, Ticket, Home, TextHeight, Keyboard, Desktop, Database } from 'components/Icons';
 
@@ -99,7 +99,7 @@ export const Edit = memo((props) => {
   const { editState, changeData, editorBack, editorNew, editorDelete, reportSettings,
     prevTransNumber, nextTransNumber, saveEditor, loadFormula, transCopy, setLink,
     shippingAddAll, shippingCreate, searchItems, createReport, exportAll, eventExport,
-    printReport, bookmarkSave, setPassword, showHelp } = props
+    bookmarkSave, setPassword, showHelp } = props
   const { login, forms } = props
   const { side, edit } = props.data
   const { current, form_dirty, dirty, panel, dataset, group_key } = props.module
@@ -276,25 +276,18 @@ export const Edit = memo((props) => {
           <Label text={"label_search"} leftIcon={<SearchIcon />} col={20}  />
         </button>)
       }
-      if (options.preview === true) {
-        panels.push(<button key="cmd_preview"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>createReport("preview")} >
-          <Label text={"label_preview"} leftIcon={<Eye />} col={20}  />
-        </button>)
-      }
-      if (options.print === true) {
-        panels.push(<button key="cmd_print"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>printReport() } >
-          <Label text={"label_print"} leftIcon={<Print />} col={20}  />
-        </button>)
-      }
       if (options.export_all === true && options.state === "normal") {
         panels.push(<button key="cmd_export_all"
           className={`${"full medium"} ${styles.itemButton}`} 
           onClick={()=>exportAll()} >
           <Label text={"label_export_all"} leftIcon={<Download />} col={20}  />
+        </button>)
+      }
+      if (options.print === true) {
+        panels.push(<button key="cmd_print"
+          className={`${"full medium"} ${styles.itemButton}`} 
+          onClick={()=>createReport("print")} >
+          <Label text={"label_print"} leftIcon={<Print />} col={20}  />
         </button>)
       }
       if (options.export_pdf === true && options.state === "normal") {
@@ -568,7 +561,7 @@ export const Preview = memo((props) => {
 
 export const Setting = memo((props) => {
   const { changeData, settingLoad, loadCompany, setPassword, settingBack, 
-    settingSave, setProgram, settingDelete, settingNew, templatePreview,
+    settingSave, setProgram, settingDelete, settingNew, templatePrint,
     templateSave, templateCreate, templateNewBlank, templateNewSample,
     template2json, showHelp } = props
   const { username } = props
@@ -629,12 +622,6 @@ export const Setting = memo((props) => {
           <Label text={"label_back"} leftIcon={<Reply />} col={25}  />
         </button>
         <div key="tmp_sep_1" className={styles.separator} />
-        
-        <button key="cmd_preview"
-          className={`${"full medium"} ${styles.itemButton}`} 
-          onClick={()=>templatePreview()} >
-          <Label text={"label_preview"} leftIcon={<Eye />} col={25}  />
-        </button>
 
         {((template.key !== "_blank") && (template.key !== "_sample"))?
         <Fragment>
@@ -667,6 +654,11 @@ export const Setting = memo((props) => {
         </button>
 
         <div key="tmp_sep_4" className={styles.separator} />
+        <button key="cmd_print"
+          className={`${"full medium"} ${styles.itemButton}`} 
+          onClick={()=>templatePrint()} >
+          <Label text={"label_print"} leftIcon={<Print />} col={25}  />
+        </button>
         <button
           key="cmd_json"
           className={`${"full medium"} ${styles.itemButton}`}

@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
 import { formatISO } from 'date-fns'
+import printJS from 'print-js'
 
 import AppStore from 'containers/App/context'
-import { useApp, getSql, saveToDisk, request } from 'containers/App/actions'
+import { useApp, getSql, saveToDisk } from 'containers/App/actions'
 import { InputForm } from 'containers/ModalForm'
 import { useSql } from 'containers/Controller/Sql'
 
@@ -54,6 +55,7 @@ export const useReport = (props) => {
     })
   }
 
+  /*
   const loadPreview = (params) => {
     setData("current", { "request": true })
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.REACT_APP_PDFJS_PATH+'/pdf.worker.min.js';
@@ -71,6 +73,7 @@ export const useReport = (props) => {
       return app.resultError(error)
     })
   }
+  */
 
   const addPrintQueue = async (reportkey, copy) => {
     const report = data.edit.dataset.report.filter((item)=>(item.reportkey === reportkey))[0]
@@ -97,18 +100,23 @@ export const useReport = (props) => {
     if(params.type === "printqueue"){
       return addPrintQueue(params.template, params.copy)
     }
-    if(params.type === "preview"){
-      return loadPreview(params)
-    }
     const result = await app.requestData(reportPath(params), {})
     if(result && result.error){
       app.resultError(result)
       return false
     }
     const resultUrl = URL.createObjectURL(result, {type : (params.type === "pdf") ? "application/pdf" : "application/xml; charset=UTF-8"})
-    let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+params.type
-    filename = filename.split("/").join("_")
-    saveToDisk(resultUrl, filename)
+    if(params.type === "print"){
+      printJS({
+        printable: resultUrl,
+        type: 'pdf',
+        base64: false,
+      })
+    } else {
+      let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+params.type
+      filename = filename.split("/").join("_")
+      saveToDisk(resultUrl, filename)
+    }
     return true
   }
 
@@ -135,10 +143,10 @@ export const useReport = (props) => {
   const exportQueueAll = () => {
     const options = data.edit.current.item
     if (data.edit.dataset.items.length > 0){
-      if (options.mode === "preview") {
+      if (options.mode === "print") {
         return app.showToast({ type: "error",
           title: app.getText("msg_warning"), 
-          message: app.getText("ms_export_invalid")+" "+app.getText("printqueue_mode_preview") })
+          message: app.getText("ms_export_invalid")+" "+app.getText("printqueue_mode_print") })
       }
       showInput({
         title: app.getText("msg_warning"), message: app.getText("label_export_all_selected"),
@@ -198,10 +206,7 @@ export const useReport = (props) => {
       size: report.size,
       filters: _filters.join("&")
     }
-    switch (output) {
-      case "preview":
-        return loadPreview(params)
-      
+    switch (output) {      
       case "xml":
         params.type = "xml"
         params.ctype = "application/xml; charset=UTF-8"
@@ -227,11 +232,20 @@ export const useReport = (props) => {
     } else {
       resultUrl = URL.createObjectURL(result, {type : params.ctype})
     }
-    let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+output
-    filename = filename.split("/").join("_")
-    return saveToDisk(resultUrl, filename)
+    if(output === "print"){
+      printJS({
+        printable: resultUrl,
+        type: 'pdf',
+        base64: false,
+      })
+    } else {
+      let filename = params.title+"_"+formatISO(new Date(), { representation: 'date' })+"."+output
+      filename = filename.split("/").join("_")
+      return saveToDisk(resultUrl, filename)
+    }
   }
 
+  /*
   const printQueue = () => {
     const options = data.edit.current.item
     if (data.edit.dataset.items.length > 0){
@@ -283,14 +297,15 @@ export const useReport = (props) => {
       })
     }
   }
+  */
 
   return {
-    loadPreview: loadPreview,
+    //loadPreview: loadPreview,
     setPreviewPage: setPreviewPage,
     createReport: createReport,
     exportQueueAll: exportQueueAll,
     searchQueue: searchQueue,
-    printQueue: printQueue,
+    //printQueue: printQueue,
     reportOutput: reportOutput
   }
 }

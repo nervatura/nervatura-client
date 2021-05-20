@@ -390,7 +390,7 @@ export default (props) => {
     })
   }
 
-  state.templatePreview = () => {
+  state.templatePrint = () => {
     setData("current", { side: app.getSideBar() }, ()=>{
       template.showPreview()
     })

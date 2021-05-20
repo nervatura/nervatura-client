@@ -1902,7 +1902,7 @@ export const useForm = () => {
           icon: Filter,
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
-            search:true, export_all:true, print:true, bookmark:false, help:"printqueue"
+            search:true, export_all:true, print:false, bookmark:false, help:"printqueue"
           }
         },
         view: {
@@ -1925,11 +1925,10 @@ export const useForm = () => {
               empty: true, options: config.printqueue_type},
             {name:"startdate", label: app.getText("printqueue_startdate"), datatype:"date", empty: true},
             {name:"enddate", label: app.getText("printqueue_enddate"), datatype:"date", empty: true}]},
-          {rowtype:"col3", columns: [
+          {rowtype:"col2", columns: [
             {name:"transnumber", label: app.getText("printqueue_transnumber"), datatype:"string"},
-            {name:"username", label: app.getText("printqueue_username"), datatype:"string"},
-            {name:"server", label: app.getText("printqueue_server_printer"), datatype:"select", empty: true,
-              map: {source:"server_printers", value:"menukey", text:"description"}}]},
+            {name:"username", label: app.getText("printqueue_username"), datatype:"string"}
+          ]},
           {rowtype:"col3", columns: [
             {name:"mode", label: app.getText("printqueue_mode"), datatype:"select", 
               empty: false, options: config.printqueue_mode},
@@ -2552,7 +2551,7 @@ export const useForm = () => {
           icon: ChartBar,
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
-            preview:true, export_pdf:true, export_xml:true, bookmark:false, help:"report"
+            print:true, export_pdf:true, export_xml:true, bookmark:false, help:"report"
           }
         },
         view: {},
@@ -2571,7 +2570,7 @@ export const useForm = () => {
             rows: {$set: [{rowtype:"label", name:"description"}]},
             options: { 
               panel: {$merge: {
-                preview: false, export_pdf: false, export_xml: false, export_csv: true
+                print: false, export_pdf: false, export_xml: false, export_csv: true
               }} 
             }
           })

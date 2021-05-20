@@ -34,6 +34,7 @@
     "draft-js": "^0.11.7",
     "ical.js": "^1.4.0",
     "immutability-helper": "^3.1.1",
+    "print-js": "^1.6.0",
     "react": "^17.0.2",
     "react-datepicker": "^3.8.0",
     "react-dom": "^17.0.2",
@@ -79,11 +80,10 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.12.0",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/user-event": "^13.1.8",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^13.1.9",
     "gh-pages": "^3.1.0",
     "jest-environment-jsdom-sixteen": "^2.0.0",
-    "pdfjs-dist": "^2.8.335",
     "react-test-renderer": "^17.0.2",
     "remotedev-react-state": "^0.1.0"
   }

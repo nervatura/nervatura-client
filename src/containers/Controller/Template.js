@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import update from 'immutability-helper';
+import printJS from 'print-js'
 
 import AppStore from 'containers/App/context'
 import { useApp, saveToDisk } from 'containers/App/actions'
 import { InputForm, DataForm } from 'containers/ModalForm'
-import { useReport } from 'containers/Report/actions'
 import { TextHeight } from 'components/Icons';
 
 export const useTemplate = () => {
@@ -12,7 +12,6 @@ export const useTemplate = () => {
   const app = useApp()
   const showInput =  InputForm()
   const addData =  DataForm()
-  const report = useReport()
 
   const elements = {
     report:{
@@ -1262,6 +1261,12 @@ export const useTemplate = () => {
         app.resultError(result)
         return null
       }
+      printJS({
+        printable: URL.createObjectURL(result, {type : "application/pdf"}),
+        type: 'pdf',
+        base64: false,
+      })
+      /*
       report.loadPreview({ 
         module: "setting",
         pdf: URL.createObjectURL(result, {type : "application/pdf"}), 
@@ -1271,6 +1276,7 @@ export const useTemplate = () => {
         size: params.size,
         template: "template"
       })
+      */
     }
     let setting = update(data.setting, {})
     const params = {
