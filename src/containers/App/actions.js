@@ -396,7 +396,8 @@ export const useApp = () => {
     try {
       if (!silent)
         setData("current", { "request": true })
-      let url = data.login.server+path
+      let url = (data.session.configServer)?
+        data.session.proxy+data.session.apiPath+path : data.login.server+path
       const token = (data.login.data) ? data.login.data.token : options.token || ""
       if (!options.headers)
         options = update(options, {$merge: { headers: {} }})

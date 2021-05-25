@@ -230,7 +230,9 @@ export const useSearch = () => {
             if (options.cmd.methodName === "get") {
               let server = options.cmd.address || ""
               if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
-                server = data.login.server+"/"+options.cmd.funcname
+                server = (data.session.configServer)?
+                  data.session.proxy+data.session.apiPath+"/"+options.cmd.funcname : 
+                  data.login.server+"/"+options.cmd.funcname
               }
               if (server!=="") {
                 window.open(server+"?"+query.toString(), '_system')

@@ -178,7 +178,8 @@ export const ReportSettings = (props) => {
         </div>
         <div className={`${"row full"}`}>
           <div className={`${"cell padding-small half"}`} >
-            <button className={`${"full primary"}`} onClick={()=>reportOutput("xml")} >
+            <button className={`${"full primary"}`} disabled={(template==="")?"disabled":""}
+              onClick={()=>reportOutput("xml")} >
               <Label text="msg_export_xml" />
             </button>
           </div>

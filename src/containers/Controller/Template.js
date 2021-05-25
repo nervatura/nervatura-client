@@ -1283,7 +1283,7 @@ export const useTemplate = () => {
       reportkey: setting.template.key,
       orientation: orient || app.getSetting("page_orient"),
       size: app.getSetting("page_size"),
-      output: "pdf",
+      output: "auto",
       title: setting.template.title,
       template: JSON.stringify(setting.template.template)
     }
