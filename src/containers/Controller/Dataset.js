@@ -133,8 +133,6 @@ export default {
   ]},
   printqueue: () => { return [
     {infoName:"server_printers", infoType:"view"},
-    {infoName:"settings", infoType:"table", classAlias:"fieldvalue", 
-      where:["fieldname","in",[[],"'default_printer'"]]},
     {infoName:"items", infoType:"view"}
   ]},
   product: () => { return [

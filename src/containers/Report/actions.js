@@ -127,7 +127,7 @@ export const useReport = (props) => {
       data: [{ 
         key: "items",
         text: getSql(data.login.data.engine, sql.printqueue.items(edit.printqueue)).sql,
-        values: [edit.current.item.customer_id]
+        values: []
       }]
     }
     let view = await app.requestData("/view", params)

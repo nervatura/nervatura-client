@@ -313,14 +313,6 @@ export const useEditor = () => {
 
     if (edit.current.type === "printqueue") {
       if (typeof edit.printqueue === "undefined") {
-        const default_printer = edit.dataset.settings.filter((item)=> {
-          return (item.fieldname === "default_printer")
-        })[0]
-        if (typeof default_printer !== "undefined") {
-          edit = update(edit, {current: {item: {$merge: {
-            server: default_printer.value
-          }}}})
-        }
         edit = update(edit, {$merge: {
           printqueue: edit.current.item
         }})
@@ -432,8 +424,10 @@ export const useEditor = () => {
             values: []
           }
           if(info.infoName === "report"){
-            view.values.push(data.login.data.employee.usergroup)
-            view.values.push(edit.current.type)
+            if(ntype !== "printqueue"){
+              view.values.push(data.login.data.employee.usergroup)
+              view.values.push(edit.current.type)
+            }
           } else if(info.infoName === "message"){
             view.values.push(edit.current.type)
             view.values.push(edit.current.type)

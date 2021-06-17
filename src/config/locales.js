@@ -10,6 +10,7 @@ export const en = {
   login_login: "Login",
   login_server: "Server URL",
   login_engine_err: "Invalid database type!",
+  login_version_err: "Invalid service version!",
 
   menu_side: "Menu",
   menu_hide: "Hide",
