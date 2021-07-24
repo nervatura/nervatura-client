@@ -624,7 +624,7 @@ export const FormField = (props) => {
         className="align-right" 
         onChange={(event) => {
           setState({...state, event_type: event.type })
-          onChange((field.opposite) ? parseFloat(getOppositeValue(event.target.value)): parseFloat(event.target.value))
+          onChange((field.opposite) ? getOppositeValue(event.target.value): event.target.value)
         }}
         onBlur={(event) => {
           setState({...state, event_type: event.type })
