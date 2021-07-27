@@ -86,5 +86,8 @@
     "jest-environment-jsdom-sixteen": "^2.0.0",
     "react-test-renderer": "^17.0.2",
     "remotedev-react-state": "^0.1.0"
-  }
+  },
+  "files": [
+    "build"
+  ]
 }
