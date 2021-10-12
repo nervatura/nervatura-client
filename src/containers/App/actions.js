@@ -1,11 +1,10 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import update from 'immutability-helper';
 import 'whatwg-fetch';
 import { formatISO } from 'date-fns'
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Toast from 'components/Toast'
 
 import AppStore from 'containers/App/context'
 import { InputForm } from 'containers/ModalForm'
@@ -351,23 +350,31 @@ export const useApp = () => {
     const autoClose = (params.autoClose === false) ? false : getSetting("toastTime")
     switch (params.type) {
       case "error":
-        toast.error(
-          <Toast icon="exclamation" message={params.message} />, { autoClose: autoClose })
+        toast.error(params.message, {
+          theme: "colored",
+          autoClose: autoClose,
+        });
         break;
       
       case "warning":
-        toast.warning(
-          <Toast icon="exclamation" message={params.message} />, { autoClose: autoClose })
+        toast.warning(params.message, {
+          theme: "colored",
+          autoClose: autoClose,
+        });
         break;
       
       case "success":
-        toast.success(
-          <Toast icon="check" message={params.message} />, { autoClose: autoClose })
+        toast.success(params.message, {
+          theme: "colored",
+          autoClose: autoClose,
+        });
         break;
       
       case "info":
-        toast.info(
-          <Toast icon="info" message={params.message} />, { autoClose: autoClose })
+        toast.info(params.message, {
+          theme: "colored",
+          autoClose: autoClose,
+        });
         break;
     
       default:

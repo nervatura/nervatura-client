@@ -182,7 +182,7 @@ export const FormField = (props) => {
   let fieldMap = field.map || null
   const empty = ((field.empty === "true") || (field.empty === true)) ? true : false
 
-  const onChange = ( value, item ) => {
+  const onChange = ( {value, item, event_type} ) => {
     let extend = false
     if (fieldMap){
       if(fieldMap.fieldname){
@@ -197,7 +197,8 @@ export const FormField = (props) => {
     }
     onEdit({
       id: field.id || 1,
-      name: fieldName, 
+      name: fieldName,
+      event_type: event_type,
       value: value, 
       extend: extend, 
       refnumber: (item && item.label) ? item.label : field.link_label, 
@@ -233,7 +234,7 @@ export const FormField = (props) => {
     }})
     
     setState({...state, selector: selector, form: null })
-    onChange(selector.id, row)
+    onChange({value: selector.id, item: row})
   }
   
   const selectorInit = () => {
@@ -383,7 +384,7 @@ export const FormField = (props) => {
     case "password":
     case "color":
       return <input className="full" name={fieldName} type={datatype} value={value||""} 
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => onChange({value: event.target.value})}
         disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
 
     case "date":
@@ -407,9 +408,9 @@ export const FormField = (props) => {
         isEmpty={empty} disabled={(disabled || audit === 'readonly')}
         onChange={(value) => {
           if(datatype === "datetime"){
-            onChange(format(parseISO(value), app.getSetting("dateFormat")+" "+app.getSetting("timeFormat")))
+            onChange({value: format(parseISO(value), app.getSetting("dateFormat")+" "+app.getSetting("timeFormat"))})
           } else {
-            onChange(value)
+            onChange({value: value})
           }
         }}
         dateFormat={app.getSetting("dateFormat")}
@@ -422,13 +423,13 @@ export const FormField = (props) => {
       if(value===1 || value==="1" || value==="true"|| value===true){
         return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
-            ()=>onChange((field.name === 'fieldvalue_value') ? false : 0):null}>
+            ()=>onChange({value: (field.name === 'fieldvalue_value') ? false : 0}):null}>
           <ToggleOn className={`${styles.toggleOn}`} width={40} height={32.6} />
         </div>
       } else {
         return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
-            ()=>onChange((field.name === 'fieldvalue_value') ? true : 1):null}>
+            ()=>onChange({value: (field.name === 'fieldvalue_value') ? true : 1}):null}>
           <ToggleOff className={`${styles.toggleOff}`} width={40} height={32.6} />
         </div>
       }
@@ -473,13 +474,13 @@ export const FormField = (props) => {
         onChange={(event) => {
           let value = isNaN(parseInt(event.target.value,10)) ?
             event.target.value : parseInt(event.target.value,10)
-          onChange(value)
+          onChange({value: value})
         }} >{option}</select>
     
     case "valuelist":
       return <select className="full" name={field.name} value={value}
         disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}
-        onChange={(event) => onChange(event.target.value)} >
+        onChange={(event) => onChange({value: event.target.value})} >
           {description.map((value, index) =>
             <option key={index} value={value} >{value}</option>)}
         </select>
@@ -623,12 +624,18 @@ export const FormField = (props) => {
       return <input name={fieldName} type="text" value={value||"0"}
         className="align-right" 
         onChange={(event) => {
+          onChange({
+            value: (field.opposite) ? getOppositeValue(event.target.value): event.target.value, 
+            event_type: event.type
+          })
           setState({...state, event_type: event.type })
-          onChange((field.opposite) ? getOppositeValue(event.target.value): event.target.value)
         }}
         onBlur={(event) => {
+          onChange({
+            value: (field.opposite) ? parseFloat(getOppositeValue(event.target.value)): parseFloat(event.target.value),
+            event_type: (state.event_type === "change") ? event.type : null
+          })
           setState({...state, event_type: event.type })
-          onChange((field.opposite) ? parseFloat(getOppositeValue(event.target.value)): parseFloat(event.target.value))
         }}
         disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
     
@@ -656,13 +663,13 @@ export const FormField = (props) => {
       if((datatype === "notes") || datatype === "text"){
         return <textarea className="full" name={fieldName} value={value||""}
           rows={(field.rows )?field.rows:null}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => onChange({value: event.target.value})}
           disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
       }
       return <input className="full" name={fieldName} type="text" value={value||""} 
         maxLength={(field.length)?field.length:null}
         size={(field.length)?field.length:null}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => onChange({value: event.target.value})}
         disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}/>
   }
 }

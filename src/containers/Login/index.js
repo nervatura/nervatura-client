@@ -202,7 +202,7 @@ export default (props) => {
         return app.resultError({ error: { message: app.getText("login_engine_err") } })
       }
       if(!data.session.service.includes(result.version)){
-        return app.resultError({ error: { message: app.getText("login_version_err") } })
+        app.resultError({ error: { message: app.getText("login_version_err") } })
       }
       const lData = await loginData(result)
       if(lData.error){

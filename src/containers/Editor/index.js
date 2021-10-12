@@ -174,9 +174,11 @@ export default (props) => {
               fxprice: !isNaN(parseFloat(price.price)) ? parseFloat(price.price) : 0,
               discount: !isNaN(parseFloat(price.discount)) ? parseFloat(price.discount) : 0
             }}}})
-            edit = update(edit, {current: {$merge: {
-              form : calcPrice("fxprice", edit.current.form)
-            }}})
+            if(options.event_type === "blur"){
+              edit = update(edit, {current: {$merge: {
+                form : calcPrice("fxprice", edit.current.form)
+              }}})
+            }
           } else {
             switch(options.name) {
               case "qty":
@@ -190,26 +192,34 @@ export default (props) => {
                     discount: !isNaN(parseFloat(price.discount)) ? parseFloat(price.discount) : 0
                   }}}})
                 }
-                edit = update(edit, {current: {$merge: {
-                  form : calcPrice("fxprice", edit.current.form)
-                }}})
+                if(options.event_type === "blur"){
+                  edit = update(edit, {current: {$merge: {
+                    form : calcPrice("fxprice", edit.current.form)
+                  }}})
+                }
                 break;
               case "fxprice":
               case "tax_id":
               case "discount":
-                edit = update(edit, {current: {$merge: {
-                  form : calcPrice("fxprice", edit.current.form)
-                }}})
+                if(options.event_type === "blur"){
+                  edit = update(edit, {current: {$merge: {
+                    form : calcPrice("fxprice", edit.current.form)
+                  }}})
+                }
                 break;
               case "amount":
-                edit = update(edit, {current: {$merge: {
-                  form : calcPrice("amount", edit.current.form)
-                }}})
+                if(options.event_type === "blur"){
+                  edit = update(edit, {current: {$merge: {
+                    form : calcPrice("amount", edit.current.form)
+                  }}})
+                }
                 break;
               case "netamount":
-                edit = update(edit, {current: {$merge: {
-                  form : calcPrice("netamount", edit.current.form)
-                }}})
+                if(options.event_type === "blur"){
+                  edit = update(edit, {current: {$merge: {
+                    form : calcPrice("netamount", edit.current.form)
+                  }}})
+                }
                 break;
               default:
                 break;

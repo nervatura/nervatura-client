@@ -1840,15 +1840,16 @@ export const useEditor = () => {
         setData("current", { modalForm: form })
       }, 
       createTrans: (result) => {
-        setData("current", { modalForm: null });
-        createTrans({
-          cmdtype: "create", transcast: "normal", 
-          new_transtype: result.new_transtype, 
-          new_direction: result.new_direction, 
-          refno: result.refno, 
-          from_inventory: result.from_inventory, 
-          netto_qty: result.netto_qty
-        })
+        setData("current", { modalForm: null }, ()=>{
+          createTrans({
+            cmdtype: "create", transcast: "normal", 
+            new_transtype: result.new_transtype, 
+            new_direction: result.new_direction, 
+            refno: result.refno, 
+            from_inventory: result.from_inventory, 
+            netto_qty: result.netto_qty
+          })
+        });
       }
     })
   }

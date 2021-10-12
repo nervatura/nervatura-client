@@ -107,7 +107,7 @@ describe('Icons', () => {
 
   });
 
-  it('Input', () => {
+  it('Input 2.', () => {
     let ctr_store = update(store, {
       data: {$merge: {
         key1: {
