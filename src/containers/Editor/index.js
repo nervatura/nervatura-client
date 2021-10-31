@@ -547,7 +547,11 @@ export default (props) => {
           cbOK: (value) => {
             setData("current", { modalForm: null }, async ()=>{
               if(value !== ""){
-                let result = await app.requestData("/pattern?filter=description;==;"+value, {})
+                let result = await app.requestData("/pattern", {
+                  query: {
+                    filter: "description;==;"+value
+                  }
+                })
                 if(result.error){
                   return app.resultError(result)
                 }

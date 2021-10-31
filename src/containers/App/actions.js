@@ -541,7 +541,12 @@ export const useApp = () => {
   }
 
   const loadBookmark = async (params) => {
-    const result = await requestData("/ui_userconfig?filter=employee_id;==;"+params.user_id, {token: params.token})
+    const result = await requestData("/ui_userconfig", {
+      token: params.token,
+      query: {
+        filter: "employee_id;==;"+params.user_id
+      }
+    })
     if(result.error){
       resultError(result)
       return null
