@@ -5,7 +5,6 @@ import printJS from 'print-js'
 import AppStore from 'containers/App/context'
 import { useApp, saveToDisk } from 'containers/App/actions'
 import { InputForm, DataForm } from 'containers/ModalForm'
-import { TextHeight } from 'components/Icons';
 
 export const useTemplate = () => {
   const { data, setData } = useContext(AppStore)
@@ -315,7 +314,7 @@ export const useTemplate = () => {
       filter: "",
       result: [],
       caption: options.dataset.template[0].repname,
-      icon: TextHeight,
+      icon: "TextHeight",
       template: {
         key: options.dataset.template[0].reportkey,
         title: options.dataset.template[0].repname,
@@ -814,7 +813,7 @@ export const useTemplate = () => {
     let setting = update(data.setting, {$merge: {
       type: "template_editor",
       caption: app.getText("title_report_editor"),
-      icon: TextHeight,
+      icon: "TextHeight",
       dataset: {},
       current: null,
       filter: "",
@@ -845,7 +844,7 @@ export const useTemplate = () => {
     let setting = update(data.setting, {$merge: {
       type: "template_editor",
       caption: sample.report.title,
-      icon: TextHeight,
+      icon: "TextHeight",
       dataset: {},
       current: null,
       filter: "",

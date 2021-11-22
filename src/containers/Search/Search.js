@@ -2,12 +2,12 @@ import React, { memo } from 'react';
 import update from 'immutability-helper';
 
 import styles from './Search.module.css';
-import { Label, Input, Select, DateInput } from 'containers/Controller'
+import { Label, Input, Select } from 'containers/Controller'
+
 import { SelectorView } from 'containers/ModalForm/ModalForm'
-import { Search as SearchIcon, CaretRight, Filter, Star, 
-  QuestionCircle, Download, InfoCircle, Eye, Columns, Plus, Check, Edit,
-  CheckSquare, SquareEmpty, Times } from 'components/Icons';
-import Table from 'components/Table';
+import Icon from 'components/Form/Icon'
+import Table from 'components/Form/Table';
+import DateTime from 'components/Form/DateTime'
 
 export const BrowserView = memo((props) => {
   const { browserFilter, dropDown, showBrowser, getText, browserView, onEdit, 
@@ -27,10 +27,10 @@ export const BrowserView = memo((props) => {
         formatters: [
         (value, { rowData }) => {
           if(!viewDef.readonly)
-            return <Edit width={24} height={21.3} 
+            return <Icon iconKey="Edit" width={24} height={21.3} 
               onClick={ ()=>onEdit('id', rowData["id"], rowData) }
               className={styles.editCol} />
-          return <CaretRight width={9} height={24} />
+          return <Icon iconKey="CaretRight" width={9} height={24} />
         }] }
     }}
   }
@@ -80,7 +80,7 @@ export const BrowserView = memo((props) => {
           <div className="row full" >
             <div className="cell" >
               <button className={`${"full primary"}`} onClick={browserFilter} >
-                <Label value={viewDef.label} leftIcon={<Filter />} />
+                <Label value={viewDef.label} leftIcon={<Icon iconKey="Filter" />} />
               </button>
             </div>
           </div>
@@ -90,22 +90,22 @@ export const BrowserView = memo((props) => {
                 <button className={`${"border-button"} ${styles.barButton}`} 
                   onClick={ ()=>browserView() } >
                   <Label className="hide-small" text="browser_search" 
-                    leftIcon={<SearchIcon height="18" width="18" />} />
+                    leftIcon={<Icon iconKey="Search" height={18} width={18} />} />
                 </button>
               </div>
               <div className="cell align-right" >
                 <button className={`${"border-button small-button"} ${styles.barButton}`} 
                   onClick={()=>bookmarkSave()} >
-                  <Label text="browser_bookmark" leftIcon={<Star height="14" width="15.75" />} />
+                  <Label text="browser_bookmark" leftIcon={<Icon iconKey="Star" height={14} width={15.75} />} />
                 </button>
                 <button className={`${"border-button small-button"} ${styles.barButton}`} 
                   disabled={(result.length === 0)?"disabled":""}
                   onClick={ ()=>exportResult(viewDef.fields) } >
-                  <Label text="browser_export" leftIcon={<Download height="14" width="14" />} />
+                  <Label text="browser_export" leftIcon={<Icon iconKey="Download" height={14} width={14} />} />
                 </button>
                 <button className={`${"border-button small-button"} ${styles.barButton}`} 
                   onClick={()=>showHelp("browser")} >
-                  <Label text="browser_help" leftIcon={<QuestionCircle height="14" width="14" />} />
+                  <Label text="browser_help" leftIcon={<Icon iconKey="QuestionCircle" height={14} width={14} />} />
                 </button>
               </div>
             </div>
@@ -116,14 +116,14 @@ export const BrowserView = memo((props) => {
                     className={`${"border-button"} ${styles.barButton} ${(dropdown === vkey+"_view")?styles.selected:""}`} 
                     onClick={ () => dropDown(vkey+"_view") } >
                     <Label className="hide-small" text="browser_views" 
-                      leftIcon={<Eye height="18" width="20.25" />} />
+                      leftIcon={<Icon iconKey="Eye" height={18} width={20.25} />} />
                   </button>
                   {(dropdown === vkey+"_view")?<div className={`${styles.dropdownContent} ${"border"} ${current.theme} `} >
                     {Object.keys(keyMap).map((vname, index) => (vname !== "options")?
                       <div key={index} onClick={ ()=>showBrowser(vkey, vname) }
                         className={`${styles.dropItem} ${(vname === view)?styles.active:null}`} >
                         <Label value={keyMap[vname].label} 
-                          leftIcon={(vname === view)?<Check />:<Eye />} />
+                          leftIcon={(vname === view)?<Icon iconKey="Check" />:<Icon iconKey="Eye" />} />
                       </div>:null
                     )}
                   </div>:null}
@@ -131,18 +131,18 @@ export const BrowserView = memo((props) => {
                 <button className={`${"border-button"} ${styles.barButton}`} 
                   onClick={showColumns} >
                   <Label className="hide-small" text="browser_columns" 
-                    leftIcon={<Columns height="18" width="18" />} />
+                    leftIcon={<Icon iconKey="Columns" height={18} width={18} />} />
                 </button>
                 <button className={`${"border-button"} ${styles.barButton}`} 
                   onClick={addFilter} >
                   <Label className="hide-small" text="browser_filter" 
-                    leftIcon={<Plus height="18" width="15.75" />} />
+                    leftIcon={<Icon iconKey="Plus" height={18} width={15.75} />} />
                 </button>
                 <button className={`${"border-button"} ${styles.barButton}`} 
                   disabled={((totalFields.count === 0)||(result.length === 0))?"disabled":""}
                   onClick={ ()=>showTotal(viewDef.fields, totalFields) } >
                   <Label className="hide-small" text="browser_total" 
-                    leftIcon={<InfoCircle height="18" width="18" />} />
+                    leftIcon={<Icon iconKey="InfoCircle" height={18} width={18} />} />
                 </button>
               </div>
             </div>
@@ -152,7 +152,7 @@ export const BrowserView = memo((props) => {
                   ${(columns[view][fieldname]===true)?styles.selectCol:styles.editCol}`}
                   onClick={()=>setColumns(fieldname, !(columns[view][fieldname]===true))} >
                   <Label value={viewDef.fields[fieldname].label} 
-                  leftIcon={(columns[view][fieldname]===true)?<CheckSquare />:<SquareEmpty />} />
+                  leftIcon={(columns[view][fieldname]===true)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
                 </div>
               )}              
             </div>:null}
@@ -189,14 +189,15 @@ export const BrowserView = memo((props) => {
                   {((filter.fieldtype === "integer")||(filter.fieldtype === "float"))?<Input value={filter.value} 
                     onChange={(event)=>editFilter(index, "value", event.target.value) }
                     itype={filter.fieldtype} className="align-right" />:null}
-                  {(filter.fieldtype === "date")?<DateInput value={filter.value} 
+                  {(filter.fieldtype === "date")?<DateTime value={filter.value} 
+                    dateTime={false} isEmpty={false}
                     onChange={(value)=>editFilter(index, "value", value) } />:null}
                   {(filter.fieldtype === "string")?<Input value={filter.value} 
                     onChange={(event)=>editFilter(index, "value", event.target.value) } />:null}
                 </div>:null}
                 <div className="cell" >
                   <button className={` ${"border-button"} ${styles.filterDelete}`} 
-                    onClick={ ()=>deleteFilter(index) } ><Times />
+                    onClick={ ()=>deleteFilter(index) } ><Icon iconKey="Times" />
                   </button>
                 </div>
               </div>
@@ -210,7 +211,7 @@ export const BrowserView = memo((props) => {
               {(viewDef.actions_new)?<div className={`${"cell"} ${styles.resultTitlePlus}`}>
                 <button className={`${"small-button"}`} 
                   onClick={ ()=>setActions(viewDef.actions_new) } >
-                  <Plus />
+                  <Icon iconKey="Plus" />
                 </button>
               </div>:null}
             </div>

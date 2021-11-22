@@ -2,18 +2,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import * as serviceWorkerRegistration from './service-workerRegistration';
 import { ClearCacheProvider } from 'react-clear-cache';
 
 // Import root app
 import App from './containers/App';
 
 ReactDOM.render(
-    <React.StrictMode>
+    //<React.StrictMode>
       <ClearCacheProvider duration={5000} auto={true} basePath={window.location.pathname}>
         <App />
-      </ClearCacheProvider>
-    </React.StrictMode>, 
+      </ClearCacheProvider>,
+    //</React.StrictMode>, 
   document.getElementById('root')
 );
 

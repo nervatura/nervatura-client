@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import AppStore from 'containers/App/context'
 import { InputForm } from 'containers/ModalForm'
+import { getText } from 'config/app'
 
 toast.configure({});
 
@@ -321,13 +322,12 @@ export const useApp = () => {
   const { data, setData } = useContext(AppStore)
   const showInput =  InputForm()
 
-  const getText = (key, defValue) => {
-    const locales = data.session.locales
-    const lang = data.current.lang
-    if (locales[lang] && locales[lang][key]) {
-      return locales[lang][key];
-    }
-    return defValue || locales["en"][key] || ""
+  const getLangText = (key, defValue) => {
+    return getText({ 
+      locales: data.session.locales,
+      lang: data.current.lang, 
+      key: key, defaultValue: defValue 
+    })
   }
 
   const getSetting = (key) => {
@@ -391,7 +391,7 @@ export const useApp = () => {
       showToast({ type: "error", message: result.error.message })
     } else {
       showToast({ type: "error", 
-        message: getText("error_internal", "Internal Server Error") })
+        message: getLangText("error_internal", "Internal Server Error") })
     }
   }
 
@@ -401,8 +401,9 @@ export const useApp = () => {
 
   const requestData = async (path, options, silent) => {
     try {
-      if (!silent)
+      if (!silent){
         setData("current", { "request": true })
+      }
       let url = (data.session.configServer)?
         data.session.proxy+data.session.apiPath+path : data.login.server+path
       const token = (data.login.data) ? data.login.data.token : options.token || ""
@@ -494,7 +495,7 @@ export const useApp = () => {
     let history = update({}, {$set: {
       datetime: formatISO(new Date()),
       type: ctype, 
-      type_title: getText["label_"+ctype],
+      type_title: getLangText["label_"+ctype],
       ntype: data.edit.current.type,
       transtype: data.edit.current.transtype || "",
       id: data.edit.current.item.id
@@ -563,7 +564,7 @@ export const useApp = () => {
 
   const saveBookmark = (params) => {
     showInput({
-      title: getText("msg_bookmark_new"), message: getText("msg_bookmark_name"),
+      title: getLangText("msg_bookmark_new"), message: getLangText("msg_bookmark_name"),
       value: (params[0] === "browser") ? params[1] : data.edit.current.item[params[2]], 
       onChange: (form) => {
         setData("current", { modalForm: form })
@@ -620,7 +621,7 @@ export const useApp = () => {
   }
 
   const showHelp = (key) => {
-    const element = document.createElement("A")
+    const element = document.createElement("a")
     element.setAttribute("href", data.session.helpPage+key)
     element.setAttribute("target", "_blank")
     document.body.appendChild(element)
@@ -628,7 +629,7 @@ export const useApp = () => {
   }
 
   return {
-    getText: getText,
+    getText: getLangText,
     getSetting: getSetting,
     getAuditFilter: getAuditFilter,
     showToast: showToast,

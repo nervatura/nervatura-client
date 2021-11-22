@@ -8,7 +8,7 @@
   position: fixed!important;
   height: 100%;
   width: var(--menu-side-width);
-  top: var(--menu-top-height);
+  /*top: var(--menu-top-height);*/
   left: 0;
   animation: animateleft 0.4s;
   background-color: var(--dark);

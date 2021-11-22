@@ -1,4 +1,4 @@
-import React, { useContext, useState, createElement, Fragment } from 'react';
+import React, { useContext, useState, Fragment } from 'react';
 import update from 'immutability-helper';
 import { format, isValid, parseISO, formatISO } from 'date-fns'
 
@@ -7,8 +7,8 @@ import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { SelectorForm } from 'containers/ModalForm'
 import styles from './Controller.module.css';
-import DateTimeInput from 'components/DateTimeInput';
-import { ToggleOff, ToggleOn, Times, Search, CheckSquare, SquareEmpty } from 'components/Icons';
+import Icon from 'components/Form/Icon'
+import DateTime from 'components/Form/DateTime'
 
 const useValues = (keys, defValue) => {
   const store = useContext(AppStore)
@@ -145,23 +145,6 @@ export const Select = (props) => {
     value={selectValue} >
     {options}
   </select>
-}
-
-export const DateInput = (props) => {
-  const app = useApp()
-  const placeholderText = app.getText(props.placeholder)
-  const dateValue = useValues(props.keys, props.value)
-  const change = useChange()
-
-  const _props = update(props, {$merge: {
-    value: (props.default && (dateValue === "")) ? props.default : dateValue,
-    placeholder: placeholderText,
-    onChange: (props.onChange) ? props.onChange : (value) => change(props.keys, value),
-    dateFormat: app.getSetting("dateFormat"),
-    timeFormat: app.getSetting("timeFormat"),
-    locale: app.getSetting("calendar")
-  }})
-  return <DateTimeInput {..._props}/>
 }
 
 export const FormField = (props) => {
@@ -403,11 +386,11 @@ export const FormField = (props) => {
         }
       }
       value = isValid(dateValue) ? formatISO(dateValue) : ""
-      return <DateTimeInput value={value} 
+      return <DateTime value={value} 
         dateTime={(datatype === "datetime")}
         isEmpty={empty} disabled={(disabled || audit === 'readonly')}
         onChange={(value) => {
-          if(datatype === "datetime"){
+          if(value && (datatype === "datetime")){
             onChange({value: format(parseISO(value), app.getSetting("dateFormat")+" "+app.getSetting("timeFormat"))})
           } else {
             onChange({value: value})
@@ -424,13 +407,13 @@ export const FormField = (props) => {
         return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
             ()=>onChange({value: (field.name === 'fieldvalue_value') ? false : 0}):null}>
-          <ToggleOn className={`${styles.toggleOn}`} width={40} height={32.6} />
+          <Icon iconKey="ToggleOn" className={`${styles.toggleOn}`} width={40} height={32.6} />
         </div>
       } else {
         return <div className={` ${"toggle"} ${styles.toggle} ${toggleDisabled}`}
           onClick={(!disabled && audit !== 'readonly')?
             ()=>onChange({value: (field.name === 'fieldvalue_value') ? true : 1}):null}>
-          <ToggleOff className={`${styles.toggleOff}`} width={40} height={32.6} />
+          <Icon iconKey="ToggleOff" className={`${styles.toggleOff}`} width={40} height={32.6} />
         </div>
       }
     
@@ -540,7 +523,7 @@ export const FormField = (props) => {
               }, 
               onSelect: onSelector
             }) } >
-            <Search />
+            <Icon iconKey="Search" />
           </button>
         </div>)
       }
@@ -549,7 +532,7 @@ export const FormField = (props) => {
           <button className={`${"border-button"} ${styles.selectorButton}`}
             disabled={(disabled || audit === 'readonly') ? 'disabled' : ''}
             onClick={ ()=>onSelector() } >
-            <Times />
+            <Icon iconKey="Times" />
           </button>
         </div>)
       }
@@ -570,7 +553,7 @@ export const FormField = (props) => {
         autoFocus={field.focus || false}
         onClick={ ()=>onEdit(fieldName) } >
         <Label value={(field.title)?(field.title):""} 
-          leftIcon={(field.icon)?createElement(field.icon):null} 
+          leftIcon={(field.icon)?<Icon iconKey={field.icon} />:null} 
           col={(field.icon)?20:null} />
       </button>
 
@@ -710,8 +693,8 @@ export const FormRow = (props) => {
           extend: false
         })}>
         {(enabled)?
-          <ToggleOn className={`${styles.toggleOn}`} width={40} height={32.6} />:
-          <ToggleOff className={`${styles.toggleOff}`} width={40} height={32.6} />}
+          <Icon iconKey="ToggleOn" className={`${styles.toggleOn}`} width={40} height={32.6} />:
+          <Icon iconKey="ToggleOff" className={`${styles.toggleOff}`} width={40} height={32.6} />}
         <Label className={`${"bold padding-tiny"} ${(enabled)?styles.toggleOn:""}`} value={name} />
       </div>
 
@@ -785,7 +768,9 @@ export const FormRow = (props) => {
                 extend: false
               })}>
               <Label className={`${"bold"} ${(value)?styles.toggleOn:""}`} value={cvalue[1]} 
-                leftIcon={(value)?<CheckSquare className={`${styles.toggleOn}`}  />:<SquareEmpty />} />
+                leftIcon={(value)
+                  ?<Icon iconKey="CheckSquare" className={`${styles.toggleOn}`}  />
+                  :<Icon iconKey="SquareEmpty" />} />
             </div>)
           });
           return(<div className="row full padding-small section-small border-bottom">
@@ -843,7 +828,7 @@ export const FormRow = (props) => {
           onClick={() => {if(empty !== 'false'){
             rowdata.onEdit({id: id, name: "selected", value: !selected, extend: false })} }}>
           <Label className="bold" value={label} 
-            leftIcon={(selected)?<CheckSquare />:<SquareEmpty />} />
+            leftIcon={(selected)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
         </div>
         <FormField values={values} rowdata={rowdata} field={props.row} />
       </div>)
@@ -857,7 +842,7 @@ export const FormRow = (props) => {
           <div className="cell align-right container-small" >
             <span className={`${styles.fieldvalueDelete}`} 
               onClick={ ()=>rowdata.onEdit({ 
-                id: id, name: "fieldvalue_deleted"}) }><Times /></span>
+                id: id, name: "fieldvalue_deleted"}) }><Icon iconKey="Times" /></span>
           </div>
         </div>
         <div className="row full">

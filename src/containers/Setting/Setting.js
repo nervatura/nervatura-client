@@ -1,12 +1,11 @@
-import React, { memo, createElement, Fragment } from 'react';
+import React, { memo, Fragment } from 'react';
 import update from 'immutability-helper';
 
 import styles from './Setting.module.css';
 import { Label, FormRow, Select } from 'containers/Controller'
-import { Edit, Times, Tags, Database, Tag, Check, InfoCircle, Plus, ArrowLeft, ArrowRight,
-  ArrowUp, ArrowDown } from 'components/Icons';
-import Table from 'components/Table';
-import List from 'components/List';
+import Icon from 'components/Form/Icon'
+import Table from 'components/Form/Table';
+import List from 'components/Form/List';
 
 export const SettingView = memo((props) => {
   const { getText, setViewActions } = props
@@ -25,10 +24,10 @@ export const SettingView = memo((props) => {
             formatters: [
             (value, { rowData }) => {
               return <Fragment>
-                <div className={`${"cell"} ${styles.editCol}`} >{createElement(
-                  Edit, { width:24, height:21.3, 
-                  onClick: ()=>setViewActions(actions.edit, rowData),
-                  className: styles.editCol})}
+                <div className={`${"cell"} ${styles.editCol}`} >
+                  <Icon iconKey="Edit" width={24} height={21.3} 
+                    onClick={()=>setViewActions(actions.edit, rowData)}
+                    className={styles.editCol} />
                 </div>
               </Fragment>
             }] }
@@ -82,15 +81,15 @@ export const SettingForm = memo((props) => {
             (value, { rowData }) => {
               const ecol = (current.template.view.items.actions.edit !== null)?<div 
                 className={`${"cell"} ${styles.editCol}`} >
-                {createElement(Edit, { width:24, height:21.3, 
-                  onClick: ()=>setViewActions(current.template.view.items.actions.edit, rowData),
-                  className: styles.editCol})}
+                <Icon iconKey="Edit" width={24} height={21.3} 
+                  onClick={()=>setViewActions(current.template.view.items.actions.edit, rowData)}
+                  className={styles.editCol} />
               </div>:null
               const dcol = (current.template.view.items.actions.delete !== null)?<div 
                 className={`${"cell"} ${styles.deleteCol}`} >
-                {createElement(Times, { width:19, height:27.6, 
-                  onClick: ()=>setViewActions(current.template.view.items.actions.delete, rowData),
-                  className: styles.deleteCol})}
+                <Icon iconKey="Times" width={19} height={27.6} 
+                  onClick={()=>setViewActions(current.template.view.items.actions.delete, rowData)}
+                  className={styles.deleteCol} />
               </div>:null
               return <Fragment>{ecol}{dcol}</Fragment>
             }] }
@@ -162,36 +161,36 @@ export const TemplateEditor = memo((props) => {
   const setListIcon = (item, index) => {
     if (current.item===item) {
       return {
-        selected: true, icon: Tag, color: "green", 
+        selected: true, icon: "Tag", color: "green", 
         badge: getBadge(item, index)
       };
     }
     if (current.parent===item || template[current.section]===item) {
       return {
-        selected: true, icon: Check, color: "", 
+        selected: true, icon: "Check", color: "", 
         badge: getBadge(item, index) 
       };
     }
-    let icon = InfoCircle
+    let icon = "InfoCircle"
     switch (item) {
       case template.report:
         break;
       case template.data:
         if (Object.keys(template.data).length>0) {
-          icon = Plus
+          icon = "Plus"
         }
         break;
       case template.header:
       case template.details:
       case template.footer:
         if (item.length>0) {
-          icon = Plus
+          icon = "Plus"
         }
         break;
       default:
         if (Array.isArray(item)) {
           if (item.length>0) {
-            icon = Plus
+            icon = "Plus"
           }
         }
     }
@@ -213,7 +212,7 @@ export const TemplateEditor = memo((props) => {
           className={`${styles.mapButton} ${"full border-button"} ${(pinfo.color!=="")?styles.green:""}`}>
             <div className="row full" >
               <div className="cell" >
-                <Label value={etype.toUpperCase()} leftIcon={createElement(pinfo.icon)} col={20} />
+                <Label value={etype.toUpperCase()} leftIcon={<Icon iconKey={pinfo.icon} />} col={20} />
               </div>
               <div className="cell align-right" >
                 <span className={`${"primary"} ${styles.badgeBlack}`} >{index+1}</span>
@@ -229,7 +228,7 @@ export const TemplateEditor = memo((props) => {
             className={`${styles.mapButton} ${"full border-button"} ${(cinfo.color!=="")?styles.green:""}`}>
               <div className="row full" >
                 <div className="cell" >
-                  <Label value={etype.toUpperCase()} leftIcon={createElement(cinfo.icon)} col={20} />
+                  <Label value={etype.toUpperCase()} leftIcon={<Icon iconKey={cinfo.icon} />} col={20} />
                 </div>
                 {(cinfo.badge>0)?<div className="cell align-right" >
                   <span className={`${"primary"} ${styles.badgeBlack}`} >{cinfo.badge}</span>
@@ -249,7 +248,7 @@ export const TemplateEditor = memo((props) => {
                 className={`${styles.mapButton} ${"full border-button"} ${(sinfo.color!=="")?styles.green:""}`}>
                   <div className="row full" >
                     <div className="cell" >
-                      <Label value={subtype.toUpperCase()} leftIcon={createElement(sinfo.icon)} col={20} />
+                      <Label value={subtype.toUpperCase()} leftIcon={<Icon iconKey={sinfo.icon} />} col={20} />
                     </div>
                     {(sinfo.badge>0)?<div className="cell align-right" >
                       <span className={`${"primary"} ${styles.badgeBlack}`} >{sinfo.badge}</span>
@@ -277,7 +276,7 @@ export const TemplateEditor = memo((props) => {
         className={`${styles.mapButton} ${"full border-button"} ${(info.color!=="")?styles.green:""}`}>
           <div className="row full" >
             <div className="cell" >
-              <Label value={mkey.toUpperCase()} leftIcon={createElement(info.icon)} col={20} />
+              <Label value={mkey.toUpperCase()} leftIcon={<Icon iconKey={info.icon} />} col={20} />
             </div>
             {(info.badge>0)?<div className="cell align-right" >
               <span className={`${"warning"} ${styles.badgeOrange}`} >{info.badge}</span>
@@ -315,9 +314,9 @@ export const TemplateEditor = memo((props) => {
           (value, { rowData }) => {
             return (<div 
               className={`${"cell"} ${styles.deleteCol}`} >
-              {createElement(Times, { width:19, height:27.6, 
-                onClick: ()=>deleteDataItem({ _index: rowData._index }),
-                className: styles.deleteCol })}
+              <Icon iconKey="Times" width={19} height={27.6} 
+                onClick={()=>deleteDataItem({ _index: rowData._index })}
+                className={styles.deleteCol} />
             </div>)
           }] }
       }}
@@ -332,13 +331,13 @@ export const TemplateEditor = memo((props) => {
           <div className="cell half" >
             <button className={`${"full"} ${styles.tabButton} ${(tabView === "template")?styles.selected:""} ${(tabView === "template")?"primary":""}`} 
               onClick={()=>changeTemplateData("tabView","template")} >
-              <Label text={"template_label_template"} leftIcon={<Tags />} col={25} />
+              <Label text={"template_label_template"} leftIcon={<Icon iconKey="Tags" />} col={25} />
             </button>
           </div>
           <div className={`${"cell half"}`} >
             <button className={`${"full"} ${styles.tabButton} ${(tabView === "data")?styles.selected:""} ${(tabView === "data")?"primary":""}`} 
               onClick={()=>changeTemplateData("tabView","data")} >
-              <Label text={"template_label_data"} leftIcon={<Database />} col={25} />
+              <Label text={"template_label_data"} leftIcon={<Icon iconKey="Database" />} col={25} />
             </button>
           </div>
         </div>
@@ -348,14 +347,14 @@ export const TemplateEditor = memo((props) => {
             <div className="cell padding-small third" >
               <button onClick={() => mapPrevious() } 
                 className={`${styles.mapButton} ${"full border-button"}`}>
-                  <Label text="label_previous" leftIcon={<ArrowLeft />} col={20} />
+                  <Label text="label_previous" leftIcon={<Icon iconKey="ArrowLeft" />} col={20} />
               </button>
               <div key="map_box" className={`${"secondary-title border"} ${styles.mapBox}`} >
                 <canvas ref={mapRef} className={`${styles.reportMap}`} />
               </div>
               <button onClick={() => mapNext() } 
                 className={`${styles.mapButton} ${"full border-button"}`}>
-                  <Label text="label_next" rightIcon={<ArrowRight />} col={20} />
+                  <Label text="label_next" rightIcon={<Icon iconKey="ArrowRight" />} col={20} />
               </button>
             </div>
             <div className="cell padding-small third" >
@@ -365,22 +364,22 @@ export const TemplateEditor = memo((props) => {
               {(getMapCtr(current.type, "map_edit"))?<div>
                 <button onClick={() => moveUp() } 
                   className={`${styles.mapButton} ${"full border-button"}`}>
-                    <Label text="label_move_up" leftIcon={<ArrowUp />} col={20} />
+                    <Label text="label_move_up" leftIcon={<Icon iconKey="ArrowUp" />} col={20} />
                 </button>
                 <button onClick={() => moveDown() } 
                   className={`${styles.mapButton} ${"full border-button"}`}>
-                    <Label text="label_move_down" leftIcon={<ArrowDown />} col={20} />
+                    <Label text="label_move_down" leftIcon={<Icon iconKey="ArrowDown" />} col={20} />
                 </button>
                 <button onClick={() => deleteItem() } 
                   className={`${styles.mapButton} ${"full border-button"}`}>
-                    <Label text="label_delete" leftIcon={<Times />} col={20} />
+                    <Label text="label_delete" leftIcon={<Icon iconKey="Times" />} col={20} />
                 </button>
                 <div className={styles.separator} />
               </div>:null}
               {(getMapCtr(current.type, "map_insert"))?<div>
                 <button onClick={() => addItem(current.add_item||"") } 
                   className={`${styles.mapButton} ${"border-button"}`}>
-                    <Label text="label_add_item" leftIcon={<Plus />} col={20} />
+                    <Label text="label_add_item" leftIcon={<Icon iconKey="Plus" />} col={20} />
                 </button>
                 <Select value={current.add_item||""} placeholder=""
                   onChange={(event)=>changeCurrentData("add_item",event.target.value)}
@@ -391,7 +390,7 @@ export const TemplateEditor = memo((props) => {
             </div>
           </div>
           {(current.type)?<div className={`${styles.title} ${"padding-small"}`}>
-            <Label value={current.type.toUpperCase()} leftIcon={<Tag />} col={20} />
+            <Label value={current.type.toUpperCase()} leftIcon={<Icon iconKey="Tag" />} col={20} />
           </div>:null}
           {(current.type)?
           current.form.rows.map((row, index) =><div 
@@ -415,7 +414,7 @@ export const TemplateEditor = memo((props) => {
                   <Label value={current_data.name} />
                 </div>
                 <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-                  <Times onClick={()=>setCurrentData(null)} />
+                  <Icon iconKey="Times" onClick={()=>setCurrentData(null)} />
                 </div>
               </div>
             </div>
@@ -431,7 +430,7 @@ export const TemplateEditor = memo((props) => {
                   <Label value={current_data.item} />
                 </div>
                 <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-                  <Times onClick={()=>setCurrentDataItem(null)} />
+                  <Icon iconKey="Times" onClick={()=>setCurrentDataItem(null)} />
                 </div>
               </div>
             </div>
@@ -447,7 +446,7 @@ export const TemplateEditor = memo((props) => {
                   <Label value={current_data.name+" - "+String(current_data.item._index+1)} />
                 </div>
                 <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-                  <Times onClick={()=>setCurrentDataItem(null)} />
+                  <Icon iconKey="Times" onClick={()=>setCurrentDataItem(null)} />
                 </div>
               </div>
             </div>
@@ -468,7 +467,7 @@ export const TemplateEditor = memo((props) => {
                   <Label value={current_data.name} />
                 </div>
                 <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-                  <Times onClick={()=>setCurrentData(null)} />
+                  <Icon iconKey="Times" onClick={()=>setCurrentData(null)} />
                 </div>
               </div>
             </div>
@@ -488,7 +487,7 @@ export const TemplateEditor = memo((props) => {
                   <Label value={current_data.name} />
                 </div>
                 <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-                  <Times onClick={()=>setCurrentData(null)} />
+                  <Icon iconKey="Times" onClick={()=>setCurrentData(null)} />
                 </div>
               </div>
             </div>
@@ -538,7 +537,7 @@ export const Setting = memo((props) => {
         <div className={`${"panel"} ${styles.width800}`} >
           <div className="panel-title primary">
             <Label bold primary xxxlarge value={caption} 
-              leftIcon={createElement(icon)} col={20} />
+              leftIcon={<Icon iconKey={icon} />} col={20} />
           </div>
           <div className={`${"section"} ${styles.settingPanel}`} >
             <div className="row full container section-small-bottom" >

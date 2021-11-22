@@ -1,100 +1,54 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
+import PropTypes from 'prop-types';
 
-import styles from './Login.module.css';
-import { Label, Input, Select } from 'containers/Controller'
-import { Moon, Sun } from 'components/Icons';
+import Login from 'components/Login'
 
-export const Login = memo((props) => {
-  const { login, setTheme, SetLocale } = props
-  const { version, configServer } = props.session
-  const { username, database } = props.data
-  const { theme, locales, lang } = props
-  return (
-    <div className={styles.modal}>
-      <div className={styles.middle}>
-        <div className={`${styles.dialog} ${theme}`} >
-          <div className={`${"row primary"} ${styles.title}`} >
-            <div className="cell" >
-              <Label text="title_login" />
-            </div>
-            <div className={`${"cell"} ${styles.version}`} >
-              <Label value={"v"+version} />
-            </div>
-          </div>
-          <div className="row full section-small" >
-            <div className="row full section-small" >
-              <div className="row full" >
-                <div className="padding-normal s12 m4 l4" >
-                  <Label text="login_username" className="bold" />
-                </div>
-                <div className="container s12 m8 l8" >
-                  <Input id="username" type="text" className="full"
-                    keys={["login","username"]} />
-                </div>
-              </div>
-              <div className="row full" >
-                <div className="padding-normal s12 m4 l4" >
-                  <Label text="login_password" className="bold" />
-                </div>
-                <div className="container s12 m8 l8" >
-                  <Input id="password" type="password" className="full" 
-                    keys={["login","password"]} onEnter={login} />
-                </div>
-              </div>
-            </div>
-            <div className="row full section-small" >
-              <div className="row full" >
-                <div className="padding-normal s12 m4 l4" >
-                  <Label text="login_database" className="bold" />
-                </div>
-                <div className="container s12 m8 l8" >
-                  <Input id="database" type="text" className="full"
-                    keys={["login","database"]} onEnter={login} />
-                </div>
-              </div>
-              {(!configServer)?<div className="row full" >
-                <div className="padding-normal full" >
-                  <Label text="login_server" className="bold" />
-                </div>
-                <div className="container full" >
-                  <Input id="server" type="text" className="full"
-                    keys={["login","server"]} />
-                </div>
-              </div>:null}
-            </div>
-          </div>
-          <div className={`${"row full section-small secondary-title"}`} >
-            <div className="container section-small s6 m6 l6" >
-              <button className="border-button" onClick={setTheme} >
-                {(theme === "dark")?<Sun />:<Moon />}
-              </button>
-              <Select id="lang" value={lang}
-                options={Object.keys(locales).map(key => {
-                  return {
-                    value: key, text: locales[key][key] || key 
-                  }
-                })} 
-                onChange={(ev)=>SetLocale(ev.target.value)} />
-            </div>
-            <div className="container section-small s6 m6 l6" >
-              <button id="login" autoFocus
-                disabled={((!username || (String(username).length===0) 
-                  || !database || (String(database).length===0))?"disabled":"")} 
-                className="primary full"
-                onClick={login} >
-                <Label text="login_login"  />
-              </button>
-            </div>
-          </div>  
-        </div>
-      </div>
-    </div>
-  )
-}, (prevProps, nextProps) => {
+export const LoginPage = ({
+  session, data, current,
+  changeData, getText, onLogin, setTheme, setLocale
+}) => {
+  return <Login {...data} 
+    theme={current.theme} lang={current.lang} 
+    version={session.version} locales={session.locales} configServer={session.configServer}
+    changeData={changeData} getText={getText} onLogin={onLogin} setTheme={setTheme} setLocale={setLocale} />
+}
+
+LoginPage.propTypes = {
+  data: PropTypes.shape({
+    username: Login.propTypes.username,
+    password: Login.propTypes.password,
+    database: Login.propTypes.database,
+    server: Login.propTypes.server,
+  }).isRequired,
+  session: PropTypes.object.isRequired,
+  current: PropTypes.object.isRequired,
+  changeData: PropTypes.func, 
+  getText: PropTypes.func, 
+  onLogin: PropTypes.func, 
+  setTheme: PropTypes.func, 
+  setLocale: PropTypes.func,
+}
+
+LoginPage.defaultProps = {
+  data: {
+    username: Login.defaultProps.username,
+    password: Login.defaultProps.password,
+    database: Login.defaultProps.database,
+    server: Login.defaultProps.server,
+  },
+  session: {},
+  current: {},
+  changeData: undefined, 
+  getText: undefined, 
+  onLogin: undefined, 
+  setTheme: undefined, 
+  setLocale: undefined,
+}
+
+export default memo(LoginPage, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.theme === nextProps.theme) &&
-    (prevProps.locales === nextProps.locales) &&
-    (prevProps.lang === nextProps.lang)
+    (prevProps.current === nextProps.current)
   )
 })
+

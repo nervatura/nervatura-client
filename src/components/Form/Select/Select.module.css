@@ -1,0 +1,23 @@
+select {
+  border-radius: 3px;
+  font-size: 13px;
+  padding: 8px;
+  opacity: 1;
+}
+
+select:disabled {
+  opacity: 0.5;
+}
+
+option {
+  font-size: 14px;
+  border: none;
+}
+
+option:disabled {
+  opacity: 0.5;
+}
+
+.optionPlaceholder {
+  color: var(--info);
+}

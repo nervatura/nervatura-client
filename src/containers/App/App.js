@@ -10,7 +10,7 @@ import './App.css';
 
 import { AppProvider } from './context'
 
-import Spinner from 'components/Spinner'
+import Spinner from 'components/Form/Spinner'
 import MenuBar from 'containers/MenuBar'
 import SideBar from 'containers/SideBar'
 import modules from './modules'

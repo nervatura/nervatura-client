@@ -3,8 +3,8 @@ import update from 'immutability-helper';
 import { render, fireEvent } from '@testing-library/react'
 
 import { AppProvider } from 'containers/App/context'
-import { User } from 'components/Icons';
-import { Label, Input, Select, DateInput } from './index';
+import Icon from 'components/Form/Icon'
+import { Label, Input, Select } from './index';
 
 const store = { 
   data: {
@@ -48,17 +48,17 @@ describe('Icons', () => {
 
     rerender(
       <AppProvider value={ctr_store}>
-        <Label center leftIcon={<User />} col={30} keys={["key1"]} value="Google" />
+        <Label center leftIcon={<Icon iconKey="User" />} col={30} keys={["key1"]} value="Google" />
       </AppProvider>)
 
     rerender(
       <AppProvider value={ctr_store}>
-        <Label leftIcon={<User />} keys={["key1", "key2", "key4"]} value="Google" />
+        <Label leftIcon={<Icon iconKey="User" />} keys={["key1", "key2", "key4"]} value="Google" />
       </AppProvider>)
     
     rerender(
       <AppProvider value={ctr_store}>
-        <Label keys={["key1", "value"]} rightIcon={<User />} />
+        <Label keys={["key1", "value"]} rightIcon={<Icon iconKey="User" />} />
       </AppProvider>)
     
     rerender(
@@ -201,6 +201,7 @@ describe('Icons', () => {
 
   });
 
+  /*
   it('DateInput', () => {
     let ctr_store = update(store, {
       data: { $merge: {
@@ -231,5 +232,6 @@ describe('Icons', () => {
       </AppProvider>);
   
   });
+  */
 
 })

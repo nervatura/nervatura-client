@@ -1,0 +1,21 @@
+input {
+  border-radius: 3px;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
+}
+
+input[type=color]{
+  height: 34px;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+}
+
+input:disabled {
+  opacity: 0.5;
+}
+
+input::placeholder, input::-ms-input-placeholder {
+  opacity: 0.5;
+}

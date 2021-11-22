@@ -1,27 +1,28 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import { getSql, useApp } from 'containers/App/actions'
 
-import { Login } from './Login';
+import LoginMemo, { LoginPage } from './Login';
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default (props) => {
+const Login = (props) => {
   const { data, setData } = useContext(AppStore);
   const app = useApp()
 
-  const [state] = useState({
-    session: data.session
-  })
+  const [state] = useState(update(props, {$merge: {
+    session: data.session,
+  }}))
 
-  state.data = data.login
-  state.user = data.session.user
-  state.theme = data.current.theme
-  state.locales = data.session.locales
-  state.lang = data.current.lang
-  
-  const userLog = async (loginData) => {
+  state.data = update(state.data, {$merge: { ...data[state.key] }})
+  state.current = update(state.current, {$merge: { ...data.current }})
+
+  state.getText = (key, defValue) => {
+    return app.getText(key, defValue)
+  }
+
+  state.userLog = async (loginData) => {
     let options = { 
       method: "POST", token: loginData.token, 
       data: [
@@ -34,8 +35,8 @@ export default (props) => {
     return await app.requestData("/log", options)
   }
   
-  const loginData = async (params) => {
-    let lData = update({}, {$set: { 
+  state.loginData = async (params) => {
+    let data = update(state.data, {$set: { 
       token: params.token, engine: params.engine }})
     let views = [
       { key: "employee",
@@ -79,10 +80,10 @@ export default (props) => {
       return view
     }
 
-    lData = update(lData, {$merge: view})
-    lData = update(lData, {$merge: {
-      employee: lData.employee[0],
-      userlogin: (lData.userlogin.length>0) ? lData.userlogin[0].value : "false"
+    data = update(data, {$merge: view})
+    data = update(data, {$merge: {
+      employee: data.employee[0],
+      userlogin: (data.userlogin.length>0) ? data.userlogin[0].value : "false"
     }})
 
     views = [
@@ -100,7 +101,7 @@ export default (props) => {
             ["ui_menu m", "on", ["au.subtype", "=", "m.id"]]],
           where: ["au.usergroup", "=", "?"] 
         }).sql,
-        values: [lData.employee.usergroup] },
+        values: [data.employee.usergroup] },
       { key: "transfilter",
         text: getSql(params.engine, {
           select: ["ref_id_2 as transfilter", "g.groupvalue as transfilterName"], 
@@ -118,7 +119,7 @@ export default (props) => {
               where: [["groupname", "=", "'nervatype'"], ["and", "groupvalue", "=", "'groups'"]]
             }]]]
         }).sql,
-        values: [lData.employee.usergroup] 
+        values: [data.employee.usergroup] 
       }
     ]
 
@@ -127,25 +128,25 @@ export default (props) => {
     if(view.error){
       return view
     }
-    lData = update(lData, {$merge: {
+    data = update(data, {$merge: {
       transfilter: (view.transfilter.length>0) ? view.transfilter[0].transfilter : null,
       audit: view.audit
     }})
-    if(lData.transfilter === null){
-      const transfilter = lData.groups.filter((group)=> {
+    if(data.transfilter === null){
+      const transfilter = data.groups.filter((group)=> {
         return ((group.groupname === "transfilter") && (group.groupvalue === "all"))
       })[0]
-      lData = update(lData, {$merge: {
+      data = update(data, {$merge: {
         transfilter: transfilter.id,
         transfilterName: "all"
       }})
     } else {
-      lData = update(lData, {$merge: {
+      data = update(data, {$merge: {
         transfilterName: view.transfilter[0].transfilterName
       }})
     }
 
-    lData = update(lData, {$merge: {
+    data = update(data, {$merge: {
       audit_filter: {trans:{}, menu:{}, report:{}},
       edit_new: [[],[],[],[]]
     }})
@@ -154,15 +155,15 @@ export default (props) => {
       ["bank",1],["cash",1],
       ["delivery",2],["inventory",2],["waybill",2],["production",2],["formula",2]]
     trans.forEach((transtype) => {
-      const audit = lData.audit.filter((item)=> {
+      const audit = data.audit.filter((item)=> {
         return ((item.nervatypeName === "trans") && (item.subtypeName === transtype[0]))
       })[0]
-      lData = update(lData, { audit_filter: { trans: { $merge: {
+      data = update(data, { audit_filter: { trans: { $merge: {
         [transtype[0]]: (audit) ? 
           [audit.inputfilterName, audit.supervisor] : ["all",1]
       }}}})
-      if (lData.audit_filter.trans[transtype[0]][0] !== "disabled"){
-        lData = update(lData, { edit_new: {
+      if (data.audit_filter.trans[transtype[0]][0] !== "disabled"){
+        data = update(data, { edit_new: {
           [transtype[1]]: {$push: [transtype[0]]}
         }})
       }
@@ -170,25 +171,25 @@ export default (props) => {
 
     const nervatype = ["customer","product","employee","tool","project","setting","audit"]
     nervatype.forEach((ntype) => {
-      const audit = lData.audit.filter((item)=> {
+      const audit = data.audit.filter((item)=> {
         return ((item.nervatypeName === ntype) && (item.subtypeName === null))
       })[0]
-      lData = update(lData, { audit_filter: { $merge: {
+      data = update(data, { audit_filter: { $merge: {
         [ntype]: (audit) ? 
           [audit.inputfilterName, audit.supervisor] : ["all",1]
       }}})
-      if (lData.audit_filter[ntype][0] !== "disabled" && 
+      if (data.audit_filter[ntype][0] !== "disabled" && 
         ntype !== "setting" && ntype !== "audit"){
-          lData = update(lData, { edit_new: {
+          data = update(data, { edit_new: {
             3: {$push: [ntype]}
           }})
         }
     });
 
-    return lData
+    return data
   }
 
-  state.login = async () => {
+  state.onLogin = async () => {
     const options = {
       method: "POST",
       data: {
@@ -202,14 +203,14 @@ export default (props) => {
         return app.resultError({ error: { message: app.getText("login_engine_err") } })
       }
       if(!data.session.service.includes(result.version)){
-        app.resultError({ error: { message: app.getText("login_version_err") } })
+        return app.resultError({ error: { message: app.getText("login_version_err") } })
       }
-      const lData = await loginData(result)
-      if(lData.error){
-        return app.resultError(lData)
+      const resultData = await state.loginData(result)
+      if(resultData.error){
+        return app.resultError(resultData)
       }
-      if (lData.userlogin === "t" || lData.userlogin === "true") {
-        const log = await userLog(lData)
+      if (resultData.userlogin === "t" || resultData.userlogin === "true") {
+        const log = await state.userLog(resultData)
         if(log.error){
           return app.resultError(log)
         }
@@ -219,29 +220,56 @@ export default (props) => {
       //setData("edit", { fdataset: {}, current: {}, dirty: false, form_dirty: false, history: [], selector: {} })
       //setData("setting", { dirty: false, result: [] })
       setData("current", { module: "search" })
-      setData("login", { data: lData })
+      setData(state.key, { data: resultData })
       localStorage.setItem("database", state.data.database);
       localStorage.setItem("username", state.data.username);
       localStorage.setItem("server", state.data.server);
-      app.loadBookmark({ user_id: lData.employee.id, token: result.token })
+      app.loadBookmark({ user_id: resultData.employee.id, token: result.token })
 
     } else {
       app.resultError(result)
     }
   }
 
+  state.changeData = (key, value) => {
+    setData(state.key, { [key]: value })
+  }
+
   state.setTheme = () => {
-    const theme = (state.theme === "light") ? "dark" : "light"
+    const theme = (state.current.theme === "light") ? "dark" : "light"
     setData("current", { theme: theme })
     localStorage.setItem("theme", theme);
   }
 
-  state.SetLocale = (key) => {
+  state.setLocale = (key) => {
     setData("current", { lang: key })
     localStorage.setItem("lang", key);
   }
 
-  return(
-    <Login {...state} />
-  )
+  return <LoginMemo {...state} />
 }
+
+
+Login.propTypes = {
+  key: PropTypes.string.isRequired,
+  ...LoginPage.propTypes,
+  data: PropTypes.shape({
+    ...LoginPage.propTypes.data,
+    data: PropTypes.object,
+  }),
+  userLog: PropTypes.func,
+  loginData: PropTypes.func,
+}
+
+Login.defaultProps = {
+  key: "login",
+  ...LoginPage.defaultProps,
+  data: {
+    ...LoginPage.defaultProps.data,
+    data: {},
+  },
+  userLog: undefined,
+  loginData: undefined,
+}
+
+export default Login;

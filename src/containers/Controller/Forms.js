@@ -1,10 +1,5 @@
 import update from 'immutability-helper';
-
 import { useApp } from 'containers/App/actions'
-import { User, Home, Phone, Calendar, FileText, Money, ListOl, Barcode, Dollar, 
-  Tag, Truck, Male, Magic, Th, Briefcase, Search, InfoCircle, Lock, Map,
-  Filter, ShoppingCart, Flask, Clock, Strikethrough, Keyboard, ChartBar, 
-  Cog, Plus, Book, TextHeight, Ticket, Wrench, Key, Share, Print, Check } from 'components/Icons';
 
 export const useForm = () => {
   const app = useApp()
@@ -14,7 +9,7 @@ export const useForm = () => {
         options: {
           title: app.getText("address_view"),
           title_field: "",
-          icon: Home,
+          icon: "Home",
           panel: {}
         },
         rows: [
@@ -42,7 +37,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_bank"),
           title_field: "transnumber",
-          icon: Money,
+          icon: "Money",
           fieldvalue: true,
           pattern: true,
           panel: {arrow:true, more:true, trans:true, create:false,
@@ -50,7 +45,7 @@ export const useForm = () => {
         view: {
           payment: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "payment",
             total:{
@@ -67,7 +62,7 @@ export const useForm = () => {
           payment_link: {
             type: "list",
             data:"payment_link",
-            icon: FileText,
+            icon: "FileText",
             title:app.getText("invoice_view"),
             actions: {
               new: null, 
@@ -124,7 +119,7 @@ export const useForm = () => {
         options: {
           title: app.getText("barcode_view"),
           title_field: "",
-          icon: Barcode,
+          icon: "Barcode",
           panel: {}},
         rows: [
           {rowtype:"field", name:"code", label: app.getText("barcode_code"), datatype:"string"},
@@ -151,7 +146,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_cash"),
           title_field: "transnumber",
-          icon: Money,
+          icon: "Money",
           fieldvalue:true,
           pattern:true,
           extend: "payment",
@@ -163,7 +158,7 @@ export const useForm = () => {
           payment_link: {
             type: "list",
             data:"payment_link",
-            icon: FileText,
+            icon: "FileText",
             title: app.getText("invoice_view"),
             actions: {
               new: null, 
@@ -253,7 +248,7 @@ export const useForm = () => {
         options: {
           title: app.getText("contact_view"),
           title_field: "",
-          icon: Phone,
+          icon: "Phone",
           panel: {}},
         rows: [
           {rowtype:"col2", columns: [
@@ -284,7 +279,7 @@ export const useForm = () => {
     currency: (item) => {
       let currency = {
         options: {
-          icon: Dollar,
+          icon: "Dollar",
           data: "currency",
           title: app.getText("title_currency"),
           panel: {page:"setting", more:false, help:"currency"}},
@@ -335,24 +330,24 @@ export const useForm = () => {
         options: {
           title: app.getText("title_customer"),
           title_field: "custnumber",
-          icon: User,
+          icon: "User",
           fieldvalue:true,
           panel: {more:true, bookmark:["editor","customer","custname","custnumber"], help:"customer"}},
         view: {
           address: {
             type: "list",
             data: "address",
-            icon: Home,
+            icon: "Home",
             title: app.getText("address_view")},
           contact: {
             type: "list",
             data: "contact",
-            icon: Phone,
+            icon: "Phone",
             title: app.getText("contact_view")},
           event: {
             type: "list",
             data: "event",
-            icon: Calendar,
+            icon: "Calendar",
             title: app.getText("event_view"),
             actions: {
               new: {action: "loadEditor", ntype: "event", ttype: null}, 
@@ -378,7 +373,7 @@ export const useForm = () => {
             customer = update(customer, {
               options: { $merge: {
                 title: app.getText("title_company"),
-                icon: Home
+                icon: "Home"
               }}
             })
             customer = update(customer, {
@@ -431,7 +426,7 @@ export const useForm = () => {
     deffield: (item, setting) => {
       let deffield = {
         options: {
-          icon: Tag,
+          icon: "Tag",
           data: "deffield",
           title: app.getText("title_deffield"),
           panel: {page:"setting", more:false, help:"deffield"}},
@@ -495,7 +490,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_delivery"),
           title_field: "transnumber",
-          icon: Truck,
+          icon: "Truck",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -507,7 +502,7 @@ export const useForm = () => {
         view: {
           movement: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "movement",
             edited: false,
@@ -638,7 +633,7 @@ export const useForm = () => {
         options: {
           title: app.getText("discount_view"),
           title_field: "",
-          icon: Dollar,
+          icon: "Dollar",
           panel: {}
         },
         rows: [
@@ -679,7 +674,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_employee"),
           title_field: "empnumber",
-          icon: Male,
+          icon: "Male",
           extend: "contact",
           fieldvalue: true,
           panel: { 
@@ -691,13 +686,13 @@ export const useForm = () => {
           address: {
             type: "list",
             data: "address",
-            icon: Home,
+            icon: "Home",
             title: app.getText("address_view")
           },
           event: {
             type: "list",
             data: "event",
-            icon: Calendar,
+            icon: "Calendar",
             title: app.getText("event_view"),
             actions: {
               new: {action: "loadEditor", ntype: "event", ttype: null}, 
@@ -762,7 +757,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_event"),
           title_field: "calnumber",
-          icon: Calendar,
+          icon: "Calendar",
           fieldvalue: true,
           panel: {
             back: true, more: true, 
@@ -804,7 +799,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_formula"),
           title_field: "transnumber",
-          icon: Magic,
+          icon: "Magic",
           fieldvalue: true,
           pattern: true,
           extend: "movement_head",
@@ -817,7 +812,7 @@ export const useForm = () => {
         view: {
           movement: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "movement",
             fields: {
@@ -875,7 +870,7 @@ export const useForm = () => {
     groups: (item) => {
       let groups = {
         options: {
-          icon: Th,
+          icon: "Th",
           data: "groups",
           title: app.getText("title_groups"),
           panel: {
@@ -929,7 +924,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_inventory"),
           title_field: "transnumber",
-          icon: Truck,
+          icon: "Truck",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -942,7 +937,7 @@ export const useForm = () => {
         view: {
           movement: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "movement",
             fields: {
@@ -990,7 +985,7 @@ export const useForm = () => {
           data: "link",
           title: app.getText("payment_view"),
           title_field: "",
-          icon: Money,
+          icon: "Money",
           panel: {}
         },
         rows: [
@@ -1024,7 +1019,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_invoice"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -1037,7 +1032,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -1054,7 +1049,7 @@ export const useForm = () => {
           invoice_link: {
             type: "list",
             data: "invoice_link",
-            icon: Money,
+            icon: "Money",
             title: app.getText("payment_view"),
             actions: {
               new: {action: "newEditorItem", fkey: "invoice_link"}, 
@@ -1065,7 +1060,7 @@ export const useForm = () => {
           tool_movement: {
             type: "list",
             data: "tool_movement",
-            icon: Briefcase,
+            icon: "Briefcase",
             title: app.getText("toolmovement_view"),
             audit_type: "trans",
             audit_transtype: "waybill",
@@ -1181,7 +1176,7 @@ export const useForm = () => {
         options: {
           title: app.getText("item_view"),
           title_field: "",
-          icon: ListOl,
+          icon: "ListOl",
           panel: {
             help:"item"
           }
@@ -1251,7 +1246,7 @@ export const useForm = () => {
         title: app.getText("title_log"),
         title_field: "",
         edited: false,
-        icon: InfoCircle,
+        icon: "InfoCircle",
         panel: {}
       },
       view: {
@@ -1284,7 +1279,7 @@ export const useForm = () => {
             ["event","event"], ["place","place"], ["product","product"], 
             ["project","project"], ["tool","tool"], ["trans","trans"]]},
           {name:"log_search", title: app.getText("browser_search"), label:"", focus: true,
-            class:"full", icon: Search, datatype:"button"}]}
+            class:"full", icon: "Search", datatype:"button"}]}
       ]
     }},
 
@@ -1293,7 +1288,7 @@ export const useForm = () => {
         options: {
           title: app.getText("movement_view"),
           title_field: "",
-          icon: Truck,
+          icon: "Truck",
           opposite: true,
           panel: {}
         }
@@ -1389,7 +1384,7 @@ export const useForm = () => {
     numberdef: () => {
       let numberdef = {
         options: {
-          icon: ListOl,
+          icon: "ListOl",
           data: "numberdef",
           title: app.getText("title_numberdef"),
           panel: {
@@ -1437,7 +1432,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_offer"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -1450,7 +1445,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -1537,7 +1532,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_order"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -1550,7 +1545,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -1567,7 +1562,7 @@ export const useForm = () => {
           transitem_invoice: {
             type: "list",
             data: "transitem_invoice",
-            icon: FileText,
+            icon: "FileText",
             title: app.getText("invoice_view"),
             audit_type: "trans",
             audit_transtype: "invoice",
@@ -1580,9 +1575,9 @@ export const useForm = () => {
           transitem_shipping: {
             type: "table",
             data: "transitem_shipping",
-            icon: Truck,
+            icon: "Truck",
             title: app.getText("shipping_view"),
-            new_icon: Truck,
+            new_icon: "Truck",
             new_label: app.getText("title_shipping"),
             actions: {
               new: {action: "loadShipping"}, 
@@ -1598,7 +1593,7 @@ export const useForm = () => {
           tool_movement: {
             type: "list",
             data: "tool_movement",
-            icon: Briefcase,
+            icon: "Briefcase",
             title: app.getText("toolmovement_view"),
             audit_type: "trans",
             audit_transtype: "waybill",
@@ -1681,7 +1676,7 @@ export const useForm = () => {
         title: app.getText("title_password"),
         title_field: "",
         edited: false,
-        icon: Lock,
+        icon: "Lock",
         panel: {
           delete: false, new: false
         }
@@ -1702,7 +1697,7 @@ export const useForm = () => {
           data: "link",
           title: app.getText("invoice_view"),
           title_field: "",
-          icon: FileText,
+          icon: "FileText",
           panel: {
             new: false
           }
@@ -1739,7 +1734,7 @@ export const useForm = () => {
         options: {
           title: app.getText("payment_view"),
           title_field: "",
-          icon: Money,
+          icon: "Money",
           panel: {
             link: true, link_type:"payment_link", link_field:"ref_id_1",
             link_label: app.getText("label_link_invoice")
@@ -1771,7 +1766,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_place"),
           title_field: "planumber",
-          icon: Map,
+          icon: "Map",
           extend: "address",
           fieldvalue: true,
           panel: {
@@ -1797,7 +1792,7 @@ export const useForm = () => {
           contact: {
             type: "list",
             data: "contact",
-            icon: Phone,
+            icon: "Phone",
             title: app.getText("contact_view")
           },
         },
@@ -1860,7 +1855,7 @@ export const useForm = () => {
         options: {
           title: app.getText("price_view"),
           title_field: "",
-          icon: Dollar,
+          icon: "Dollar",
           panel: {}
         },
         rows: [
@@ -1899,7 +1894,7 @@ export const useForm = () => {
           search_form: true,
           title: app.getText("title_printqueue"),
           title_field: app.getText("printqueue_head_title"),
-          icon: Filter,
+          icon: "Filter",
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
             search:true, export_all:true, print:false, bookmark:false, help:"printqueue"
@@ -1909,8 +1904,8 @@ export const useForm = () => {
           items: {
             type: "list",
             data: "items",
-            icon: Print,
-            edit_icon: Check,
+            icon: "Print",
+            edit_icon: "Check",
             title: app.getText("printqueue_selected_items"),
             actions: {
               new: null, 
@@ -1945,7 +1940,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_product"),
           title_field: "partnumber",
-          icon: ShoppingCart,
+          icon: "ShoppingCart",
           fieldvalue: true,
           panel: {
             more: true, 
@@ -1957,11 +1952,11 @@ export const useForm = () => {
           barcode: {
             type: "list",
             data: "barcode",
-            icon: Barcode,
+            icon: "Barcode",
             title: app.getText("barcode_view")},
           price: {
             type: "table",
-            icon: Dollar,
+            icon: "Dollar",
             title: app.getText("price_view"),
             data: "price",
             fields: {
@@ -1974,7 +1969,7 @@ export const useForm = () => {
           event: {
             type: "list",
             data: "event",
-            icon: Calendar,
+            icon: "Calendar",
             title: app.getText("event_view"),
             actions: {
               new: {action: "loadEditor", ntype: "event", ttype: null}, 
@@ -2029,7 +2024,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_production"),
           title_field: "transnumber",
-          icon: Flask,
+          icon: "Flask",
           fieldvalue: true,
           pattern: true,
           extend: "movement_head",
@@ -2041,7 +2036,7 @@ export const useForm = () => {
         view: {
           movement: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "movement",
             fields: {
@@ -2110,7 +2105,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_project"),
           title_field: "pronumber",
-          icon: Clock,
+          icon: "Clock",
           fieldvalue: true,
           panel: {
             more:true, bookmark:["editor","project","description","pronumber"], help:"project"
@@ -2120,19 +2115,19 @@ export const useForm = () => {
           address: {
             type: "list",
             data: "address",
-            icon: Home,
+            icon: "Home",
             title: app.getText("address_view")
           },
           contact: {
             type: "list",
             data: "contact",
-            icon: Phone,
+            icon: "Phone",
             title: app.getText("contact_view")
           },
           event: {
             type: "list",
             data: "event",
-            icon: Calendar,
+            icon: "Calendar",
             title: app.getText("event_view"),
             actions: {
               new: {action: "loadEditor", ntype: "event", ttype: null}, 
@@ -2181,7 +2176,7 @@ export const useForm = () => {
       let rate = {
         options: {
           title: app.getText("title_rate"),
-          icon: Strikethrough,
+          icon: "Strikethrough",
           fieldvalue: true,
           panel: {
             more:true, report:false, 
@@ -2231,7 +2226,7 @@ export const useForm = () => {
         title: app.getText("title_program"),
         title_field: "",
         edited: false,
-        icon: Keyboard,
+        icon: "Keyboard",
         panel: {}
       },
       view: {},
@@ -2256,7 +2251,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_receipt"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           panel: {
@@ -2269,7 +2264,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -2286,7 +2281,7 @@ export const useForm = () => {
           tool_movement: {
             type: "list",
             data: "tool_movement",
-            icon: Briefcase,
+            icon: "Briefcase",
             title: app.getText("toolmovement_view"),
             audit_type: "trans",
             audit_transtype: "waybill",
@@ -2396,7 +2391,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_rent"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           edited: false,
@@ -2410,7 +2405,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -2427,7 +2422,7 @@ export const useForm = () => {
           transitem_invoice: {
             type: "list",
             data: "transitem_invoice",
-            icon: FileText,
+            icon: "FileText",
             title: app.getText("invoice_view"),
             audit_type: "trans",
             audit_transtype: "invoice",
@@ -2440,7 +2435,7 @@ export const useForm = () => {
           transitem_shipping: {
             type: "table",
             data: "transitem_shipping",
-            icon: Truck,
+            icon: "Truck",
             title: app.getText("shipping_view"),
             actions: {
               new: {action: "loadShipping"}, 
@@ -2456,7 +2451,7 @@ export const useForm = () => {
           tool_movement: {
             type: "list",
             data: "tool_movement",
-            icon: Briefcase,
+            icon: "Briefcase",
             title: app.getText("toolmovement_view"),
             audit_type: "trans",
             audit_transtype: "waybill",
@@ -2548,7 +2543,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_report"),
           title_field: "repname",
-          icon: ChartBar,
+          icon: "ChartBar",
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
             print:true, export_pdf:true, export_xml:true, bookmark:false, help:"report"
@@ -2582,7 +2577,7 @@ export const useForm = () => {
     setting: () => {
       let setting = {
         options: {
-          icon: Cog,
+          icon: "Cog",
           data: "fieldvalue",
           title: app.getText("title_dbsettings"),
           panel: {
@@ -2617,7 +2612,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_shipping"),
           title_field: "transnumber",
-          icon: Truck,
+          icon: "Truck",
           panel: {
             back:true, save:false, delete:false, new:false, shipping:true, help:"shipping"
           }
@@ -2626,9 +2621,9 @@ export const useForm = () => {
           shipping_items: {
             type: "table",
             data: "shipping_items_",
-            icon: ListOl,
-            edit_icon: Plus,
-            delete_icon: Book,
+            icon: "ListOl",
+            edit_icon: "Plus",
+            delete_icon: "Book",
             title: app.getText("shipping_items"),
             actions: {
               new: null, 
@@ -2646,7 +2641,7 @@ export const useForm = () => {
             type: "table",
             data: "shiptemp",
             title: app.getText("shipping_create"),
-            icon: Plus,
+            icon: "Plus",
             actions: {
               new: null, 
               edit: {action: "editShippingRow"}, 
@@ -2663,7 +2658,7 @@ export const useForm = () => {
             type: "list",
             data: "shipping_delivery",
             title: app.getText("shipping_delivery"),
-            icon: Truck,
+            icon: "Truck",
             actions: {
               new: null, 
               edit: {action: "loadEditor", ntype: "trans", ttype: "delivery"}, 
@@ -2691,7 +2686,7 @@ export const useForm = () => {
     tax: (item) => {
       let tax = {
         options: {
-          icon: Ticket,
+          icon: "Ticket",
           data: "tax",
           title: app.getText("title_tax"),
           panel: {
@@ -2743,7 +2738,7 @@ export const useForm = () => {
     template: (item) => {
       let template = {
         options: {
-          icon: TextHeight,
+          icon: "TextHeight",
           data: "template",
           title: app.getText("title_report_editor"),
           panel: {}
@@ -2768,7 +2763,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_tool"),
           title_field: "serial",
-          icon: Wrench,
+          icon: "Wrench",
           fieldvalue: true,
           panel: {
             more:true, 
@@ -2780,7 +2775,7 @@ export const useForm = () => {
           event: {
             type: "list",
             data: "event",
-            icon: Calendar,
+            icon: "Calendar",
             title: app.getText("event_view"),
             actions: {
               new: {action: "loadEditor", ntype: "event", ttype: null}, 
@@ -2825,7 +2820,7 @@ export const useForm = () => {
     ui_menu: (item) => {
       let ui_menu = {
         options: {
-          icon: Share,
+          icon: "Share",
           data: "ui_menu",
           title: app.getText("title_menucmd"),
           panel: {
@@ -2885,7 +2880,7 @@ export const useForm = () => {
     usergroup: (item) => {
       let usergroup = {
         options: {
-          icon: Key,
+          icon: "Key",
           data: "groups",
           title: app.getText("title_usergroup"),
           panel: {
@@ -2953,7 +2948,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_waybill"),
           title_field: "transnumber",
-          icon: Briefcase,
+          icon: "Briefcase",
           fieldvalue: true,
           pattern: true,
           extend: "refvalue",
@@ -2966,7 +2961,7 @@ export const useForm = () => {
         view: {
           movement: {
             type: "table",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             data: "movement",
             fields: {
@@ -3040,7 +3035,7 @@ export const useForm = () => {
         options: {
           title: app.getText("title_worksheet"),
           title_field: "transnumber",
-          icon: FileText,
+          icon: "FileText",
           fieldvalue: true,
           pattern: true,
           edited: false,
@@ -3054,7 +3049,7 @@ export const useForm = () => {
           item: {
             type: "table",
             data: "item",
-            icon: ListOl,
+            icon: "ListOl",
             title: app.getText("item_view"),
             total:{
               netamount: app.getText("item_netamount"),
@@ -3070,7 +3065,7 @@ export const useForm = () => {
           transitem_invoice: {
             type: "list",
             data: "transitem_invoice",
-            icon: FileText,
+            icon: "FileText",
             title: app.getText("invoice_view"),
             audit_type: "trans",
             audit_transtype: "invoice",
@@ -3083,7 +3078,7 @@ export const useForm = () => {
           transitem_shipping: {
             type: "table",
             data: "transitem_shipping",
-            icon: Truck,
+            icon: "Truck",
             title: app.getText("shipping_view"),
             actions: {
               new: {action: "loadShipping"}, 
@@ -3099,7 +3094,7 @@ export const useForm = () => {
           tool_movement: {
             type: "list",
             data: "tool_movement",
-            icon: Briefcase,
+            icon: "Briefcase",
             title: app.getText("toolmovement_view"),
             audit_type: "trans",
             audit_transtype: "waybill",

@@ -3,11 +3,9 @@ import update from 'immutability-helper';
 
 import styles from './ModalForm.module.css';
 import { Label, Select, Input, FormRow } from 'containers/Controller'
-import { Times, ChartBar, Magic, Check, Search as SearchIcon, CaretRight,
-  ExclamationTriangle, Truck, Book, FileText, CheckSquare, SquareEmpty, 
-  Star, History, Key, Share, Plus, InfoCircle } from 'components/Icons';
-import Table from 'components/Table';
-import List from 'components/List';
+import Icon from 'components/Form/Icon'
+import Table from 'components/Form/Table';
+import List from 'components/Form/List';
 
 export const InputBox = (props) => {
   const { valueChange, valueKey, inputCancel, inputOK } = props
@@ -37,14 +35,14 @@ export const InputBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={inputCancel} >
-              <Label center value={labelCancel} leftIcon={<Times />} col={20}  />
+              <Label center value={labelCancel} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               autoFocus={(showValue)?false:defaultOK}
               onClick={inputOK} >
-              <Label center value={labelOK} leftIcon={<Check />} col={20}  />
+              <Label center value={labelOK} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -68,8 +66,8 @@ export const SelectorView = (props) => {
         formatters: [
         (value, { rowData }) => {
           if(rowData.deleted === 1)
-            return <ExclamationTriangle className={styles.exclamation} />
-          return <CaretRight width={9} height={24} />
+            return <Icon iconKey="ExclamationTriangle" className={styles.exclamation} />
+          return <Icon iconKey="CaretRight" width={9} height={24} />
         }] }
     }}
   }
@@ -83,10 +81,10 @@ export const SelectorView = (props) => {
       <div className="panel-title primary">
         {(onClose)?<div className="row full">
           <div className="cell">
-            <Label value={getText("search_"+qview)} leftIcon={<SearchIcon />} col={20} />
+            <Label value={getText("search_"+qview)} leftIcon={<Icon iconKey="Search" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>:
         <Label bold primary xxxlarge 
@@ -104,7 +102,7 @@ export const SelectorView = (props) => {
           <div className={`${"cell"} ${styles.searchCol}`} >
             <button className={`${"full medium"}`} 
               onClick={()=>quickSearch()} >
-              <Label text={"label_search"} leftIcon={<SearchIcon />} center />
+              <Label text={"label_search"} leftIcon={<Icon iconKey="Search" />} center />
             </button>
           </div>
         </div>
@@ -127,10 +125,10 @@ export const ReportSettings = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label value={title} leftIcon={<ChartBar />} col={20} />
+            <Label value={title} leftIcon={<Icon iconKey="ChartBar" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -203,10 +201,10 @@ export const FormulaBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="label_formula" leftIcon={<Magic />} col={20} />
+            <Label text="label_formula" leftIcon={<Icon iconKey="Magic" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -239,13 +237,13 @@ export const FormulaBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `} disabled={(formula==="")?"disabled":""}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} disabled={(formula==="")?"disabled":""}
               onClick={ ()=>calcFormula() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -262,10 +260,10 @@ export const ShippingBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="shipping_movement_product" leftIcon={<Truck />} col={20} />
+            <Label text="shipping_movement_product" leftIcon={<Icon iconKey="Truck" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -321,13 +319,13 @@ export const ShippingBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateShipping() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -350,10 +348,10 @@ export const StockBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="shipping_stocks" leftIcon={<Book />} col={20} />
+            <Label text="shipping_stocks" leftIcon={<Icon iconKey="Book" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -379,7 +377,7 @@ export const StockBox = (props) => {
         <div className={`${"row full"}`}>
           <div className={`${"cell padding-small"}`} >
             <button className={`${"full primary"}`} onClick={onClose} >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -397,10 +395,10 @@ export const TransBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="msg_create_title" leftIcon={<FileText />} col={20} />
+            <Label text="msg_create_title" leftIcon={<Icon iconKey="FileText" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -429,7 +427,7 @@ export const TransBox = (props) => {
             <div className={`${"padding-small"} ${styles.editCol}`} 
               onClick={() => valueChange("refno", !refno)}>
               <Label className="bold" text="msg_create_setref" 
-                leftIcon={(refno)?<CheckSquare />:<SquareEmpty />} />
+                leftIcon={(refno)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
             </div>
           </div>
         </div>
@@ -438,7 +436,7 @@ export const TransBox = (props) => {
             <div className={`${"padding-small"} ${styles.editCol}`} 
               onClick={() => valueChange("netto", !netto)}>
               <Label className="bold" text="msg_create_deduction" 
-                leftIcon={(netto)?<CheckSquare />:<SquareEmpty />} />
+                leftIcon={(netto)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
             </div>
           </div>
         </div>:null}
@@ -447,7 +445,7 @@ export const TransBox = (props) => {
             <div className={`${"padding-small"} ${styles.editCol}`} 
               onClick={() => valueChange("from", !from)}>
               <Label className="bold" text="msg_create_deduction" 
-                leftIcon={(from)?<CheckSquare />:<SquareEmpty />} />
+                leftIcon={(from)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
             </div>
           </div>
         </div>:null}
@@ -457,13 +455,13 @@ export const TransBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`} 
               onClick={ ()=>createTrans() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -480,10 +478,10 @@ export const BookmarkBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="title_bookmark" leftIcon={<Star />} col={20} />
+            <Label text="title_bookmark" leftIcon={<Icon iconKey="Star" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -492,20 +490,20 @@ export const BookmarkBox = (props) => {
           <div className="cell half" >
             <button className={`${"full"} ${styles.tabButton} ${(tabView === "bookmark")?styles.selected:""} ${(tabView === "bookmark")?"primary":""}`} 
               onClick={()=>valueChange("tabView","bookmark")} >
-              <Label text={"title_bookmark_list"} leftIcon={<Star />} />
+              <Label text={"title_bookmark_list"} leftIcon={<Icon iconKey="Star" />} />
             </button>
           </div>
           <div className={`${"cell half"}`} >
             <button className={`${"full"} ${styles.tabButton} ${(tabView === "history")?styles.selected:""} ${(tabView === "history")?"primary":""}`} 
               onClick={()=>valueChange("tabView","history")} >
-              <Label text={"title_history"} leftIcon={<History />} />
+              <Label text={"title_history"} leftIcon={<Icon iconKey="History" />} />
             </button>
           </div>
         </div>
         <div className="row full container section-small-bottom" >
           <List 
             rows={(tabView === "bookmark")?bookmarkList:historyList} 
-            editIcon={(tabView === "bookmark") ? Star : History}
+            editIcon={(tabView === "bookmark") ? <Icon iconKey="Star" /> : <Icon iconKey="History" />}
             listFilter={true} filterPlaceholder={getText("placeholder_filter")}
             paginationPage={paginationPage} paginationTop={true} 
             onEdit={selectRow}  
@@ -525,10 +523,10 @@ export const AuditBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="title_usergroup" leftIcon={<Key />} col={20} />
+            <Label text="title_usergroup" leftIcon={<Icon iconKey="Key" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -577,7 +575,7 @@ export const AuditBox = (props) => {
               <div className={`${"padding-small"} ${styles.reportField}`} 
                 onClick={(event)=>valueChange("supervisor", (supervisor===1)?0:1)}>
                 <Label className="bold" text="audit_supervisor" 
-                  leftIcon={(supervisor===1)?<CheckSquare />:<SquareEmpty />} />
+                  leftIcon={(supervisor===1)?<Icon iconKey="CheckSquare" />:<Icon iconKey="SquareEmpty" />} />
               </div>
             </div>
           </div>
@@ -588,13 +586,13 @@ export const AuditBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateAudit() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -611,10 +609,10 @@ export const MenuBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="title_menucmd" leftIcon={<Share />} col={20} />
+            <Label text="title_menucmd" leftIcon={<Icon iconKey="Share" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -664,13 +662,13 @@ export const MenuBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateMenu() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -687,10 +685,10 @@ export const TemplateBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="template_label_new_data" leftIcon={<Plus />} col={20} />
+            <Label text="template_label_new_data" leftIcon={<Icon iconKey="Plus" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -729,13 +727,13 @@ export const TemplateBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>updateData() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -755,10 +753,10 @@ export const TotalBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label text="browser_total" leftIcon={<InfoCircle />} col={20} />
+            <Label text="browser_total" leftIcon={<Icon iconKey="InfoCircle" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -779,7 +777,7 @@ export const TotalBox = (props) => {
         <div className={`${"row full"}`}>
           <div className={`${"cell padding-small"}`} >
             <button className={`${"full primary"}`} onClick={onClose} >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>
@@ -796,10 +794,10 @@ export const ServerBox = (props) => {
       <div className="panel-title primary">
         <div className="row full">
           <div className="cell">
-            <Label value={cmd.description} leftIcon={<Share />} col={20} />
+            <Label value={cmd.description} leftIcon={<Icon iconKey="Share" />} col={20} />
           </div>
           <div className={`${"cell align-right"} ${styles.closeIcon}`}>
-            <Times onClick={onClose} />
+            <Icon iconKey="Times" onClick={onClose} />
           </div>
         </div>
       </div>
@@ -824,13 +822,13 @@ export const ServerBox = (props) => {
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full"} ${styles.closeIcon} `}
               onClick={ ()=>onClose() } >
-              <Label center text={"msg_cancel"} leftIcon={<Times />} col={20}  />
+              <Label center text={"msg_cancel"} leftIcon={<Icon iconKey="Times" />} col={20}  />
             </button>
           </div>
           <div className={`${"cell padding-small half"}`} >
             <button className={`${"full primary"}`}
               onClick={ ()=>sendServerCmd() } >
-              <Label center text={"msg_ok"} leftIcon={<Check />} col={20}  />
+              <Label center text={"msg_ok"} leftIcon={<Icon iconKey="Check" />} col={20}  />
             </button>
           </div>
         </div>

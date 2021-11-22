@@ -25,7 +25,7 @@
 
 .page {
   transition: margin-left .4s;
-  margin-top: var(--menu-top-height);
+  /*margin-top: var(--menu-top-height);*/
   margin-left: var(--menu-side-width);
 }
 

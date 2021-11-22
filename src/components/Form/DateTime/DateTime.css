@@ -1,0 +1,11 @@
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker-wrapper input {
+  text-align: center;
+}
+
+.react-datepicker__close-icon {
+  border: none!important;
+}

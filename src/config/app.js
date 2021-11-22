@@ -3,7 +3,6 @@ import * as dateLocales from 'date-fns/locale/';
 
 import { version } from '../../package.json';
 import * as locales from './locales';
-import { ListOl, ListUl, Bold, Italic, Underline } from 'components/Icons';
 
 const publicHost = "nervatura.github.io"
 const basePath = "/api"
@@ -30,7 +29,7 @@ export const store = {
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.10", "5.0.0-beta.11", "5.0.0-beta.12", "5.0.0-beta.13"],
+    service: ["dev", "5.0.0-beta.10", "5.0.0-beta.11", "5.0.0-beta.12", "5.0.0-beta.13", "5.0.0-beta.14"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -89,17 +88,18 @@ export const store = {
       ["legal", "Legal"]
     ],
     rtf_inline: [
-      { label: 'Bold', style: 'BOLD', icon: Bold }, 
-      { label: 'Italic', style: 'ITALIC', icon: Italic  }, 
-      { label: 'Underline', style: 'UNDERLINE', icon: Underline }
+      { label: 'Bold', style: 'BOLD', icon: "Bold" }, 
+      { label: 'Italic', style: 'ITALIC', icon: "Italic"  }, 
+      { label: 'Underline', style: 'UNDERLINE', icon: "Underline" }
     ],
     rtf_block: [
-      { label: 'UL', style: 'unordered-list-item', icon: ListUl }, 
-      { label: 'OL', style: 'ordered-list-item', icon: ListOl }
+      { label: 'UL', style: 'unordered-list-item', icon: "ListUl" }, 
+      { label: 'OL', style: 'ordered-list-item', icon: "ListOl" }
     ]
   },
   current: { 
     home: "search", module: "login", side: "auto",
+    clientWidth: 0,
     lang: (localStorage.getItem("lang") && locales[localStorage.getItem("lang")]) ? localStorage.getItem("lang") : "en",
     theme: localStorage.getItem("theme") || "light"
   },
@@ -116,4 +116,14 @@ export const store = {
   edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
   setting: { dirty: false, result: [] }, 
   bookmark: { history: null, bookmark: [] }
+}
+
+export const getText = ({locales, lang, key, defaultValue}) => {
+  let value = (defaultValue) ? defaultValue : key
+  if(locales[lang] && locales[lang][key]){
+    value = locales[lang][key]
+  } else if(("en" !== lang) && locales["en"][key]) {
+    value = locales["en"][key]
+  }
+  return value
 }

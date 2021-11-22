@@ -1,13 +1,13 @@
-import React, { memo, createElement, Fragment } from 'react';
+import React, { memo, Fragment } from 'react';
 import update from 'immutability-helper';
 import {Editor as RtfEditor} from 'draft-js';
 
 import styles from './Editor.module.css';
 import { Label, FormRow, Select } from 'containers/Controller'
-import Paginator, { paginate } from 'components/Paginator';
-import { Plus, Edit, Times, Comment, Home, Download, Upload } from 'components/Icons';
-import Table from 'components/Table';
-import List from 'components/List';
+import Paginator, { paginate } from 'components/Form/Paginator/Paginator';
+import Icon from 'components/Form/Icon'
+import Table from 'components/Form/Table';
+import List from 'components/Form/List';
 
 export const MainEditor = memo((props) => {
   const { currentView, getText, editItem } = props
@@ -24,7 +24,7 @@ export const MainEditor = memo((props) => {
         <div className="cell" >
           <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("form")} >
             <Label value={label} 
-              leftIcon={createElement(template.options.icon)} col={20} />
+              leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
           </button>
         </div>
       </div>
@@ -122,7 +122,7 @@ export const FieldEditor = memo((props) => {
               <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fieldvalue")} >
                 <div className="row full" >
                   <div className="cell" >
-                    <Label text="fields_view" leftIcon={createElement(template.options.icon)} col={20} />
+                    <Label text="fields_view" leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
                   </div>
                   <div className="cell align-right" >
                     <span className={`${styles.badge}`} >{fieldvalue_list.length}</span>
@@ -142,7 +142,7 @@ export const FieldEditor = memo((props) => {
                 {(current.deffield && (current.deffield !== ""))?<div className="cell" >
                   <button className={`${"border-button"} ${styles.addButton}`} 
                     onClick={ ()=>checkEditor({fieldname: current.deffield}, 'NEW_FIELDVALUE') } >
-                    <Label text="label_new" leftIcon={<Plus />} col={20} />
+                    <Label text="label_new" leftIcon={<Icon iconKey="Plus" />} col={20} />
                   </button>
                 </div>:null}
               </div>:null}
@@ -193,11 +193,11 @@ export const ViewEditor = memo((props) => {
   }
   
   const editIcon = (typeof vtemplate.edit_icon !== "undefined") ? 
-    vtemplate.edit_icon : Edit
+    [vtemplate.edit_icon, undefined, undefined] : ["Edit", 24, 21.3]
   const deleteIcon = (typeof vtemplate.delete_icon !== "undefined") ? 
-    vtemplate.delete_icon : Times
+    [vtemplate.delete_icon, undefined, undefined] : ["Times", 19, 27.6]
   const addIcon = (typeof vtemplate.new_icon !== "undefined") ? 
-    vtemplate.new_icon : Plus
+    vtemplate.new_icon : "Plus"
   let fields = {}
   if(vtemplate.type === "table"){
     if(edited && (actions.edit || actions.delete)){
@@ -211,15 +211,15 @@ export const ViewEditor = memo((props) => {
             (value, { rowData }) => {
               const ecol = (actions.edit !== null)?<div 
                 className={`${"cell"} ${styles.editCol}`} >
-                {createElement(editIcon, { width:24, height:21.3, 
-                  onClick: ()=>setActions(actions.edit, rowData),
-                  className: styles.editCol})}
+                {<Icon iconKey={editIcon[0]} width={editIcon[1]} height={editIcon[2]} 
+                  onClick={()=>setActions(actions.edit, rowData)}
+                  className={styles.editCol} />}
               </div>:null
               const dcol = (actions.delete !== null)?<div 
                 className={`${"cell"} ${styles.deleteCol}`} >
-                {createElement(deleteIcon, { width:19, height:27.6, 
-                  onClick: ()=>setActions(actions.delete, rowData),
-                  className: styles.deleteCol})}
+                {<Icon iconKey={deleteIcon[0]} width={deleteIcon[1]} height={deleteIcon[2]} 
+                  onClick={()=>setActions(actions.delete, rowData)}
+                  className={styles.deleteCol} />}
               </div>:null
               return <Fragment>{ecol}{dcol}</Fragment>
             }] }
@@ -235,7 +235,7 @@ export const ViewEditor = memo((props) => {
           <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView(vname)} >
             <div className="row full" >
               <div className="cell" >
-                <Label value={vtemplate.title} leftIcon={createElement(vtemplate.icon)} col={20} />
+                <Label value={vtemplate.title} leftIcon={<Icon iconKey={vtemplate.icon} />} col={20} />
               </div>
               <div className="cell align-right" >
                 <span className={`${styles.badge}`} >{rows.length}</span>
@@ -277,13 +277,15 @@ export const ViewEditor = memo((props) => {
             labelYes={getText("label_yes")} labelNo={getText("label_no")} 
             labelAdd={(typeof vtemplate.new_label !== "undefined") ? 
               vtemplate.new_label : getText("label_new")}
-            addIcon={addIcon}
+            addIcon={<Icon iconKey={addIcon} />}
             dateFormat={dateFormat} timeFormat={timeFormat} 
             paginationPage={paginationPage} paginationTop={true}/>
           :<List 
             rows={rows} labelAdd={(typeof vtemplate.new_label !== "undefined") ? 
               vtemplate.new_label : getText("label_new")} 
-            addIcon={addIcon} editIcon={editIcon} deleteIcon={deleteIcon}
+            addIcon={<Icon iconKey={addIcon} />} 
+            editIcon={<Icon iconKey={editIcon[0]} width={editIcon[1]} height={editIcon[2]} />} 
+            deleteIcon={<Icon iconKey={deleteIcon[0]} width={deleteIcon[1]} height={deleteIcon[2]} />}
             listFilter={true} filterPlaceholder={getText("placeholder_filter")}
             paginationPage={paginationPage} paginationTop={true} 
             onEdit={(edited && (actions.edit !== null)) ? (row)=>setActions(actions.edit, row) : null} 
@@ -334,7 +336,7 @@ export const NoteEditor = memo((props) => {
               <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fnote")} >
                 <div className="row full" >
                   <div className="cell" >
-                    <Label text="fnote_view" leftIcon={<Comment />} col={20} />
+                    <Label text="fnote_view" leftIcon={<Icon iconKey="Comment" />} col={20} />
                   </div>  
                 </div>
               </button>
@@ -348,29 +350,29 @@ export const NoteEditor = memo((props) => {
                     <button className={`${"border-button"} ${styles.barButton}`}
                       title={getText("pattern_default")}
                       onClick={ ()=>setPattern("default") } >
-                      <Home />
+                      <Icon iconKey="Home" />
                     </button>
                     <button className={`${"border-button"} ${styles.barButton}`}
                       title={getText("pattern_load")}
                       onClick={ ()=>setPattern("load") } >
-                      <Download />
+                      <Icon iconKey="Download" />
                     </button>
                     <button className={`${"border-button"} ${styles.barButton}`}
                       title={getText("pattern_save")}
                       onClick={ ()=>setPattern("save") } >
-                      <Upload />
+                      <Icon iconKey="Upload" />
                     </button>
                   </div>
                   <div className="cell padding-tiny">
                     <button className={`${"border-button"} ${styles.barButton}`}
                       title={getText("pattern_new")}
                       onClick={ ()=>setPattern("new") } >
-                      <Plus />
+                      <Icon iconKey="Plus" />
                     </button>
                     <button className={`${"border-button"} ${styles.barButton}`}
                       title={getText("pattern_delete")}
                       onClick={ ()=>setPattern("delete") } >
-                      <Times />
+                      <Icon iconKey="Times" />
                     </button>
                   </div>
                   <div className="cell padding-tiny mobile" >
@@ -391,7 +393,7 @@ export const NoteEditor = memo((props) => {
                     type => <button key={type.label} title={type.label}
                       className={`${"border-button"} ${styles.barButton} ${currentStyle.has(type.style)?styles.activeStyle:""}`} 
                         onClick={ ()=>noteState(type.style) } >
-                        {createElement(type.icon)}
+                        <Icon iconKey={type.icon} />
                       </button>
                   )}
                 </div>
@@ -400,7 +402,7 @@ export const NoteEditor = memo((props) => {
                     (type) => <button key={type.label} title={type.label}
                       className={`${"border-button"} ${styles.barButton} ${(type.style === blockType)?styles.activeStyle:""}`} 
                         onClick={ ()=>noteState(type.style) } >
-                        {createElement(type.icon)}
+                        <Icon iconKey={type.icon} />
                       </button>
                   )}
                 </div>
@@ -462,7 +464,7 @@ export const Editor = memo((props) => {
           <div className={`${"panel"}`} >
             <div className="panel-title primary">
               <Label bold primary xxxlarge value={caption} 
-                leftIcon={createElement(template.options.icon)} col={20} />
+                leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
             </div>
             {(current.form)?
               <div className="section container" ><ItemEditor {...props}/></div>:
