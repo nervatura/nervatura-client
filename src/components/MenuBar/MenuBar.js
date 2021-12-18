@@ -150,10 +150,10 @@ MenuBar.defaultProps = {
   side: SIDE_VISIBILITY.AUTO,
   scrollTop: false,
   module: APP_MODULE.SEARCH, 
-  loadModule: (module) => {}, 
-  sideBar: () => {}, 
-  setScroll: () => {},
-  getText: (key, defValue) => {},
+  loadModule: undefined, 
+  sideBar: undefined, 
+  setScroll: undefined,
+  getText: undefined,
 }
 
 

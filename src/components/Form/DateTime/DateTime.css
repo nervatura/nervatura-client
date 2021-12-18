@@ -2,10 +2,23 @@
   width: 100%;
 }
 
+.react-datepicker__close-icon {
+  border: none!important;
+}
+
 .react-datepicker-wrapper input {
+  border-radius: 3px;
+  border-width: 1px;
+  font-size: 14px;
+  padding: 8px;
+  display: block;
   text-align: center;
 }
 
-.react-datepicker__close-icon {
-  border: none!important;
+.react-datepicker-wrapper input:disabled {
+  opacity: 0.5;
+}
+
+.react-datepicker-wrapper input::placeholder, .react-datepicker-wrapper input::-ms-input-placeholder {
+  opacity: 0.5;
 }

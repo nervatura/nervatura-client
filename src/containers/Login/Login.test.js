@@ -152,7 +152,7 @@ describe('<Login />', () => {
     const setData = jest.fn()
     jest.spyOn(global, "fetch").mockImplementation(
       (path, options) => {
-        if(path === "/api/auth/login"){
+        if(String(path).endsWith("/api/auth/login")){
           return fetchResult(200, {
             token: "token", engine: "sqlite", version: "dev"
           })
@@ -180,7 +180,7 @@ describe('<Login />', () => {
     const setData = jest.fn()
     jest.spyOn(global, "fetch").mockImplementation(
       (path, options) => {
-        if(path === "/api/auth/login"){
+        if(String(path).endsWith("/api/auth/login")){
           return fetchResult(200, {
             token: "token", engine: "sqlite", version: "dev"
           })
@@ -213,7 +213,7 @@ describe('<Login />', () => {
     const setData = jest.fn()
     jest.spyOn(global, "fetch").mockImplementation(
       (path, options) => {
-        if(path === "/api/auth/login"){
+        if(String(path).endsWith("/api/auth/login")){
           return fetchResult(200, {
             token: "token", engine: "sqlite", version: "dev"
           })
@@ -253,7 +253,7 @@ describe('<Login />', () => {
     const setData = jest.fn()
     jest.spyOn(global, "fetch").mockImplementation(
       (path, options) => {
-        if(path === "/api/auth/login"){
+        if(String(path).endsWith("/api/auth/login")){
           return fetchResult(200, {
             token: "token", engine: "sqlite", version: "dev"
           })
@@ -298,7 +298,7 @@ describe('<Login />', () => {
     const setData = jest.fn()
     jest.spyOn(global, "fetch").mockImplementation(
       (path, options) => {
-        if(path === "/api/auth/login"){
+        if(String(path).endsWith("/api/auth/login")){
           return fetchResult(200, {
             token: "token", engine: "sqlite", version: "dev"
           })

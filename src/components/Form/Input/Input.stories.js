@@ -1,4 +1,5 @@
-import { Input, INPUT_TYPE, DECIMAL_SEPARATOR } from "./Input";
+import { Input, INPUT_TYPE } from "./Input";
+import { DECIMAL_SEPARATOR } from 'config/app'
 
 export default {
   title: "Form/Input",

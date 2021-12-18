@@ -5,14 +5,13 @@ import printJS from 'print-js'
 
 import AppStore from 'containers/App/context'
 import { useApp, getSql, saveToDisk } from 'containers/App/actions'
-import { InputForm } from 'containers/ModalForm'
+import InputBox from 'components/Modal/InputBox'
 import { useSql } from 'containers/Controller/Sql'
 
 export const useReport = (props) => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const sql = useSql()
-  const showInput =  InputForm()
 
   const reportPath = (params) => {
     let query = new URLSearchParams()
@@ -148,40 +147,43 @@ export const useReport = (props) => {
           title: app.getText("msg_warning"), 
           message: app.getText("ms_export_invalid")+" "+app.getText("printqueue_mode_print") })
       }
-      showInput({
-        title: app.getText("msg_warning"), message: app.getText("label_export_all_selected"),
-        infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"), 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, async () => {
-            for (let index = 0; index < data.edit.dataset.items.length; index++) {
-              const item = data.edit.dataset.items[index];
-              let result = await reportOutput({
-                type: options.mode, 
-                template: item.reportkey, 
-                title: item.refnumber,
-                orient: options.orientation, 
-                size: options.size, 
-                copy: item.copies,
-                nervatype: item.typename,
-                id: item.ref_id
-              })
-              if(result){
-                result = await app.requestData(
-                  "/ui_printqueue", { method: "DELETE", query: { id: item.id } })
-                if(result && result.error){
-                  return app.resultError(result)
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("msg_warning")}
+          message={app.getText("label_export_all_selected")}
+          infoText={app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning")}
+          defaultOK={true}
+          labelOK={app.getText("msg_ok")}
+          labelCancel={app.getText("msg_cancel")}
+          onCancel={() => {
+            setData("current", { modalForm: null })
+          }}
+          onOK={(value) => {
+            setData("current", { modalForm: null }, async () => {
+              for (let index = 0; index < data.edit.dataset.items.length; index++) {
+                const item = data.edit.dataset.items[index];
+                let result = await reportOutput({
+                  type: options.mode, 
+                  template: item.reportkey, 
+                  title: item.refnumber,
+                  orient: options.orientation, 
+                  size: options.size, 
+                  copy: item.copies,
+                  nervatype: item.typename,
+                  id: item.ref_id
+                })
+                if(result){
+                  result = await app.requestData(
+                    "/ui_printqueue", { method: "DELETE", query: { id: item.id } })
+                  if(result && result.error){
+                    return app.resultError(result)
+                  }
                 }
               }
-            }
-            searchQueue()
-          })
-        }
+              searchQueue()
+            })
+          }}
+        /> 
       })
     }
   }

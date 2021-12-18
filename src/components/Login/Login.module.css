@@ -1,6 +1,6 @@
 @keyframes animatezoom{from{transform:scale(0)} to{transform:scale(1)}}
 
-input {
+.inputMargin {
   margin-top:1px;
   margin-bottom:2px
 }

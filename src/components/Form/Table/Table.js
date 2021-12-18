@@ -11,7 +11,7 @@ import Icon from 'components/Form/Icon'
 import Button from 'components/Form/Button'
 import Label from 'components/Form/Label'
 import Input from 'components/Form/Input'
-import { store } from 'config/app'
+import { getSetting } from 'config/app'
 
 import './Table.css';
 
@@ -405,8 +405,8 @@ TableView.defaultProps = {
   rowKey: "id",
   rows: [],
   fields: undefined,
-  dateFormat: store.ui.dateFormat,
-  timeFormat: store.ui.timeFormat,
+  dateFormat: getSetting("dateFormat"),
+  timeFormat: getSetting("timeFormat"),
   labelYes: "YES",
   labelNo: "NO",
   labelAdd: "",

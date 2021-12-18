@@ -24,7 +24,7 @@ Default.args = {
   ],
   listFilter: false,
   paginationPage: 0,
-  onEdit: null,
+  onEdit: undefined,
   onAddItem: null,
   onDelete: null
 }

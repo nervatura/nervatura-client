@@ -7,8 +7,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import AppStore from 'containers/App/context'
-import { InputForm } from 'containers/ModalForm'
-import { getText } from 'config/app'
+import InputBox from 'components/Modal/InputBox'
+import { getText, getSetting } from 'config/app'
 
 toast.configure({});
 
@@ -320,7 +320,6 @@ export const request = (url, options) => {
 
 export const useApp = () => {
   const { data, setData } = useContext(AppStore)
-  const showInput =  InputForm()
 
   const getLangText = (key, defValue) => {
     return getText({ 
@@ -328,22 +327,6 @@ export const useApp = () => {
       lang: data.current.lang, 
       key: key, defaultValue: defValue 
     })
-  }
-
-  const getSetting = (key) => {
-    switch (key) {    
-      case "ui":
-        let values = update({}, {$set: data.ui})
-        for (const ikey in values) {
-          if(localStorage.getItem(ikey)){
-            values[ikey] = localStorage.getItem(ikey)
-          }
-        }
-        return values
-
-      default:
-        return localStorage.getItem(key) || data.ui[key] || "";
-    }
   }
 
   const showToast = (params) => {
@@ -563,60 +546,63 @@ export const useApp = () => {
   }
 
   const saveBookmark = (params) => {
-    showInput({
-      title: getLangText("msg_bookmark_new"), message: getLangText("msg_bookmark_name"),
-      value: (params[0] === "browser") ? params[1] : data.edit.current.item[params[2]], 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      cbCancel: () => {
-        setData("current", { modalForm: null })
-      },
-      cbOK: (value) => {
-        setData("current", { modalForm: null }, async () => {
-          if (value !== "") {
-            let userconfig = {
-              employee_id: data.login.data.employee.id,
-              section: "bookmark",
-              cfgroup: params[0],
+    setData("current", { modalForm: 
+      <InputBox 
+        title={getLangText("msg_bookmark_new")}
+        message={getLangText("msg_bookmark_name")}
+        value={(params[0] === "browser") ? params[1] : data.edit.current.item[params[2]]}
+        showValue={true}
+        labelOK={getLangText("msg_ok")}
+        labelCancel={getLangText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async () => {
+            if (value !== "") {
+              let userconfig = {
+                employee_id: data.login.data.employee.id,
+                section: "bookmark",
+                cfgroup: params[0],
+              }
+              if((params[0]) === "browser"){
+                userconfig = update(userconfig, {$merge: {
+                  cfname: value,
+                  cfvalue: JSON.stringify({
+                    date: formatISO(new Date(), { representation: 'date' }),
+                    vkey: data.search.vkey,
+                    view: data.search.view,
+                    filters: data.search.filters[data.search.view],
+                    columns: data.search.columns[data.search.view]
+                  })
+                }})
+              } else {
+                userconfig = update(userconfig, {$merge: {
+                  cfname: value,
+                  cfvalue: JSON.stringify({
+                    date: formatISO(new Date(), { representation: 'date' }),
+                    ntype: data.edit.current.type,
+                    transtype: data.edit.current.transtype,
+                    id: data.edit.current.item.id,
+                    info: (data.edit.current.type === "trans") 
+                      ? (data.edit.dataset.trans[0].custname !== null) 
+                        ? data.edit.dataset.trans[0].custname 
+                        : data.edit.current.item.transdate 
+                      : data.edit.current.item[params[3]]
+                  })
+                }})
+              }
+  
+              const options = { method: "POST", data: [userconfig] }
+              const result = await requestData("/ui_userconfig", options)
+              if(result.error){
+                return resultError(result)
+              }
+              loadBookmark({user_id: data.login.data.employee.id})
             }
-            if((params[0]) === "browser"){
-              userconfig = update(userconfig, {$merge: {
-                cfname: value,
-                cfvalue: JSON.stringify({
-                  date: formatISO(new Date(), { representation: 'date' }),
-                  vkey: data.search.vkey,
-                  view: data.search.view,
-                  filters: data.search.filters[data.search.view],
-                  columns: data.search.columns[data.search.view]
-                })
-              }})
-            } else {
-              userconfig = update(userconfig, {$merge: {
-                cfname: value,
-                cfvalue: JSON.stringify({
-                  date: formatISO(new Date(), { representation: 'date' }),
-                  ntype: data.edit.current.type,
-                  transtype: data.edit.current.transtype,
-                  id: data.edit.current.item.id,
-                  info: (data.edit.current.type === "trans") 
-                    ? (data.edit.dataset.trans[0].custname !== null) 
-                      ? data.edit.dataset.trans[0].custname 
-                      : data.edit.current.item.transdate 
-                    : data.edit.current.item[params[3]]
-                })
-              }})
-            }
-
-            const options = { method: "POST", data: [userconfig] }
-            const result = await requestData("/ui_userconfig", options)
-            if(result.error){
-              return resultError(result)
-            }
-            loadBookmark({user_id: data.login.data.employee.id})
-          }
-        })
-      }
+          })
+        }}
+      /> 
     })
   }
 
@@ -630,7 +616,6 @@ export const useApp = () => {
 
   return {
     getText: getLangText,
-    getSetting: getSetting,
     getAuditFilter: getAuditFilter,
     showToast: showToast,
     resultError: resultError,

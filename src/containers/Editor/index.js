@@ -7,9 +7,13 @@ import AppStore from 'containers/App/context'
 import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useInitItem } from 'containers/Controller/Items'
+import { useSearch } from 'containers/Search/actions'
+import { useQueries } from 'containers/Controller/Queries'
 import { Preview, pageRender } from 'containers/Report'
 import { Editor } from './Editor';
-import { InputForm } from 'containers/ModalForm'
+import InputBox from 'components/Modal/InputBox'
+import Selector from 'components/Modal/Selector'
+import { getSetting } from 'config/app'
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
@@ -17,11 +21,12 @@ export default (props) => {
   const editor = useEditor()
   const app = useApp()
   const initItem = useInitItem()
-  const showInput =  InputForm()
+  const queries = useQueries()
+  const search = useSearch()
 
   const [state] = useState({
     engine: data.login.data.engine,
-    ui: app.getSetting("ui"),
+    ui: getSetting("ui"),
     theme: data.current.theme
   })
 
@@ -45,6 +50,13 @@ export default (props) => {
 
   state.changeData = (key, value) => {
     setData("edit", { [key]: value })
+  }
+
+  state.changeCurrentData = (key, value) => {
+    const current = update(state.data.current, {$merge: {
+      [key]: value
+    }})
+    setData("edit", { current: current })
   }
 
   state.onPaginationSelect = (page, size) => {
@@ -274,6 +286,11 @@ export default (props) => {
         edit = update(edit, {current: {item: {$merge: {
           [options.name]: options.value
         }}}})
+        if(options.label_field){
+          edit = update(edit, {current: {item: {$merge: {
+            [options.label_field]: options.refnumber || null
+          }}}})
+        }
       } else if ((typeof edit.template.options.extend !== "undefined") && (options.extend === true)) {
         edit = update(edit, {current: {extend: {$merge: {
           [options.name]: options.value
@@ -320,28 +337,30 @@ export default (props) => {
           switch (options.name) {
             case "closed":
               if (options.value === 1) {
-                showInput({
-                  title: app.getText("msg_warning"), message: app.getText("msg_close_text"),
-                  infoText: app.getText("msg_delete_info"), 
-                  onChange: (form) => {
-                    setData("current", { modalForm: form })
-                  }, 
-                  cbCancel: () => {
-                    setData("current", { modalForm: null }, ()=>{
-                      edit = update(edit, { current: { item: {$merge: {
-                        [options.name]: 0
-                      }}}})
-                      setData("edit", edit)
-                    })
-                  },
-                  cbOK: (value) => {
-                    setData("current", { modalForm: null }, ()=>{
-                      edit = update(edit, { current: {$merge: {
-                        closed: 1
-                      }}})
-                      setData("edit", edit)
-                    })
-                  }
+                setData("current", { modalForm: 
+                  <InputBox 
+                    title={app.getText("msg_warning")}
+                    message={app.getText("msg_close_text")}
+                    infoText={app.getText("msg_delete_info")}
+                    labelOK={app.getText("msg_ok")}
+                    labelCancel={app.getText("msg_cancel")}
+                    onCancel={() => {
+                      setData("current", { modalForm: null }, ()=>{
+                        edit = update(edit, { current: { item: {$merge: {
+                          [options.name]: 0
+                        }}}})
+                        setData("edit", edit)
+                      })
+                    }}
+                    onOK={(value) => {
+                      setData("current", { modalForm: null }, ()=>{
+                        edit = update(edit, { current: {$merge: {
+                          closed: 1
+                        }}})
+                        setData("edit", edit)
+                      })
+                    }}
+                  /> 
                 })
               }
               break;
@@ -430,6 +449,35 @@ export default (props) => {
     setData("edit", edit)
   }
 
+  state.onLoad = (cmd, options, cbKeyTrue, cbKeyFalse) => {
+    editor[cmd](options, cbKeyTrue, cbKeyFalse)
+  }
+
+  state.onSelector = (selectorType, selectorFilter, setSelector) => {
+    let formProps = {
+      view: selectorType, 
+      columns: queries.quick[selectorType]().columns,
+      result: [],
+      filter: selectorFilter,
+      getText: app.getText, 
+      onClose: ()=>setData("current", { modalForm: null }),
+      onSelect: (row, filter) => {
+        setData("current", { modalForm: null }, ()=>{
+          setSelector(row, filter)
+        })
+      },
+      onSearch: async (filter)=>{
+        const view = await search.quickSearch(selectorType, filter)
+        if(view.error){
+          return app.resultError(view)
+        }
+        formProps.result = view.result
+        setData("current", { modalForm: <Selector {...formProps} /> })
+      }
+    }
+    setData("current", { modalForm: <Selector {...formProps} /> })
+  }
+
   state.noteState = (key) => {
     const edit = update(data.edit, { current: {$merge: {
       note: (["unordered-list-item","ordered-list-item"].includes(key))?
@@ -465,27 +513,30 @@ export default (props) => {
     }
     switch (key) {
       case "default":
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_pattern_default"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, ()=>{
-              let pattern = update(data.edit.dataset.pattern, {})
-              pattern.forEach((element, index) => {
-                pattern = update(pattern, {
-                  [index]: { $merge: {
-                    defpattern: (element.id === parseInt(data.edit.current.template,10)) ? 1 : 0
-                  }}
-                })
-              });
-              updatePattern(pattern)
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_pattern_default")}
+            defaultOK={true}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, ()=>{
+                let pattern = update(data.edit.dataset.pattern, {})
+                pattern.forEach((element, index) => {
+                  pattern = update(pattern, {
+                    [index]: { $merge: {
+                      defpattern: (element.id === parseInt(data.edit.current.template,10)) ? 1 : 0
+                    }}
+                  })
+                });
+                updatePattern(pattern)
+              })
+            }}
+          /> 
         })
         break;
 
@@ -511,88 +562,95 @@ export default (props) => {
         break;
 
       case "save":
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_pattern_save"),
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, ()=>{
-              let pattern = data.edit.dataset.pattern.filter((item) => 
-                (item.id === parseInt(data.edit.current.template,10) ))[0]
-              if(pattern){
-                pattern = update(pattern, {$merge: {
-                  notes: data.edit.current.item.fnote
-                }})
-                updatePattern([pattern])
-              }
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_pattern_save")}
+            defaultOK={true}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, ()=>{
+                let pattern = data.edit.dataset.pattern.filter((item) => 
+                  (item.id === parseInt(data.edit.current.template,10) ))[0]
+                if(pattern){
+                  pattern = update(pattern, {$merge: {
+                    notes: data.edit.current.item.fnote
+                  }})
+                  updatePattern([pattern])
+                }
+              })
+            }}
+          /> 
         })
         break;
       
       case "new":
-        showInput({
-          title: app.getText("msg_pattern_new"), message: app.getText("msg_pattern_name"),
-          value: "", 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, async ()=>{
-              if(value !== ""){
-                let result = await app.requestData("/pattern", {
-                  query: {
-                    filter: "description;==;"+value
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_pattern_new")}
+            message={app.getText("msg_pattern_name")}
+            value="" showValue={true}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, async ()=>{
+                if(value !== ""){
+                  let result = await app.requestData("/pattern", {
+                    query: {
+                      filter: "description;==;"+value
+                    }
+                  })
+                  if(result.error){
+                    return app.resultError(result)
                   }
-                })
-                if(result.error){
-                  return app.resultError(result)
+                  if(result.length > 0){
+                    return app.showToast({ type: "error", title: app.getText("msg_warning"), 
+                      message: app.getText("msg_value_exists") })
+                  }
+                  const pattern = update(initItem({tablename: "pattern", current: data.edit.current}), {$merge: {
+                    description: value,
+                    defpattern: (data.edit.dataset.pattern.length === 0) ? 1 : 0
+                  }})
+                  updatePattern([pattern])
                 }
-                if(result.length > 0){
-                  return app.showToast({ type: "error", title: app.getText("msg_warning"), 
-                    message: app.getText("msg_value_exists") })
-                }
-                const pattern = update(initItem({tablename: "pattern", current: data.edit.current}), {$merge: {
-                  description: value,
-                  defpattern: (data.edit.dataset.pattern.length === 0) ? 1 : 0
-                }})
-                updatePattern([pattern])
-              }
-            })
-          }
+              })
+            }}
+          /> 
         })
         break;
 
       case "delete":
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-          infoText: app.getText("msg_delete_info"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, ()=>{
-              let pattern = data.edit.dataset.pattern.filter((item) => 
-                (item.id === parseInt(data.edit.current.template,10) ))[0]
-              if(pattern){
-                pattern = update(pattern, {$merge: {
-                  deleted: 1,
-                  defpattern: 0
-                }})
-                updatePattern([pattern])
-              }
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_delete_text")}
+            infoText={app.getText("msg_delete_info")}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, ()=>{
+                let pattern = data.edit.dataset.pattern.filter((item) => 
+                  (item.id === parseInt(data.edit.current.template,10) ))[0]
+                if(pattern){
+                  pattern = update(pattern, {$merge: {
+                    deleted: 1,
+                    defpattern: 0
+                  }})
+                  updatePattern([pattern])
+                }
+              })
+            }}
+          /> 
         })
         break;
     

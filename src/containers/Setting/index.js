@@ -7,6 +7,7 @@ import { useSetting } from './actions'
 import { Setting } from './Setting';
 import { useTemplate } from 'containers/Controller/Template'
 import { Preview, pageRender } from 'containers/Report'
+import { getSetting } from 'config/app'
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
@@ -17,7 +18,7 @@ export default (props) => {
 
   const [state] = useState({
     engine: data.login.data.engine,
-    ui: app.getSetting("ui"),
+    ui: getSetting("ui"),
     theme: data.current.theme,
     getMapCtr: template.getMapCtr,
     getElementType: template.getElementType
@@ -76,7 +77,7 @@ export default (props) => {
 
   state.editItem = async (options) => {
     let settings = update({}, {$set: state.data})
-    if(setting.type === "program"){
+    if(settings.type === "program"){
       settings = update(settings, {current: {form: {$merge: {
         [options.name]: options.value
       }}}})

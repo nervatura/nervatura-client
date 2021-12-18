@@ -5,13 +5,12 @@ import update from 'immutability-helper';
 import AppStore from 'containers/App/context'
 import { getSql, useApp, request } from 'containers/App/actions'
 import { useQueries } from 'containers/Controller/Queries'
-import { ServerForm } from 'containers/ModalForm'
+import Server from 'components/Modal/Server'
 
 export const useSearch = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const queries = useQueries()
-  const showServer = ServerForm()
 
   const showBrowser = (vkey, view) => {
     setData("current", { side: app.getSideBar() }, async ()=>{
@@ -210,64 +209,67 @@ export const useSearch = () => {
             break;
         }
       });
-      showServer({ 
-        params: params,
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        sendServerCmd: (options) => {
-          setData("current", { modalForm: null }, async ()=>{
-            let query = new URLSearchParams();
-            let values = update({}, {$set: options.values})
-            options.fields.forEach(function(field) {
-              if (field.fieldtypeName === "bool") {
-                query.append(field.fieldname, (options.values[field.fieldname])?1:0)
-                values[field.fieldname] = (options.values[field.fieldname])?1:0
-              } else {
-                query.append(field.fieldname, options.values[field.fieldname])
-              }
-            })
-            if (options.cmd.methodName === "get") {
-              let server = options.cmd.address || ""
-              if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
-                server = (data.session.configServer)?
-                  data.session.proxy+data.session.apiPath+"/"+options.cmd.funcname : 
-                  data.login.server+"/"+options.cmd.funcname
-              }
-              if (server!=="") {
-                window.open(server+"?"+query.toString(), '_system')
-              }
-            } else {
-              let params = { method: "POST", 
-                data: {
-                  key: options.cmd.funcname || options.cmd.menukey,
-                  values: values
+      setData("current", { modalForm: 
+        <Server 
+          {...params}
+          getText={app.getText}
+          onClose={() => {
+            setData("current", { modalForm: null })
+          }}
+          onOK={(options) => {
+            setData("current", { modalForm: null }, async ()=>{
+              let query = new URLSearchParams();
+              let values = update({}, {$set: options.values})
+              options.fields.forEach(function(field) {
+                if (field.fieldtypeName === "bool") {
+                  query.append(field.fieldname, (options.values[field.fieldname])?1:0)
+                  values[field.fieldname] = (options.values[field.fieldname])?1:0
+                } else {
+                  query.append(field.fieldname, options.values[field.fieldname])
                 }
-              }
-              let result
-              if(options.cmd.address && (options.cmd.address !== "")){
-                try {
-                  result = await request(options.cmd.address, options)
-                } catch (error) {
-                  app.resultError(error)
+              })
+              if (options.cmd.methodName === "get") {
+                let server = options.cmd.address || ""
+                if((server === "") && options.cmd.funcname && (options.cmd.funcname !== "")){
+                  server = (data.session.configServer)?
+                    data.session.proxy+data.session.apiPath+"/"+options.cmd.funcname : 
+                    data.login.server+"/"+options.cmd.funcname
+                }
+                if (server!=="") {
+                  window.open(server+"?"+query.toString(), '_system')
+                }
+              } else {
+                let params = { method: "POST", 
+                  data: {
+                    key: options.cmd.funcname || options.cmd.menukey,
+                    values: values
+                  }
+                }
+                let result
+                if(options.cmd.address && (options.cmd.address !== "")){
+                  try {
+                    result = await request(options.cmd.address, options)
+                  } catch (error) {
+                    app.resultError(error)
+                    return null
+                  }
+                } else {
+                  result = await app.requestData("/function", params)
+                }
+                if(result.error){
+                  app.resultError(result)
                   return null
                 }
-              } else {
-                result = await app.requestData("/function", params)
+                let message = result
+                if(typeof result === "object"){
+                  message = JSON.stringify(result,null,"  ")
+                }
+                app.showToast({ type: "success", title: app.getText("ms_server_response"), 
+                  message: message })
               }
-              if(result.error){
-                app.resultError(result)
-                return null
-              }
-              let message = result
-              if(typeof result === "object"){
-                message = JSON.stringify(result,null,"  ")
-              }
-              app.showToast({ type: "success", title: app.getText("ms_server_response"), 
-                message: message })
-            }
-          })
-        }
+            })
+          }}
+        /> 
       })
     }
   }

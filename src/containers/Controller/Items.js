@@ -5,6 +5,7 @@ import { formatISO, addDays } from 'date-fns'
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
 import { guid } from 'containers/App/actions'
+import { getSetting } from 'config/app'
 
 export const useValidator = () => {
   const app = useApp()
@@ -365,12 +366,11 @@ export const useValidator = () => {
 
 export const useInitItem = () => {
   const { data } = useContext(AppStore)
-  const app = useApp()
   return (params) => {
     const dataset = params.dataset || data.edit.dataset
     const current = params.current || data.edit.current
     const store = data.login.data
-    const config = app.getSetting("ui")
+    const config = getSetting("ui")
     switch (params.tablename) {
       case "address":
         return update({}, {$set: {

@@ -33,7 +33,8 @@ export const Login = ({
                   <Label value={getText("login_username")} className="bold" />
                 </div>
                 <div className="container s12 m8 l8" >
-                  <Input id="username" type="text" className="full" value={username}
+                  <Input id="username" type="text" 
+                    className={`${"full"} ${styles.inputMargin}`} value={username}
                     onChange={(value)=>changeData("username", value)} />
                 </div>
               </div>
@@ -42,7 +43,8 @@ export const Login = ({
                   <Label value={getText("login_password")} className="bold" />
                 </div>
                 <div className="container s12 m8 l8" >
-                  <Input id="password" type="password" className="full" value={password}
+                  <Input id="password" type="password" 
+                    className={`${"full"} ${styles.inputMargin}`} value={password}
                     onChange={(value)=>changeData("password", value)} 
                     onEnter={onLogin} />
                 </div>
@@ -54,7 +56,8 @@ export const Login = ({
                   <Label value={getText("login_database")} className="bold" />
                 </div>
                 <div className="container s12 m8 l8" >
-                  <Input id="database" type="text" className="full" value={database}
+                  <Input id="database" type="text" 
+                    className={`${"full"} ${styles.inputMargin}`} value={database}
                     onChange={(value)=>changeData("database", value)} 
                     onEnter={onLogin} />
                 </div>
@@ -64,7 +67,8 @@ export const Login = ({
                   <Label value={getText("login_server")} className="bold" />
                 </div>
                 <div className="container full" >
-                  <Input id="server" type="text" className="full" value={server}
+                  <Input id="server" type="text" 
+                    className={`${"full"} ${styles.inputMargin}`} value={server}
                     onChange={(value)=>changeData("server", value)} />
                 </div>
               </div>:null}

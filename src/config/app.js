@@ -1,7 +1,8 @@
+import update from 'immutability-helper';
 import { registerLocale } from  "react-datepicker";
 import * as dateLocales from 'date-fns/locale/';
 
-import { version } from '../../package.json';
+import packageData from '../../package.json';
 import * as locales from './locales';
 
 const publicHost = "nervatura.github.io"
@@ -20,16 +21,21 @@ calendarLocales.forEach(loc => {
   registerLocale(loc[0], dateLocales[loc[0]])
 });
 
+export const DECIMAL_SEPARATOR = {
+  POINT: ".",
+  COMMA: ","
+}
+
 // Default read and write application context data 
 export const store = {
   session: {
-    version: version,
+    version: packageData.version,
     locales: locales,
     configServer: false,
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.10", "5.0.0-beta.11", "5.0.0-beta.12", "5.0.0-beta.13", "5.0.0-beta.14"],
+    service: ["dev", "5.0.0-beta.13", "5.0.0-beta.14", "5.0.0-beta.15"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -51,6 +57,8 @@ export const store = {
     filter_opt_1: [["===","EQUAL"],["==N","IS NULL"],["!==","NOT EQUAL"]],
     filter_opt_2: [["===","EQUAL"],["==N","IS NULL"],["!==","NOT EQUAL"],[">==",">="],["<==","<="]],
     export_sep: ";",
+    decimal_sep: DECIMAL_SEPARATOR.POINT,
+    separators: Object.keys(DECIMAL_SEPARATOR).map(sep => { return [DECIMAL_SEPARATOR[sep], sep] }),
     page_size: "a4",
     page_orient: "portrait",
     printqueue_mode: [
@@ -126,4 +134,20 @@ export const getText = ({locales, lang, key, defaultValue}) => {
     value = locales["en"][key]
   }
   return value
+}
+
+export const getSetting = (key) => {
+  switch (key) {    
+    case "ui":
+      let values = update({}, {$set: store.ui})
+      for (const ikey in values) {
+        if(localStorage.getItem(ikey)){
+          values[ikey] = localStorage.getItem(ikey)
+        }
+      }
+      return values
+
+    default:
+      return localStorage.getItem(key) || store.ui[key] || "";
+  }
 }

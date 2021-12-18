@@ -1,21 +1,22 @@
-input {
+.inputStyle {
   border-radius: 3px;
+  border-width: 1px;
   font-size: 14px;
   padding: 8px;
   display: block;
 }
 
-input[type=color]{
+.inputStyle[type=color]{
   height: 34px;
   border: none;
   padding: 0px;
   cursor: pointer;
 }
 
-input:disabled {
+.inputStyle:disabled {
   opacity: 0.5;
 }
 
-input::placeholder, input::-ms-input-placeholder {
+.inputStyle::placeholder, .inputStyle::-ms-input-placeholder {
   opacity: 0.5;
 }

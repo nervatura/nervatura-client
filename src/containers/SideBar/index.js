@@ -10,7 +10,9 @@ import { useSetting } from 'containers/Setting/actions'
 import { useTemplate } from 'containers/Controller/Template'
 import { useForm } from 'containers/Controller/Forms'
 import { useReport } from 'containers/Report/actions'
-import { SelectorForm, InputForm } from 'containers/ModalForm'
+import { useQueries } from 'containers/Controller/Queries'
+import Selector from 'components/Modal/Selector'
+import InputBox from 'components/Modal/InputBox'
 
 import { Search, SideBar, Edit, Preview, Setting as SettingBar } from './SideBar';
 
@@ -20,8 +22,7 @@ export default (props) => {
   const search = useSearch()
   const editor = useEditor()
   const setting = useSetting()
-  const showSelector = SelectorForm()
-  const showInput =  InputForm()
+  const queries = useQueries()
   const template = useTemplate()
   const report = useReport()
   
@@ -29,7 +30,8 @@ export default (props) => {
     username: data.login.username,
     login: data.login.data,
     forms: useForm(),
-    showHelp: app.showHelp
+    showHelp: app.showHelp,
+    getText: app.getText
   })
 
   state.editState = () => {
@@ -53,12 +55,14 @@ export default (props) => {
   state.editorNew = (params) =>{
     setData("current", { side: app.getSideBar() }, ()=>{
       if(params.ttype === "shipping"){
-        showSelector({
-          type: "transitem_delivery", filter: "", 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          onSelect: (row) => {
+        let formProps = {
+          view: "transitem_delivery", 
+          columns: queries.quick["transitem_delivery"]().columns,
+          result: [],
+          filter: "",
+          getText: app.getText, 
+          onClose: ()=>setData("current", { modalForm: null }), 
+          onSelect: (row, filter) => {
             setData("current", { modalForm: null }, ()=>{
               const params = row.id.split("/")
               editor.checkEditor({ 
@@ -66,8 +70,17 @@ export default (props) => {
                 shipping: true
               }, 'LOAD_EDITOR')
             })
+          },
+          onSearch: async (filter)=>{
+            const view = await search.quickSearch("transitem_delivery", filter)
+            if(view.error){
+              return app.resultError(view)
+            }
+            formProps.result = view.result
+            setData("current", { modalForm: <Selector {...formProps} /> })
           }
-        })
+        }
+        setData("current", { modalForm: <Selector {...formProps} /> })
       } else if(data.edit.current.form){
         editor.checkEditor({
           fkey: params.fkey || data.edit.current.form_type, 
@@ -106,20 +119,23 @@ export default (props) => {
       if (ctype === "create") {
         editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
       } else {
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_copy_text"),
-          infoText: app.getText("msg_delete_info"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: () => {
-            setData("current", { modalForm: null }, () => {
-              editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_copy_text")}
+            infoText={app.getText("msg_delete_info")}
+            defaultOK={true}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, () => {
+                editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
+              })
+            }}
+          /> 
         })
       }
     })

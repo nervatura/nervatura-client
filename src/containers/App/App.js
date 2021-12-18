@@ -1,4 +1,4 @@
-import React, { createElement, Component, Suspense } from 'react'
+import React, { Component, Suspense, lazy } from 'react'
 import connectToDevTools from 'remotedev-react-state'
 
 // Import CSS reset and Global Styles
@@ -13,7 +13,11 @@ import { AppProvider } from './context'
 import Spinner from 'components/Form/Spinner'
 import MenuBar from 'containers/MenuBar'
 import SideBar from 'containers/SideBar'
-import modules from './modules'
+
+const Search = lazy(() => import('containers/Search'));
+const Login = lazy(() => import('containers/Login'));
+const Editor = lazy(() => import('containers/Editor'));
+const Setting = lazy(() => import('containers/Setting'));
 
 class App extends Component {
 
@@ -50,12 +54,14 @@ class App extends Component {
           <div className={`${"main"} ${current.theme}`} >
             <MenuBar />
             <SideBar />
-            {createElement(modules[current.module], { name: current.module })}
+            {(current.module === "search")?<Search name={current.module} />:null}
+            {(current.module === "edit")?<Editor name={current.module} />:null}
+            {(current.module === "setting")?<Setting name={current.module} />:null}
             {(current.modalForm)?current.modalForm:null}
           </div>
         )
       }
-      return createElement(modules["login"]);
+      return <Login />
     }
     
     return (

@@ -1,23 +1,24 @@
-select {
+.selectStyle {
   border-radius: 3px;
   font-size: 13px;
   padding: 8px;
   opacity: 1;
 }
 
-select:disabled {
+.selectStyle:disabled {
   opacity: 0.5;
 }
 
-option {
+.optionStyle {
   font-size: 14px;
   border: none;
 }
 
-option:disabled {
+.optionStyle:disabled {
   opacity: 0.5;
 }
 
 .optionPlaceholder {
   color: var(--info);
+  opacity: 0.5;
 }

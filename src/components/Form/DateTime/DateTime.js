@@ -5,7 +5,7 @@ import { formatISO, isValid, parseISO } from 'date-fns'
 import "react-datepicker/dist/react-datepicker.css";
 import './DateTime.css';
 
-import { store } from 'config/app'
+import { getSetting } from 'config/app'
 
 export const DateTime = ({ 
   value, placeholder, dateTime, isEmpty, showTimeSelectOnly,
@@ -102,9 +102,9 @@ DateTime.defaultProps = {
   dateTime: true,
   isEmpty: true,
   showTimeSelectOnly: false,
-  dateFormat: store.ui.dateFormat,
-  timeFormat: store.ui.timeFormat,
-  locale: store.ui.calendar,
+  dateFormat: getSetting("dateFormat"),
+  timeFormat: getSetting("timeFormat"),
+  locale: getSetting("calendar"),
   onChange: undefined
 }
 

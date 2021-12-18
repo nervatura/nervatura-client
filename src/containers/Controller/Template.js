@@ -4,13 +4,13 @@ import printJS from 'print-js'
 
 import AppStore from 'containers/App/context'
 import { useApp, saveToDisk } from 'containers/App/actions'
-import { InputForm, DataForm } from 'containers/ModalForm'
+import InputBox from 'components/Modal/InputBox'
+import TemplateData from 'components/Modal/Template'
+import { getSetting } from 'config/app'
 
 export const useTemplate = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
-  const showInput =  InputForm()
-  const addData =  DataForm()
 
   const elements = {
     report:{
@@ -885,23 +885,25 @@ export const useTemplate = () => {
       return setting
     }
     if(warning){
-      showInput({
-        title: app.getText("template_label_template"), message: app.getText("msg_dirty_info"),
-        infoText: app.getText("msg_delete_info"), 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, async ()=>{
-            const result = await updateData()
-            if(result){
-              setData("setting", result)
-            }
-          })
-        }
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("template_label_template")}
+          message={app.getText("msg_dirty_info")}
+          infoText={app.getText("msg_delete_info")}
+          labelOK={app.getText("msg_ok")}
+          labelCancel={app.getText("msg_cancel")} defaultOK={true}
+          onCancel={() => {
+            setData("current", { modalForm: null })
+          }}
+          onOK={(value) => {
+            setData("current", { modalForm: null }, async ()=>{
+              const result = await updateData()
+              if(result){
+                setData("setting", result)
+              }
+            })
+          }}
+        /> 
       })
     } else {
       return await updateData()
@@ -919,31 +921,33 @@ export const useTemplate = () => {
   }
 
   const deleteData = (dskey) => {
-    showInput({
-      title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-      infoText: app.getText("msg_delete_info"), 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      cbCancel: () => {
-        setData("current", { modalForm: null })
-      },
-      cbOK: () => {
-        setData("current", { modalForm: null }, async ()=>{
-          let setting = update(data.setting, {template: {template: {data: {
-            $unset: [dskey]
-          }}}})
-          if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
-            setting = update(setting, {$merge: {
-              dirty: true
-            }})
-          }
-          setting = update(setting, {template: { $merge: {
-            dataset: getDataset(setting.template.template.data)
-          }}})
-          setData("setting", setting)
-        })
-      }
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("msg_warning")}
+        message={app.getText("msg_delete_text")}
+        infoText={app.getText("msg_delete_info")}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async ()=>{
+            let setting = update(data.setting, {template: {template: {data: {
+              $unset: [dskey]
+            }}}})
+            if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+              setting = update(setting, {$merge: {
+                dirty: true
+              }})
+            }
+            setting = update(setting, {template: { $merge: {
+              dataset: getDataset(setting.template.template.data)
+            }}})
+            setData("setting", setting)
+          })
+        }}
+      /> 
     })
   }
   
@@ -1080,34 +1084,36 @@ export const useTemplate = () => {
     }
     
     const newList=() => {
-      showInput({
-        title: app.getText("msg_input_title"), message: app.getText("msg_new_fieldname"),
-        value: "", 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, async ()=>{
-            if (value !== "") { 
-              if (Object.keys(setting.template.template.data[setting.template.current_data.name]).includes(value)) {
-                app.showToast({ type: "error",
-                  title: app.getText("msg_warning"), 
-                  message: app.getText("msg_value_exists") })
-              } else {
-                setting = update(setting, {template: { template: {data: {[setting.template.current_data.name]: {$merge: {
-                  [value]: ""
-                }}}}}})
-                setting = update(setting, {template: { current_data: {$merge: {
-                  items: getDataList(setting.template.template.data[setting.template.current_data.name])
-                }}}})
-                setItem(value)
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("msg_input_title")}
+          message={app.getText("msg_new_fieldname")}
+          value="" showValue={true}
+          labelOK={app.getText("msg_ok")}
+          labelCancel={app.getText("msg_cancel")}
+          onCancel={() => {
+            setData("current", { modalForm: null })
+          }}
+          onOK={(value) => {
+            setData("current", { modalForm: null }, async ()=>{
+              if (value !== "") { 
+                if (Object.keys(setting.template.template.data[setting.template.current_data.name]).includes(value)) {
+                  app.showToast({ type: "error",
+                    title: app.getText("msg_warning"), 
+                    message: app.getText("msg_value_exists") })
+                } else {
+                  setting = update(setting, {template: { template: {data: {[setting.template.current_data.name]: {$merge: {
+                    [value]: ""
+                  }}}}}})
+                  setting = update(setting, {template: { current_data: {$merge: {
+                    items: getDataList(setting.template.template.data[setting.template.current_data.name])
+                  }}}})
+                  setItem(value)
+                }
               }
-            }
-          })
-        }
+            })
+          }}
+        /> 
       })
     }
 
@@ -1142,62 +1148,64 @@ export const useTemplate = () => {
   }
 
   const deleteDataItem = (options) => {
-    showInput({
-      title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-      infoText: app.getText("msg_delete_info"), 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      cbCancel: () => {
-        setData("current", { modalForm: null })
-      },
-      cbOK: () => {
-        setData("current", { modalForm: null }, async ()=>{
-          let setting = update(data.setting, {})
-
-          switch (setting.template.current_data.type) {
-            case "list":
-              setting = update(setting, {template: {template: {data: {[setting.template.current_data.name]: {
-                $unset: [options.key]
-              }}}}})
-              setting = update(setting, {template: { current_data: {$merge: {
-                items: getDataList(setting.template.template.data[setting.template.current_data.name])
-              }}}})
-              break;
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("msg_warning")}
+        message={app.getText("msg_delete_text")}
+        infoText={app.getText("msg_delete_info")}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async ()=>{
+            let setting = update(data.setting, {})
   
-            case "table":
-            default:
-              if (setting.template.template.data[setting.template.current_data.name].length===1){
-                setting = update(setting, {template: {template: {data: {
-                  $unset: [setting.template.current_data.name]
-                }}}})
-                setting = update(setting, {template: {$merge: {
-                  current_data: null,
-                  dataset: getDataset(setting.template.template.data)
-                }}})
-              } else {
+            switch (setting.template.current_data.type) {
+              case "list":
                 setting = update(setting, {template: {template: {data: {[setting.template.current_data.name]: {
-                  $splice: [[options._index, 1]]
+                  $unset: [options.key]
                 }}}}})
                 setting = update(setting, {template: { current_data: {$merge: {
-                  items: getDataTable(setting.template.template.data[setting.template.current_data.name]).items
+                  items: getDataList(setting.template.template.data[setting.template.current_data.name])
                 }}}})
-              }
-              break;
-          }
-          
-          setting = update(setting, {template: { $merge: {
-            dataset: getDataset(setting.template.template.data)
-          }}})
-
-          if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
-            setting = update(setting, {$merge: {
-              dirty: true
-            }})
-          }
-          setData("setting", setting)
-        })
-      }
+                break;
+    
+              case "table":
+              default:
+                if (setting.template.template.data[setting.template.current_data.name].length===1){
+                  setting = update(setting, {template: {template: {data: {
+                    $unset: [setting.template.current_data.name]
+                  }}}})
+                  setting = update(setting, {template: {$merge: {
+                    current_data: null,
+                    dataset: getDataset(setting.template.template.data)
+                  }}})
+                } else {
+                  setting = update(setting, {template: {template: {data: {[setting.template.current_data.name]: {
+                    $splice: [[options._index, 1]]
+                  }}}}})
+                  setting = update(setting, {template: { current_data: {$merge: {
+                    items: getDataTable(setting.template.template.data[setting.template.current_data.name]).items
+                  }}}})
+                }
+                break;
+            }
+            
+            setting = update(setting, {template: { $merge: {
+              dataset: getDataset(setting.template.template.data)
+            }}})
+  
+            if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+              setting = update(setting, {$merge: {
+                dirty: true
+              }})
+            }
+            setData("setting", setting)
+          })
+        }}
+      /> 
     })
   }
 
@@ -1241,15 +1249,19 @@ export const useTemplate = () => {
   }
 
   const addTemplateData = () => {
-    addData({ 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      updateData: (values) => {
-        setData("current", { modalForm: null }, async ()=>{
-          setCurrentData({ name: "new", type: "new", values: {...values} })
-        })
-      }
+    setData("current", { modalForm: 
+      <TemplateData
+        name="" type="string" columns=""
+        getText={app.getText}
+        onClose={() => {
+          setData("current", { modalForm: null })
+        }}
+        onData={(values) => {
+          setData("current", { modalForm: null }, async ()=>{
+            setCurrentData({ name: "new", type: "new", values: {...values} })
+          })
+        }}
+      /> 
     })
   }
 
@@ -1280,8 +1292,8 @@ export const useTemplate = () => {
     let setting = update(data.setting, {})
     const params = {
       reportkey: setting.template.key,
-      orientation: orient || app.getSetting("page_orient"),
-      size: app.getSetting("page_size"),
+      orientation: orient || getSetting("page_orient"),
+      size: getSetting("page_size"),
       output: "auto",
       title: setting.template.title,
       template: JSON.stringify(setting.template.template)
@@ -1295,28 +1307,29 @@ export const useTemplate = () => {
         params.refnumber = setting.template.docnumber
         loadPreview(params)
       } else {
-        showInput({
-          title: app.getText("template_preview_data"), 
-          message: app.getText("template_preview_input").replace("docname",params.nervatype),
-          value: setting.template.docnumber, 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, async ()=>{
-              if(value !== ""){
-                const template = update(setting.template, {$merge: {
-                  docnumber: value
-                }})
-                setData("setting", { template: template })
-                params.refnumber = value
-                loadPreview(params)
-              }
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("template_preview_data")}
+            message={app.getText("template_preview_input").replace("docname",params.nervatype)}
+            value={setting.template.docnumber} showValue={true}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, async ()=>{
+                if(value !== ""){
+                  const template = update(setting.template, {$merge: {
+                    docnumber: value
+                  }})
+                  setData("setting", { template: template })
+                  params.refnumber = value
+                  loadPreview(params)
+                }
+              })
+            }}
+          /> 
         })
       }
     }

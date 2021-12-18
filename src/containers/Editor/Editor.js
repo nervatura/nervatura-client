@@ -3,14 +3,16 @@ import update from 'immutability-helper';
 import {Editor as RtfEditor} from 'draft-js';
 
 import styles from './Editor.module.css';
-import { Label, FormRow, Select } from 'containers/Controller'
 import Paginator, { paginate } from 'components/Form/Paginator/Paginator';
 import Icon from 'components/Form/Icon'
 import Table from 'components/Form/Table';
 import List from 'components/Form/List';
+import Row from 'components/Form/Row'
+import Label from 'components/Form/Label'
+import Select from 'components/Form/Select'
 
 export const MainEditor = memo((props) => {
-  const { currentView, getText, editItem } = props
+  const { currentView, getText, editItem, onLoad, onSelector } = props
   const { current, template, audit, dataset } = props.data
   let label = current.item[template.options.title_field]
   if(current.type === "printqueue"){
@@ -24,19 +26,21 @@ export const MainEditor = memo((props) => {
         <div className="cell" >
           <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("form")} >
             <Label value={label} 
-              leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
+              leftIcon={<Icon iconKey={template.options.icon} />} iconWidth="20px" />
           </button>
         </div>
       </div>
       {(current.view === "form")?<div className={`${styles.formPanel} ${"border"}`} >
-        {template.rows.map((row, index) => <FormRow key={index} row={row} 
-          values={current.item}
-          rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }} />)}
+        {template.rows.map((row, index) => <Row key={index} row={row} 
+          values={current.item} options={template.options}
+          data={{ audit: audit, current: current, dataset: dataset }}
+          getText={getText} onEdit={editItem} onLoad={onLoad} onSelector={onSelector} />)}
         {((current.type === "report") && (current.fieldvalue.length>0))?
           <div className="row full">
-          {current.fieldvalue.map((row, index) => <FormRow key={index} row={row} 
-            values={row}
-            rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }} />)}
+          {current.fieldvalue.map((row, index) => <Row key={index} row={row} 
+            values={row} options={template.options}
+            data={{ audit: audit, current: current, dataset: dataset }}
+            getText={getText} onEdit={editItem} onLoad={onLoad} onSelector={onSelector} />)}
         </div>:null}
       </div>:null}
     </Fragment>
@@ -48,7 +52,8 @@ export const MainEditor = memo((props) => {
 })
 
 export const FieldEditor = memo((props) => {
-  const { currentView, editItem, checkEditor, onPaginationSelect } = props
+  const { currentView, editItem, checkEditor, onPaginationSelect, 
+    getText, onLoad, onSelector, changeCurrentData } = props
   const { current, template, dataset, audit } = props.data
   if (current.item.id !== null || template.options.search_form) {
     if (typeof dataset.fieldvalue !== "undefined" && current.item !== null && template.options.fieldvalue === true) {
@@ -122,7 +127,8 @@ export const FieldEditor = memo((props) => {
               <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fieldvalue")} >
                 <div className="row full" >
                   <div className="cell" >
-                    <Label text="fields_view" leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
+                    <Label value={getText("fields_view")} 
+                      leftIcon={<Icon iconKey={template.options.icon} />} iconWidth="20px" />
                   </div>
                   <div className="cell align-right" >
                     <span className={`${styles.badge}`} >{fieldvalue_list.length}</span>
@@ -136,13 +142,15 @@ export const FieldEditor = memo((props) => {
             <div className="row full container-small section-small border-bottom" >
               {(audit !== 'readonly')?<div className="cell mobile">
                 <div className="cell padding-small" >
-                  <Select value={current.deffield||""} keys={["edit", "current","deffield"]} placeholder=""
-                    options={deffields()} />
+                  <Select value={current.deffield||""} 
+                    onChange={(value)=>changeCurrentData("deffield", value)}
+                    placeholder="" options={deffields()} />
                 </div>
                 {(current.deffield && (current.deffield !== ""))?<div className="cell" >
                   <button className={`${"border-button"} ${styles.addButton}`} 
                     onClick={ ()=>checkEditor({fieldname: current.deffield}, 'NEW_FIELDVALUE') } >
-                    <Label text="label_new" leftIcon={<Icon iconKey="Plus" />} col={20} />
+                    <Label value={getText("label_new")} 
+                      leftIcon={<Icon iconKey="Plus" />} iconWidth="20px" />
                   </button>
                 </div>:null}
               </div>:null}
@@ -151,10 +159,11 @@ export const FieldEditor = memo((props) => {
                 <Paginator pagination={current.pagination} pages={fieldRows.amount} onSelect={onSelect} />
               </div>:null}
             </div>:null}
-            {(fieldRows.rows || fieldRows).map((fieldvalue, index) => <FormRow
+            {(fieldRows.rows || fieldRows).map((fieldvalue, index) => <Row
               key={fieldvalue.id} row={fieldvalue} 
-              values={fieldvalue}
-              rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }}
+              values={fieldvalue} options={{}}
+              data={{ audit: audit, current: current, dataset: dataset }}
+              getText={getText} onEdit={editItem} onLoad={onLoad} onSelector={onSelector}
             />)}
           </div>:null}
         </Fragment>
@@ -235,7 +244,8 @@ export const ViewEditor = memo((props) => {
           <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView(vname)} >
             <div className="row full" >
               <div className="cell" >
-                <Label value={vtemplate.title} leftIcon={<Icon iconKey={vtemplate.icon} />} col={20} />
+                <Label value={vtemplate.title} 
+                  leftIcon={<Icon iconKey={vtemplate.icon} />} iconWidth="20px" />
               </div>
               <div className="cell align-right" >
                 <span className={`${styles.badge}`} >{rows.length}</span>
@@ -302,14 +312,15 @@ export const ViewEditor = memo((props) => {
 })
 
 export const ReportEditor = memo((props) => {
-  const { editItem } = props
+  const { editItem, getText, onLoad, onSelector } = props
   const { current, dataset, audit } = props.data
   if (current.type === "report"){
     if (current.fieldvalue.length>0) {
       return(<div className="row full">
-        {current.fieldvalue.map((row, index) => <FormRow key={index} row={row} 
-          values={row}
-          rowdata={{ audit: audit, current: current, dataset: dataset, onEdit: editItem }} />)}
+        {current.fieldvalue.map((row, index) => <Row key={index} row={row} 
+          values={row} options={{}}
+          data={{ audit: audit, current: current, dataset: dataset }}
+          getText={getText} onEdit={editItem} onLoad={onLoad} onSelector={onSelector} />)}
       </div>)
     }
   }
@@ -336,7 +347,8 @@ export const NoteEditor = memo((props) => {
               <button className={` ${styles.tabButton} ${"full secondary-title"}`} onClick={()=>currentView("fnote")} >
                 <div className="row full" >
                   <div className="cell" >
-                    <Label text="fnote_view" leftIcon={<Icon iconKey="Comment" />} col={20} />
+                    <Label value={getText("fnote_view")} 
+                      leftIcon={<Icon iconKey="Comment" />} iconWidth="20px" />
                   </div>  
                 </div>
               </button>
@@ -377,9 +389,9 @@ export const NoteEditor = memo((props) => {
                   </div>
                   <div className="cell padding-tiny mobile" >
                     <Select value={current.template} placeholder=""
-                      onChange={ (event)=>noteTemplate(event.target.value) }
+                      onChange={ (value)=>noteTemplate(value) }
                       options={dataset.pattern.map( pattern => {
-                        return { value: pattern.id, 
+                        return { value: String(pattern.id), 
                           text: pattern.description+((pattern.defpattern === 1)?"*":"") 
                       }})} />
                   </div>
@@ -422,27 +434,27 @@ export const NoteEditor = memo((props) => {
 })
 
 export const ItemEditor = memo((props) => {
-  const { getText, editItem } = props
+  const { getText, editItem, onLoad, onSelector } = props
   const { current, audit, dataset } = props.data
   return (
     <Fragment >
       <div className="row full" >
         <div className={`${"cell padding-normal border secondary-title"} ${styles.itemTitle}` }>
           <Label className={` ${styles.itemTitlePre}` } 
-            value={(current.form.id === null) ? getText("label_new") : current.form.id} />
+            value={(current.form.id === null) ? getText("label_new") : String(current.form.id)} />
           <Label value={current.form_template.options.title} />
         </div>
       </div>
       <div className={`${styles.formPanel} ${"border"}`} >
         {current.form_template.rows.map((row, index) =>
-          <FormRow key={index} row={row} 
-            values={current.form}
-            rowdata={{
+          <Row key={index} row={row} 
+            values={current.form} options={current.form_template.options}
+            data={{
               audit: audit,
               current: current,
               dataset: dataset,
-              onEdit: editItem
-            }} 
+            }}
+            getText={getText} onEdit={editItem} onLoad={onLoad} onSelector={onSelector}
           />
         )}
       </div>
@@ -463,8 +475,8 @@ export const Editor = memo((props) => {
         <div className={`${styles.width800}`}>
           <div className={`${"panel"}`} >
             <div className="panel-title primary">
-              <Label bold primary xxxlarge value={caption} 
-                leftIcon={<Icon iconKey={template.options.icon} />} col={20} />
+              <Label value={caption} 
+                leftIcon={<Icon iconKey={template.options.icon} />} iconWidth="20px" />
             </div>
             {(current.form)?
               <div className="section container" ><ItemEditor {...props}/></div>:

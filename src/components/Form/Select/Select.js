@@ -1,18 +1,19 @@
 import PropTypes from 'prop-types';
 
-import './Select.module.css';
+import styles from './Select.module.css';
 
 export const Select = ({ 
   options, placeholder, className, onChange,
   ...props 
 }) => {
-  let values = options.map((item,index)=><option 
-  key={index} value={item.value} >{item.text}</option>)
+  let values = options.map((item,index)=><option
+    className={`${styles.optionStyle}`} 
+    key={index} value={item.value} >{item.text}</option>)
   if(typeof placeholder !== "undefined"){
-    values.unshift(<option className="optionPlaceholder"
+    values.unshift(<option className={` ${styles.optionStyle} ${styles.optionPlaceholder}` }
       key="placeholder" value="" >{placeholder}</option>)
   }
-  return <select {...props} className={`${className}`}
+  return <select {...props} className={`${className} ${styles.selectStyle}`}
     onChange={(event) => onChange(event.target.value)} >{values}</select>
 }
 

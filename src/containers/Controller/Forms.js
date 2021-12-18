@@ -1,5 +1,6 @@
 import update from 'immutability-helper';
 import { useApp } from 'containers/App/actions'
+import { getSetting } from 'config/app'
 
 export const useForm = () => {
   const app = useApp()
@@ -2231,17 +2232,20 @@ export const useForm = () => {
       },
       view: {},
       rows: [
-        {rowtype:"col3", columns: [
+        {rowtype:"col4", columns: [
           {name:"paginationPage", label: app.getText("program_page"), datatype:"integer"},
           {name:"history", label: app.getText("program_history"), datatype:"integer"},
-          {name:"export_sep", label: app.getText("program_export_sep"), datatype:"string", length:1}]},
+          {name:"export_sep", label: app.getText("program_export_sep"), datatype:"string", length:1},
+          {name:"decimal_sep", label: app.getText("program_decimal_sep"), datatype:"select", 
+            empty: false, options: getSetting("separators")},
+        ]},
         {rowtype:"col3", columns: [
           {name:"page_size", label: app.getText("program_page_size"), datatype:"select", 
-            empty: false, options: app.getSetting("report_size")},
+            empty: false, options: getSetting("report_size")},
           {name:"dateFormat", label: app.getText("program_date_format"), datatype:"select", 
-            empty: false, options: app.getSetting("dateStyle")},
+            empty: false, options: getSetting("dateStyle")},
           {name:"calendar", label: app.getText("program_calendar"), datatype:"select", 
-            empty: false, options: app.getSetting("calendarLocales")},
+            empty: false, options: getSetting("calendarLocales")},
         ]}
       ]
     };},
@@ -2601,7 +2605,8 @@ export const useForm = () => {
             datatype:"string", disabled: true},
           {rowtype:"field", name:"fieldvalue_value", label: app.getText("fields_value"), 
             datatype:"fieldvalue"},
-          {rowtype:"field", name:"fieldvalue_notes", label: app.getText("fields_notes"), datatype:"text"}
+          {rowtype:"field", name:"fieldvalue_notes", label: app.getText("fields_notes"), 
+            datatype:"text"}
         ]
       };
       return setting;
@@ -2925,11 +2930,9 @@ export const useForm = () => {
       };
       if (typeof item !== "undefined") {
         if (item.id !== null) {
-          if (item.id !== null) {
-            usergroup = update(usergroup, { rows: { 0: { columns: { 0: {$merge: {
-              disabled: true
-            }}}}}})
-          }
+          usergroup = update(usergroup, { rows: { 0: { columns: { 0: {$merge: {
+            disabled: true
+          }}}}}})
         } else {
           usergroup = update(usergroup, {
             options: { 
@@ -3002,6 +3005,9 @@ export const useForm = () => {
           })
         } else {
           waybill = update(waybill, { rows: { 0: { columns: { 0: {$merge: {
+            disabled: true
+          }}}}}})
+          waybill = update(waybill, { rows: { 1: { columns: { 0: {$merge: {
             disabled: true
           }}}}}})
           if (item.customer_id !== null) {

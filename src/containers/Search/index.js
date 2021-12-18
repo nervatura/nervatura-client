@@ -8,7 +8,8 @@ import { useSearch } from './actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useQueries } from 'containers/Controller/Queries'
 import { QuickView, BrowserView } from './Search';
-import { TotalForm } from 'containers/ModalForm'
+import Total from 'components/Modal/Total'
+import { getSetting } from 'config/app'
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
@@ -17,12 +18,11 @@ export default (props) => {
   const editor = useEditor()
   const queries = useQueries()
   const app = useApp()
-  const showTotal =  TotalForm()
 
   const [state] = useState({
     engine: data.login.data.engine,
     queries: queries,
-    ui: app.getSetting("ui"),
+    ui: getSetting("ui"),
     showHelp: app.showHelp
   })
 
@@ -231,12 +231,12 @@ export default (props) => {
     search.showBrowser(vkey, view)
   }
 
-  state.quickSearch = async () => {
-    const view = await search.quickSearch(state.data.qview, state.data.qfilter)
+  state.quickSearch = async (filter) => {
+    const view = await search.quickSearch(state.data.qview, filter)
     if(view.error){
       return app.resultError(view)
     }
-    setData("search", { result: view.result })
+    setData("search", { result: view.result, qfilter: filter })
   }
 
   state.browserView = async () => {
@@ -395,14 +395,14 @@ export default (props) => {
       }
     });
     if(df){
-      showTotal({
-        total: total, 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        }
+      setData("current", { modalForm: 
+        <Total 
+          total={total}
+          getText={app.getText}
+          onClose={() => {
+            setData("current", { modalForm: null })
+          }}
+        /> 
       })
     }
   }

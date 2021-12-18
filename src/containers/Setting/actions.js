@@ -5,12 +5,15 @@ import { format } from 'date-fns'
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
-import { InputForm, AuditForm, MenuForm } from 'containers/ModalForm'
 import { useSql } from 'containers/Controller/Sql'
 import dataset from 'containers/Controller/Dataset'
 import { useForm } from 'containers/Controller/Forms'
 import { useInitItem, useValidator } from 'containers/Controller/Items'
 import { useTemplate } from 'containers/Controller/Template'
+import InputBox from 'components/Modal/InputBox'
+import Audit from 'components/Modal/Audit'
+import Menu from 'components/Modal/Menu'
+import { getSetting } from 'config/app'
 
 export const useSetting = () => {
   const { data, setData } = useContext(AppStore)
@@ -21,9 +24,6 @@ export const useSetting = () => {
   const validator = useValidator()
   const initItem = useInitItem()
   const template = useTemplate()
-  const showInput =  InputForm()
-  const showAudit =  AuditForm()
-  const showMenu = MenuForm()
 
   const tableValues = (type, item) => {
     let values = {}
@@ -154,12 +154,13 @@ export const useSetting = () => {
       dataset: {}, 
       current: {
         form: {
-          paginationPage: app.getSetting("paginationPage"),
-          history: app.getSetting("history"),
-          page_size: app.getSetting("page_size"),
-          export_sep: app.getSetting("export_sep"),
-          dateFormat: app.getSetting("dateFormat"),
-          calendar: app.getSetting("calendar")
+          paginationPage: getSetting("paginationPage"),
+          history: getSetting("history"),
+          page_size: getSetting("page_size"),
+          export_sep: getSetting("export_sep"),
+          decimal_sep: getSetting("decimal_sep"),
+          dateFormat: getSetting("dateFormat"),
+          calendar: getSetting("calendar")
         },
         template: template
       }, 
@@ -327,43 +328,45 @@ export const useSetting = () => {
       }
       loadSetting({type: data.setting.type})
     }
-    showInput({
-      title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-      infoText: app.getText("msg_delete_info"), 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      cbCancel: () => {
-        setData("current", { modalForm: null })
-      },
-      cbOK: (value) => {
-        setData("current", { modalForm: null }, async () => {
-          if (typeof sql[data.setting.type]["delete_state"] !== "undefined") {
-            const sqlInfo = getSql(data.login.data.engine, sql[data.setting.type]["delete_state"]())
-            const params = { 
-              method: "POST", 
-              data: [{ 
-                key: "state",
-                text: sqlInfo.sql,
-                values: Array(sqlInfo.prmCount).fill(item.id)
-              }]
-            }
-            let view = await app.requestData("/view", params)
-            if(view.error){
-              return app.resultError(view)
-            }
-            if (view.state[0].sco > 0) {
-              app.showToast({ type: "error",
-                title: app.getText("msg_warning"), 
-                message: app.getText("msg_integrity_err") })
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("msg_warning")}
+        message={app.getText("msg_delete_text")}
+        infoText={app.getText("msg_delete_info")}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async () => {
+            if (typeof sql[data.setting.type]["delete_state"] !== "undefined") {
+              const sqlInfo = getSql(data.login.data.engine, sql[data.setting.type]["delete_state"]())
+              const params = { 
+                method: "POST", 
+                data: [{ 
+                  key: "state",
+                  text: sqlInfo.sql,
+                  values: Array(sqlInfo.prmCount).fill(item.id)
+                }]
+              }
+              let view = await app.requestData("/view", params)
+              if(view.error){
+                return app.resultError(view)
+              }
+              if (view.state[0].sco > 0) {
+                app.showToast({ type: "error",
+                  title: app.getText("msg_warning"), 
+                  message: app.getText("msg_integrity_err") })
+              } else {
+                deleteData()
+              }
             } else {
               deleteData()
             }
-          } else {
-            deleteData()
-          }
-        })
-      }
+          })
+        }}
+      /> 
     })
   }
 
@@ -476,13 +479,14 @@ export const useSetting = () => {
       }
     }
     if (data.setting.dirty === true) {
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_dirty_text"),
-          infoText: app.getText("msg_dirty_info"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("msg_warning")}
+          message={app.getText("msg_dirty_text")}
+          infoText={app.getText("msg_dirty_info")}
+          labelOK={app.getText("msg_ok")}
+          labelCancel={app.getText("msg_cancel")}
+          onCancel={() => {
             setData("current", { modalForm: null }, ()=>{
               if (cbKeyFalse) {
                 setData("edit", { dirty: false }, ()=>{
@@ -492,8 +496,8 @@ export const useSetting = () => {
                 cbNext(cbKeyTrue)
               }
             })
-          },
-          cbOK: (value) => {
+          }}
+          onOK={(value) => {
             setData("current", { modalForm: null }, async ()=>{
               if (data.setting.type === "template_editor"){
                 const setting = await template.saveTemplate()
@@ -512,8 +516,9 @@ export const useSetting = () => {
               }
               return cbNext(cbKeyFalse)
             })
-          }
-        })
+          }}
+        /> 
+      })
     } else if (cbKeyFalse) {
       cbNext(cbKeyFalse);
     } else {
@@ -588,23 +593,25 @@ export const useSetting = () => {
         break;
 
       case "deleteTemplate":
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-          infoText: app.getText("msg_delete_info"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, async ()=>{
-              const result  = await template.deleteTemplate(row.id)
-              if(result){
-                loadSetting({type: "template"})
-              }
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_delete_text")}
+            infoText={app.getText("msg_delete_info")}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, async ()=>{
+                const result  = await template.deleteTemplate(row.id)
+                if(result){
+                  loadSetting({type: "template"})
+                }
+              })
+            }}
+          /> 
         })
         break;
 
@@ -622,26 +629,38 @@ export const useSetting = () => {
             }}
           )
         }
-        showAudit({ 
-          ...audit,
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          updateAudit: async (audit) => {
-            if(["trans", "report","menu"].includes(audit.nervatype_name) && (audit.subtype === null)){
-              return app.showToast({ type: "error",
-                title: app.getText("msg_warning"), 
-                message: app.getText("msg_input_invalid")+" "+audit.nervatype_name })
+        setData("current", { modalForm: 
+          <Audit 
+            idKey={audit.id} usergroup={audit.usergroup}
+            nervatype={audit.nervatype} subtype={audit.subtype}
+            inputfilter={audit.inputfilter} supervisor={audit.supervisor}
+            typeOptions={data.setting.dataset.nervatype.map(group => { 
+              return { value: String(group.id), text: group.groupvalue } 
+            })}
+            subtypeOptions={data.setting.dataset.transtype.map(group => { 
+              return { value: String(group.id), text: group.groupvalue, type: "trans" } }).concat(
+                data.setting.dataset.reportkey.map(report => { 
+                  return { value: String(report.id), text: report.reportkey, type: "report" } }),
+                data.setting.dataset.menukey.map(menu => { 
+                  return { value: String(menu.id), text: menu.menukey, type: "menu" } })
+              )
             }
-            let result = await app.requestData("/ui_audit", { 
-              method: "POST", data: [tableValues("audit", audit)] })
-            if(result.error){
-              return app.resultError(result)
-            }
-            setData("current", { modalForm: null }, ()=>{
-              setViewActions({action: "editItem"}, data.setting.current.form)
-            })
-          }
+            inputfilterOptions={data.setting.dataset.inputfilter.map(group => { 
+              return { value: String(group.id), text: group.groupvalue } 
+            })}
+            getText={app.getText}
+            onClose={()=>setData("current", { modalForm: null })}
+            onAudit={async (audit) => {
+              let result = await app.requestData("/ui_audit", { 
+                method: "POST", data: [tableValues("audit", audit)] })
+              if(result.error){
+                return app.resultError(result)
+              }
+              setData("current", { modalForm: null }, ()=>{
+                setViewActions({action: "editItem"}, data.setting.current.form)
+              })
+            }}
+          /> 
         })
         break;
 
@@ -658,53 +677,52 @@ export const useSetting = () => {
             }}
           )
         }
-        showMenu({ 
-          ...menufields,
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          updateMenu: async (menufield) => {
-            if((menufield.fieldname === null) || (menufield.fieldname === "")){
-              return app.showToast({ type: "error",
-                title: app.getText("msg_warning"), 
-                message: app.getText("msg_input_invalid")+" "+app.getText("menufields_fieldname") })
-            } else if((menufield.description === null) || (menufield.description === "")){
-              return app.showToast({ type: "error",
-                title: app.getText("msg_warning"), 
-                message: app.getText("msg_input_invalid")+" "+app.getText("menufields_description") })
-            }
-            let result = await app.requestData("/ui_menufields", { 
-              method: "POST", data: [tableValues("ui_menufields", menufield)] })
-            if(result.error){
-              return app.resultError(result)
-            }
-            setData("current", { modalForm: null }, ()=>{
-              setViewActions({action: "editItem"}, data.setting.current.form)
-            })
-          }
+        setData("current", { modalForm: 
+          <Menu 
+            idKey={menufields.id} menu_id={menufields.menu_id}
+            fieldname={menufields.fieldname||""} description={menufields.description||""}
+            fieldtype={menufields.fieldtype} orderby={menufields.orderby}
+            fieldtypeOptions={data.setting.dataset.fieldtype.map(group => { 
+              return { value: String(group.id), text: group.groupvalue } 
+            })}
+            getText={app.getText}
+            onClose={()=>setData("current", { modalForm: null })}
+            onMenu={async (menufields) => {
+              let result = await app.requestData("/ui_menufields", { 
+                method: "POST", data: [tableValues("ui_menufields", menufields)] })
+              if(result.error){
+                return app.resultError(result)
+              }
+              setData("current", { modalForm: null }, ()=>{
+                setViewActions({action: "editItem"}, data.setting.current.form)
+              })
+            }}
+          /> 
         })
         break;
       
       case "deleteItemRow":
-        showInput({
-          title: app.getText("msg_warning"), message: app.getText("msg_delete_text"),
-          infoText: app.getText("msg_delete_info"), 
-          onChange: (form) => {
-            setData("current", { modalForm: form })
-          }, 
-          cbCancel: () => {
-            setData("current", { modalForm: null })
-          },
-          cbOK: (value) => {
-            setData("current", { modalForm: null }, async ()=>{
-              const result = await app.requestData(
-                "/"+params.table, { method: "DELETE", query: { id: row.id } })
-              if(result && result.error){
-                return app.resultError(result)
-              }
-              setViewActions({action: "editItem"}, data.setting.current.form)
-            })
-          }
+        setData("current", { modalForm: 
+          <InputBox 
+            title={app.getText("msg_warning")}
+            message={app.getText("msg_delete_text")}
+            infoText={app.getText("msg_delete_info")}
+            labelOK={app.getText("msg_ok")}
+            labelCancel={app.getText("msg_cancel")}
+            onCancel={() => {
+              setData("current", { modalForm: null })
+            }}
+            onOK={(value) => {
+              setData("current", { modalForm: null }, async ()=>{
+                const result = await app.requestData(
+                  "/"+params.table, { method: "DELETE", query: { id: row.id } })
+                if(result && result.error){
+                  return app.resultError(result)
+                }
+                setViewActions({action: "editItem"}, data.setting.current.form)
+              })
+            }}
+          /> 
         })
         break;
 
@@ -719,33 +737,35 @@ export const useSetting = () => {
       reportkey = setting.dataset.template[0].ttype+"_"+setting.dataset.template[0].dirtype;
     }
     reportkey += "_"+format(new Date(),"yyyyMMddHHmm")
-    showInput({
-      title: app.getText("template_label_new"), message: reportkey,
-      value: setting.dataset.template[0].repname, 
-      onChange: (form) => {
-        setData("current", { modalForm: form })
-      }, 
-      cbCancel: () => {
-        setData("current", { modalForm: null })
-      },
-      cbOK: (value) => {
-        setData("current", { modalForm: null }, async ()=>{
-          let values = update(tableValues("report", setting.dataset.template[0]), {$merge: {
-            id: null,
-            reportkey: reportkey,
-            repname: value,
-            report: setting.template.template
-          }})
-          values = update(values, {
-            $unset: ["orientation", "size"]
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("template_label_new")}
+        message={reportkey}
+        value={setting.dataset.template[0].repname} showValue={true}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async ()=>{
+            let values = update(tableValues("report", setting.dataset.template[0]), {$merge: {
+              id: null,
+              reportkey: reportkey,
+              repname: value,
+              report: setting.template.template
+            }})
+            values = update(values, {
+              $unset: ["orientation", "size"]
+            })
+            let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
+            if(result.error){
+              return app.resultError(result)
+            }
+            checkSetting({ type: "template", id: result[0] }, 'LOAD_SETTING')
           })
-          let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
-          if(result.error){
-            return app.resultError(result)
-          }
-          checkSetting({ type: "template", id: result[0] }, 'LOAD_SETTING')
-        })
-      }
+        }}
+      /> 
     })
   }
 

@@ -7,7 +7,7 @@ export const Button = ({
 }) => {
   return <button 
     {...props} onClick={onClick}
-    className={`${className} ${(small)?styles.smallButton:""}`} >{(typeof value === "undefined")?label:value}</button>
+    className={`${className} ${styles.buttonStyle} ${(small)?styles.smallButton:""}`} >{(typeof value === "undefined")?label:value}</button>
 }
 
 Button.propTypes = {

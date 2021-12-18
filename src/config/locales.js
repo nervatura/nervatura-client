@@ -670,6 +670,7 @@ export const en = {
   program_page: "Data count/page",
   program_history: "History size",
   program_export_sep: "Export data sep.",
+  program_decimal_sep: "Decimal sep.",
   program_page_size: "Default paper size",
   program_date_format: "Date representation",
   program_auto_focus: "Auto focus",

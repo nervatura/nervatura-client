@@ -145,7 +145,7 @@
   cursor: not-allowed;
 }
 
-input {
+.ui-table input {
   width: 100%;
   border-radius: 0px!important;
   margin-top: 1px;
@@ -160,7 +160,7 @@ input {
 
 .addButton {
   border-radius: 0px!important;
-  padding: 7px 16px;
+  padding: 8px 16px;
 }
 
 .addLabel {

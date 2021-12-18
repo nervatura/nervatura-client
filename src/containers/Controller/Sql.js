@@ -1298,7 +1298,8 @@ export const useSql = () => {
         
         shipping_stock: () => {
           let sql ={
-            select:["pl.id","p.partnumber","p.description","p.unit","mv.notes as batch_no",
+            select:["{CCS}pl.id{SEP}'-'{SEP}case when mv.notes is null then '' else mv.notes end{CCE} as id",
+              "p.partnumber","p.description","p.unit","mv.notes as batch_no",
               "{CCS}pl.planumber{SEP}' | '{SEP}pl.description{CCE} as warehouse",
               "sum(mv.qty) as sqty",
               "{FMS_DATETIME}max(mv.shippingdate) {FME_DATETIME} as shipping"],

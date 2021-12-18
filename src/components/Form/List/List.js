@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import 'styles/style.css';
 import styles from './List.module.css';
 
+import { getSetting } from 'config/app'
 import Paginator, { paginate } from 'components/Form/Paginator/Paginator';
 import Icon from 'components/Form/Icon'
 import Button from 'components/Form/Button'
@@ -191,7 +192,7 @@ ListView.propTypes = {
 ListView.defaultProps = {
   rows: [],
   currentPage: 1,
-  paginationPage: 10,
+  paginationPage: getSetting("paginationPage"),
   paginationTop: true,
   paginatonScroll: false,
   listFilter: true,
@@ -201,7 +202,7 @@ ListView.defaultProps = {
   addIcon: <Icon iconKey="Plus" />,
   editIcon: <Icon iconKey="Edit" width={24} height={21.3} />,
   deleteIcon: <Icon iconKey="Times" width={19} height={27.6} />,
-  onEdit: (row) => {},
+  onEdit: undefined,
   onAddItem: undefined,
   onDelete: undefined,
   onCurrentPage: undefined
