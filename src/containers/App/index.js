@@ -1,11 +1,10 @@
 import update from 'immutability-helper';
 
-import { default as App } from "./App";
+import { default as AppComponent } from "./App";
 import { store } from 'config/app'
 import { guid, request } from './actions'
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default class extends App {
+class App extends AppComponent {
 
   constructor(props) {
     super(props);
@@ -23,8 +22,7 @@ export default class extends App {
     }
   }
 
-  /* istanbul ignore next */
-  getPath() {
+  getPath(location) {
     const getParams = (prmString) => {
       let params = {}
       prmString.split('&').forEach(prm => {
@@ -32,13 +30,13 @@ export default class extends App {
       });
       return params
     }
-    if(window.location.hash){
-      return ["hash", getParams(window.location.hash.substring(1))]
+    if(location.hash){
+      return ["hash", getParams(location.hash.substring(1))]
     }
-    if(window.location.search){
-      return ["search", getParams(window.location.search.substring(1))]
+    if(location.search){
+      return ["search", getParams(location.search.substring(1))]
     }
-    const path = window.location.pathname.substring(1).split("/")
+    const path = location.pathname.substring(1).split("/")
     return [path[0], path.slice(1)]
   }
 
@@ -60,7 +58,7 @@ export default class extends App {
     const path = (params.path) 
       ? "/"+params.path 
       : "/"
-    localStorage.setItem("token", params.access_token||null)
+    localStorage.setItem("token", params.access_token)
     window.location.assign(path)
   }
 
@@ -82,7 +80,7 @@ export default class extends App {
           const path = (params.path) 
             ? "/"+params.path 
             : "/"
-          localStorage.setItem("token", result.access_token||null)
+          localStorage.setItem("token", result.access_token)
           window.location.assign(path)
         }
       } catch (err) {
@@ -95,7 +93,7 @@ export default class extends App {
       this.setData("error", {
         id: "error_unauthorized",
         type: "error", 
-        message: this.getText("error_unauthorized", "Unauthorized user")
+        message: "Unauthorized user"
       } )
     }
   }
@@ -123,3 +121,5 @@ export default class extends App {
     }
   }
 }
+
+export default App;

@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import update from 'immutability-helper';
 
@@ -8,36 +8,38 @@ import { Default, StringMapExtend, StringMapLinkID, TextNull, NotesValue, Float,
   SelectOptionsLabel, DateExtend, DateLink, Fieldvalue, StringMapLinkValue, DateLinkValue,
   IntegerLinkID, SelectorExtend, SelectorLnkID, SelectorFieldvalue } from './Field.stories';
 
-it('renders the card in the Default state', () => {
+const getById = queryByAttribute.bind(null, 'id');
+
+it('renders in the Default state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Default {...Default.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "change"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
 
 });
 
-it('renders the card in the StringMapExtend state', () => {
+it('renders in the StringMapExtend state', () => {
 
   const { container } = render(
     <StringMapExtend {...StringMapExtend.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the StringMapLinkID state', () => {
+it('renders in the StringMapLinkID state', () => {
 
   const { container } = render(
     <StringMapLinkID {...StringMapLinkID.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
   render(
     <StringMapLinkID {...StringMapLinkID.args} field={
@@ -62,24 +64,24 @@ it('renders the card in the StringMapLinkID state', () => {
 
 });
 
-it('renders the card in the StringMapLinkValue state', () => {
+it('renders in the StringMapLinkValue state', () => {
 
   const { container } = render(
     <StringMapLinkValue {...StringMapLinkValue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the TextNull state', () => {
+it('renders in the TextNull state', () => {
   const onEdit = jest.fn()
 
   const { container, rerender } = render(
     <TextNull {...TextNull.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "change"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -97,24 +99,24 @@ it('renders the card in the TextNull state', () => {
 
 });
 
-it('renders the card in the NotesValue state', () => {
+it('renders in the NotesValue state', () => {
 
   const { container } = render(
     <NotesValue {...NotesValue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the Float state', () => {
+it('renders in the Float state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Float {...Float.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.blur(test_input, {target: {value: "100"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -124,12 +126,12 @@ it('renders the card in the Float state', () => {
 
 });
 
-it('renders the card in the FloatLinkValue state', () => {
+it('renders in the FloatLinkValue state', () => {
 
   const { container } = render(
     <FloatLinkValue {...FloatLinkValue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
   render(
     <FloatLinkValue {...FloatLinkValue.args} 
@@ -154,15 +156,15 @@ it('renders the card in the FloatLinkValue state', () => {
 
 });
 
-it('renders the card in the Integer state', () => {
+it('renders in the Integer state', () => {
   const onEdit = jest.fn()
 
   const { container, rerender } = render(
     <Integer {...Integer.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "12"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -189,24 +191,24 @@ it('renders the card in the Integer state', () => {
 
 });
 
-it('renders the card in the IntegerLinkID state', () => {
+it('renders in the IntegerLinkID state', () => {
 
   const { container } = render(
     <IntegerLinkID {...IntegerLinkID.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the Button state', () => {
+it('renders in the Button state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Button {...Button.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.click(test_input)
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -223,15 +225,15 @@ it('renders the card in the Button state', () => {
 
 });
 
-it('renders the card in the Link state', () => {
+it('renders in the Link state', () => {
   const onLoad = jest.fn()
 
   const { container } = render(
     <Link {...Link.args} id="test_input" onLoad={onLoad} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input span')
+  const test_input = getById(container, 'link_trans_id')
 
   fireEvent.click(test_input)
   expect(onLoad).toHaveBeenCalledTimes(1);
@@ -289,15 +291,15 @@ it('renders the card in the Link state', () => {
 
 });
 
-it('renders the card in the ValueList state', () => {
+it('renders in the ValueList state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <ValueList {...ValueList.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "blue"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -311,7 +313,7 @@ it('renders the card in the ValueList state', () => {
 
 });
 
-it('renders the card in the Selector state', () => {
+it('renders in the Selector state', () => {
   const onLoad = jest.fn()
   const onEdit = jest.fn()
 
@@ -331,17 +333,17 @@ it('renders the card in the Selector state', () => {
     <Selector {...Selector.args} id="test_input" 
       onLoad={onLoad} onSelector={onSelector} onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input span')
+  const test_input = getById(container, 'sel_link_customer_id')
   fireEvent.click(test_input)
   expect(onLoad).toHaveBeenCalledTimes(1);
 
-  const sel_delete = container.querySelector('#sel_delete button')
+  const sel_delete = getById(container, 'sel_delete_customer_id')
   fireEvent.click(sel_delete)
   expect(onEdit).toHaveBeenCalledTimes(1);
 
-  const sel_show = container.querySelector('#sel_show button')
+  const sel_show = getById(container, 'sel_show_customer_id')
   fireEvent.click(sel_show)
 
   render(
@@ -372,7 +374,7 @@ it('renders the card in the Selector state', () => {
 
 });
 
-it('renders the card in the SelectorExtend state', () => {
+it('renders in the SelectorExtend state', () => {
   const onEdit = jest.fn()
   const onSelector1 = (type, filter, setSelector) => {
     setSelector({
@@ -397,9 +399,9 @@ it('renders the card in the SelectorExtend state', () => {
     <SelectorExtend {...SelectorExtend.args} id="test_input" 
       onEdit={onEdit}  onSelector={onSelector1} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const sel_show = container.querySelector('#sel_show button')
+  const sel_show = getById(container, 'sel_show_ref_id')
   fireEvent.click(sel_show)
 
   rerender(
@@ -538,20 +540,20 @@ it('renders the card in the SelectorExtend state', () => {
 
 });
 
-it('renders the card in the SelectorLnkID state', () => {
+it('renders in the SelectorLnkID state', () => {
 
   const { container } = render(
     <SelectorLnkID {...SelectorLnkID.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the SelectorFieldvalue state', () => {
+it('renders in the SelectorFieldvalue state', () => {
   const { container } = render(
     <SelectorFieldvalue {...SelectorFieldvalue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
   render(
     <SelectorFieldvalue {...SelectorFieldvalue.args} id="test_input"
@@ -570,15 +572,15 @@ it('renders the card in the SelectorFieldvalue state', () => {
 
 });
 
-it('renders the card in the Select state', () => {
+it('renders in the Select state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Select {...Select.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "69"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -601,19 +603,19 @@ it('renders the card in the Select state', () => {
 
 });
 
-it('renders the card in the SelectOptions state', () => {
+it('renders in the SelectOptions state', () => {
   const { container } = render(
     <SelectOptions {...SelectOptions.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the SelectOptionsLabel state', () => {
+it('renders in the SelectOptionsLabel state', () => {
   const { container } = render(
     <SelectOptionsLabel {...SelectOptionsLabel.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
   render(
     <SelectOptionsLabel {...SelectOptionsLabel.args} 
@@ -632,23 +634,23 @@ it('renders the card in the SelectOptionsLabel state', () => {
 
 });
 
-it('renders the card in the Empty state', () => {
+it('renders in the Empty state', () => {
 
   const { container } = render(
     <Empty {...Empty.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 });
 
-it('renders the card in the BoolFalse state', () => {
+it('renders in the BoolFalse state', () => {
   const onEdit = jest.fn()
 
   const { container, rerender } = render(
     <BoolFalse {...BoolFalse.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  let test_input = container.querySelector('#test_input')
+  let test_input = getById(container, 'test_input')
 
   fireEvent.click(test_input)
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -664,15 +666,15 @@ it('renders the card in the BoolFalse state', () => {
 
 });
 
-it('renders the card in the BoolTrue state', () => {
+it('renders in the BoolTrue state', () => {
   const onEdit = jest.fn()
 
   const { container, rerender } = render(
     <BoolTrue {...BoolTrue.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.click(test_input)
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -688,11 +690,11 @@ it('renders the card in the BoolTrue state', () => {
 
 });
 
-it('renders the card in the BoolTrueDisabled state', () => {
+it('renders in the BoolTrueDisabled state', () => {
   const { container, rerender } = render(
     <BoolTrueDisabled {...BoolTrueDisabled.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
   rerender(
     <BoolTrueDisabled {...BoolTrueDisabled.args} id="test_input" 
@@ -703,45 +705,45 @@ it('renders the card in the BoolTrueDisabled state', () => {
 
 });
 
-it('renders the card in the DateDisabled state', () => {
+it('renders in the DateDisabled state', () => {
   const { container } = render(
     <DateDisabled {...DateDisabled.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the DateTime state', () => {
+it('renders in the DateTime state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <DateTime {...DateTime.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
  
-  const close_btn = container.querySelector('.react-datepicker__close-icon')
+  const close_btn = screen.getByRole('button', {});
   fireEvent.click(close_btn)
   expect(onEdit).toHaveBeenCalledTimes(1);
 
-  const input = container.querySelector('input')
+  const input = getById(container, 'test_input')
   fireEvent.change(input, {target: {value: "2021-12-24"}})
   expect(onEdit).toHaveBeenCalledTimes(2);
 
 });
 
-it('renders the card in the DateExtend state', () => {
+it('renders in the DateExtend state', () => {
   const { container } = render(
     <DateExtend {...DateExtend.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });
 
-it('renders the card in the DateLink state', () => {
+it('renders in the DateLink state', () => {
   const { container } = render(
     <DateLink {...DateLink.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
   
   render(
     <DateLink {...DateLink.args} 
@@ -755,23 +757,23 @@ it('renders the card in the DateLink state', () => {
   )
 });
 
-it('renders the card in the DateLinkValue state', () => {
+it('renders in the DateLinkValue state', () => {
   const { container } = render(
     <DateLinkValue {...DateLinkValue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
   
 });
 
-it('renders the card in the Password state', () => {
+it('renders in the Password state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Password {...Password.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "123"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
@@ -790,26 +792,26 @@ it('renders the card in the Password state', () => {
 
 });
 
-it('renders the card in the Color state', () => {
+it('renders in the Color state', () => {
   const onEdit = jest.fn()
 
   const { container } = render(
     <Color {...Color.args} id="test_input" onEdit={onEdit} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "#ffffff"}})
   expect(onEdit).toHaveBeenCalledTimes(1);
 
 });
 
-it('renders the card in the Fieldvalue state', () => {
+it('renders in the Fieldvalue state', () => {
 
   const { container } = render(
     <Fieldvalue {...Fieldvalue.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });

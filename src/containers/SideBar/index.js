@@ -1,5 +1,5 @@
-/* eslint-disable import/no-anonymous-default-export */
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
@@ -8,38 +8,66 @@ import { useSearch } from 'containers/Search/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useSetting } from 'containers/Setting/actions'
 import { useTemplate } from 'containers/Controller/Template'
-import { useForm } from 'containers/Controller/Forms'
+import { Forms } from 'containers/Controller/Forms'
 import { useReport } from 'containers/Report/actions'
-import { useQueries } from 'containers/Controller/Queries'
+import { Queries } from 'containers/Controller/Queries'
+
 import Selector from 'components/Modal/Selector'
 import InputBox from 'components/Modal/InputBox'
+import SideBarMemo, { SideBarComponent } from './SideBar';
 
-import { Search, SideBar, Edit, Preview, Setting as SettingBar } from './SideBar';
-
-export default (props) => {
+const SideBar = (props) => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const search = useSearch()
   const editor = useEditor()
   const setting = useSetting()
-  const queries = useQueries()
   const template = useTemplate()
   const report = useReport()
-  
-  const [state] = useState({
+
+  const [state] = useState(update(props, {$merge: {
     username: data.login.username,
     login: data.login.data,
-    forms: useForm(),
-    showHelp: app.showHelp,
-    getText: app.getText
-  })
+    forms: Forms({ getText: app.getText }),
+    queries: Queries({ getText: app.getText })
+  }}))
+
+  state.data = update(state.data, {$merge: { ...data[state.key] }})
+  state.module = update(state.module, {$merge: { ...data[state.data.module] }})
+
+  state.getText = (key, defValue) => {
+    return app.getText(key, defValue)
+  }
+
+  state.onGroup = (value) => {
+    setData(state.data.module, { group_key: value })
+  }
+
+  state.onMenu = (fname, params) => {
+    params = params||[]
+    let umodule = state
+    if(["checkEditor","createShipping","prevTransNumber","nextTransNumber","exportEvent"].includes(fname)){
+      umodule = editor
+    } else if(["showBrowser"].includes(fname)){
+      umodule = search
+    } else if(["searchQueue","createReport","exportQueueAll"].includes(fname)){
+      umodule = report
+    } else if(["loadSetting","setProgramForm","deleteSetting","checkSetting","createTemplate"].includes(fname)){
+      umodule = setting
+    } else if(["saveBookmark","showHelp"].includes(fname)){
+      umodule = app
+    } else if(["showPreview","saveTemplate","exportTemplate"].includes(fname)){
+      umodule = template
+    } else {
+      return umodule[fname](...params)
+    }
+    setData("current", { side: app.getSideBar() }, ()=>{
+      umodule[fname](...params)
+    })
+  }
 
   state.editState = () => {
     setData("current", { edit: !state.data.edit })
-  }
-  
-  state.changeData = (key, value) => {
-    setData(state.data.module, { [key]: value })
   }
 
   state.quickView = (qview) => {
@@ -47,17 +75,13 @@ export default (props) => {
       result: [], vkey: null, qview: qview, qfilter: "" })
     setData("current", { side: app.getSideBar() })
   }
-
-  state.showBrowser = (vkey, view) => {
-    search.showBrowser(vkey, view)
-  }
   
   state.editorNew = (params) =>{
     setData("current", { side: app.getSideBar() }, ()=>{
       if(params.ttype === "shipping"){
         let formProps = {
           view: "transitem_delivery", 
-          columns: queries.quick["transitem_delivery"]().columns,
+          columns: state.queries.quick["transitem_delivery"]().columns,
           result: [],
           filter: "",
           getText: app.getText, 
@@ -81,10 +105,12 @@ export default (props) => {
           }
         }
         setData("current", { modalForm: <Selector {...formProps} /> })
+      /*
       } else if(data.edit.current.form){
         editor.checkEditor({
           fkey: params.fkey || data.edit.current.form_type, 
           id: null}, 'SET_EDITOR_ITEM')
+      */
       } else {
         editor.checkEditor({
           ntype: params.ntype || data.edit.current.type, 
@@ -105,12 +131,6 @@ export default (props) => {
       } else {
         editor.deleteEditor()
       }
-    })
-  }
-
-  state.reportSettings = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.checkEditor({}, 'REPORT_SETTINGS')
     })
   }
 
@@ -140,12 +160,6 @@ export default (props) => {
       }
     })
   };
-
-  state.loadFormula = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.checkEditor({}, 'LOAD_FORMULA')
-    })
-  }
   
   state.setLink = (type, field) =>{
     setData("current", { side: app.getSideBar() }, ()=>{
@@ -179,16 +193,6 @@ export default (props) => {
       });
       editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
     })
-  }
-
-  state.shippingCreate = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.createShipping()
-    })
-  }
-
-  state.checkEditor = (options, cbKeyTrue, cbKeyFalse) => {
-    editor.checkEditor(options, cbKeyTrue, cbKeyFalse)
   }
 
   state.editorBack = () =>{
@@ -229,76 +233,6 @@ export default (props) => {
     })
   }
 
-  state.closePreview = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      const preview = update(data[state.data.module], {$merge: {
-        preview: null
-      }})
-      setData(state.data.module, preview)
-    })
-  }
-
-  state.changeOrientation = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      const orient = (state.preview.orient === "portrait") ? "landscape" : "portrait"
-      if(state.preview.template === "template"){
-        template.showPreview(orient)
-      } else {
-        const options = update(state.preview, {$merge: {
-          orient: orient,
-          module: state.data.module
-        }})
-        report.loadPreview(options)
-      }
-    })
-  }
-
-  state.prevPage = () => {
-    if(state.preview.pageNumber > 1){
-      setData("current", { side: app.getSideBar() }, ()=>{
-        const options = update(state.preview, {$merge: {
-          pageNumber: state.preview.pageNumber - 1,
-          module: state.data.module
-        }})
-        report.setPreviewPage(options)
-      })
-    }
-  }
-
-  state.nextPage = () => {
-    if(state.preview.pageNumber < state.preview.totalPages){
-      setData("current", { side: app.getSideBar() }, ()=>{
-        const options = update(state.preview, {$merge: {
-          pageNumber: state.preview.pageNumber + 1,
-          module: state.data.module
-        }})
-        report.setPreviewPage(options)
-      })
-    }
-  }
-  
-  state.setScale = (value) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      const options = update(state.preview, {$merge: {
-        scale: value,
-        module: state.data.module
-      }})
-      report.setPreviewPage(options)
-    })
-  }
-
-  state.prevTransNumber = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.prevTransNumber()
-    })
-  }
-
-  state.nextTransNumber = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.nextTransNumber()
-    })
-  }
-
   state.saveEditor = () => {
     setData("current", { side: app.getSideBar() }, async ()=>{
       let edit = null
@@ -318,66 +252,12 @@ export default (props) => {
     })
   }
 
-  state.searchItems = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      report.searchQueue()
-    })
-  }
-
-  state.createReport = (output) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      report.createReport(output)
-    })
-  }
-
-  state.exportAll = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      report.exportQueueAll()
-    })
-  }
-
-  state.eventExport = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.exportEvent()
-    })
-  }
-
-  state.printReport = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      report.printQueue()
-    })
-  }
-
-  state.bookmarkSave = (params) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      app.saveBookmark(params)
-    })
-  }
-
-  state.settingLoad = (options) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.loadSetting(options)
-    })
-  }
-
   state.setPassword = (username) =>{
     setData("current", { side: app.getSideBar() }, ()=>{
       if(!username && data.edit.current){
         username = data.edit.dataset[data.edit.current.type][0].username
       }
       setting.setPasswordForm(username)
-    })
-  }
-
-  state.loadCompany = () =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      editor.checkEditor({ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR')
-    })
-  }
-
-  state.setProgram = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.setProgramForm()
     })
   }
 
@@ -394,74 +274,46 @@ export default (props) => {
     })
   }
 
-  state.settingDelete = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.deleteSetting(data.setting.current.form)
-    })
-  }
+  return <SideBarMemo {...state} />
 
-  state.settingNew = () =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.checkSetting({ type: data.setting.type, id: null }, 'LOAD_SETTING')
-    })
-  }
-
-  state.templatePrint = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      template.showPreview()
-    })
-  }
-
-  state.templateSave = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      template.saveTemplate(true)
-    })
-  }
-
-  state.templateCreate = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.createTemplate(data.setting)
-    })
-  }
-
-  state.templateNewBlank = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.checkSetting({ type: "template" }, 'NEW_BLANK')
-    })
-  }
-
-  state.templateNewSample = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      setting.checkSetting({ type: "template" }, 'NEW_SAMPLE')
-    })
-  }
-
-  state.template2json = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      template.exportTemplate()
-    })
-  }
-
-  state.data = data.current
-  state.module = data[state.data.module]
-  state.preview = data[state.data.module].preview
-
-  switch (state.data.module) {
-    case "search":
-      return <Search {...state} />
-    case "edit":
-      if(data.edit.preview){
-        return <Preview {...state} />
-      }
-      return <Edit {...state} />
-    case "setting":
-      if(data.setting.preview){
-        return <Preview {...state} />
-      }
-      return <SettingBar {...state} />
-    case "help":
-      return <SideBar {...state} />
-    default:
-      return <SideBar {...state} />
-  }
 }
+
+SideBar.propTypes = {
+  key: PropTypes.string.isRequired,
+  ...SideBarComponent.propTypes,
+  showHelp: PropTypes.func,
+  showBrowser: PropTypes.func,
+  editState: PropTypes.func,
+  quickView: PropTypes.func,
+  editorNew: PropTypes.func,
+  editorDelete: PropTypes.func,
+  transCopy: PropTypes.func,
+  setLink: PropTypes.func,
+  shippingAddAll: PropTypes.func,
+  editorBack: PropTypes.func,
+  settingBack: PropTypes.func,
+  saveEditor: PropTypes.func,
+  setPassword: PropTypes.func,
+  settingSave: PropTypes.func,
+}
+
+SideBar.defaultProps = {
+  key: "current",
+  ...SideBarComponent.defaultProps,
+  showHelp: undefined,
+  showBrowser: undefined,
+  editState: undefined,
+  quickView: undefined,
+  editorNew: undefined,
+  editorDelete: undefined,
+  transCopy: undefined,
+  setLink: undefined,
+  shippingAddAll: undefined,
+  editorBack: undefined,
+  settingBack: undefined,
+  saveEditor: undefined,
+  setPassword: undefined,
+  settingSave: undefined,
+}
+
+export default SideBar;

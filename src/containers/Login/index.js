@@ -17,6 +17,7 @@ const Login = (props) => {
 
   state.data = update(state.data, {$merge: { ...data[state.key] }})
   state.current = update(state.current, {$merge: { ...data.current }})
+  state.locales = update(state.locales, {$merge: { ...data.session.locales }})
 
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)

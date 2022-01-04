@@ -8,12 +8,12 @@ import { Component, Time, Event } from 'ical.js';
 import AppStore from 'containers/App/context'
 import { useApp, getSql, saveToDisk, guid } from 'containers/App/actions'
 import dataset from 'containers/Controller/Dataset'
-import { useSql } from 'containers/Controller/Sql'
-import { useForm } from 'containers/Controller/Forms'
+import { Sql } from 'containers/Controller/Sql'
+import { Forms } from 'containers/Controller/Forms'
 import { useInitItem, useValidator } from 'containers/Controller/Items'
 import { useReport } from 'containers/Report/actions'
 import { useSearch } from 'containers/Search/actions'
-import { useQueries } from 'containers/Controller/Queries'
+import { Queries } from 'containers/Controller/Queries'
 import InputBox from 'components/Modal/InputBox'
 import Selector from 'components/Modal/Selector'
 import Report from 'components/Modal/Report'
@@ -28,11 +28,12 @@ export const useEditor = () => {
   const app = useApp()
   const initItem = useInitItem()
   const validator = useValidator()
-  const sql = useSql()
-  const forms = useForm()
   const report = useReport()
-  const queries = useQueries()
   const search = useSearch()
+
+  const forms = Forms({ getText: app.getText })
+  const queries = Queries({ getText: app.getText })
+  const sql = Sql({ getText: app.getText })
   
   const round = (n,dec) => {
     n = parseFloat(n);

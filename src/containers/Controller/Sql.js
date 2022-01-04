@@ -1,7 +1,4 @@
-import { useApp } from 'containers/App/actions'
-
-export const useSql = () => {
-  const app = useApp()
+export const Sql = ({ getText }) => {
   return {    
     all: {
       deffield_prop: (nervatype) => {
@@ -133,10 +130,10 @@ export const useSql = () => {
         let _sql = {
           select:["*", 
             "{CCS} case when city is null then '' else city end{SEP} ' | '{SEP} case when street is null then '' else street end{CCE} as lslabel", 
-            "{CCS}'"+app.getText("address_country")+": '{SEP} case when country is null then '' else country end{SEP} ' | '{SEP} '"+
-            app.getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end {SEP} ' | '{SEP} '"+
-            app.getText("address_state")+": '{SEP} case when state is null then '' else state end{CCE} as lsvalue", 
-            "{CCS}'"+app.getText("address_notes")+": '{SEP} case when notes is null then '' else notes end{CCE} as lsinfo"], 
+            "{CCS}'"+getText("address_country")+": '{SEP} case when country is null then '' else country end{SEP} ' | '{SEP} '"+
+            getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end {SEP} ' | '{SEP} '"+
+            getText("address_state")+": '{SEP} case when state is null then '' else state end{CCE} as lsvalue", 
+            "{CCS}'"+getText("address_notes")+": '{SEP} case when notes is null then '' else notes end{CCE} as lsinfo"], 
           from:"address", 
           where: [["deleted","=","0"], ["and","nervatype","=",[
             {select:["id"], from:"groups", 
@@ -148,12 +145,12 @@ export const useSql = () => {
         let _sql = {
           select:["*",
             "{CCS} case when firstname is null then '' else {CCS} firstname{SEP}' '{CCE} end{SEP}case when surname is null then '' else surname end{SEP}' '{SEP} case when status is null then '' else {CCS}' | "+
-            app.getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
-            "{CCS}'"+app.getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end {SEP}' | "+
-              app.getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end {SEP}' | "+
-              app.getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue", 
-            "{CCS}'"+app.getText("contact_email")+": '{SEP}case when email is null then '' else email end {SEP}' | "+
-            app.getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
+            getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
+            "{CCS}'"+getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end {SEP}' | "+
+              getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end {SEP}' | "+
+              getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue", 
+            "{CCS}'"+getText("contact_email")+": '{SEP}case when email is null then '' else email end {SEP}' | "+
+            getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
           from:"contact", 
           where: [["deleted","=","0"], ["and","nervatype","=",[
             {select:["id"], from:"groups", 
@@ -167,7 +164,7 @@ export const useSql = () => {
             "eg.groupvalue as eventgroup", "e.subject", "e.deleted",
             "{CCS}case when e.fromdate is null then '' else {FMS_DATETIME}e.fromdate {FME_DATETIME} end"+
             "{SEP}' | '{SEP}case when e.subject is null then '' else e.subject end{CCE} as lslabel",
-            "{CCS}e.calnumber{SEP}' | '{SEP}'"+app.getText("event_group")+
+            "{CCS}e.calnumber{SEP}' | '{SEP}'"+getText("event_group")+
             ": '{SEP}case when eg.groupvalue is null then '' else eg.groupvalue end{CCE} as lsvalue"],
           from:"event e", 
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]], 
@@ -233,12 +230,12 @@ export const useSql = () => {
         let sql = {
           select:["*", "{CCS}case when city is null then '' else city end{SEP} ' | '{SEP} "+
             "case when street is null then '' else street end{CCE} as lslabel",
-            "{CCS}'"+app.getText("address_country")+": '{SEP} "+
+            "{CCS}'"+getText("address_country")+": '{SEP} "+
             "case when country is null then '' else country end{SEP} ' | '{SEP} "+
-            "'"+app.getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end "+
-            "{SEP} ' | '{SEP} '"+app.getText("address_state")+": '{SEP} "+
+            "'"+getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end "+
+            "{SEP} ' | '{SEP} '"+getText("address_state")+": '{SEP} "+
             "case when state is null then '' else state end{CCE} as lsvalue",
-            "{CCS}'"+app.getText("address_notes")+": '{SEP} "+
+            "{CCS}'"+getText("address_notes")+": '{SEP} "+
             "case when notes is null then '' else notes end{CCE} as lsinfo"],
           from:"address", 
           where:[["deleted","=","0"],["and","nervatype","=",[{select:["id"], from:"groups", 
@@ -250,12 +247,12 @@ export const useSql = () => {
         let sql = {
           select:["*", "{CCS} case when firstname is null then '' else {CCS} firstname{SEP}' '{CCE} end{SEP}case when surname is null then '' else surname end{SEP}' '{SEP} "+
             "case when status is null then '' else {CCS}' | "+
-            app.getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
-            "{CCS}'"+app.getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end "+
-            "{SEP}' | "+app.getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end "+
-            "{SEP}' | "+app.getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue",
-            "{CCS}'"+app.getText("contact_email")+": '{SEP}case when email is null then '' else email end "+
-            "{SEP}' | "+app.getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
+            getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
+            "{CCS}'"+getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end "+
+            "{SEP}' | "+getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end "+
+            "{SEP}' | "+getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue",
+            "{CCS}'"+getText("contact_email")+": '{SEP}case when email is null then '' else email end "+
+            "{SEP}' | "+getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
           from:"contact", 
           where:[["deleted","=","0"],["and","nervatype","=",[{select:["id"], from:"groups", 
               where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'employee'"]]}]],
@@ -269,7 +266,7 @@ export const useSql = () => {
             "eg.groupvalue as eventgroup","e.subject","e.deleted",
             "{CCS}case when e.fromdate is null then '' else {FMS_DATETIME}e.fromdate {FME_DATETIME} end"+
             "{SEP} ' | '{SEP}case when e.subject is null then '' else e.subject end{CCE} as lslabel",
-            "{CCS}e.calnumber{SEP}' | '{SEP}'"+app.getText("event_group")+": '{SEP}"+
+            "{CCS}e.calnumber{SEP}' | '{SEP}'"+getText("event_group")+": '{SEP}"+
             "case when eg.groupvalue is null then '' else eg.groupvalue end{CCE} as lsvalue"],
           from:"event e", 
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
@@ -345,8 +342,8 @@ export const useSql = () => {
     numberdef: {
       numberdef_view: () => {
         let sql = {
-          select:["*", "case when isyear = 1 then '"+app.getText("label_yes")+
-            "'else '"+app.getText("label_no")+"' end as is_year"], 
+          select:["*", "case when isyear = 1 then '"+getText("label_yes")+
+            "'else '"+getText("label_no")+"' end as is_year"], 
           from:"numberdef"}; 
         return sql;},
       },
@@ -377,12 +374,12 @@ export const useSql = () => {
           select:[ "*", "{CCS} case when firstname is null then '' else {CCS} firstname{SEP}' '{CCE} end{SEP}case when surname is null then '' else surname end{SEP}' '{SEP} "+
             "case when firstname is null then '' else firstname end{SEP} "+
             "case when status is null then '' else {CCS}' | "+
-            app.getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
-            "{CCS}'"+app.getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end "+
-            "{SEP}' | "+app.getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end "+
-            "{SEP}' | "+app.getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue",
-            "{CCS}'"+app.getText("contact_email")+": '{SEP}case when email is null then '' else email end "+
-            "{SEP}' | "+app.getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
+            getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
+            "{CCS}'"+getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end "+
+            "{SEP}' | "+getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end "+
+            "{SEP}' | "+getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue",
+            "{CCS}'"+getText("contact_email")+": '{SEP}case when email is null then '' else email end "+
+            "{SEP}' | "+getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
           from:"contact", 
           where:[["deleted","=","0"],["and","nervatype","=",[{select:["id"], from:"groups", 
             where:[["groupname","=","'nervatype'"],["and","groupvalue","=","'place'"]]}]],
@@ -429,7 +426,7 @@ export const useSql = () => {
               "when ntg.groupvalue in ('project') then rf_project.pronumber "+
               "when ntg.groupvalue in ('employee') then rf_employee.empnumber "+
               "when ntg.groupvalue in ('place') then rf_place.planumber "+
-              "else null end{SEP}' | '{SEP} '"+app.getText("printqueue_copies")+"'{SEP}': '{SEP}"+
+              "else null end{SEP}' | '{SEP} '"+getText("printqueue_copies")+"'{SEP}': '{SEP}"+
               "{CAS_TEXT}pq.qty{CAE_TEXT}{CCE} as lslabel",
             "case when ntg.groupvalue='trans' then dg.groupvalue else null end as direction",
             "{CCS}{FMS_DATE}pq.crdate{FME_DATE}{SEP}' | '{SEP}e.username "+
@@ -579,7 +576,7 @@ export const useSql = () => {
             "eg.groupvalue as eventgroup","e.subject","e.deleted",
             "{CCS}case when e.fromdate is null then '' else {FMS_DATETIME}e.fromdate {FME_DATETIME} end"+
             "{SEP} ' | '{SEP}case when e.subject is null then '' else e.subject end{CCE} as lslabel",
-            "{CCS}e.calnumber{SEP}' | '{SEP}'"+app.getText("event_group")+": '{SEP}"+
+            "{CCS}e.calnumber{SEP}' | '{SEP}'"+getText("event_group")+": '{SEP}"+
             "case when eg.groupvalue is null then '' else eg.groupvalue end{CCE} as lsvalue"],
           from:"event e", 
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
@@ -618,10 +615,10 @@ export const useSql = () => {
         let _sql = {
           select:["*", 
             "{CCS} case when city is null then '' else city end{SEP} ' | '{SEP} case when street is null then '' else street end{CCE} as lslabel", 
-            "{CCS}'"+app.getText("address_country")+": '{SEP} case when country is null then '' else country end{SEP} ' | '{SEP} '"+
-            app.getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end {SEP} ' | '{SEP} '"+
-            app.getText("address_state")+": '{SEP} case when state is null then '' else state end{CCE} as lsvalue", 
-            "{CCS}'"+app.getText("address_notes")+": '{SEP} case when notes is null then '' else notes end{CCE} as lsinfo"], 
+            "{CCS}'"+getText("address_country")+": '{SEP} case when country is null then '' else country end{SEP} ' | '{SEP} '"+
+            getText("address_zipcode")+": '{SEP}case when zipcode is null then '' else zipcode end {SEP} ' | '{SEP} '"+
+            getText("address_state")+": '{SEP} case when state is null then '' else state end{CCE} as lsvalue", 
+            "{CCS}'"+getText("address_notes")+": '{SEP} case when notes is null then '' else notes end{CCE} as lsinfo"], 
           from:"address", 
           where: [["deleted","=","0"], ["and","nervatype","=",[
             {select:["id"], from:"groups", 
@@ -633,12 +630,12 @@ export const useSql = () => {
         let _sql = {
           select:["*",
             "{CCS} case when firstname is null then '' else {CCS} firstname{SEP}' '{CCE} end{SEP}case when surname is null then '' else surname end{SEP}' '{SEP} case when status is null then '' else {CCS}' | "+
-            app.getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
-            "{CCS}'"+app.getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end {SEP}' | "+
-              app.getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end {SEP}' | "+
-              app.getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue", 
-            "{CCS}'"+app.getText("contact_email")+": '{SEP}case when email is null then '' else email end {SEP}' | "+
-            app.getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
+            getText("contact_status")+": '{SEP}status{CCE} end{CCE} as lslabel",
+            "{CCS}'"+getText("contact_phone")+": '{SEP}case when phone is null then '' else phone end {SEP}' | "+
+              getText("contact_mobil")+": '{SEP}case when mobil is null then '' else mobil end {SEP}' | "+
+              getText("contact_fax")+": '{SEP}case when fax is null then '' else fax end{CCE} as lsvalue", 
+            "{CCS}'"+getText("contact_email")+": '{SEP}case when email is null then '' else email end {SEP}' | "+
+            getText("contact_notes")+": '{SEP}case when notes is null then '' else notes end{CCE} as lsinfo"],
           from:"contact", 
           where: [["deleted","=","0"], ["and","nervatype","=",[
             {select:["id"], from:"groups", 
@@ -653,7 +650,7 @@ export const useSql = () => {
             "eg.groupvalue as eventgroup","e.subject","e.deleted",
             "{CCS}case when e.fromdate is null then '' else {FMS_DATETIME}e.fromdate {FME_DATETIME} end"+
             "{SEP} ' | '{SEP}case when e.subject is null then '' else e.subject end{CCE} as lslabel",
-            "{CCS}e.calnumber{SEP}' | '{SEP}'"+app.getText("event_group")+": '{SEP}"+
+            "{CCS}e.calnumber{SEP}' | '{SEP}'"+getText("event_group")+": '{SEP}"+
             "case when eg.groupvalue is null then '' else eg.groupvalue end{CCE} as lsvalue"],
           from:"event e", 
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
@@ -741,7 +738,7 @@ export const useSql = () => {
           
       tax_view: () => {
         let sql = {
-          select:["*","case when inactive = 1 then '"+app.getText("label_yes")+"' else '"+app.getText("label_no")+"' end as inact"], 
+          select:["*","case when inactive = 1 then '"+getText("label_yes")+"' else '"+getText("label_no")+"' end as inact"], 
           from:"tax"}; 
         return sql;}
       },
@@ -800,7 +797,7 @@ export const useSql = () => {
             "eg.groupvalue as eventgroup","e.subject","e.deleted",
             "{CCS}case when e.fromdate is null then '' else {FMS_DATETIME}e.fromdate {FME_DATETIME} end"+
             "{SEP} ' | '{SEP}case when e.subject is null then '' else e.subject end{CCE} as lslabel",
-            "{CCS}e.calnumber{SEP}' | '{SEP}'"+app.getText("event_group")+": '{SEP}"+
+            "{CCS}e.calnumber{SEP}' | '{SEP}'"+getText("event_group")+": '{SEP}"+
             "case when eg.groupvalue is null then '' else eg.groupvalue end{CCE} as lsvalue"],
           from:"event e", 
           left_join:["groups eg","on",["e.eventgroup","=","eg.id"]],
@@ -1155,9 +1152,9 @@ export const useSql = () => {
           let sql = {
             select:["ln.*","p.id as rid","t.transnumber","t.curr","af.value as amount","rf.value as rate",
               "{CCS}t.curr{SEP}' | '{SEP}af.value{SEP}' | '{SEP}'"+
-                app.getText("payment_rate")+" :'{SEP}rf.value{CCE} as lslabel",
-              "{CCS}'"+app.getText("payment_item")+": '{SEP}{CAS_TEXT}p.id {CAE_TEXT}{SEP}' | '{SEP}'"+
-                app.getText("payment_invnumber")+": '{SEP}t.transnumber{CCE} as lsvalue"],
+                getText("payment_rate")+" :'{SEP}rf.value{CCE} as lslabel",
+              "{CCS}'"+getText("payment_item")+": '{SEP}{CAS_TEXT}p.id {CAE_TEXT}{SEP}' | '{SEP}'"+
+                getText("payment_invnumber")+": '{SEP}t.transnumber{CCE} as lsvalue"],
           from:"link ln",
           inner_join:[
             ["payment p","on",[["ln.ref_id_1","=","p.id"],["and","p.deleted","=","0"]]],
@@ -1368,8 +1365,8 @@ export const useSql = () => {
                 "when nt.groupvalue ='menu' then um.menukey "+
                 "else null end as subtype_name",
             "inf.groupvalue as inputfilter_name",
-            "case when a.supervisor = 1 then '"+app.getText("label_yes")+
-            "' else '"+app.getText("label_no")+"' end as supervisor_name"],
+            "case when a.supervisor = 1 then '"+getText("label_yes")+
+            "' else '"+getText("label_no")+"' end as supervisor_name"],
           from:"ui_audit a",
           inner_join:[
             ["groups nt","on",["a.nervatype","=","nt.id"]],

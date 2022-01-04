@@ -6,7 +6,7 @@ import AppStore from 'containers/App/context'
 import { getSql, saveToDisk, useApp } from 'containers/App/actions'
 import { useSearch } from './actions'
 import { useEditor } from 'containers/Editor/actions'
-import { useQueries } from 'containers/Controller/Queries'
+import { Queries } from 'containers/Controller/Queries'
 import { QuickView, BrowserView } from './Search';
 import Total from 'components/Modal/Total'
 import { getSetting } from 'config/app'
@@ -16,12 +16,11 @@ export default (props) => {
   const { data, setData } = useContext(AppStore);
   const search = useSearch()
   const editor = useEditor()
-  const queries = useQueries()
   const app = useApp()
 
   const [state] = useState({
     engine: data.login.data.engine,
-    queries: queries,
+    queries: Queries({ getText: app.getText }),
     ui: getSetting("ui"),
     showHelp: app.showHelp
   })
@@ -425,7 +424,7 @@ export default (props) => {
   }
 
   state.bookmarkSave = () => {
-    app.saveBookmark(['browser',queries[data.search.vkey]()[data.search.view].label])
+    app.saveBookmark(['browser',state.queries[data.search.vkey]()[data.search.view].label])
   }
 
   if(state.data.vkey){

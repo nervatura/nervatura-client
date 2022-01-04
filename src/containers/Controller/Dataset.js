@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {
+const Dataset = {
   currency: () => { return [
     {infoName:"currency_view", infoType:"view"}
   ]},
@@ -400,4 +399,4 @@ export default {
   ]}
 }
     
-
+export default Dataset;

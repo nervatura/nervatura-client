@@ -4,13 +4,13 @@ import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import { getSql, useApp, request } from 'containers/App/actions'
-import { useQueries } from 'containers/Controller/Queries'
+import { Queries } from 'containers/Controller/Queries'
 import Server from 'components/Modal/Server'
 
 export const useSearch = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
-  const queries = useQueries()
+  const queries = Queries({ getText: app.getText })
 
   const showBrowser = (vkey, view) => {
     setData("current", { side: app.getSideBar() }, async ()=>{

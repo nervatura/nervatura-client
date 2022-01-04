@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import Login from 'components/Login'
 
 export const LoginPage = ({
-  session, data, current,
+  session, data, current, locales,
   changeData, getText, onLogin, setTheme, setLocale
 }) => {
   return <Login {...data} 
     theme={current.theme} lang={current.lang} 
-    version={session.version} locales={session.locales} configServer={session.configServer}
+    version={session.version} locales={locales} configServer={session.configServer}
     changeData={changeData} getText={getText} onLogin={onLogin} setTheme={setTheme} setLocale={setLocale} />
 }
 
@@ -21,6 +21,7 @@ LoginPage.propTypes = {
     server: Login.propTypes.server,
   }).isRequired,
   session: PropTypes.object.isRequired,
+  locales: PropTypes.object.isRequired,
   current: PropTypes.object.isRequired,
   changeData: PropTypes.func, 
   getText: PropTypes.func, 
@@ -37,6 +38,7 @@ LoginPage.defaultProps = {
     server: Login.defaultProps.server,
   },
   session: {},
+  locales: {},
   current: {},
   changeData: undefined, 
   getText: undefined, 
@@ -48,7 +50,8 @@ LoginPage.defaultProps = {
 export default memo(LoginPage, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.current === nextProps.current)
+    (prevProps.current === nextProps.current) &&
+    (prevProps.locales === nextProps.locales)
   )
 })
 

@@ -5,9 +5,9 @@ import { format } from 'date-fns'
 import AppStore from 'containers/App/context'
 import { useApp, getSql } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
-import { useSql } from 'containers/Controller/Sql'
+import { Sql } from 'containers/Controller/Sql'
 import dataset from 'containers/Controller/Dataset'
-import { useForm } from 'containers/Controller/Forms'
+import { Forms } from 'containers/Controller/Forms'
 import { useInitItem, useValidator } from 'containers/Controller/Items'
 import { useTemplate } from 'containers/Controller/Template'
 import InputBox from 'components/Modal/InputBox'
@@ -19,11 +19,12 @@ export const useSetting = () => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
   const editor = useEditor()
-  const sql = useSql()
-  const forms = useForm()
   const validator = useValidator()
   const initItem = useInitItem()
   const template = useTemplate()
+
+  const forms = Forms({ getText: app.getText })
+  const sql = Sql({ getText: app.getText })
 
   const tableValues = (type, item) => {
     let values = {}
@@ -753,7 +754,7 @@ export const useSetting = () => {
               id: null,
               reportkey: reportkey,
               repname: value,
-              report: setting.template.template
+              report: JSON.stringify(setting.template.template)
             }})
             values = update(values, {
               $unset: ["orientation", "size"]

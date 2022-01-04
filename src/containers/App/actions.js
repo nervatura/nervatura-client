@@ -16,37 +16,6 @@ export const getSql = (engine, _sql) => {
   let prm_count = 0;
   const engine_type = (sql) => {
     switch (engine) {
-      case "alasql":
-        sql = sql.replace(/deleted/g, "[deleted]");
-        sql = sql.replace(/{CCS}/g, "");
-        sql = sql.replace(/{SEP}/g, "+");
-        sql = sql.replace(/{CCE}/g, "");
-        sql = sql.replace(/{CAS_TEXT}/g, "cast(");
-        sql = sql.replace(/{CAE_TEXT}/g, " as nvarchar)");
-        sql = sql.replace(/{CAS_INT}/g, "cast(");
-        sql = sql.replace(/{CAE_INT}/g, " as int)");
-        sql = sql.replace(/{CAS_FLOAT}/g, "cast(");
-        sql = sql.replace(/{CAE_FLOAT}/g, " as real)");
-        sql = sql.replace(/{CAS_DATE}/g, "cast(");
-        sql = sql.replace(/{CASF_DATE}/g, "");
-        sql = sql.replace(/{CAE_DATE}/g, " as date)");
-        sql = sql.replace(/{CAEF_DATE}/g, "");
-        sql = sql.replace(/{FMSF_NUMBER}/g, "");
-        sql = sql.replace(/{FMSF_DATE}/g, "");
-        sql = sql.replace(/{FMEF_CONVERT}/g, "");
-        sql = sql.replace(/{FMS_FLOAT}/g, "format(cast(");
-        sql = sql.replace(/{FME_FLOAT}/g, " as real), 'N2')");
-        sql = sql.replace(/{FMS_INT}/g, "format(cast(");
-        sql = sql.replace(/{FME_INT}/g, " as integer), 'N')");
-        sql = sql.replace(/{FMS_DATE}/g, "convert(varchar(10),");
-        sql = sql.replace(/{FME_DATE}/g, ", 120)");
-        sql = sql.replace(/{FMS_DATETIME}/g, "convert(varchar(19),");
-        sql = sql.replace(/{FME_DATETIME}/g, ", 120)");
-        sql = sql.replace(/{FMS_TIME}/g, "SUBSTRING(cast(cast(");
-        sql = sql.replace(/{FME_TIME}/g, " as time) as nvarchar),0,6)");
-        sql = sql.replace(/{JOKER}/g, "'%'");
-        sql = sql.replace(/{CUR_DATE}/g, "cast(GETDATE() as DATE)");
-        break;
       case "sqlite":
       case "sqlite3":
         sql = sql.replace(/{CCS}/g, "");
@@ -78,7 +47,6 @@ export const getSql = (engine, _sql) => {
         sql = sql.replace(/{JOKER}/g, "'%'");
         sql = sql.replace(/{CUR_DATE}/g, "date('now')");
         break;
-      case "google_sql":
       case "mysql":
         sql = sql.replace(/{CCS}/g, "concat(");
         sql = sql.replace(/{SEP}/g, ",");
@@ -191,12 +159,7 @@ export const getSql = (engine, _sql) => {
         start_br = "",
         end_br = "";
       if (data.length > 0) {
-        if (
-          key === "select" ||
-          key === "select_distinct" ||
-          key === "union_select" ||
-          key === "order_by" ||
-          key === "group_by" ||
+        if (["select","select_distinct","union_select","order_by","group_by"].includes(key) ||
           data[0].length === 0
         ) {
           sep = ", ";
@@ -232,13 +195,11 @@ export const getSql = (engine, _sql) => {
       return start_br + sql.toString().trim() + end_br;
     } else if (typeof data === "object") {
       for (let _key in data) {
-        if (data.hasOwnProperty(_key)) {
-          if (_key === "inner_join" || _key === "left_join") {
-            sql += " " + sql_decode(data[_key], _key);
-          } else {
-            sql +=
-              " " + _key.replace("_", " ") + " " + sql_decode(data[_key], _key);
-          }
+        if (_key === "inner_join" || _key === "left_join") {
+          sql += " " + sql_decode(data[_key], _key);
+        } else {
+          sql +=
+            " " + _key.replace("_", " ") + " " + sql_decode(data[_key], _key);
         }
       }
       return sql;
@@ -425,29 +386,19 @@ export const useApp = () => {
       }
       return result
     } catch (err) {
-      if(!silent)
+      if(!silent){
         setData("current", { "request": false })
+      }
       return { error: { message: err.message }, data: null }
     }
   }
 
   const getSideBar = (value) => {
-    if(!value){
-      switch (data.current.side) {
-        case "auto":
-          value = "show"
-          break;
-        case "show":
-          value = "hide"
-          break;
-        case "hide":
-          value = "show"
-          break;
-        default:
-          break;}}
-    if(data.current.side !== value){
-      return value
+    const sideValue = {
+      auto: "show", show: "hide", hide: "show"
     }
+    return (typeof sideValue[value] === "undefined") 
+      ? sideValue[data.current.side] : sideValue[value]
   }
 
   const getAuditFilter = (nervatype, transtype) => {

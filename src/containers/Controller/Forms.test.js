@@ -1,69 +1,57 @@
-import { renderHook } from '@testing-library/react-hooks'
+import { Forms } from './Forms'
+import { getText, store } from 'config/app';
 
-import { AppProvider } from 'containers/App/context'
-import { useForm } from './Forms'
-import { store as app_store  } from 'config/app'
-
-const wrapper = ({ children }) => <AppProvider 
-  value={{ data: app_store, setData: jest.fn() }}>{children}</AppProvider>
+const form = Forms({ getText: (key)=>getText({ locales: store.session.locales, lang: "en", key: key }) })
 
 describe('Forms', () => {
   it('address', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let address = result.current.address()
+    let address = form.address()
     expect(address.options.icon).toBe("Home")
-    address = result.current.address({ id: null })
+    address = form.address({ id: null })
     expect(address.options.panel["new"]).toBeDefined()
-    address = result.current.address({ id: 1 })
+    address = form.address({ id: 1 })
     expect(address.options.panel["new"]).toBeUndefined()
   })
 
   it('bank', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let bank = result.current.bank()
+    let bank = form.bank()
     expect(bank.options.icon).toBe("Money")
-    bank = result.current.bank({ id: null })
+    bank = form.bank({ id: null })
     expect(bank.options.panel["new"]).toBeDefined()
-    bank = result.current.bank({ id: 1 }, { dataset: { translink: [] } })
+    bank = form.bank({ id: 1 }, { dataset: { translink: [] } })
     expect(bank.options.panel["new"]).toBeUndefined()
-    bank = result.current.bank({ id: 1 }, { dataset: { translink: [{ transtype: "transtype" }] } })
+    bank = form.bank({ id: 1 }, { dataset: { translink: [{ transtype: "transtype" }] } })
     expect(bank.rows[0].columns[0].name).toBe("id")
   })
 
   it('barcode', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let barcode = result.current.barcode()
+    let barcode = form.barcode()
     expect(barcode.options.icon).toBe("Barcode")
-    barcode = result.current.barcode({ id: null })
+    barcode = form.barcode({ id: null })
     expect(barcode.options.panel["new"]).toBeDefined()
-    barcode = result.current.barcode({ id: 1 })
+    barcode = form.barcode({ id: 1 })
     expect(barcode.options.panel["new"]).toBeUndefined()
   })
 
   it('cash', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let cash = result.current.cash()
+    let cash = form.cash()
     expect(cash.options.icon).toBe("Money")
-    cash = result.current.cash(
+    cash = form.cash(
       { id: null, direction: 1 }, 
       { dataset: { translink: [], groups: [ { id: 1, groupvalue: "in" } ] } }
     )
     expect(cash.options.panel["new"]).toBeDefined()
-    cash = result.current.cash(
+    cash = form.cash(
       { id: 1, direction: 1 }, 
       { dataset: { translink: [], cancel_link: [], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(cash.options.panel["new"]).toBeUndefined()
-    cash = result.current.cash(
+    cash = form.cash(
       { id: 1, direction: 1 }, 
       { dataset: { translink: [{ transtype: "transtype" }], cancel_link: [], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(cash.rows[3].columns[0].map["source"]).toBe("translink")
-    cash = result.current.cash(
+    cash = form.cash(
       { id: 1, direction: 1 }, 
       { dataset: { translink: [], cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
@@ -71,43 +59,37 @@ describe('Forms', () => {
   })
 
   it('contact', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let contact = result.current.contact()
+    let contact = form.contact()
     expect(contact.options.icon).toBe("Phone")
-    contact = result.current.contact({ id: null })
+    contact = form.contact({ id: null })
     expect(contact.options.panel["new"]).toBeDefined()
-    contact = result.current.contact({ id: 1 })
+    contact = form.contact({ id: 1 })
     expect(contact.options.panel["new"]).toBeUndefined()
   })
 
   it('currency', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let currency = result.current.currency()
+    let currency = form.currency()
     expect(currency.options.icon).toBe("Dollar")
-    currency = result.current.currency({ id: null })
+    currency = form.currency({ id: null })
     expect(currency.options.panel["new"]).toBeDefined()
-    currency = result.current.currency({ id: 1 })
+    currency = form.currency({ id: 1 })
     expect(currency.options.panel["new"]).toBeUndefined()
   })
 
   it('customer', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let customer = result.current.customer()
+    let customer = form.customer()
     expect(customer.options.icon).toBe("User")
-    customer = result.current.customer(
+    customer = form.customer(
       { id: null, custtype: 1 },
       { dataset: { custtype: {}, groups: [ { id: 1, groupname: "custtype", groupvalue: "own" } ] } }
     )
     expect(customer.options.panel["new"]).toBeDefined()
-    customer = result.current.customer(
+    customer = form.customer(
       { id: 1, custtype: 2 },
       { dataset: { custtype: {}, groups: [ { id: 1, groupname: "custtype", groupvalue: "own" } ] } }
     )
     expect(customer.options.panel["new"]).toBeUndefined()
-    customer = result.current.customer(
+    customer = form.customer(
       { id: 1, custtype: 2 },
       { dataset: { groups: [ { id: 1, groupname: "custtype", groupvalue: "own" } ] } }
     )
@@ -115,18 +97,16 @@ describe('Forms', () => {
   })
 
   it('deffield', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let deffield = result.current.deffield()
+    let deffield = form.deffield()
     expect(deffield.options.icon).toBe("Tag")
-    deffield = result.current.deffield({ id: null })
+    deffield = form.deffield({ id: null })
     expect(deffield.options.panel["new"]).toBeDefined()
-    deffield = result.current.deffield(
+    deffield = form.deffield(
       { id: 1, fieldtype: 1 },
       { dataset: { fieldtype: [ { id: 1, groupvalue: "valuelist" } ] } }
     )
     expect(deffield.options.panel["new"]).toBeUndefined()
-    deffield = result.current.deffield(
+    deffield = form.deffield(
       { id: 1, fieldtype: 1 },
       { dataset: { fieldtype: [ { id: 2, groupvalue: "valuelist" } ] } }
     )
@@ -134,35 +114,33 @@ describe('Forms', () => {
   })
 
   it('delivery', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let delivery = result.current.delivery()
+    let delivery = form.delivery()
     expect(delivery.options.icon).toBe("Truck")
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: null, direction: 1 },
       { dataset: { translink: [], groups: [ { id: 1, groupvalue: "transfer" } ] } }
     )
     expect(delivery.options.panel["new"]).toBeDefined()
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: 1, direction: 1 },
       { dataset: { translink: [], groups: [ { id: 1, groupvalue: "transfer" } ] } }
     )
     expect(delivery.rows[0].columns[1].name).toBe("ref_transnumber")
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: 1, direction: 1 },
       { dataset: { translink: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "transfer" } ] } }
     )
     expect(delivery.rows[0].columns[1].name).toBe("id")
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: 1, direction: 1 },
       { dataset: { cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "transfer" } ] } }
     )
     expect(delivery.rows[0].columns[1].name).toBe("id")
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: 1, direction: 1 },
       { dataset: { cancel_link: [{ transtype: "in" }], groups: [ { id: 1, groupvalue: "transfer" } ] } }
     )
-    delivery = result.current.delivery(
+    delivery = form.delivery(
       { id: null, direction: 1 },
       { dataset: { translink: [], groups: [ { id: 1, groupvalue: "in" } ] } }
     )
@@ -170,51 +148,43 @@ describe('Forms', () => {
   })
 
   it('discount', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let discount = result.current.discount()
+    let discount = form.discount()
     expect(discount.options.icon).toBe("Dollar")
-    discount = result.current.discount({ id: null })
+    discount = form.discount({ id: null })
     expect(discount.options.panel["new"]).toBeDefined()
-    discount = result.current.discount({ id: 1 })
+    discount = form.discount({ id: 1 })
     expect(discount.options.panel["new"]).toBeUndefined()
   })
 
   it('employee', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let employee = result.current.employee()
+    let employee = form.employee()
     expect(employee.options.icon).toBe("Male")
-    employee = result.current.employee({ id: null })
+    employee = form.employee({ id: null })
     expect(employee.options.panel["new"]).toBeDefined()
-    employee = result.current.employee({ id: 1 })
+    employee = form.employee({ id: 1 })
     expect(employee.options.panel["new"]).toBeUndefined()
   })
 
   it('event', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let event = result.current.event()
+    let event = form.event()
     expect(event.options.icon).toBe("Calendar")
-    event = result.current.event({ id: null })
+    event = form.event({ id: null })
     expect(event.options.panel["new"]).toBeDefined()
-    event = result.current.event({ id: 1 })
+    event = form.event({ id: 1 })
     expect(event.options.panel["new"]).toBeUndefined()
   })
 
   it('formula', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let formula = result.current.formula()
+    let formula = form.formula()
     expect(formula.options.icon).toBe("Magic")
-    formula = result.current.formula({ id: null })
+    formula = form.formula({ id: null })
     expect(formula.options.panel["new"]).toBeDefined()
-    formula = result.current.formula(
+    formula = form.formula(
       { id: 1 },
       { dataset: { translink: [] } }
     )
     expect(formula.options.panel["new"]).toBeUndefined()
-    formula = result.current.formula(
+    formula = form.formula(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
@@ -222,61 +192,53 @@ describe('Forms', () => {
   })
 
   it('groups', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let groups = result.current.groups()
+    let groups = form.groups()
     expect(groups.options.icon).toBe("Th")
-    groups = result.current.groups({ id: null })
+    groups = form.groups({ id: null })
     expect(groups.options.panel["new"]).toBeDefined()
-    groups = result.current.groups({ id: 1 })
+    groups = form.groups({ id: 1 })
     expect(groups.options.panel["new"]).toBeUndefined()
   })
 
   it('inventory', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let inventory = result.current.inventory()
+    let inventory = form.inventory()
     expect(inventory.options.icon).toBe("Truck")
-    inventory = result.current.inventory({ id: null })
+    inventory = form.inventory({ id: null })
     expect(inventory.options.panel["new"]).toBeDefined()
-    inventory = result.current.inventory({ id: 1 })
+    inventory = form.inventory({ id: 1 })
     expect(inventory.options.panel["new"]).toBeUndefined()
   })
 
   it('invoice_link', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let invoice_link = result.current.invoice_link()
+    let invoice_link = form.invoice_link()
     expect(invoice_link.options.icon).toBe("Money")
-    invoice_link = result.current.invoice_link({ id: null })
+    invoice_link = form.invoice_link({ id: null })
     expect(invoice_link.options.panel["new"]).toBeDefined()
-    invoice_link = result.current.invoice_link({ id: 1 })
+    invoice_link = form.invoice_link({ id: 1 })
     expect(invoice_link.options.panel["new"]).toBeUndefined()
   })
 
   it('invoice', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let invoice = result.current.invoice()
+    let invoice = form.invoice()
     expect(invoice.options.icon).toBe("FileText")
-    invoice = result.current.invoice({ id: null })
+    invoice = form.invoice({ id: null })
     expect(invoice.options.panel["new"]).toBeDefined()
-    invoice = result.current.invoice(
+    invoice = form.invoice(
       { id: 1, direction: 1, transcast: "normal" },
       { dataset: { translink: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "in" } ] } }
     )
     expect(invoice.options.panel["new"]).toBeUndefined()
-    invoice = result.current.invoice(
+    invoice = form.invoice(
       { id: 1, direction: 1, transcast: "normal", deleted: 0 },
       { dataset: { translink: [], cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(invoice.options.panel["corrective"]).toBeDefined()
-    invoice = result.current.invoice(
+    invoice = form.invoice(
       { id: 1, direction: 1, transcast: "normal", deleted: 1 },
       { dataset: { translink: [], cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(invoice.options.panel["cancellation"]).toBeDefined()
-    invoice = result.current.invoice(
+    invoice = form.invoice(
       { id: 1, direction: 1, transcast: "normal", deleted: 1 },
       { dataset: { translink: [], cancel_link: [], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
@@ -284,21 +246,19 @@ describe('Forms', () => {
   })
 
   it('item', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let item = result.current.item()
+    let item = form.item()
     expect(item.options.icon).toBe("ListOl")
-    item = result.current.item(
+    item = form.item(
       { id: null },
       { current: { transtype: "invoice" } }
     )
     expect(item.options.panel["new"]).toBeDefined()
-    item = result.current.item(
+    item = form.item(
       { id: 1 },
       { current: { transtype: "offer" } }
     )
     expect(item.options.panel["new"]).toBeUndefined()
-    item = result.current.item(
+    item = form.item(
       { id: 1 },
       { current: { transtype: "order" } }
     )
@@ -306,41 +266,37 @@ describe('Forms', () => {
   })
 
   it('log', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let log = result.current.log()
+    let log = form.log()
     expect(log.options.icon).toBe("InfoCircle")
   })
 
   it('movement', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let movement = result.current.movement(
+    let movement = form.movement(
       undefined,
       { current: { transtype: "default" } }
     )
     expect(movement.options.icon).toBe("Truck")
-    movement = result.current.movement(
+    movement = form.movement(
       { id: null },
       { current: { transtype: "delivery" } }
     )
     expect(movement.options.panel["new"]).toBeDefined()
-    movement = result.current.movement(
+    movement = form.movement(
       { id: 1 },
       { current: { transtype: "inventory" } }
     )
     expect(movement.options.panel["new"]).toBeUndefined()
-    movement = result.current.movement(
+    movement = form.movement(
       { id: 1 },
       { current: { transtype: "production" } }
     )
     expect(movement.options.panel["new"]).toBeUndefined()
-    movement = result.current.movement(
+    movement = form.movement(
       { id: 1 },
       { current: { transtype: "formula" } }
     )
     expect(movement.options.panel["new"]).toBeUndefined()
-    movement = result.current.movement(
+    movement = form.movement(
       { id: 1 },
       { current: { transtype: "waybill" } }
     )
@@ -348,25 +304,21 @@ describe('Forms', () => {
   })
 
   it('numberdef', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let numberdef = result.current.numberdef()
+    let numberdef = form.numberdef()
     expect(numberdef.options.icon).toBe("ListOl")
   })
 
   it('offer', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let offer = result.current.offer()
+    let offer = form.offer()
     expect(offer.options.icon).toBe("FileText")
-    offer = result.current.offer({ id: null })
+    offer = form.offer({ id: null })
     expect(offer.options.panel["new"]).toBeDefined()
-    offer = result.current.offer(
+    offer = form.offer(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(offer.options.panel["new"]).toBeUndefined()
-    offer = result.current.offer(
+    offer = form.offer(
       { id: 1 },
       { dataset: { translink: [] } }
     )
@@ -374,18 +326,16 @@ describe('Forms', () => {
   })
 
   it('order', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let order = result.current.order()
+    let order = form.order()
     expect(order.options.icon).toBe("FileText")
-    order = result.current.order({ id: null })
+    order = form.order({ id: null })
     expect(order.options.panel["new"]).toBeDefined()
-    order = result.current.order(
+    order = form.order(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(order.options.panel["new"]).toBeUndefined()
-    order = result.current.order(
+    order = form.order(
       { id: 1 },
       { dataset: { translink: [] } }
     )
@@ -393,47 +343,39 @@ describe('Forms', () => {
   })
 
   it('password', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let password = result.current.password()
+    let password = form.password()
     expect(password.options.icon).toBe("Lock")
   })
 
   it('payment_link', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let payment_link = result.current.payment_link()
+    let payment_link = form.payment_link()
     expect(payment_link.options.icon).toBe("FileText")
-    payment_link = result.current.payment_link({ id: null })
+    payment_link = form.payment_link({ id: null })
     expect(payment_link.options.panel["new"]).toBeDefined()
-    payment_link = result.current.payment_link({ id: 1 })
+    payment_link = form.payment_link({ id: 1 })
     expect(payment_link.options.panel["new"]).toBe(false)
   })
 
   it('payment', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let payment = result.current.payment()
+    let payment = form.payment()
     expect(payment.options.icon).toBe("Money")
-    payment = result.current.payment({ id: null })
+    payment = form.payment({ id: null })
     expect(payment.options.panel["new"]).toBeDefined()
-    payment = result.current.payment({ id: 1 })
+    payment = form.payment({ id: 1 })
     expect(payment.options.panel["new"]).toBeUndefined()
   })
 
   it('place', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let place = result.current.place()
+    let place = form.place()
     expect(place.options.icon).toBe("Map")
-    place = result.current.place({ id: null })
+    place = form.place({ id: null })
     expect(place.options.panel["new"]).toBeDefined()
-    place = result.current.place(
+    place = form.place(
       { id: 1, placetype: 2 },
       { dataset: { placetype: [ { id: 1, groupvalue: "warehouse" } ] } }
     )
     expect(place.options.panel["new"]).toBeUndefined()
-    place = result.current.place(
+    place = form.place(
       { id: 1, placetype: 1 },
       { dataset: { groups: [ { id: 1, groupname: "placetype", groupvalue: "warehouse" } ] } }
     )
@@ -441,20 +383,16 @@ describe('Forms', () => {
   })
 
   it('price', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let price = result.current.price()
+    let price = form.price()
     expect(price.options.icon).toBe("Dollar")
-    price = result.current.price({ id: null })
+    price = form.price({ id: null })
     expect(price.options.panel["new"]).toBeDefined()
-    price = result.current.price({ id: 1 })
+    price = form.price({ id: 1 })
     expect(price.options.panel["new"]).toBeUndefined()
   })
 
   it('printqueue', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let printqueue = result.current.printqueue(
+    let printqueue = form.printqueue(
       undefined, undefined,
       { printqueue_type: "printqueue_type", printqueue_mode: "printqueue_mode",
         report_orientation: "report_orientation", page_orient: "page_orient",
@@ -465,29 +403,25 @@ describe('Forms', () => {
   })
 
   it('product', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let product = result.current.product()
+    let product = form.product()
     expect(product.options.icon).toBe("ShoppingCart")
-    product = result.current.product({ id: null })
+    product = form.product({ id: null })
     expect(product.options.panel["new"]).toBeDefined()
-    product = result.current.product({ id: 1 })
+    product = form.product({ id: 1 })
     expect(product.options.panel["new"]).toBeUndefined()
   })
 
   it('production', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let production = result.current.production()
+    let production = form.production()
     expect(production.options.icon).toBe("Flask")
-    production = result.current.production({ id: null })
+    production = form.production({ id: null })
     expect(production.options.panel["new"]).toBeDefined()
-    production = result.current.production(
+    production = form.production(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(production.options.panel["new"]).toBeUndefined()
-    production = result.current.production(
+    production = form.production(
       { id: 1 },
       { dataset: { translink: [] } }
     )
@@ -495,65 +429,57 @@ describe('Forms', () => {
   })
 
   it('project', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let project = result.current.project()
+    let project = form.project()
     expect(project.options.icon).toBe("Clock")
-    project = result.current.project({ id: null })
+    project = form.project({ id: null })
     expect(project.options.panel["new"]).toBeDefined()
-    project = result.current.project({ id: 1 })
+    project = form.project({ id: 1 })
     expect(project.options.panel["new"]).toBeUndefined()
   })
 
   it('rate', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let rate = result.current.rate()
+    let rate = form.rate()
     expect(rate.options.icon).toBe("Strikethrough")
-    rate = result.current.rate(
+    rate = form.rate(
       { id: null },
       { dataset: { ratetype: [ { id: 1, groupvalue: "rate" } ], settings: [ { id: 1, fieldname: "default_currency", value: "EUR" } ] } }
     )
     expect(rate.options.panel["new"]).toBeDefined()
-    rate = result.current.rate(
+    rate = form.rate(
       { id: null },
       { dataset: { ratetype: [ { id: 1, groupvalue: "rate" } ], settings: [] } }
     )
     expect(rate.options.panel["new"]).toBeDefined()
-    rate = result.current.rate({ id: 1 })
+    rate = form.rate({ id: 1 })
     expect(rate.options.panel["new"]).toBeUndefined()
   })
 
   it('program', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let program = result.current.program()
+    let program = form.program()
     expect(program.options.icon).toBe("Keyboard")
   })
 
   it('receipt', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let receipt = result.current.receipt()
+    let receipt = form.receipt()
     expect(receipt.options.icon).toBe("FileText")
-    receipt = result.current.receipt({ id: null })
+    receipt = form.receipt({ id: null })
     expect(receipt.options.panel["new"]).toBeDefined()
-    receipt = result.current.receipt(
+    receipt = form.receipt(
       { id: 1, direction: 1, transcast: "normal" },
       { dataset: { translink: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "in" } ] } }
     )
     expect(receipt.options.panel["new"]).toBeUndefined()
-    receipt = result.current.receipt(
+    receipt = form.receipt(
       { id: 1, direction: 1, transcast: "normal", deleted: 0 },
       { dataset: { translink: [], cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(receipt.options.panel["corrective"]).toBeDefined()
-    receipt = result.current.receipt(
+    receipt = form.receipt(
       { id: 1, direction: 1, transcast: "normal", deleted: 1 },
       { dataset: { translink: [], cancel_link: [{ transtype: "transtype" }], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
     expect(receipt.options.panel["cancellation"]).toBeDefined()
-    receipt = result.current.receipt(
+    receipt = form.receipt(
       { id: 1, direction: 1, transcast: "normal", deleted: 1 },
       { dataset: { translink: [], cancel_link: [], groups: [ { id: 1, groupvalue: "out" } ] } }
     )
@@ -561,18 +487,16 @@ describe('Forms', () => {
   })
 
   it('rent', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let rent = result.current.rent()
+    let rent = form.rent()
     expect(rent.options.icon).toBe("FileText")
-    rent = result.current.rent({ id: null })
+    rent = form.rent({ id: null })
     expect(rent.options.panel["new"]).toBeDefined()
-    rent = result.current.rent(
+    rent = form.rent(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(rent.options.panel["new"]).toBeUndefined()
-    rent = result.current.rent(
+    rent = form.rent(
       { id: 1 },
       { dataset: { translink: [] } }
     )
@@ -580,21 +504,19 @@ describe('Forms', () => {
   })
 
   it('report', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let report = result.current.report(
+    let report = form.report(
       undefined, undefined,
       { report_orientation: "report_orientation", page_orient: "page_orient",
         report_size: "report_size", page_size: "page_size" }
     )
     expect(report.options.panel["print"]).toBeDefined()
-    report = result.current.report(
+    report = form.report(
       { id: 1, ftype: "csv" }, undefined,
       { report_orientation: "report_orientation", page_orient: "page_orient",
         report_size: "report_size", page_size: "page_size" }
     )
     expect(report.options.panel["print"]).toBeDefined()
-    report = result.current.report(
+    report = form.report(
       { id: 1, ftype: "pdf" }, undefined,
       { report_orientation: "report_orientation", page_orient: "page_orient",
         report_size: "report_size", page_size: "page_size" }
@@ -603,110 +525,92 @@ describe('Forms', () => {
   })
 
   it('setting', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let setting = result.current.setting()
+    let setting = form.setting()
     expect(setting.options.icon).toBe("Cog")
   })
 
   it('shipping', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let shipping = result.current.shipping()
+    let shipping = form.shipping()
     expect(shipping.options.icon).toBe("Truck")
   })
 
   it('tax', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let tax = result.current.tax()
+    let tax = form.tax()
     expect(tax.options.icon).toBe("Ticket")
-    tax = result.current.tax({ id: null })
+    tax = form.tax({ id: null })
     expect(tax.options.panel["new"]).toBeDefined()
-    tax = result.current.tax({ id: 1 })
+    tax = form.tax({ id: 1 })
     expect(tax.options.panel["new"]).toBeUndefined()
   })
 
   it('template', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let template = result.current.template()
+    let template = form.template()
     expect(template.options.icon).toBe("TextHeight")
   })
 
   it('tool', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let tool = result.current.tool()
+    let tool = form.tool()
     expect(tool.options.icon).toBe("Wrench")
-    tool = result.current.tool({ id: null })
+    tool = form.tool({ id: null })
     expect(tool.options.panel["new"]).toBeDefined()
-    tool = result.current.tool({ id: 1 })
+    tool = form.tool({ id: 1 })
     expect(tool.options.panel["new"]).toBeUndefined()
   })
 
   it('ui_menu', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let ui_menu = result.current.ui_menu()
+    let ui_menu = form.ui_menu()
     expect(ui_menu.options.icon).toBe("Share")
-    ui_menu = result.current.ui_menu({ id: null })
+    ui_menu = form.ui_menu({ id: null })
     expect(ui_menu.rows[0].columns[0]["disabled"]).toBeUndefined()
-    ui_menu = result.current.ui_menu({ id: 1 })
+    ui_menu = form.ui_menu({ id: 1 })
     expect(ui_menu.rows[0].columns[0]["disabled"]).toBeDefined()
   })
 
   it('usergroup', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let usergroup = result.current.usergroup()
+    let usergroup = form.usergroup()
     expect(usergroup.options.icon).toBe("Key")
-    usergroup = result.current.usergroup({ id: null })
+    usergroup = form.usergroup({ id: null })
     expect(usergroup.options.panel["new"]).toBeDefined()
-    usergroup = result.current.usergroup({ id: 1 })
+    usergroup = form.usergroup({ id: 1 })
     expect(usergroup.options.panel["new"]).toBeUndefined()
   })
 
   it('waybill', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let waybill = result.current.waybill()
+    let waybill = form.waybill()
     expect(waybill.options.icon).toBe("Briefcase")
-    waybill = result.current.waybill({ id: null })
+    waybill = form.waybill({ id: null })
     expect(waybill.options.panel["new"]).toBeDefined()
-    waybill = result.current.waybill(
+    waybill = form.waybill(
       { id: 1, customer_id: null, employee_id: null },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(waybill.options.panel["new"]).toBeUndefined()
-    waybill = result.current.waybill(
+    waybill = form.waybill(
       { id: 1, customer_id: null, employee_id: null },
       { dataset: { translink: [] } }
     )
     expect(waybill.options.panel["new"]).toBeUndefined()
-    waybill = result.current.waybill(
+    waybill = form.waybill(
       { id: 1, customer_id: 1 },
     )
     expect(waybill.rows[1].columns[1]["map"]["seltype"]).toBe("customer")
-    waybill = result.current.waybill(
+    waybill = form.waybill(
       { id: 1, customer_id: null, employee_id: 1 },
     )
     expect(waybill.rows[1].columns[1]["map"]["seltype"]).toBe("employee")
   })
 
   it('worksheet', () => {
-    const { result } = renderHook(() => useForm(), { wrapper })
-    
-    let worksheet = result.current.worksheet()
+    let worksheet = form.worksheet()
     expect(worksheet.options.icon).toBe("FileText")
-    worksheet = result.current.worksheet({ id: null })
+    worksheet = form.worksheet({ id: null })
     expect(worksheet.options.panel["new"]).toBeDefined()
-    worksheet = result.current.worksheet(
+    worksheet = form.worksheet(
       { id: 1 },
       { dataset: { translink: [{ transtype: "transtype" }] } }
     )
     expect(worksheet.options.panel["new"]).toBeUndefined()
-    worksheet = result.current.worksheet(
+    worksheet = form.worksheet(
       { id: 1 },
       { dataset: { translink: [] } }
     )

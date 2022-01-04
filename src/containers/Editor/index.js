@@ -8,7 +8,7 @@ import { useApp } from 'containers/App/actions'
 import { useEditor } from 'containers/Editor/actions'
 import { useInitItem } from 'containers/Controller/Items'
 import { useSearch } from 'containers/Search/actions'
-import { useQueries } from 'containers/Controller/Queries'
+import { Queries } from 'containers/Controller/Queries'
 import { Preview, pageRender } from 'containers/Report'
 import { Editor } from './Editor';
 import InputBox from 'components/Modal/InputBox'
@@ -21,13 +21,13 @@ export default (props) => {
   const editor = useEditor()
   const app = useApp()
   const initItem = useInitItem()
-  const queries = useQueries()
   const search = useSearch()
 
   const [state] = useState({
     engine: data.login.data.engine,
     ui: getSetting("ui"),
-    theme: data.current.theme
+    theme: data.current.theme,
+    queries: Queries({ getText: app.getText })
   })
 
   state.data = data.edit
@@ -456,7 +456,7 @@ export default (props) => {
   state.onSelector = (selectorType, selectorFilter, setSelector) => {
     let formProps = {
       view: selectorType, 
-      columns: queries.quick[selectorType]().columns,
+      columns: state.queries.quick[selectorType]().columns,
       result: [],
       filter: selectorFilter,
       getText: app.getText, 

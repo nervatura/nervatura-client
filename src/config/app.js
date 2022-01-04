@@ -26,7 +26,8 @@ export const DECIMAL_SEPARATOR = {
   COMMA: ","
 }
 
-// Default read and write application context data 
+// Default read and write application context data
+/* istanbul ignore next */
 export const store = {
   session: {
     version: packageData.version,
@@ -35,7 +36,7 @@ export const store = {
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.13", "5.0.0-beta.14", "5.0.0-beta.15"],
+    service: ["dev", "5.0.0-beta.14", "5.0.0-beta.15", "5.0.0-beta.16"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {

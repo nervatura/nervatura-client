@@ -1,9 +1,11 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { Default, NumberInput, IntegerInput, CommaSeparator, Disabled } from './Input.stories';
 
-it('renders the card in the Default state', () => {
+const getById = queryByAttribute.bind(null, 'id');
+
+it('renders in the Default state', () => {
   const onChange = jest.fn()
   const onBlur = jest.fn()
 
@@ -11,9 +13,9 @@ it('renders the card in the Default state', () => {
     <Default {...Default.args} id="test_input"
     onChange={onChange} onBlur={onBlur} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "change"}})
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -23,7 +25,7 @@ it('renders the card in the Default state', () => {
 
 });
 
-it('renders the card in the NumberInput state', () => {
+it('renders in the NumberInput state', () => {
   const onChange = jest.fn()
   const onBlur = jest.fn()
   const onEnter = jest.fn()
@@ -32,9 +34,9 @@ it('renders the card in the NumberInput state', () => {
     <NumberInput {...NumberInput.args} id="test_input"
     onChange={onChange} onBlur={onBlur} onEnter={onEnter} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "123.12"}})
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -53,7 +55,7 @@ it('renders the card in the NumberInput state', () => {
 
 });
 
-it('renders the card in the IntegerInput state', () => {
+it('renders in the IntegerInput state', () => {
   const onChange = jest.fn()
   const onBlur = jest.fn()
 
@@ -61,9 +63,9 @@ it('renders the card in the IntegerInput state', () => {
     <IntegerInput {...IntegerInput.args} id="test_input" minValue={10} maxValue={100}
     onChange={onChange} onBlur={onBlur} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
 
   fireEvent.change(test_input, {target: {value: "123"}})
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -82,26 +84,26 @@ it('renders the card in the IntegerInput state', () => {
 
 });
 
-it('renders the card in the CommaSeparator state', () => {
+it('renders in the CommaSeparator state', () => {
   const onChange = jest.fn()
 
   const { container } = render(
     <CommaSeparator {...CommaSeparator.args} id="test_input"
     onChange={onChange} />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
-  const test_input = container.querySelector('#test_input')
+  const test_input = getById(container, 'test_input')
   fireEvent.blur(test_input, {target: {value: "5a"}})
   expect(onChange).toHaveBeenCalledTimes(1);
 
 });
 
-it('renders the card in the Disabled state', () => {
+it('renders in the Disabled state', () => {
 
   const { container } = render(
     <Disabled {...Disabled.args} id="test_input" />
   );
-  expect(container.querySelector('#test_input')).toBeDefined();
+  expect(getById(container, 'test_input')).toBeDefined();
 
 });

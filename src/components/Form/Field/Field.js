@@ -369,7 +369,7 @@ export const Field = ({
       }
       return <div {...props} 
         className={`${className} ${"link"} ${styles.link}`} >
-        <span className={`${styles.lnkText}`} 
+        <span id={"link_"+fieldMap.lnktype+"_"+fieldName} className={`${styles.lnkText}`} 
           onClick={()=>onLoad("checkEditor", {
             ntype: fieldMap.lnktype, 
             ttype: fieldMap.transtype, 
@@ -394,16 +394,18 @@ export const Field = ({
         selector.id = data.current.extend.ref_id
       }
       if(!disabled){
-        columns.push(<div id="sel_show" key="sel_show" className={` ${"cell"} ${styles.searchCol}`}>
-          <Button className={`${"border-button"} ${styles.selectorButton}`}
+        columns.push(<div key="sel_show" className={` ${"cell"} ${styles.searchCol}`}>
+          <Button id={"sel_show_"+fieldName}
+            className={`${"border-button"} ${styles.selectorButton}`}
             onClick={()=>onSelector(selector.type, selector.filter, setSelector)}
             value={<Icon iconKey="Search" />}
           />
         </div>)
       }
       if (empty) {
-        columns.push(<div id="sel_delete" key="sel_delete" className={` ${"cell"} ${styles.timesCol}`}>
-          <Button className={`${"border-button"} ${styles.selectorButton}`}
+        columns.push(<div key="sel_delete" className={` ${"cell"} ${styles.timesCol}`}>
+          <Button id={"sel_delete_"+fieldName}
+            className={`${"border-button"} ${styles.selectorButton}`}
             disabled={(disabled) ? 'disabled' : ''}
             onClick={ ()=>setSelector() }
             value={<Icon iconKey="Times" />}
@@ -411,7 +413,8 @@ export const Field = ({
         </div>)
       }
       columns.push(<div key="sel_text" className={`${"link"} ${styles.link}`}>
-        {(selector.text !== "")?<span className={`${styles.lnkText}`}
+        {(selector.text !== "")?<span id={"sel_link_"+fieldName}
+          className={`${styles.lnkText}`}
           onClick={()=>onLoad("checkTranstype", { 
             ntype: selector.ntype, 
             ttype: selector.ttype, 

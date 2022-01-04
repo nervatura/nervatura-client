@@ -1,9 +1,11 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { Default, DarkLogin } from './Login.stories';
 
-it('renders the card in the Default state', () => {
+const getById = queryByAttribute.bind(null, 'id');
+
+it('renders in the Default state', () => {
   const setLocale = jest.fn()
   const changeData = jest.fn()
   const setTheme = jest.fn()
@@ -12,44 +14,44 @@ it('renders the card in the Default state', () => {
     <Default {...Default.args} id="test_login"
     changeData={changeData}  setLocale={setLocale} setTheme={setTheme} />
   );
-  expect(container.querySelector('#test_login')).toBeDefined();
+  expect(getById(container, 'test_login')).toBeDefined();
 
-  const username = container.querySelector('#username')
+  const username = getById(container, 'username')
   fireEvent.change(username, {target: {value: "username"}})
   expect(changeData).toHaveBeenCalledTimes(1);
 
-  const password = container.querySelector('#password')
+  const password = getById(container, 'password')
   fireEvent.change(password, {target: {value: "password"}})
   expect(changeData).toHaveBeenCalledTimes(2);
 
-  const database = container.querySelector('#database')
+  const database = getById(container, 'database')
   fireEvent.change(database, {target: {value: "database"}})
   expect(changeData).toHaveBeenCalledTimes(3);
 
-  const server = container.querySelector('#server')
+  const server = getById(container, 'server')
   fireEvent.change(server, {target: {value: "server"}})
   expect(changeData).toHaveBeenCalledTimes(4);
 
-  const sb_lang = container.querySelector('#lang')
+  const sb_lang = getById(container, 'lang')
   fireEvent.change(sb_lang, {target: {value: "jp"}})
   expect(setLocale).toHaveBeenCalledTimes(1);
 
-  const cmd_theme = container.querySelector('#theme')
+  const cmd_theme = getById(container, 'theme')
   fireEvent.click(cmd_theme)
   expect(setTheme).toHaveBeenCalledTimes(1);
 
 });
 
-it('renders the card in the DarkLogin state', () => {
+it('renders in the DarkLogin state', () => {
   const onLogin = jest.fn()
 
   const { container } = render(
     <DarkLogin {...DarkLogin.args} id="test_login"
     onLogin={onLogin} />
   );
-  expect(container.querySelector('#test_login')).toBeDefined();
+  expect(getById(container, 'test_login')).toBeDefined();
 
-  const cmd_login = container.querySelector('#login')
+  const cmd_login = getById(container, 'login')
   fireEvent.click(cmd_login)
   expect(onLogin).toHaveBeenCalledTimes(1);
 

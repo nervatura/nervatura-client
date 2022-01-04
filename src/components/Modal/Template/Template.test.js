@@ -1,9 +1,11 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { Default, Disabled } from './Template.stories';
 
-it('renders the card in the Default state', () => {
+const getById = queryByAttribute.bind(null, 'id');
+
+it('renders in the Default state', () => {
   const onData = jest.fn()
   const onClose = jest.fn()
 
@@ -11,37 +13,37 @@ it('renders the card in the Default state', () => {
     <Default {...Default.args} id="test_settings"
     onData={onData} onClose={onClose} />
   );
-  expect(container.querySelector('#test_settings')).toBeDefined();
+  expect(getById(container, 'test_settings')).toBeDefined();
 
-  const closeIcon = container.querySelector('#closeIcon')
+  const closeIcon = getById(container, 'closeIcon')
   fireEvent.click(closeIcon)
   expect(onClose).toHaveBeenCalledTimes(1);
 
-  const btn_cancel = container.querySelector('#btn_cancel')
+  const btn_cancel = getById(container, 'btn_cancel')
   fireEvent.click(btn_cancel)
   expect(onClose).toHaveBeenCalledTimes(2);
 
-  const name = container.querySelector('#name')
+  const name = getById(container, 'name')
   fireEvent.change(name, {target: {value: "name"}})
   expect(name.value).toEqual("name");
 
-  const columns = container.querySelector('#columns')
+  const columns = getById(container, 'columns')
   fireEvent.change(columns, {target: {value: "col3,col4,col5"}})
   expect(columns.value).toEqual("col3,col4,col5");
 
-  const type = container.querySelector('#type')
+  const type = getById(container, 'type')
   fireEvent.change(type, {target: {value: "list"}})
   expect(type.value).toEqual("list");
 
-  const btn_ok = container.querySelector('#btn_ok')
+  const btn_ok = getById(container, 'btn_ok')
   fireEvent.click(btn_ok)
   expect(onData).toHaveBeenCalledTimes(1);
 
 })
 
-it('renders the card in the Disabled state', () => {
+it('renders in the Disabled state', () => {
   const { container } = render(
     <Disabled {...Disabled.args} id="test_settings" />
   );
-  expect(container.querySelector('#test_settings')).toBeDefined();
+  expect(getById(container, 'test_settings')).toBeDefined();
 })

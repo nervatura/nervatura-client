@@ -6,12 +6,12 @@ import printJS from 'print-js'
 import AppStore from 'containers/App/context'
 import { useApp, getSql, saveToDisk } from 'containers/App/actions'
 import InputBox from 'components/Modal/InputBox'
-import { useSql } from 'containers/Controller/Sql'
+import { Sql } from 'containers/Controller/Sql'
 
 export const useReport = (props) => {
   const { data, setData } = useContext(AppStore)
   const app = useApp()
-  const sql = useSql()
+  const sql = Sql({ getText: app.getText })
 
   const reportPath = (params) => {
     let query = new URLSearchParams()
@@ -26,6 +26,7 @@ export const useReport = (props) => {
     return `/report?${query.toString()}&filters[@id]=${params.id||data.edit.current.item.id}`
   }
 
+  /*
   const setPreviewPage = (options) => {
     const module = options.module || "edit"
     let pageNumber = options.pageNumber || 1
@@ -54,7 +55,6 @@ export const useReport = (props) => {
     })
   }
 
-  /*
   const loadPreview = (params) => {
     setData("current", { "request": true })
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.REACT_APP_PDFJS_PATH+'/pdf.worker.min.js';
@@ -303,7 +303,7 @@ export const useReport = (props) => {
 
   return {
     //loadPreview: loadPreview,
-    setPreviewPage: setPreviewPage,
+    //setPreviewPage: setPreviewPage,
     createReport: createReport,
     exportQueueAll: exportQueueAll,
     searchQueue: searchQueue,

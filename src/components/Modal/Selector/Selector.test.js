@@ -1,9 +1,11 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { Default, QuickView } from './Selector.stories';
 
-it('renders the card in the Default state', () => {
+const getById = queryByAttribute.bind(null, 'id');
+
+it('renders in the Default state', () => {
   const onSelect = jest.fn()
   const onSearch = jest.fn()
   const onClose = jest.fn()
@@ -12,21 +14,22 @@ it('renders the card in the Default state', () => {
     <Default {...Default.args} id="test_selector"
       onSelect={onSelect} onSearch={onSearch} onClose={onClose} />
   );
-  expect(container.querySelector('#test_selector')).toBeDefined();
+  expect(getById(container, 'test_selector')).toBeDefined();
 
-  const row_item = container.querySelector('tbody tr')
+  const row_item = screen.getAllByRole('row')[2]
+
   fireEvent.click(row_item)
   expect(onSelect).toHaveBeenCalledTimes(1);
 
-  const closeIcon = container.querySelector('#closeIcon')
+  const closeIcon = getById(container, 'closeIcon')
   fireEvent.click(closeIcon)
   expect(onClose).toHaveBeenCalledTimes(1);
 
-  const btn_search = container.querySelector('#btn_search')
+  const btn_search = getById(container, 'btn_search')
   fireEvent.click(btn_search)
   expect(onSearch).toHaveBeenCalledTimes(1);
 
-  const filter = container.querySelector('#filter')
+  const filter = getById(container, 'filter')
   fireEvent.change(filter, {target: {value: "filter"}})
   expect(filter.value).toEqual("filter");
   fireEvent.keyDown(filter, { key: 'Enter', code: 'Enter', keyCode: 13 })
@@ -34,9 +37,9 @@ it('renders the card in the Default state', () => {
 
 })
 
-it('renders the card in the QuickView state', () => {
+it('renders in the QuickView state', () => {
   const { container } = render(
     <QuickView {...QuickView.args} id="test_selector" />
   );
-  expect(container.querySelector('#test_selector')).toBeDefined();
+  expect(getById(container, 'test_selector')).toBeDefined();
 })

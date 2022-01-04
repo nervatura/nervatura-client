@@ -18,7 +18,7 @@ export const Input = ({
   ...props 
 }) => {
   return <input {...props} 
-    type={[INPUT_TYPE.TEXT,INPUT_TYPE.INTEGER,INPUT_TYPE.NUMBER].includes(type)?INPUT_TYPE.TEXT:type}
+    type={[INPUT_TYPE.INTEGER,INPUT_TYPE.NUMBER].includes(type)?INPUT_TYPE.TEXT:type}
     value={([INPUT_TYPE.INTEGER,INPUT_TYPE.NUMBER].includes(type))
       ? String(value).replace(DECIMAL_SEPARATOR.POINT,separator) : value}
     className={`${className} ${styles.inputStyle} ${([INPUT_TYPE.INTEGER,INPUT_TYPE.NUMBER].includes(type))?"align-right":""} `}
