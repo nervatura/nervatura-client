@@ -1,6 +1,12 @@
-.searchCol {
-  width: 150px;
-  padding-left: 16px;
+.panel {
+  box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  border-radius: 4px;
+}
+
+.panelTitle {
+  border-radius: 3px;
+  font-weight: bold;
+  padding: 8px 16px;
 }
 
 .barButton {
@@ -116,12 +122,4 @@
   .filterPanel {
     padding: 8px;
   }
-}
-
-.closeIcon {
-  cursor: pointer;
-}
-
-.closeIcon:hover {
-  color: var(--danger);
 }

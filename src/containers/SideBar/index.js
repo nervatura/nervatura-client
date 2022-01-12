@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
-import { useApp } from 'containers/App/actions'
-import { useSearch } from 'containers/Search/actions'
-import { useEditor } from 'containers/Editor/actions'
-import { useSetting } from 'containers/Setting/actions'
-import { useTemplate } from 'containers/Controller/Template'
+import { appActions } from 'containers/App/actions'
+import { searchActions } from 'containers/Search/actions'
+import { editorActions } from 'containers/Editor/actions'
+import { settingActions } from 'containers/Setting/actions'
+import { templateActions } from 'containers/Report/Template'
 import { Forms } from 'containers/Controller/Forms'
-import { useReport } from 'containers/Report/actions'
+import { reportActions } from 'containers/Report/actions'
 import { Queries } from 'containers/Controller/Queries'
 
 import Selector from 'components/Modal/Selector'
@@ -18,12 +18,12 @@ import SideBarMemo, { SideBarComponent } from './SideBar';
 
 const SideBar = (props) => {
   const { data, setData } = useContext(AppStore)
-  const app = useApp()
-  const search = useSearch()
-  const editor = useEditor()
-  const setting = useSetting()
-  const template = useTemplate()
-  const report = useReport()
+  const app = appActions(data, setData)
+  const search = searchActions(data, setData)
+  const editor = editorActions(data, setData)
+  const setting = settingActions(data, setData)
+  const template = templateActions(data, setData)
+  const report = reportActions(data, setData)
 
   const [state] = useState(update(props, {$merge: {
     username: data.login.username,
@@ -61,23 +61,23 @@ const SideBar = (props) => {
     } else {
       return umodule[fname](...params)
     }
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       umodule[fname](...params)
     })
   }
 
   state.editState = () => {
-    setData("current", { edit: !state.data.edit })
+    setData(state.key, { edit: !state.data.edit })
   }
 
   state.quickView = (qview) => {
-    setData(state.data.module, { 
-      result: [], vkey: null, qview: qview, qfilter: "" })
-    setData("current", { side: app.getSideBar() })
+    setData(state.data.module, { seltype: "selector",
+      result: [], qview: qview, qfilter: "", page: 1 })
+    setData(state.key, { side: app.getSideBar() })
   }
   
   state.editorNew = (params) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if(params.ttype === "shipping"){
         let formProps = {
           view: "transitem_delivery", 
@@ -85,9 +85,9 @@ const SideBar = (props) => {
           result: [],
           filter: "",
           getText: app.getText, 
-          onClose: ()=>setData("current", { modalForm: null }), 
+          onClose: ()=>setData(state.key, { modalForm: null }), 
           onSelect: (row, filter) => {
-            setData("current", { modalForm: null }, ()=>{
+            setData(state.key, { modalForm: null }, ()=>{
               const params = row.id.split("/")
               editor.checkEditor({ 
                 ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
@@ -101,10 +101,10 @@ const SideBar = (props) => {
               return app.resultError(view)
             }
             formProps.result = view.result
-            setData("current", { modalForm: <Selector {...formProps} /> })
+            setData(state.key, { modalForm: <Selector {...formProps} /> })
           }
         }
-        setData("current", { modalForm: <Selector {...formProps} /> })
+        setData(state.key, { modalForm: <Selector {...formProps} /> })
       /*
       } else if(data.edit.current.form){
         editor.checkEditor({
@@ -121,7 +121,7 @@ const SideBar = (props) => {
   }
 
   state.editorDelete = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if(data.edit.current.form){
         editor.deleteEditorItem({
           fkey: data.edit.current.form_type, 
@@ -135,11 +135,11 @@ const SideBar = (props) => {
   }
 
   state.transCopy = (ctype) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if (ctype === "create") {
         editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
       } else {
-        setData("current", { modalForm: 
+        setData(state.key, { modalForm: 
           <InputBox 
             title={app.getText("msg_warning")}
             message={app.getText("msg_copy_text")}
@@ -148,10 +148,10 @@ const SideBar = (props) => {
             labelOK={app.getText("msg_ok")}
             labelCancel={app.getText("msg_cancel")}
             onCancel={() => {
-              setData("current", { modalForm: null })
+              setData(state.key, { modalForm: null })
             }}
             onOK={(value) => {
-              setData("current", { modalForm: null }, () => {
+              setData(state.key, { modalForm: null }, () => {
                 editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
               })
             }}
@@ -162,7 +162,7 @@ const SideBar = (props) => {
   };
   
   state.setLink = (type, field) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       let link_id = (data.edit.current.transtype === "cash") ? 
       data.edit.current.extend.id : data.edit.current.form.id;
       editor.checkEditor(
@@ -171,7 +171,7 @@ const SideBar = (props) => {
   }
 
   state.shippingAddAll = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       let edit = update({}, {$set: data.edit})
       edit.dataset.shipping_items_.forEach(sitem => {
         if (sitem.diff !== 0 && sitem.edited !== true) {
@@ -196,7 +196,7 @@ const SideBar = (props) => {
   }
 
   state.editorBack = () =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if(data.edit.current.form){
         editor.checkEditor({
           ntype: data.edit.current.type, 
@@ -223,7 +223,7 @@ const SideBar = (props) => {
   }
 
   state.settingBack = (back_type) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if(data.setting.type === "password"){
         return setData(state.data.module, { group_key: "group_admin" }, ()=>{
           setting.loadSetting({ type: 'setting' })
@@ -234,7 +234,7 @@ const SideBar = (props) => {
   }
 
   state.saveEditor = () => {
-    setData("current", { side: app.getSideBar() }, async ()=>{
+    setData(state.key, { side: app.getSideBar() }, async ()=>{
       let edit = null
       if(data.edit.current.form){
         edit = await editor.saveEditorForm()
@@ -253,7 +253,7 @@ const SideBar = (props) => {
   }
 
   state.setPassword = (username) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData(state.key, { side: app.getSideBar() }, ()=>{
       if(!username && data.edit.current){
         username = data.edit.dataset[data.edit.current.type][0].username
       }
@@ -262,7 +262,7 @@ const SideBar = (props) => {
   }
 
   state.settingSave = () => {
-    setData("current", { side: app.getSideBar() }, async ()=>{
+    setData(state.key, { side: app.getSideBar() }, async ()=>{
       if(data.setting.type === "password"){
         setting.changePassword()
       } else {

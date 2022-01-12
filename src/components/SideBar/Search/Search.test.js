@@ -12,7 +12,6 @@ it('renders in the Default state', () => {
   const { container } = render(
     <Default {...Default.args} id="test_menu" onGroup={onGroup} onMenu={onMenu} />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
   const btn_view = getById(container, 'btn_view_transitem')
@@ -43,7 +42,6 @@ it('renders in the Office state', () => {
   const { container } = render(
     <Office {...Office.args} id="test_menu" onMenu={onMenu} />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
   const btn_printqueue = getById(container, 'btn_printqueue')

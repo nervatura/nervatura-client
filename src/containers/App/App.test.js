@@ -5,7 +5,7 @@ import { Default as EditDefault } from 'components/SideBar/Edit/Edit.stories'
 import InputBox from 'components/Modal/InputBox'
 
 import App from './index';
-import { guid, request, useApp } from './actions'
+import { guid, request, appActions } from './actions'
 
 jest.mock("./actions");
 const getById = queryByAttribute.bind(null, 'id');
@@ -29,7 +29,7 @@ describe('<App />', () => {
     })
     global.Storage.prototype.getItem = jest.fn((key) => local[key])
 
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       resultError: jest.fn(),
     })

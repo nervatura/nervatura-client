@@ -1,15 +1,12 @@
-import { useContext } from 'react';
 import update from 'immutability-helper';
 import { formatISO, addDays } from 'date-fns'
 
-import AppStore from 'containers/App/context'
-import { useApp, getSql } from 'containers/App/actions'
+import { appActions, getSql } from 'containers/App/actions'
 import { guid } from 'containers/App/actions'
 import { getSetting } from 'config/app'
 
-export const useValidator = () => {
-  const app = useApp()
-  const { data } = useContext(AppStore)
+export const Validator = (data, setData) => {
+  const app = appActions(data, setData)
   return async (typeName, values) => {
     
     const checkUniqueKey = async (whereFilter, whereValue) => {
@@ -364,8 +361,7 @@ export const useValidator = () => {
   }
 }
 
-export const useInitItem = () => {
-  const { data } = useContext(AppStore)
+export const InitItem = (data, setData) => {
   return (params) => {
     const dataset = params.dataset || data.edit.dataset
     const current = params.current || data.edit.current

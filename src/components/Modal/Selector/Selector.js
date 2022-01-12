@@ -14,8 +14,8 @@ import Table from 'components/Form/Table'
 
 export const Selector = ({
   view, columns, result, filter,
-  selectorPage, paginationPage, className,
-  getText, onClose, onSelect, onSearch,
+  selectorPage, paginationPage, currentPage, className,
+  getText, onClose, onSelect, onSearch, onCurrentPage, 
   ...props 
 }) => {
   const [ state, setState ] = useState({
@@ -82,7 +82,8 @@ export const Selector = ({
             <Table fields={fields} rows={result}
               filterPlaceholder={getText("placeholder_search")} 
               paginationPage={(onClose) ? selectorPage : paginationPage} 
-              paginationTop={true}
+              paginationTop={true} 
+              currentPage={currentPage} onCurrentPage={onCurrentPage}
               onRowSelected={(row)=>onSelect(row, state.filter)} />
           </div>
         </div>
@@ -125,8 +126,16 @@ Selector.propTypes = {
   /**
    * Pagination row number / page
    */
-  paginationPage: PropTypes.number.isRequired, 
+  paginationPage: PropTypes.number.isRequired,
+  /**
+   * Current pagination page number
+   */
+  currentPage: PropTypes.number.isRequired,
   className: PropTypes.string.isRequired,
+  /**
+   * Paginator select handle 
+   */
+  onCurrentPage: PropTypes.func,
   /**
    * Localization
    */
@@ -152,11 +161,13 @@ Selector.defaultProps = {
   filter: "",
   selectorPage: getSetting("selectorPage"),
   paginationPage: getSetting("paginationPage"),
+  currentPage: 1,
   className: "",
   getText: undefined,
   onClose: undefined,
   onSearch: undefined,
-  onSelect: undefined
+  onSelect: undefined,
+  onCurrentPage: undefined
 }
 
 export default Selector;

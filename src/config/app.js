@@ -36,7 +36,7 @@ export const store = {
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.14", "5.0.0-beta.15", "5.0.0-beta.16"],
+    service: ["dev", "5.0.0-beta.15", "5.0.0-beta.16", "5.0.0-beta.17"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -120,7 +120,7 @@ export const store = {
       ? (window.location.hostname !== publicHost) ? window.location.origin+basePath : ""
       : localStorage.getItem("server")
   },
-  search: { group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
+  search: { seltype: "selector", group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },
   edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
   setting: { dirty: false, result: [] }, 

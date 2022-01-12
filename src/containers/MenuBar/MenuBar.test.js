@@ -7,10 +7,10 @@ import { store as app_store  } from 'config/app'
 import { AppProvider } from 'containers/App/context'
 import { BookmarkData } from 'components/Modal/Bookmark/Bookmark.stories'
 
-import { useApp } from 'containers/App/actions'
-import { useEditor } from 'containers/Editor/actions'
-import { useSetting } from 'containers/Setting/actions'
-import { useSearch } from 'containers/Search/actions'
+import { appActions } from 'containers/App/actions'
+import { editorActions } from 'containers/Editor/actions'
+import { settingActions } from 'containers/Setting/actions'
+import { searchActions } from 'containers/Search/actions'
 
 jest.mock("containers/App/actions");
 jest.mock("containers/Editor/actions");
@@ -36,7 +36,7 @@ const scrollTo = jest.fn()
 describe('<MenuBar />', () => {
 
   beforeEach(() => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getSideBar: jest.fn(),
       getText: jest.fn(),
       signOut: jest.fn(),
@@ -93,7 +93,7 @@ describe('<MenuBar />', () => {
   });
 
   it('loadSetting', () => {
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       loadSetting: jest.fn(),
     })
     const it_store = update({}, {$merge: store})
@@ -120,10 +120,10 @@ describe('<MenuBar />', () => {
   })
 
   it('showBookmarks - bookmark', () => {
-    useSearch.mockReturnValue({
+    searchActions.mockReturnValue({
       showBrowser: jest.fn(),
     })
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ 
@@ -149,14 +149,14 @@ describe('<MenuBar />', () => {
 
     const mnu_bookmark_large = getById(container, 'mnu_bookmark_large')
     fireEvent.click(mnu_bookmark_large)
-    expect(setData).toHaveBeenCalledTimes(4);
+    expect(setData).toHaveBeenCalledTimes(3);
   })
 
   it('showBookmarks - history', () => {
-    useSearch.mockReturnValue({
+    searchActions.mockReturnValue({
       showBrowser: jest.fn(),
     })
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{
@@ -183,7 +183,7 @@ describe('<MenuBar />', () => {
   })
 
   it('showBookmarks - onDelete cancel+error', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async () => ({ error: {} })),
       resultError: jest.fn(),

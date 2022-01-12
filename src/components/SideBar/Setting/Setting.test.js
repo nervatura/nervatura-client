@@ -13,7 +13,6 @@ it('renders in the Default state', () => {
   const { container } = render(
     <Default {...Default.args} id="test_menu" onGroup={onGroup} onMenu={onMenu} />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
   const btn_numberdef = getById(container, 'cmd_numberdef')
@@ -39,7 +38,6 @@ it('renders in the DatabaseGroup state', () => {
   const { container } = render(
     <DatabaseGroup {...DatabaseGroup.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
 })
@@ -49,7 +47,6 @@ it('renders in the UserGroup state', () => {
   const { container } = render(
     <UserGroup {...UserGroup.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
 })
@@ -59,7 +56,6 @@ it('renders in the TemplateEditor state', () => {
   const { container } = render(
     <TemplateEditor {...TemplateEditor.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
   render(
@@ -88,7 +84,6 @@ it('renders in the FormItemAll state', () => {
   const { container } = render(
     <FormItemAll {...FormItemAll.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
 })
@@ -98,7 +93,6 @@ it('renders in the FormItemNew state', () => {
   const { container } = render(
     <FormItemNew {...FormItemNew.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
 })
@@ -108,7 +102,6 @@ it('renders in the FormItemRead state', () => {
   const { container } = render(
     <FormItemRead {...FormItemRead.args} id="test_menu" />
   );
-  getById(container, "test_menu")
   expect(getById(container, "test_menu")).toBeDefined();
 
 })

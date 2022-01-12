@@ -1,16 +1,13 @@
-import { useContext } from 'react';
 import update from 'immutability-helper';
 import printJS from 'print-js'
 
-import AppStore from 'containers/App/context'
-import { useApp, saveToDisk } from 'containers/App/actions'
+import { appActions, saveToDisk } from 'containers/App/actions'
 import InputBox from 'components/Modal/InputBox'
 import TemplateData from 'components/Modal/Template'
 import { getSetting } from 'config/app'
 
-export const useTemplate = () => {
-  const { data, setData } = useContext(AppStore)
-  const app = useApp()
+export const templateActions = (data, setData) => {
+  const app = appActions(data, setData)
 
   const elements = {
     report:{
@@ -1277,17 +1274,6 @@ export const useTemplate = () => {
         type: 'pdf',
         base64: false,
       })
-      /*
-      report.loadPreview({ 
-        module: "setting",
-        pdf: URL.createObjectURL(result, {type : "application/pdf"}), 
-        refnumber: data.refnumber||"",
-        nervatype: data.nervatype||"",
-        orient: params.orientation,
-        size: params.size,
-        template: "template"
-      })
-      */
     }
     let setting = update(data.setting, {})
     const params = {

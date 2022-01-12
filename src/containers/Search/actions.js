@@ -1,75 +1,66 @@
-/*eslint no-useless-escape: "off"*/
-import { useContext } from 'react';
 import update from 'immutability-helper';
+import { formatISO } from 'date-fns'
 
-import AppStore from 'containers/App/context'
-import { getSql, useApp, request } from 'containers/App/actions'
+import { getSql, appActions, request } from 'containers/App/actions'
 import { Queries } from 'containers/Controller/Queries'
 import Server from 'components/Modal/Server'
 
-export const useSearch = () => {
-  const { data, setData } = useContext(AppStore)
-  const app = useApp()
+export const searchActions = (data, setData) => {
+  const app = appActions(data, setData)
   const queries = Queries({ getText: app.getText })
 
-  const showBrowser = (vkey, view) => {
+  const showBrowser = (vkey, view, search_data) => {
+    search_data = search_data || data.search
     setData("current", { side: app.getSideBar() }, async ()=>{
-      let search = update(data.search, {$merge: {
-        vkey: vkey, view: view,
-        filters: {}, 
-        columns: {}, 
-        result: [],
-        page: 1
+      let search = update(search_data, {$merge: {
+        seltype: "browser",
+        vkey: vkey, 
+        view: (typeof view==="undefined") ? Object.keys(queries[vkey]())[1] : view, 
+        result: [], deffield:[],
+        show_dropdown: false,
+        show_header: (typeof search_data.show_header === "undefined") ? true : search_data.show_header,
+        show_columns: (typeof search_data.show_columns === "undefined") ? false : search_data.show_columns,
+        page: search_data.page || 1,
       }})
-      if((search.vkey !== vkey) && queries[vkey]){
-        let views = [
-          { key: "deffield",
-            text: getSql(data.login.data.engine, 
-              queries[vkey]().options.deffield_sql).sql,
-            values: [] 
-          }
-        ]
-        let options = { method: "POST", data: views }
-        let view = await app.requestData("/view", options)
-        if(view.error){
-          return app.resultError(view)
+      let views = [
+        { key: "deffield",
+          text: getSql(data.login.data.engine, 
+            queries[vkey]().options.deffield_sql).sql,
+          values: [] 
         }
-        search = update(search, {$merge: {
-          deffield: view.deffield
-        }})
-      }
-      if (typeof view==="undefined") {
-        view = Object.keys(queries[vkey]())[1]
+      ]
+      let options = { method: "POST", data: views }
+      let result = await app.requestData("/view", options)
+      if(result.error){
+        return app.resultError(result)
       }
       search = update(search, {$merge: {
-        vkey: vkey, view: view, dropdown: "", result: []
+        deffield: result.deffield
       }})
-      if(!search.filters[view]){
+      if(!search.filters[search.view]){
         search = update(search, { filters: {
-          $merge: { [view]: []}
+          $merge: { [search.view]: []}
         }})
       }
-      const viewDef = queries[vkey]()[view]
-      if (typeof search.columns[view] === "undefined") {
+      const viewDef = queries[vkey]()[search.view]
+      if (typeof search.columns[search.view] === "undefined") {
         search = update(search, { columns: {
-          $merge: { [view]: {} }
+          $merge: { [search.view]: {} }
         }})
-        if (typeof viewDef.columns !== "undefined") {
-          for(let fic = 0; fic < Object.keys(viewDef.columns).length; fic++) {
-            let fieldname = Object.keys(viewDef.columns)[fic];
-            search = update(search, { columns: { 
-              [view]: {
-                $merge: { [fieldname]: viewDef.columns[fieldname] }
-              }
-            }})
-          }
+        for(let fic = 0; fic < Object.keys(viewDef.columns).length; fic++) {
+          let fieldname = Object.keys(viewDef.columns)[fic];
+          search = update(search, { columns: { 
+            [search.view]: {
+              $merge: { [fieldname]: viewDef.columns[fieldname] }
+            }
+          }})
         }
       }
-      if (Object.keys(search.columns[view]).length === 0) {
+      if (Object.keys(search.columns[search.view]).length === 0) {
         for(let v = 0; v < 3; v++) {
           let fieldname = Object.keys(viewDef.fields)[v];
           search = update(search, { columns: { 
-            [view]: {
+            [search.view]: {
               $merge: { [fieldname]: true }
             }
           }})
@@ -81,48 +72,38 @@ export const useSearch = () => {
   }
   
   const getDataFilter = (type, _where, view) => {
-    switch (type) {
-      case "customer":
-        break;
-      case "product":
-        break;
-      case "transitem":
-        if (app.getAuditFilter("trans", "offer")[0] === "disabled") {
-          _where = _where.concat.push(["and", ["tg.groupvalue", "<>", "'offer'"]]);
-        }
-        if (app.getAuditFilter("trans", "order")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
-        }
-        if (app.getAuditFilter("trans", "worksheet")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
-        }
-        if (app.getAuditFilter("trans", "rent")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
-        }
-        if (app.getAuditFilter("trans", "invoice")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
-        }
-        break;
-      case "transpayment":
-        if (app.getAuditFilter("trans", "bank")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
-        }
-        if (app.getAuditFilter("trans", "cash")[0] === "disabled") {
-          _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
-        }
-        break;
-      case "transmovement":
-        if (view !== "InventoryView") {
-          if (app.getAuditFilter("trans", "delivery")[0] === "disabled") {
-            _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
-          }
-          if (app.getAuditFilter("trans", "inventory")[0] === "disabled") {
-            _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
-          }
-        }
-        break;
-      default:
-        break;
+    if(type === "transitem"){
+      if (app.getAuditFilter("trans", "offer")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'offer'"]]);
+      }
+      if (app.getAuditFilter("trans", "order")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
+      }
+      if (app.getAuditFilter("trans", "worksheet")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
+      }
+      if (app.getAuditFilter("trans", "rent")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
+      }
+      if (app.getAuditFilter("trans", "invoice")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
+      }
+    }
+    if(type === "transpayment"){
+      if (app.getAuditFilter("trans", "bank")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
+      }
+      if (app.getAuditFilter("trans", "cash")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
+      }
+    }
+    if((type === "transmovement") && (view !== "InventoryView")){
+      if (app.getAuditFilter("trans", "delivery")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
+      }
+      if (app.getAuditFilter("trans", "inventory")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
+      }
     }
     return _where;
   }
@@ -133,23 +114,18 @@ export const useSearch = () => {
     if(!query){
       return filter
     }
-    switch (data.login.data.transfilterName) {
-      case "all":
-        break;
-      case "usergroup":
-        if (query().options.usergroup_filter !== null) {
-          filter.where = ["and", query().options.usergroup_filter]
-          filter.params = [data.login.data.employee.usergroup]
-        }
-        break;
-      case "own":
-        if (query().options.employee_filter !== null) {
-          filter.where = ["and", query().options.employee_filter]
-          filter.params = [data.login.data.employee.id]
-        }
-        break;
-      default:
-        break;}
+    if(data.login.data.transfilterName === "usergroup"){
+      if (query().options.usergroup_filter !== null) {
+        filter.where = ["and", query().options.usergroup_filter]
+        filter.params = [data.login.data.employee.usergroup]
+      }
+    }
+    if(data.login.data.transfilterName === "own"){
+      if (query().options.employee_filter !== null) {
+        filter.where = ["and", query().options.employee_filter]
+        filter.params = [data.login.data.employee.id]
+      }
+    }
     return filter;
   }
 
@@ -274,11 +250,52 @@ export const useSearch = () => {
     }
   }
 
+  const getFilterWhere = (filter) => {
+    switch (filter.filtertype) {
+      case "==N":
+        if(filter.fieldtype === "string"){
+          return ["and", [ [filter.sqlstr, "like", "''"], ["or", filter.sqlstr, "is null"]]]
+        }
+        return ["and", filter.sqlstr, "is null"]
+      
+      case "!==":
+        if(filter.fieldtype === "string"){
+          return ["and", ["lower("+filter.sqlstr+")", "not like", "{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE}"]]
+        }
+        return ["and", [filter.sqlstr, "<>", "?"]]
+      
+      case ">==":
+        return ["and", [filter.sqlstr, ">=", "?"]]
+      
+      case "<==":
+        return ["and", [filter.sqlstr, "<=", "?"]]
+
+      case "===":
+      default:
+        if(filter.fieldtype === "string"){
+          return ["and", ["lower("+filter.sqlstr+")", "like", "{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE}"]]
+        }
+        return ["and", [filter.sqlstr, "=", "?"]]
+    }
+  }
+
+  const defaultFilterValue = (fieldtype) => {
+    if(fieldtype === "date"){
+      return formatISO(new Date(), { representation: 'date' })
+    }
+    if(["bool", "integer", "float"].includes(fieldtype)){
+      return 0
+    }
+    return ""
+  }
+
   return {
     showBrowser: showBrowser,
     quickSearch: quickSearch,
     getUserFilter: getUserFilter,
     getDataFilter: getDataFilter,
-    showServerCmd: showServerCmd
+    showServerCmd: showServerCmd,
+    getFilterWhere: getFilterWhere,
+    defaultFilterValue: defaultFilterValue
   }
 }

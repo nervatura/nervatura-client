@@ -1,20 +1,19 @@
-import React, { useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
-import { useApp } from 'containers/App/actions'
-import { useSetting } from './actions'
+import { appActions } from 'containers/App/actions'
+import { settingActions } from './actions'
 import { Setting } from './Setting';
-import { useTemplate } from 'containers/Controller/Template'
-import { Preview, pageRender } from 'containers/Report'
+import { templateActions } from 'containers/Report/Template'
 import { getSetting } from 'config/app'
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
-  const app = useApp()
-  const setting = useSetting()
-  const template = useTemplate()
+  const app = appActions(data, setData)
+  const setting = settingActions(data, setData)
+  const template = templateActions(data, setData)
 
   const [state] = useState({
     engine: data.login.data.engine,
@@ -25,13 +24,6 @@ export default (props) => {
   })
 
   state.data = data.setting
-
-  state.viewerRef = useRef(null)
-  state.canvasRef = useRef(null)
-  
-  useEffect(() => {
-    pageRender(state.viewerRef.current, state.canvasRef.current, state.data.preview)
-  },[state.viewerRef, state.canvasRef, state.data.preview])
 
   state.mapRef = useCallback(map => {
     if (map) {
@@ -148,9 +140,6 @@ export default (props) => {
     template.editDataItem(options)
   }
 
-  if(state.data.preview){
-    return <Preview {...state} />
-  }
   if(state.data.type){
     return <Setting {...state} />
   }

@@ -8,18 +8,18 @@ import { AppProvider } from 'containers/App/context'
 import { Default as EditDefault, DocumentCancellation, Document as EditDocument, NewMovement } from 'components/SideBar/Edit/Edit.stories'
 import { FormItemAll, TemplateEditor } from 'components/SideBar/Setting/Setting.stories'
 
-import { useApp } from 'containers/App/actions'
-import { useEditor } from 'containers/Editor/actions'
-import { useSetting } from 'containers/Setting/actions'
-import { useSearch } from 'containers/Search/actions'
-import { useTemplate } from 'containers/Controller/Template'
-import { useReport } from 'containers/Report/actions'
+import { appActions } from 'containers/App/actions'
+import { editorActions } from 'containers/Editor/actions'
+import { settingActions } from 'containers/Setting/actions'
+import { searchActions } from 'containers/Search/actions'
+import { templateActions } from 'containers/Report/Template'
+import { reportActions } from 'containers/Report/actions'
 
 jest.mock("containers/App/actions");
 jest.mock("containers/Editor/actions");
 jest.mock("containers/Setting/actions");
 jest.mock("containers/Search/actions");
-jest.mock("containers/Controller/Template");
+jest.mock("containers/Report/Template");
 jest.mock("containers/Report/actions");
 
 const getById = queryByAttribute.bind(null, 'id');
@@ -37,7 +37,7 @@ const store = update(app_store, {$merge: {
 describe('<SideBar />', () => {
 
   beforeEach(() => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getSideBar: jest.fn(),
       getText: jest.fn(),
       resultError: jest.fn(),
@@ -51,10 +51,10 @@ describe('<SideBar />', () => {
   });
 
   it('renders in the Search state', () => {
-    useSearch.mockReturnValue({
+    searchActions.mockReturnValue({
       showBrowser: jest.fn(),
     })
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn()
@@ -94,10 +94,10 @@ describe('<SideBar />', () => {
   });
 
   it('renders in the Setting state', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       loadSetting: jest.fn(),
       setPasswordForm: jest.fn(),
       setProgramForm: jest.fn(),
@@ -151,7 +151,7 @@ describe('<SideBar />', () => {
   });
 
   it('renders in the Setting - setPassword', () => {
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       setPasswordForm: jest.fn()
     })
 
@@ -190,7 +190,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Setting - settingSave', () => {
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       changePassword: jest.fn(),
       saveSetting: jest.fn(async () => ({ type: "", current: { form: { id: 1 } }})),
       loadSetting: jest.fn()
@@ -234,7 +234,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Setting - settingSave missing result', () => {
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       saveSetting: jest.fn(async () => (null)),
       loadSetting: jest.fn()
     })
@@ -263,7 +263,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Setting - exportTemplate', () => {
-    useTemplate.mockReturnValue({
+    templateActions.mockReturnValue({
       exportTemplate: jest.fn(),
     })
 
@@ -291,7 +291,7 @@ describe('<SideBar />', () => {
   })
   
   it('renders in the Setting - settingBack', () => {
-    useSetting.mockReturnValue({
+    settingActions.mockReturnValue({
       checkSetting: jest.fn(),
       loadSetting: jest.fn()
     })
@@ -355,7 +355,7 @@ describe('<SideBar />', () => {
   });
 
   it('renders in the Edit - editorBack', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
@@ -425,7 +425,7 @@ describe('<SideBar />', () => {
   });
 
   it('renders in the Edit - createReport, showHelp', () => {
-    useReport.mockReturnValue({
+    reportActions.mockReturnValue({
       createReport: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
@@ -457,7 +457,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - saveEditor', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       saveEditorForm: jest.fn(),
       saveEditor: jest.fn(async () => ({ current: { item: {} }})),
       loadEditor: jest.fn(),
@@ -501,7 +501,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - shippingAddAll', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       setEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
@@ -536,7 +536,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - setLink', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
@@ -587,7 +587,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - transCopy', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{ 
@@ -630,7 +630,7 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - editorDelete', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       deleteEditorItem: jest.fn(),
       deleteEditor: jest.fn(),
     })
@@ -673,10 +673,10 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - editorNew', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
-    useSearch.mockReturnValue({
+    searchActions.mockReturnValue({
       quickSearch: jest.fn(async () => ({ 
         result: [ {id:"trans/invoice/1"}, {id:"trans/invoice/2"}, {id:"trans/invoice/3"} ] 
       })),
@@ -746,10 +746,10 @@ describe('<SideBar />', () => {
   })
 
   it('renders in the Edit - editorNew onSearch error', () => {
-    useEditor.mockReturnValue({
+    editorActions.mockReturnValue({
       checkEditor: jest.fn(),
     })
-    useSearch.mockReturnValue({
+    searchActions.mockReturnValue({
       quickSearch: jest.fn(async () => ({ 
         error: {} 
       })),

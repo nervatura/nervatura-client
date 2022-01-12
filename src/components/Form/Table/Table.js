@@ -32,6 +32,7 @@ export const TableView = ({
     filter: filterValue
   })
 
+  const pagination = (onCurrentPage) ? { page: currentPage, perPage: paginationPage } : state.pagination
   const getSortingColumns = () => state.sortingColumns;
   const sortable = sort.sort({
     getSortingColumns,
@@ -164,7 +165,7 @@ export const TableView = ({
     const linkCell = (value, label, fieldname, resultValue, rowData) => {
       return <Fragment>
         <span className="cell-label">{label}</span>
-        <span className="link-cell" 
+        <span id={"link_"+rowData[rowKey]} className="link-cell" 
           onClick={(onEditCell)?(event)=>{
             event.stopPropagation();
             onEditCell(fieldname, resultValue, rowData);
@@ -284,8 +285,8 @@ export const TableView = ({
   }
 
   const columns = getColumns()
-  const tableRows = (state.pagination.perPage > 0) ? 
-    paginate(state.pagination)(
+  const tableRows = (pagination.perPage > 0) ? 
+    paginate(pagination)(
       sort.sorter({ columns: columns, sortingColumns: state.sortingColumns, sort: orderBy })(rowFilter())) :
     sort.sorter({ columns: columns, sortingColumns: state.sortingColumns, sort: orderBy })(rowFilter())
   const showPaginator = ((typeof tableRows.amount !== "undefined") && (tableRows.amount > 1)) ? true : false
@@ -293,7 +294,7 @@ export const TableView = ({
     <div {...props} className={` ${"ui-table"} ${className}`} >
       {(tableFilter || (showPaginator && paginationTop))?<div className="padding-tiny">
         {(showPaginator && paginationTop) ?
-          <Paginator pagination={state.pagination} pages={tableRows.amount} onSelect={onSelect} />:null}
+          <Paginator pagination={pagination} pages={tableRows.amount} onSelect={onSelect} />:null}
         {(tableFilter) ? <div className="row full">
           <div className="cell" >
             <Input id="filter" type="text" className="full"
@@ -315,7 +316,7 @@ export const TableView = ({
           onRow={onRow} />
       </Table.Provider>
       {(showPaginator && !paginationTop) ? <div className="padding-tiny">
-        <Paginator pagination={state.pagination} pages={tableRows.amount} onSelect={onSelect} /></div>:null}
+        <Paginator pagination={pagination} pages={tableRows.amount} onSelect={onSelect} /></div>:null}
     </div>
   )
 }

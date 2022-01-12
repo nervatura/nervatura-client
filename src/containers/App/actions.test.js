@@ -1,21 +1,14 @@
-import { renderHook } from '@testing-library/react-hooks'
 import { queryByAttribute } from '@testing-library/react'
 import ReactDOM from 'react-dom';
 import update from 'immutability-helper';
 
-import { AppProvider } from 'containers/App/context'
 import { store as app_store  } from 'config/app'
-import { request, guid, saveToDisk, getSql, useApp } from './actions'
+import { request, guid, saveToDisk, getSql, appActions } from './actions'
 import { toast } from 'react-toastify';
 
 jest.mock("react-toastify");
 
 const getById = queryByAttribute.bind(null, 'id');
-const wrapper = ({ children }) => <AppProvider 
-  value={{ 
-    data: app_store, 
-    setData: jest.fn((key, data, callback)=>{ if(callback){callback()} }) 
-  }}>{children}</AppProvider>
 
 it('getSql', () => {
   expect(getSql("sqlite", "select * from table")).toBeDefined();
@@ -315,7 +308,7 @@ describe('request', () => {
 
 });
 
-describe('useApp', () => {
+describe('appActions', () => {
 
   beforeEach(() => {
     window.fetch = jest.fn()
@@ -333,36 +326,27 @@ describe('useApp', () => {
   });
   
   it('getText', () => {
-    const { result } = renderHook(() => useApp(), { wrapper })
-    
-    let langText = result.current.getText("en", "en")
+    let langText = appActions(app_store, jest.fn()).getText("en", "en")
     expect(langText).toBe("English")
   });
   
   it('showToast', () => {
-    const { result } = renderHook(() => useApp(), { wrapper })
-    result.current.showToast({autoClose: true, type: "error", message: "message"})
-    result.current.showToast({autoClose: false, type: "warning", message: "message"})
-    result.current.showToast({autoClose: false, type: "success", message: "message"})
-    result.current.showToast({autoClose: true, type: "info", message: "message"})
-    result.current.showToast({autoClose: true, type: "default", message: "message"})
+    appActions(app_store, jest.fn()).showToast({autoClose: true, type: "error", message: "message"})
+    appActions(app_store, jest.fn()).showToast({autoClose: false, type: "warning", message: "message"})
+    appActions(app_store, jest.fn()).showToast({autoClose: false, type: "success", message: "message"})
+    appActions(app_store, jest.fn()).showToast({autoClose: true, type: "info", message: "message"})
+    appActions(app_store, jest.fn()).showToast({autoClose: true, type: "default", message: "message"})
   });
 
-  it('resultError', () => {
-    const { result } = renderHook(() => useApp(), { wrapper })
-    
-    result.current.resultError({})
-    result.current.resultError({error:"error"})
-    result.current.resultError({error:{message: "message"}})
+  it('resultError', () => {    
+    appActions(app_store, jest.fn()).resultError({})
+    appActions(app_store, jest.fn()).resultError({error:"error"})
+    appActions(app_store, jest.fn()).resultError({error:{message: "message"}})
   });
 
   it('signOut', () => {
     const setData = jest.fn()
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: app_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
-    
-    result.current.signOut()
+    appActions(app_store, setData).signOut()
     expect(setData).toHaveBeenCalledTimes(1);
   });
 
@@ -394,11 +378,8 @@ describe('useApp', () => {
         id: 1 
       }
     }
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    const resultData = await result.current.requestData("/test", options, false)
+    const resultData = await appActions(it_store, setData).requestData("/test", options, false)
     expect(resultData.hello).toBe("world");
     expect(setData).toHaveBeenCalledTimes(2);
 
@@ -423,11 +404,8 @@ describe('useApp', () => {
       token: "token",
       headers: {}
     }
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    const resultData = await result.current.requestData("/test", options, true)
+    const resultData = await appActions(it_store, setData).requestData("/test", options, true)
     expect(resultData.error.message).toBe("Unauthorized");
     expect(setData).toHaveBeenCalledTimes(1);
 
@@ -449,11 +427,8 @@ describe('useApp', () => {
       }}
     })
     const options = {}
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    const resultData = await result.current.requestData("/test", options, true)
+    const resultData = await appActions(it_store, setData).requestData("/test", options, true)
     expect(resultData.error.message).toBe("errordata");
     expect(setData).toHaveBeenCalledTimes(0);
 
@@ -473,15 +448,12 @@ describe('useApp', () => {
       }}
     })
     const options = {}
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    let resultData = await result.current.requestData("/test", options, true)
+    let resultData = await appActions(it_store, setData).requestData("/test", options, true)
     expect(resultData.error.message).toBe("Not Found");
     expect(setData).toHaveBeenCalledTimes(0);
 
-    resultData = await result.current.requestData("/test", options, false)
+    resultData = await appActions(it_store, setData).requestData("/test", options, false)
     expect(resultData.error.message).toBe("Not Found");
     expect(setData).toHaveBeenCalledTimes(2);
 
@@ -489,17 +461,14 @@ describe('useApp', () => {
 
   it('getSideBar', () => {
     const setData = jest.fn()
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: app_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    let value = result.current.getSideBar()
+    let value = appActions(app_store, setData).getSideBar()
     expect(value).toBe("show");
-    value = result.current.getSideBar("auto")
+    value = appActions(app_store, setData).getSideBar("auto")
     expect(value).toBe("show");
-    value = result.current.getSideBar("show")
+    value = appActions(app_store, setData).getSideBar("show")
     expect(value).toBe("hide");
-    value = result.current.getSideBar("hide")
+    value = appActions(app_store, setData).getSideBar("hide")
     expect(value).toBe("show");
   });
 
@@ -549,19 +518,16 @@ describe('useApp', () => {
         }
       }}
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    let audit = result.current.getAuditFilter("trans", "inventory")
+    let audit = appActions(it_store, setData).getAuditFilter("trans", "inventory")
     expect(audit[0]).toBe("readonly");
-    audit = result.current.getAuditFilter("menu", "nextNumber")
+    audit = appActions(it_store, setData).getAuditFilter("menu", "nextNumber")
     expect(audit[0]).toBe("disabled");
-    audit = result.current.getAuditFilter("report", 6)
+    audit = appActions(it_store, setData).getAuditFilter("report", 6)
     expect(audit[0]).toBe("disabled");
-    audit = result.current.getAuditFilter("customer")
+    audit = appActions(it_store, setData).getAuditFilter("customer")
     expect(audit[0]).toBe("update");
-    audit = result.current.getAuditFilter("product")
+    audit = appActions(it_store, setData).getAuditFilter("product")
     expect(audit[0]).toBe("all");
 
   });
@@ -601,11 +567,8 @@ describe('useApp', () => {
         }
       }}
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.createHistory("save")
+    await appActions(it_store, setData).createHistory("save")
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -653,11 +616,8 @@ describe('useApp', () => {
         }
       }}
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.createHistory("save")
+    await appActions(it_store, setData).createHistory("save")
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -703,11 +663,8 @@ describe('useApp', () => {
         }
       }}
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.createHistory("save")
+    await appActions(it_store, setData).createHistory("save")
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -722,11 +679,8 @@ describe('useApp', () => {
     window.fetch.mockReturnValue(Promise.resolve(res));
 
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: app_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.loadBookmark({ token:"token", user_id: 1, callback: ()=>{} })
+    await appActions(app_store, setData).loadBookmark({ token:"token", user_id: 1, callback: ()=>{} })
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -741,11 +695,8 @@ describe('useApp', () => {
     window.fetch.mockReturnValue(Promise.resolve(res));
 
     const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: app_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.loadBookmark({ token:"token", user_id: 1 })
+    await appActions(app_store, setData).loadBookmark({ token:"token", user_id: 1 })
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -760,18 +711,14 @@ describe('useApp', () => {
     window.fetch.mockReturnValue(Promise.resolve(res));
 
     const setData = jest.fn()
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: app_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    await result.current.loadBookmark({ token:"token", user_id: 1, callback: ()=>{} })
+    await appActions(app_store, setData).loadBookmark({ token:"token", user_id: 1, callback: ()=>{} })
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
 
   it('showHelp', () => {
-    const { result } = renderHook(() => useApp(), { wrapper })
-    result.current.showHelp("help")
+    appActions(app_store, jest.fn()).showHelp("help")
   });
 
   it('saveBookmark browser', async () => {
@@ -822,14 +769,11 @@ describe('useApp', () => {
         }
       }},
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    result.current.saveBookmark(['browser', 'Customer Data'])
+    appActions(it_store, setData).saveBookmark(['browser', 'Customer Data'])
     expect(setData).toHaveBeenCalledTimes(4);
 
-    result.current.saveBookmark(['browser', ''])
+    appActions(it_store, setData).saveBookmark(['browser', ''])
     expect(setData).toHaveBeenCalledTimes(7);
 
   });
@@ -882,11 +826,8 @@ describe('useApp', () => {
         }
       }},
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    result.current.saveBookmark(['editor', 'trans', 'transnumber'])
+    appActions(it_store, setData).saveBookmark(['editor', 'trans', 'transnumber'])
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -939,11 +880,8 @@ describe('useApp', () => {
         }
       }},
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    result.current.saveBookmark(['editor', 'trans', 'transnumber'])
+    appActions(it_store, setData).saveBookmark(['editor', 'trans', 'transnumber'])
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -989,11 +927,8 @@ describe('useApp', () => {
         }
       }},
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    result.current.saveBookmark(['editor', 'customer', 'custname', 'custnumber'])
+    appActions(it_store, setData).saveBookmark(['editor', 'customer', 'custname', 'custnumber'])
     expect(setData).toHaveBeenCalledTimes(3);
 
   });
@@ -1046,11 +981,8 @@ describe('useApp', () => {
         }
       }},
     })
-    const wrapper = ({ children }) => <AppProvider 
-      value={{ data: it_store, setData: setData }}>{children}</AppProvider>
-    const { result } = renderHook(() => useApp(), { wrapper })
     
-    result.current.saveBookmark(['editor', 'trans', 'transnumber'])
+    appActions(it_store, setData).saveBookmark(['editor', 'trans', 'transnumber'])
     expect(setData).toHaveBeenCalledTimes(3);
 
   });

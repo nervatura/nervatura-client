@@ -1,27 +1,24 @@
-import { useContext } from 'react';
 import update from 'immutability-helper';
 import { format } from 'date-fns'
 
-import AppStore from 'containers/App/context'
-import { useApp, getSql } from 'containers/App/actions'
-import { useEditor } from 'containers/Editor/actions'
+import { appActions, getSql } from 'containers/App/actions'
+import { editorActions } from 'containers/Editor/actions'
 import { Sql } from 'containers/Controller/Sql'
 import dataset from 'containers/Controller/Dataset'
 import { Forms } from 'containers/Controller/Forms'
-import { useInitItem, useValidator } from 'containers/Controller/Items'
-import { useTemplate } from 'containers/Controller/Template'
+import { InitItem, Validator } from 'containers/Controller/Validator'
+import { templateActions } from 'containers/Report/Template'
 import InputBox from 'components/Modal/InputBox'
 import Audit from 'components/Modal/Audit'
 import Menu from 'components/Modal/Menu'
 import { getSetting } from 'config/app'
 
-export const useSetting = () => {
-  const { data, setData } = useContext(AppStore)
-  const app = useApp()
-  const editor = useEditor()
-  const validator = useValidator()
-  const initItem = useInitItem()
-  const template = useTemplate()
+export const settingActions = (data, setData) => {
+  const app = appActions(data, setData)
+  const editor = editorActions(data, setData)
+  const validator = Validator(data, setData)
+  const initItem = InitItem(data, setData)
+  const template = templateActions(data, setData)
 
   const forms = Forms({ getText: app.getText })
   const sql = Sql({ getText: app.getText })

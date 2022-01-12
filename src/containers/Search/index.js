@@ -1,35 +1,39 @@
 import React, { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import { formatISO } from 'date-fns'
 
 import AppStore from 'containers/App/context'
-import { getSql, saveToDisk, useApp } from 'containers/App/actions'
-import { useSearch } from './actions'
-import { useEditor } from 'containers/Editor/actions'
+import { getSql, saveToDisk, appActions } from 'containers/App/actions'
+import { searchActions } from './actions'
+import { editorActions } from 'containers/Editor/actions'
 import { Queries } from 'containers/Controller/Queries'
-import { QuickView, BrowserView } from './Search';
 import Total from 'components/Modal/Total'
 import { getSetting } from 'config/app'
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default (props) => {
-  const { data, setData } = useContext(AppStore);
-  const search = useSearch()
-  const editor = useEditor()
-  const app = useApp()
+import SearchMemo, { SearchView } from './Search';
 
-  const [state] = useState({
+const Search = (props) => {
+  const { data, setData } = useContext(AppStore);
+  const search = searchActions(data, setData)
+  const editor = editorActions(data, setData)
+  const app = appActions(data, setData)
+
+  const [state] = useState(update(props, {$merge: {
     engine: data.login.data.engine,
     queries: Queries({ getText: app.getText }),
+    theme: data.current.theme,
     ui: getSetting("ui"),
     showHelp: app.showHelp
-  })
+  }}))
 
-  state.data = data.search
-  state.current = data.current
-  
+  state.data = update(state.data, {$merge: { ...data[state.key] }})
+
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)
+  }
+
+  state.onEvent = (fname, params) => {
+    state[fname](...params)
   }
 
   state.editRow = (row, rowIndex) => {
@@ -67,7 +71,11 @@ export default (props) => {
   }
 
   state.onPage = (page) => {
-    setData("search", { page: page })
+    setData(state.key, { page: page })
+  }
+
+  state.changeData = (fieldname, value) => {
+    setData(state.key, { [fieldname]: value })
   }
 
   state.setColumns = (fieldname, value) => {
@@ -82,24 +90,7 @@ export default (props) => {
         [state.data.view] : columns[state.data.view]
       } })
     }
-    setData("search", { columns: columns, update: new Date().getTime() })
-  }
-
-  state.showColumns = () => {
-    setData("search", { [state.data.vkey+"_columns"]: !(state.data[state.data.vkey+"_columns"]) })
-  }
-
-  const defaultFilterValue = (fieldtype) => {
-    switch (fieldtype) {
-      case "date":
-        return formatISO(new Date(), { representation: 'date' })
-      case "bool":
-      case "integer":
-      case "float":
-        return 0
-      default:
-        return ""
-    }
+    setData(state.key, { columns: columns, update: new Date().getTime() })
   }
 
   state.addFilter = () => {
@@ -113,9 +104,9 @@ export default (props) => {
       sqlstr: frow.sqlstr,
       wheretype: frow.wheretype,
       filtertype: "===",
-      value: defaultFilterValue(frow.fieldtype)
+      value: search.defaultFilterValue(frow.fieldtype)
     }]}})
-    setData("search", { filters: filters })
+    setData(state.key, { filters: filters })
   }
 
   state.deleteFilter = (index) => {
@@ -123,111 +114,107 @@ export default (props) => {
     filters = update(filters, { [state.data.view]: {
       $splice: [[index, 1]]
     } })
-    setData("search", { filters: filters })
+    setData(state.key, { filters: filters })
   }
 
   state.editFilter = (index, fieldname, value) => {
     const viewDef = state.queries[state.data.vkey]()[state.data.view]
     let filters = update(state.data.filters, {})
-    switch (fieldname) {
-      case "filtertype":
-      case "value":
+    if((fieldname === "filtertype") || (fieldname === "value")){
+      filters = update(filters, { [state.data.view]: {
+        [index]: {$merge: { [fieldname]: value } }
+      } })
+    }
+    if(fieldname === "fieldname"){
+      if (Object.keys(viewDef.fields).includes(value)) {
+        const frow = viewDef.fields[value]
         filters = update(filters, { [state.data.view]: {
-          [index]: {$merge: { [fieldname]: value } }
-        } })
-        break;
-      case "fieldname":
-        if (Object.keys(viewDef.fields).includes(value)) {
-          const frow = viewDef.fields[value]
-          filters = update(filters, { [state.data.view]: {
-            [index]: {$merge: { 
-              fieldname: value, fieldtype: frow.fieldtype,
-              sqlstr: frow.sqlstr, wheretype: frow.wheretype, filtertype: "===",
-              value: defaultFilterValue(frow.fieldtype)
-            }}
-          }})
-        } else {
-          const deffield = state.data.deffield.filter((df)=>(df.fieldname === value))[0]
-          if(deffield){
-            let fieldtype = "string"; let sqlstr = "fv.value ";
-            switch (deffield.fieldtype) {
-              case "bool":
-                fieldtype = "bool";
-                sqlstr = "fg.groupvalue='bool' and case when fv.value='true' then 1 else 0 end ";
-                break;
-              case "integer":
-                fieldtype = "integer";
-                sqlstr = "fg.groupvalue='integer' and {FMSF_NUMBER} {CAS_INT}fv.value {CAE_INT} {FMEF_CONVERT} ";
-                break;
-              case "float":
-                fieldtype = "float";
-                sqlstr = "fg.groupvalue='float' and {FMSF_NUMBER} {CAS_FLOAT}fv.value {CAE_FLOAT} {FMEF_CONVERT} ";
-                break;
-              case "date":
-                fieldtype = "date";
-                sqlstr = "fg.groupvalue='date' and {FMSF_DATE} {CASF_DATE}fv.value{CAEF_DATE} {FMEF_CONVERT} ";
-                break;
-              case "customer":
-                fieldtype = "string";
-                sqlstr = "rf_customer.custname ";
-                break;
-              case "tool":
-                fieldtype = "string";
-                sqlstr = "rf_tool.serial ";
-                break;
-              case "product":
-                fieldtype = "string";
-                sqlstr = "rf_product.partnumber ";
-                break;
-              case "trans":
-              case "transitem":
-              case "transmovement":
-              case "transpayment":
-                fieldtype = "string";
-                sqlstr = "rf_trans.transnumber ";
-                break;
-              case "project":
-                fieldtype = "string";
-                sqlstr = "rf_project.pronumber ";
-                break;
-              case "employee":
-                fieldtype = "string";
-                sqlstr = "rf_employee.empnumber ";
-                break;
-              case "place":
-                fieldtype = "string";
-                sqlstr = "rf_place.planumber ";
-                break;
-              default:
-                fieldtype = "string";
-                sqlstr = "fv.value ";   
-            }
-            filters = update(filters, { [state.data.view]: {
-              [index]: {$merge: { 
-                fieldname: deffield.fieldname,
-                fieldlimit: ["and","fv.fieldname","=","'"+deffield.fieldname+"'"],
-                fieldtype: fieldtype, sqlstr: sqlstr,
-                wheretype: "where", filtertype: "===", value: ""
-              }}
-            }})
+          [index]: {$merge: { 
+            fieldname: value, fieldtype: frow.fieldtype,
+            sqlstr: frow.sqlstr, wheretype: frow.wheretype, filtertype: "===",
+            value: search.defaultFilterValue(frow.fieldtype)
+          }}
+        }})
+      } else {
+        const deffield = state.data.deffield.filter((df)=>(df.fieldname === value))[0]
+        const deftype = {
+          bool: {
+            fieldtype: "bool",
+            sqlstr: "fg.groupvalue='bool' and case when fv.value='true' then 1 else 0 end "
+          },
+          integer: {
+            fieldtype: "integer",
+            sqlstr: "fg.groupvalue='integer' and {FMSF_NUMBER} {CAS_INT}fv.value {CAE_INT} {FMEF_CONVERT} "
+          },
+          float: {
+            fieldtype: "float",
+            sqlstr: "fg.groupvalue='float' and {FMSF_NUMBER} {CAS_FLOAT}fv.value {CAE_FLOAT} {FMEF_CONVERT} "
+          },
+          date: {
+            fieldtype: "date",
+            sqlstr: "fg.groupvalue='date' and {FMSF_DATE} {CASF_DATE}fv.value{CAEF_DATE} {FMEF_CONVERT} "
+          },
+          customer: {
+            fieldtype: "string",
+            sqlstr: "rf_customer.custname "
+          },
+          tool: {
+            fieldtype: "string",
+            sqlstr: "rf_tool.serial "
+          },
+          product: {
+            fieldtype: "string",
+            sqlstr: "rf_product.partnumber "
+          },
+          trans: {
+            fieldtype: "string",
+            sqlstr: "rf_trans.transnumber "
+          },
+          transitem: {
+            fieldtype: "string",
+            sqlstr: "rf_trans.transnumber "
+          },
+          transmovement: {
+            fieldtype: "string",
+            sqlstr: "rf_trans.transnumber "
+          },
+          transpayment: {
+            fieldtype: "string",
+            sqlstr: "rf_trans.transnumber "
+          },
+          project: {
+            fieldtype: "string",
+            sqlstr: "rf_project.pronumber "
+          },
+          employee: {
+            fieldtype: "string",
+            sqlstr: "rf_employee.empnumber "
+          },
+          place: {
+            fieldtype: "string",
+            sqlstr: "rf_place.planumber "
           }
         }
-        break;
-      default:
+        let fieldtype = "string"; let sqlstr = "fv.value ";
+        if(deftype[deffield.fieldtype]){
+          fieldtype = deftype[deffield.fieldtype].fieldtype
+          sqlstr = deftype[deffield.fieldtype].sqlstr
+        }
+        filters = update(filters, { [state.data.view]: {
+          [index]: {$merge: { 
+            fieldname: deffield.fieldname,
+            fieldlimit: ["and","fv.fieldname","=","'"+deffield.fieldname+"'"],
+            fieldtype: fieldtype, sqlstr: sqlstr,
+            wheretype: "where", filtertype: "===", value: ""
+          }}
+        }})
+      }
     }
-    setData("search", { filters: filters })
-  }
-
-  state.browserFilter = () => {
-    setData("search", { browser_filter: !state.data.browser_filter })
-  }
-
-  state.dropDown = (value) => {
-    setData("search", { dropdown: (state.data.dropdown === value) ? "": value })
+    setData(state.key, { filters: filters })
   }
 
   state.showBrowser = (vkey, view) => {
-    search.showBrowser(vkey, view)
+    search.showBrowser(vkey, view, state.data)
   }
 
   state.quickSearch = async (filter) => {
@@ -235,61 +222,19 @@ export default (props) => {
     if(view.error){
       return app.resultError(view)
     }
-    setData("search", { result: view.result, qfilter: filter })
+    setData(state.key, { result: view.result, qfilter: filter, page: 1 })
   }
 
   state.browserView = async () => {
     const query = state.queries[state.data.vkey]()[state.data.view]
     let _sql = update({}, {$set: query.sql})
     let params = []
-
-    const setFilterWhere = (filter) => {
+    let _where = []
+    state.data.filters[state.data.view].filter((filter)=>(filter.wheretype === "where")).forEach(filter => {
+      _where.push(search.getFilterWhere(filter))
       if(filter.filtertype !== "==N"){
         params.push(filter.value)
       }
-      switch (filter.filtertype) {
-        case "===":
-          if(filter.fieldtype === "string"){
-            _where.push(
-              ["and", ["lower("+filter.sqlstr+")", "like", "{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE}"]])
-          } else {
-            _where.push(["and", [filter.sqlstr, "=", "?"]])
-          }
-          break;
-        
-        case "==N":
-          if(filter.fieldtype === "string"){
-            _where.push(
-              ["and", [ [filter.sqlstr, "like", "''"], ["or", filter.sqlstr, "is null"]]])
-          } else {
-            _where.push(["and", filter.sqlstr, " is null"])
-          }
-          break;
-        
-        case "!==":
-          if(filter.fieldtype === "string"){
-            _where.push(
-              ["and", ["lower("+filter.sqlstr+")", "not like", "{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE}"]])
-          } else {
-            _where.push(["and", [filter.sqlstr, "<>", "?"]])
-          }
-          break;
-        
-        case ">==":
-          _where.push(["and", [filter.sqlstr, ">=", "?"]])
-          break;
-        
-        case "<==":
-          _where.push(["and", [filter.sqlstr, "<=", "?"]])
-          break;
-
-        default:
-      }
-    }
-    
-    let _where = []
-    state.data.filters[state.data.view].filter((filter)=>(filter.wheretype === "where")).forEach(filter => {
-      setFilterWhere(filter)
     });
     if(_where.length > 0){
       _sql = update(_sql, { where: {$push: [..._where]}})
@@ -297,7 +242,10 @@ export default (props) => {
 
     _where = []
     state.data.filters[state.data.view].filter((filter)=>(filter.wheretype === "having")).forEach(filter => {
-      setFilterWhere(filter)
+      _where.push(search.getFilterWhere(filter))
+      if(filter.filtertype !== "==N"){
+        params.push(filter.value)
+      }
     });
     if(_where.length > 0){
       _sql = update(_sql, { having: {$push: [..._where]}})
@@ -325,40 +273,10 @@ export default (props) => {
     if(view.error){
       return app.resultError(view)
     }
-    setData("search", { result: view.result, dropdown: "", page: 1 })
-  }
-  
-  state.checkTotalFields = (fields, deffield) => {
-    let retval = { totalFields: {}, totalLabels: {}, count: 0 }
-    if (deffield && Object.keys(fields).includes("deffield_value")) {
-      deffield.filter((df)=>((df.fieldtype==="integer")||(df.fieldtype==="float")))
-      .forEach((df) => {
-         retval = update(retval, { 
-           totalFields: { $merge: { [df.fieldname]: 0 }},
-           totalLabels: { $merge: { [df.fieldname]: df.description }}
-         })
-       }
-      )
-    } else {
-      Object.keys(fields).filter((fieldname)=>(
-        ((fields[fieldname].fieldtype==="integer")||(fields[fieldname].fieldtype==="float"))
-          &&(fields[fieldname].calc !== "avg")))
-      .forEach((fieldname) => {
-         retval = update(retval, { 
-           totalFields: { $merge: { [fieldname]: 0 }},
-           totalLabels: { $merge: { [fieldname]: fields[fieldname].label }}
-         })
-       }
-      )
-    }
-    retval = update(retval, { $merge: {
-      count: Object.keys(retval.totalFields).length
-    }})
-    return retval
+    setData(state.key, { result: view.result, dropdown: "", page: 1 })
   }
 
   state.showTotal = (fields, total) => {
-    let df = false;
     const deffield = Object.keys(fields).includes("deffield_value")
     const getValidValue = (value) => {
       if(isNaN(parseFloat(value))) {
@@ -370,14 +288,12 @@ export default (props) => {
     state.data.result.forEach(row => {
       if (deffield) {
         if (typeof total.totalFields[row.fieldname] !== "undefined") {
-          df = true;
           total = update(total, { 
             totalFields: { $merge: { 
               [row.fieldname]: total.totalFields[row.fieldname] + getValidValue(row.export_deffield_value) }}
           })
         }
       } else {
-        df = true;
         Object.keys(total.totalFields).forEach(fieldname => {
           if (typeof row["export_"+fieldname] !== "undefined") {
             total = update(total, { 
@@ -393,17 +309,15 @@ export default (props) => {
         });
       }
     });
-    if(df){
-      setData("current", { modalForm: 
-        <Total 
-          total={total}
-          getText={app.getText}
-          onClose={() => {
-            setData("current", { modalForm: null })
-          }}
-        /> 
-      })
-    }
+    setData("current", { modalForm: 
+      <Total 
+        total={total}
+        getText={app.getText}
+        onClose={() => {
+          setData("current", { modalForm: null })
+        }}
+      /> 
+    })
   }
 
   state.exportResult = (fields) => {
@@ -427,12 +341,48 @@ export default (props) => {
     app.saveBookmark(['browser',state.queries[data.search.vkey]()[data.search.view].label])
   }
 
-  if(state.data.vkey){
-    return (
-      <BrowserView {...state} />
-    )
-  }
-  return (
-    <QuickView {...state} />
-  )
+  return <SearchMemo {...state} />
 }
+
+Search.propTypes = {
+  key: PropTypes.string.isRequired,
+  ...SearchView.propTypes,
+  showHelp: PropTypes.func,
+  setActions: PropTypes.func,
+  onEdit: PropTypes.func,
+  changeData: PropTypes.func,
+  setColumns: PropTypes.func,
+  defaultFilterValue: PropTypes.func,
+  addFilter: PropTypes.func,
+  deleteFilter: PropTypes.func,
+  editFilter: PropTypes.func,
+  showBrowser: PropTypes.func,
+  quickSearch: PropTypes.func,
+  browserView: PropTypes.func,
+  showTotal: PropTypes.func,
+  exportResult: PropTypes.func,
+  bookmarkSave: PropTypes.func
+}
+
+Search.defaultProps = {
+  key: "search",
+  ...SearchView.defaultProps,
+  showHelp: undefined,
+  setActions: undefined,
+  onEdit: undefined,
+  changeData: undefined,
+  setColumns: undefined,
+  defaultFilterValue: undefined,
+  addFilter: undefined,
+  deleteFilter: undefined,
+  editFilter: undefined,
+  showBrowser: undefined,
+  quickSearch: undefined,
+  browserView: undefined,
+  showTotal: undefined,
+  exportResult: undefined,
+  bookmarkSave: undefined
+  
+}
+
+export default Search;

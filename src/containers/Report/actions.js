@@ -1,16 +1,13 @@
-import { useContext } from 'react';
 import update from 'immutability-helper';
 import { formatISO } from 'date-fns'
 import printJS from 'print-js'
 
-import AppStore from 'containers/App/context'
-import { useApp, getSql, saveToDisk } from 'containers/App/actions'
+import { appActions, getSql, saveToDisk } from 'containers/App/actions'
 import InputBox from 'components/Modal/InputBox'
 import { Sql } from 'containers/Controller/Sql'
 
-export const useReport = (props) => {
-  const { data, setData } = useContext(AppStore)
-  const app = useApp()
+export const reportActions = (data, setData) => {
+  const app = appActions(data, setData)
   const sql = Sql({ getText: app.getText })
 
   const reportPath = (params) => {
@@ -25,54 +22,6 @@ export const useReport = (props) => {
     query.append("nervatype", params.nervatype||data.edit.current.type)
     return `/report?${query.toString()}&filters[@id]=${params.id||data.edit.current.item.id}`
   }
-
-  /*
-  const setPreviewPage = (options) => {
-    const module = options.module || "edit"
-    let pageNumber = options.pageNumber || 1
-    pageNumber = pageNumber < 1 ? 1 : pageNumber
-    pageNumber = pageNumber > options.pdf.numPages ? options.pdf.numPages : pageNumber
-    options.pdf.getPage(pageNumber).then((page) => {
-      let preview = update({}, {$merge: {
-        type: "pdf",
-        template: options.template,
-        size: options.size,
-        orient: options.orient,
-        pdf: options.pdf,
-        page: page,
-        scale: options.scale || 1,
-        pageNumber: pageNumber,
-        totalPages: options.pdf.numPages
-      }})
-      if((options.id || options.refnumber) && options.nervatype){
-        preview = update(preview, {$merge: {
-          id: options.id,
-          refnumber: options.refnumber,
-          nervatype: options.nervatype
-        }})
-      }
-      setData(module, {preview: preview})
-    })
-  }
-
-  const loadPreview = (params) => {
-    setData("current", { "request": true })
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.REACT_APP_PDFJS_PATH+'/pdf.worker.min.js';
-    const pdata = (params.template === "template") ? params.pdf : {
-      url: data.login.server+reportPath(params),
-      httpHeaders: { Authorization: `Bearer ${data.login.data.token}` }
-    }
-    window.pdfjsLib.getDocument(pdata).promise.then((pdf) => {
-      setData("current", { "request": false })
-      setPreviewPage(update(params, {$merge: {
-        pdf: pdf
-      }}))
-    }, (error) => {
-      setData("current", { "request": false })
-      return app.resultError(error)
-    })
-  }
-  */
 
   const addPrintQueue = async (reportkey, copy) => {
     const report = data.edit.dataset.report.filter((item)=>(item.reportkey === reportkey))[0]
@@ -247,67 +196,10 @@ export const useReport = (props) => {
     }
   }
 
-  /*
-  const printQueue = () => {
-    const options = data.edit.current.item
-    if (data.edit.dataset.items.length > 0){
-      const server = data.edit.dataset.server_printers.filter(item => (item.menukey === options.server))[0]
-      if (!server) {
-        return app.showToast({ type: "error",
-          title: app.getText("msg_warning"), 
-          message: app.getText("msg_required")+" "+app.getText("printqueue_server_printer") })
-      }
-      if(!server.address || (server.address === "")){
-        return app.showToast({ type: "error",
-          title: app.getText("msg_warning"), 
-          message: app.getText("msg_required")+" "+server.description+" - "+app.getText("menucmd_address") })
-      }
-      showInput({
-        title: app.getText("msg_warning"), message: app.getText("label_print"),
-        infoText: app.getText("msg_delete_info")+" "+app.getText("ms_continue_warning"), 
-        onChange: (form) => {
-          setData("current", { modalForm: form })
-        }, 
-        cbCancel: () => {
-          setData("current", { modalForm: null })
-        },
-        cbOK: (value) => {
-          setData("current", { modalForm: null }, async () => {
-            const items = data.edit.dataset.items.map(item => item.id)
-            let params = { method: "POST", 
-              data: {
-                key: server.funcname || server.menukey,
-                values: { 
-                  items: items, 
-                  orientation: options.orientation, 
-                  size: options.size
-                }
-              }
-            }
-            try {
-              let result = await request(server.address, params)
-              if(result.error){
-                app.resultError(result)
-                return null
-              }
-              searchQueue()
-            } catch (error) {
-              app.resultError(error)
-            }
-          })
-        }
-      })
-    }
-  }
-  */
-
   return {
-    //loadPreview: loadPreview,
-    //setPreviewPage: setPreviewPage,
     createReport: createReport,
     exportQueueAll: exportQueueAll,
     searchQueue: searchQueue,
-    //printQueue: printQueue,
     reportOutput: reportOutput
   }
 }

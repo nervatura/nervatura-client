@@ -6,7 +6,7 @@ import { store as app_store  } from 'config/app'
 
 import Login from './index';
 
-import { useApp, getSql } from 'containers/App/actions'
+import { appActions, getSql } from 'containers/App/actions'
 jest.mock("containers/App/actions");
 
 const getById = queryByAttribute.bind(null, 'id');
@@ -25,7 +25,7 @@ describe('<Login />', () => {
   });
 
   it('renders without crashing', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
     })
     let store_data = update(app_store, {
@@ -60,7 +60,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin error', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async () => ({ error: {} })),
       resultError: jest.fn(),
@@ -90,7 +90,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin engine_error', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async () => ({ token: "token", engine: "engine_error" })),
       resultError: jest.fn(),
@@ -113,7 +113,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin version_error', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async () => ({ token: "token", engine: "sqlite", version: "version_error" })),
       resultError: jest.fn(),
@@ -136,7 +136,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin loginData error 1', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async (path, options) => {
         if(String(path).endsWith("/auth/login")){
@@ -166,7 +166,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin loginData error 2', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async (path, options) => {
         if(String(path).endsWith("/auth/login")){
@@ -201,7 +201,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin userLog error', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async (path, options) => {
         if(String(path).endsWith("/auth/login")){
@@ -243,7 +243,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin success', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async (path, options) => {
         if(String(path).endsWith("/auth/login")){
@@ -293,7 +293,7 @@ describe('<Login />', () => {
   });
 
   it('onLogin success and log', () => {
-    useApp.mockReturnValue({
+    appActions.mockReturnValue({
       getText: jest.fn(),
       requestData: jest.fn(async (path, options) => {
         if(String(path).endsWith("/auth/login")){

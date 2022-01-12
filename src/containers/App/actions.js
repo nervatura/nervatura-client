@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+//import { useContext } from 'react';
 import update from 'immutability-helper';
 import 'whatwg-fetch';
 import { formatISO } from 'date-fns'
@@ -6,7 +6,7 @@ import { formatISO } from 'date-fns'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import AppStore from 'containers/App/context'
+//import AppStore from 'containers/App/context'
 import InputBox from 'components/Modal/InputBox'
 import { getText, getSetting } from 'config/app'
 
@@ -279,8 +279,8 @@ export const request = (url, options) => {
     .then(parseJSON);
 }
 
-export const useApp = () => {
-  const { data, setData } = useContext(AppStore)
+export const appActions = (data, setData) => {
+  //const { data, setData } = useContext(AppStore)
 
   const getLangText = (key, defValue) => {
     return getText({ 

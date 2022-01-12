@@ -1,15 +1,14 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import update from 'immutability-helper';
 import { convertToHTML, convertFromHTML } from 'draft-convert'
 import { EditorState, RichUtils } from 'draft-js';
 
 import AppStore from 'containers/App/context'
-import { useApp } from 'containers/App/actions'
-import { useEditor } from 'containers/Editor/actions'
-import { useInitItem } from 'containers/Controller/Items'
-import { useSearch } from 'containers/Search/actions'
+import { appActions } from 'containers/App/actions'
+import { editorActions } from 'containers/Editor/actions'
+import { InitItem } from 'containers/Controller/Validator'
+import { searchActions } from 'containers/Search/actions'
 import { Queries } from 'containers/Controller/Queries'
-import { Preview, pageRender } from 'containers/Report'
 import { Editor } from './Editor';
 import InputBox from 'components/Modal/InputBox'
 import Selector from 'components/Modal/Selector'
@@ -18,10 +17,10 @@ import { getSetting } from 'config/app'
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props) => {
   const { data, setData } = useContext(AppStore);
-  const editor = useEditor()
-  const app = useApp()
-  const initItem = useInitItem()
-  const search = useSearch()
+  const editor = editorActions(data, setData)
+  const app = appActions(data, setData)
+  const initItem = InitItem(data, setData)
+  const search = searchActions(data, setData)
 
   const [state] = useState({
     engine: data.login.data.engine,
@@ -31,13 +30,6 @@ export default (props) => {
   })
 
   state.data = data.edit
-  
-  state.viewerRef = useRef(null)
-  state.canvasRef = useRef(null)
-  
-  useEffect(() => {
-    pageRender(state.viewerRef.current, state.canvasRef.current, state.data.preview)
-  },[state.viewerRef, state.canvasRef, state.data.preview])
   
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)
@@ -677,9 +669,6 @@ export default (props) => {
   }
 
   if(state.data.current.item){
-    if(state.data.preview){
-      return <Preview {...state} />
-    }
     return <Editor {...state} />
   }
   return <div />

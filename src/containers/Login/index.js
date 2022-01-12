@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
-import { getSql, useApp } from 'containers/App/actions'
+import { getSql, appActions } from 'containers/App/actions'
 
 import LoginMemo, { LoginPage } from './Login';
 
 const Login = (props) => {
   const { data, setData } = useContext(AppStore);
-  const app = useApp()
+  const app = appActions(data, setData)
 
   const [state] = useState(update(props, {$merge: {
     session: data.session,

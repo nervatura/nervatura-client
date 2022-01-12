@@ -1,18 +1,16 @@
-import { useContext } from 'react';
 import update from 'immutability-helper';
 import { formatISO, addDays, parseISO, isEqual } from 'date-fns'
 import { EditorState } from 'draft-js';
 import { convertFromHTML } from 'draft-convert'
 import { Component, Time, Event } from 'ical.js';
 
-import AppStore from 'containers/App/context'
-import { useApp, getSql, saveToDisk, guid } from 'containers/App/actions'
+import { appActions, getSql, saveToDisk, guid } from 'containers/App/actions'
 import dataset from 'containers/Controller/Dataset'
 import { Sql } from 'containers/Controller/Sql'
 import { Forms } from 'containers/Controller/Forms'
-import { useInitItem, useValidator } from 'containers/Controller/Items'
-import { useReport } from 'containers/Report/actions'
-import { useSearch } from 'containers/Search/actions'
+import { InitItem, Validator } from 'containers/Controller/Validator'
+import { reportActions } from 'containers/Report/actions'
+import { searchActions } from 'containers/Search/actions'
 import { Queries } from 'containers/Controller/Queries'
 import InputBox from 'components/Modal/InputBox'
 import Selector from 'components/Modal/Selector'
@@ -23,13 +21,12 @@ import Stock from 'components/Modal/Stock'
 import Trans from 'components/Modal/Trans'
 import { getSetting } from 'config/app'
 
-export const useEditor = () => {
-  const { data, setData } = useContext(AppStore)
-  const app = useApp()
-  const initItem = useInitItem()
-  const validator = useValidator()
-  const report = useReport()
-  const search = useSearch()
+export const editorActions = (data, setData) => {
+  const app = appActions(data, setData)
+  const initItem = InitItem(data, setData)
+  const validator = Validator(data, setData)
+  const report = reportActions(data, setData)
+  const search = searchActions(data, setData)
 
   const forms = Forms({ getText: app.getText })
   const queries = Queries({ getText: app.getText })

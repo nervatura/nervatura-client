@@ -3,10 +3,10 @@ import update from 'immutability-helper';
 import PropTypes from 'prop-types';
 
 import AppStore from 'containers/App/context'
-import { useApp } from 'containers/App/actions'
-import { useEditor } from 'containers/Editor/actions'
-import { useSearch } from 'containers/Search/actions'
-import { useSetting } from 'containers/Setting/actions'
+import { appActions } from 'containers/App/actions'
+import { editorActions } from 'containers/Editor/actions'
+import { searchActions } from 'containers/Search/actions'
+import { settingActions } from 'containers/Setting/actions'
 import Bookmark from 'components/Modal/Bookmark'
 import InputBox from 'components/Modal/InputBox'
 
@@ -14,10 +14,10 @@ import MenuBarMemo, { MenuBarComponent } from './MenuBar';
 
 const MenuBar = (props) => {
   const { data, setData } = useContext(AppStore);
-  const app = useApp()
-  const editor = useEditor()
-  const search = useSearch()
-  const setting = useSetting()
+  const app = appActions(data, setData)
+  const editor = editorActions(data, setData)
+  const search = searchActions(data, setData)
+  const setting = settingActions(data, setData)
 
   const [state] = useState(update(props, {data: {$merge: {
     ...data[props.key]
@@ -31,7 +31,7 @@ const MenuBar = (props) => {
   }
 
   state.sideBar = () => {
-    setData("current", { side: app.getSideBar() })
+    setData(state.key, { side: app.getSideBar() })
   }
 
   state.setScroll = () => {
@@ -50,7 +50,7 @@ const MenuBar = (props) => {
         return state.showBookmarks()
 
       default:
-        setData("current", { module: key, menu: "" }, ()=>{
+        setData(state.key, { module: key, menu: "" }, ()=>{
           if(key === "setting" && !data.setting.group_key){
             setData(state.data.module, { group_key: "group_admin" }, ()=>{
               setting.loadSetting({ type: 'setting' })
@@ -61,11 +61,11 @@ const MenuBar = (props) => {
   }
 
   state.showBookmarks = () => {
-    setData("current", { modalForm:
+    setData(state.key, { modalForm:
       <Bookmark bookmark={state.bookmark} tabView={state.bookmarkView}
         getText={app.getText} 
         onSelect={(view, row) => {
-          setData("current", { modalForm: null }, async () => {
+          setData(state.key, { modalForm: null }, async () => {
             if((view === "bookmark") && (row.cfgroup === "browser")){
               let search_data = update(data.search, {
                 filters: {$merge: {
@@ -77,10 +77,7 @@ const MenuBar = (props) => {
                   [row.view]: row.columns
                 }
               }})
-              setData("search", search_data, ()=>{
-                  search.showBrowser(row.vkey, row.view)
-                }
-              )
+              search.showBrowser(row.vkey, row.view, search_data)
             } else {
               editor.checkEditor({
                 ntype: row.ntype, 
@@ -91,7 +88,7 @@ const MenuBar = (props) => {
           })
         }}
         onDelete={(id) => {
-          setData("current", { modalForm: 
+          setData(state.key, { modalForm: 
             <InputBox 
               title={app.getText("msg_warning")}
               message={app.getText("msg_delete_text")}
@@ -114,7 +111,7 @@ const MenuBar = (props) => {
             /> })
         }}
         onClose={()=>{
-          setData("current", { modalForm: null })
+          setData(state.key, { modalForm: null })
         }}
       />
     })
