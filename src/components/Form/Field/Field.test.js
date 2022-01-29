@@ -226,17 +226,17 @@ it('renders in the Button state', () => {
 });
 
 it('renders in the Link state', () => {
-  const onLoad = jest.fn()
+  const onEvent = jest.fn()
 
   const { container } = render(
-    <Link {...Link.args} id="test_input" onLoad={onLoad} />
+    <Link {...Link.args} id="test_input" onEvent={onEvent} />
   );
   expect(getById(container, 'test_input')).toBeDefined();
  
   const test_input = getById(container, 'link_trans_id')
 
   fireEvent.click(test_input)
-  expect(onLoad).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(1);
 
   render(
     <Link {...Link.args} 
@@ -314,7 +314,7 @@ it('renders in the ValueList state', () => {
 });
 
 it('renders in the Selector state', () => {
-  const onLoad = jest.fn()
+  const onEvent = jest.fn()
   const onEdit = jest.fn()
 
   const onSelector = (type, filter, setSelector) => {
@@ -331,13 +331,13 @@ it('renders in the Selector state', () => {
 
   const { container } = render(
     <Selector {...Selector.args} id="test_input" 
-      onLoad={onLoad} onSelector={onSelector} onEdit={onEdit} />
+      onEvent={onEvent} onSelector={onSelector} onEdit={onEdit} />
   );
   expect(getById(container, 'test_input')).toBeDefined();
  
   const test_input = getById(container, 'sel_link_customer_id')
   fireEvent.click(test_input)
-  expect(onLoad).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(1);
 
   const sel_delete = getById(container, 'sel_delete_customer_id')
   fireEvent.click(sel_delete)

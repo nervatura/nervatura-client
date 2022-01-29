@@ -44,11 +44,11 @@
 
 .menubar {
   z-index: 5;
-  position: sticky;
-  position: -webkit-sticky; /* Safari */
+  position: fixed;
   display: table;
   top: 0;
   width: 100%;
+  height: var(--menu-top-height);
   padding: 0px 8px;
   background-color: var(--primary)!important;
   font-size: 14px;

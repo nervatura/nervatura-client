@@ -15,21 +15,21 @@ export const SIDE_VISIBILITY = {
 export const Edit = ({ 
   side, newFilter, auditFilter, edit, module, forms,
   className,
-  getText, onGroup, onMenu,
+  getText, onEvent,
   ...props 
 }) => {
   const { current, form_dirty, dirty, panel, dataset, group_key } = module
   const itemMenu = (keyValue, classValue, eventValue, labelValue, disabledValue) => {
     return <Button id={keyValue} key={keyValue}
       className={classValue} disabled={(disabledValue)?"disabled":""}
-      onClick={ ()=>onMenu(...eventValue) }
+      onClick={ ()=>onEvent(...eventValue) }
       value={labelValue}
     />
   }
   const groupMenu = (keyValue, classValue, groupKey, labelValue) => {
     return <Button id={keyValue} key={keyValue}
       className={classValue}
-      onClick={ ()=>onGroup(groupKey) }
+      onClick={ ()=>onEvent("changeData", ["group_key", groupKey]) }
       value={labelValue}
     />
   }
@@ -161,7 +161,7 @@ export const Edit = ({
         panels.push(
           itemMenu("cmd_formula",
             `${"full medium"} ${styles.itemButton}`, 
-            ["checkEditor", [{}, 'LOAD_FORMULA']],
+            ["checkEditor", [{}, 'LOAD_FORMULA', undefined]],
           <Label value={getText("label_formula")} 
             leftIcon={<Icon iconKey="Magic" />} iconWidth="20px"  />
           )    
@@ -216,7 +216,7 @@ export const Edit = ({
         panels.push(
           itemMenu("cmd_report",
             `${"full medium"} ${styles.itemButton}`, 
-            ["checkEditor", [{}, 'REPORT_SETTINGS']],
+            ["reportSettings", []],
             <Label value={getText("label_report")} 
               leftIcon={<Icon iconKey="ChartBar" />} iconWidth="20px"  />
           )
@@ -514,13 +514,9 @@ Edit.propTypes = {
   forms: PropTypes.object.isRequired,
   className: PropTypes.string,
   /** 
-   * Group selection handle
-  */
-  onGroup: PropTypes.func,
-  /**
    * Menu selection handle
-   */
-  onMenu: PropTypes.func,
+  */
+  onEvent: PropTypes.func,
   /**
    * Localization
    */
@@ -542,8 +538,7 @@ Edit.defaultProps = {
   auditFilter: {}, 
   forms: {}, 
   className: "",
-  onGroup: undefined,  
-  onMenu: undefined,
+  onEvent: undefined,  
   getText: undefined,
 }
 

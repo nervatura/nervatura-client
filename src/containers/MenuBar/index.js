@@ -4,9 +4,6 @@ import PropTypes from 'prop-types';
 
 import AppStore from 'containers/App/context'
 import { appActions } from 'containers/App/actions'
-import { editorActions } from 'containers/Editor/actions'
-import { searchActions } from 'containers/Search/actions'
-import { settingActions } from 'containers/Setting/actions'
 import Bookmark from 'components/Modal/Bookmark'
 import InputBox from 'components/Modal/InputBox'
 
@@ -15,9 +12,6 @@ import MenuBarMemo, { MenuBarComponent } from './MenuBar';
 const MenuBar = (props) => {
   const { data, setData } = useContext(AppStore);
   const app = appActions(data, setData)
-  const editor = editorActions(data, setData)
-  const search = searchActions(data, setData)
-  const setting = settingActions(data, setData)
 
   const [state] = useState(update(props, {data: {$merge: {
     ...data[props.key]
@@ -53,7 +47,7 @@ const MenuBar = (props) => {
         setData(state.key, { module: key, menu: "" }, ()=>{
           if(key === "setting" && !data.setting.group_key){
             setData(state.data.module, { group_key: "group_admin" }, ()=>{
-              setting.loadSetting({ type: 'setting' })
+              setData("current", { module: "setting", content: { type: 'setting' } })
             })
           }
         })
@@ -77,13 +71,19 @@ const MenuBar = (props) => {
                   [row.view]: row.columns
                 }
               }})
-              search.showBrowser(row.vkey, row.view, search_data)
+              setData("current", { 
+                module: "search", 
+                content: [row.vkey, row.view, search_data]
+              })
             } else {
-              editor.checkEditor({
-                ntype: row.ntype, 
-                ttype: row.transtype, 
-                id: row.id,
-              }, 'LOAD_EDITOR')
+              setData("current", { 
+                module: "edit", 
+                content: {
+                  ntype: row.ntype, 
+                  ttype: row.transtype, 
+                  id: row.id,
+                }
+              })
             }
           })
         }}

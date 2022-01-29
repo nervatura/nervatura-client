@@ -1,27 +1,26 @@
 import { render, queryByAttribute, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { Default, DatabaseGroup, UserGroup, TemplateEditor, FormItemAll, FormItemNew, FormItemRead } from './Setting.stories';
+import { Default, DatabaseGroup, UserGroup, FormItemAll, FormItemNew, FormItemRead } from './Setting.stories';
 import { SIDE_VISIBILITY } from "./Setting";
 
 const getById = queryByAttribute.bind(null, 'id');
 
 it('renders in the Default state', () => {
-  const onGroup = jest.fn()
-  const onMenu = jest.fn()
+  const onEvent = jest.fn()
 
   const { container } = render(
-    <Default {...Default.args} id="test_menu" onGroup={onGroup} onMenu={onMenu} />
+    <Default {...Default.args} id="test_menu" onEvent={onEvent} />
   );
   expect(getById(container, "test_menu")).toBeDefined();
 
   const btn_numberdef = getById(container, 'cmd_numberdef')
   fireEvent.click(btn_numberdef)
-  expect(onMenu).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(1);
 
   const btn_database = getById(container, 'group_database')
   fireEvent.click(btn_database)
-  expect(onGroup).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(2);
 
   render(
     <Default {...Default.args} 
@@ -51,38 +50,10 @@ it('renders in the UserGroup state', () => {
 
 })
 
-it('renders in the TemplateEditor state', () => {
-
-  const { container } = render(
-    <TemplateEditor {...TemplateEditor.args} id="test_menu" />
-  );
-  expect(getById(container, "test_menu")).toBeDefined();
-
-  render(
-    <TemplateEditor {...TemplateEditor.args} 
-      side={SIDE_VISIBILITY.SHOW} 
-      module={{ 
-        template: {
-          key: "_blank"
-        }
-      }}
-    />
-  )
-
-  render(
-    <TemplateEditor {...TemplateEditor.args} 
-      module={{ 
-        dirty: false, 
-        template: {}
-      }}
-    />
-  )
-})
-
 it('renders in the FormItemAll state', () => {
 
   const { container } = render(
-    <FormItemAll {...FormItemAll.args} id="test_menu" />
+    <FormItemAll {...FormItemAll.args} id="test_menu" side={SIDE_VISIBILITY.SHOW} />
   );
   expect(getById(container, "test_menu")).toBeDefined();
 

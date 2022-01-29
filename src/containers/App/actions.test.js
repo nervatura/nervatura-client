@@ -987,4 +987,166 @@ describe('appActions', () => {
 
   });
 
+  it('getDataFilter', () => {
+    const it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          audit: []
+        }
+      }}
+    })
+    let result = appActions(it_store, jest.fn()).getDataFilter("transitem", [])
+    expect(result.length).toBe(0)
+    result = appActions(it_store, jest.fn()).getDataFilter("transpayment", [])
+    expect(result.length).toBe(0)
+    result = appActions(it_store, jest.fn()).getDataFilter("transmovement", [], "")
+    expect(result.length).toBe(0)
+    result = appActions(it_store, jest.fn()).getDataFilter("transmovement", [], "InventoryView")
+    expect(result.length).toBe(0)
+  })
+
+  it('getDataFilter disabled', () => {
+    const it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          audit: [
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'offer', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'order', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'worksheet', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'rent', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'invoice', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'bank', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'cash', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'delivery', supervisor: 0 },
+            { inputfilterName: 'disabled', nervatypeName: 'trans', subtypeName: 'inventory', supervisor: 0 },
+          ]
+        }
+      }}
+    })
+    let result = appActions(it_store, jest.fn()).getDataFilter("transitem", [])
+    expect(result.length).toBe(10)
+    result = appActions(it_store, jest.fn()).getDataFilter("transpayment", [])
+    expect(result.length).toBe(4)
+    result = appActions(it_store, jest.fn()).getDataFilter("transmovement", [], "")
+    expect(result.length).toBe(4)
+    result = appActions(it_store, jest.fn()).getDataFilter("transmovement", [], "InventoryView")
+    expect(result.length).toBe(0)
+  })
+
+  it('getUserFilter', () => {
+    let it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          employee: {
+            id: 1, empnumber: 'admin', username: 'admin', usergroup: 114,
+            usergroupName: 'admin'
+          },
+          audit: [],
+        }
+      }},
+    })
+    let filter = appActions(it_store, jest.fn()).getUserFilter("missing")
+    expect(filter.params.length).toBe(0)
+    filter = appActions(it_store, jest.fn()).getUserFilter("customer")
+    expect(filter.params.length).toBe(0)
+
+    it_store = update(it_store, {login: {data: {$merge: {
+      transfilterName: "usergroup"
+    }}}})
+    filter = appActions(it_store, jest.fn()).getUserFilter("customer")
+    expect(filter.params.length).toBe(0)
+    filter = appActions(it_store, jest.fn()).getUserFilter("transitem")
+    expect(filter.params.length).toBe(1)
+
+    it_store = update(it_store, {login: {data: {$merge: {
+      transfilterName: "own"
+    }}}})
+    filter = appActions(it_store, jest.fn()).getUserFilter("customer")
+    expect(filter.params.length).toBe(0)
+    filter = appActions(it_store, jest.fn()).getUserFilter("transitem")
+    expect(filter.params.length).toBe(1)
+  })
+
+  it('quickSearch', async () => {
+    const it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          employee: {
+            id: 1, empnumber: 'admin', username: 'admin', usergroup: 114,
+            usergroupName: 'admin'
+          },
+          audit: [],
+          transfilterName: "usergroup"
+        }
+      }},
+    })
+    let data = await appActions(it_store, jest.fn()).quickSearch("customer", "")
+    expect(data).toBeDefined()
+
+    data = await appActions(it_store, jest.fn()).quickSearch("transitem", "item")
+    expect(data).toBeDefined()
+  })
+
+  it('onSelector', async () => {
+    const res = new Response('{"hello":"world"}', {
+      status: 200,
+      headers: {
+        'Content-type': 'application/json',
+      },
+    });
+    window.fetch.mockReturnValue(Promise.resolve(res));
+
+    const setSelector = jest.fn()
+    const setData = jest.fn((key, data, callback)=>{
+      if(callback){callback()}
+    })
+    const it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          employee: {
+            id: 1, empnumber: 'admin', username: 'admin', usergroup: 114,
+            usergroupName: 'admin'
+          },
+          audit: [],
+          transfilterName: "usergroup"
+        }
+      }},
+    })
+    const formProps = appActions(it_store, setData).onSelector("customer", "", setSelector)
+    formProps.onSearch("")
+    formProps.onClose()
+    formProps.onSelect({},"")
+    expect(setData).toHaveBeenCalledTimes(4);
+    expect(setSelector).toHaveBeenCalledTimes(1);
+  })
+
+  it('onSelector error', () => {
+    const res = new Response('{"code":400, "message":"errordata"}', {
+      status: 400,
+      headers: {
+        'Content-type': 'application/json',
+      },
+    });
+    window.fetch.mockReturnValue(Promise.resolve(res));
+    const setSelector = jest.fn()
+    const setData = jest.fn((key, data, callback)=>{
+      if(callback){callback()}
+    })
+    const it_store = update(app_store, {
+      login: {$merge: {
+        data: {
+          employee: {
+            id: 1, empnumber: 'admin', username: 'admin', usergroup: 114,
+            usergroupName: 'admin'
+          },
+          audit: [],
+          transfilterName: "usergroup"
+        }
+      }},
+    })
+    const formProps = appActions(it_store, setData).onSelector("customer", "", setSelector)
+    formProps.onSearch("")
+    expect(setData).toHaveBeenCalledTimes(2);
+  })
+
 })

@@ -70,7 +70,7 @@ export const Template = ({
                     <Label className="bold" value={getText("template_data_columns")} />
                   </div>
                   <textarea id="columns"
-                    className={`${"full"} ${styles.text}`} value={state.columns} rows={3}
+                    className={`${"full"} ${styles.textareaStyle}`} value={state.columns} rows={3}
                     onChange={ (event)=>setState({ ...state, columns: event.target.value }) } />
                 </div>
               </div>

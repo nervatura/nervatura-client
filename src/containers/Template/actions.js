@@ -5,176 +5,10 @@ import { appActions, saveToDisk } from 'containers/App/actions'
 import InputBox from 'components/Modal/InputBox'
 import TemplateData from 'components/Modal/Template'
 import { getSetting } from 'config/app'
+import { templateElements } from 'containers/Template/Template'
 
 export const templateActions = (data, setData) => {
   const app = appActions(data, setData)
-
-  const elements = {
-    report:{
-      options: {
-        title: "REPORT"},
-      rows: [
-        {rowtype:"flip", name:"title", datatype:"string", default:"Nervatura Report"},
-        {rowtype:"flip", name:"author", datatype:"string"},
-        {rowtype:"flip", name:"creator", datatype:"string"},
-        {rowtype:"flip", name:"subject", datatype:"string"},
-        {rowtype:"flip", name:"keywords", datatype:"string"},
-        {rowtype:"groupline"},
-        {rowtype:"flip", name:"font-style", datatype:"select", default: "",
-          options: [["",""],["bold","bold"],["italic","italic"],["bolditalic","bolditalic"]], 
-          info: app.getText("info_font-style")},
-        {rowtype:"flip", name:"font-size", datatype:"integer", default: 12},
-        {rowtype:"flip", name:"color", datatype:"color", info:app.getText("info_color")},
-        {rowtype:"flip", name:"border-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_border-color")},
-        {rowtype:"flip", name:"background-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_background-color")},
-        {rowtype:"groupline"},
-        {rowtype:"flip", name:"left-margin", datatype:"integer", default: 12},
-        {rowtype:"flip", name:"right-margin", datatype:"integer", default: 12},
-        {rowtype:"flip", name:"top-margin", datatype:"integer", default: 12}
-      ]
-    },
-    row:{
-      options: {
-        title: "ROW"},
-      rows: [
-        {rowtype:"flip", name:"height", datatype:"float", default: 0},
-        {rowtype:"flip", name:"hgap", datatype:"integer", default: 0, info: app.getText("info_hgap")},
-        {rowtype:"flip", name:"visible", datatype:"string", info: app.getText("info_visible")}
-      ]
-    },
-    cell:{
-      options: {
-        title: "CELL"},
-      rows: [
-        {rowtype:"flip", name:"name", datatype:"string", default: "head", info: app.getText("info_name")},
-        {rowtype:"flip", name:"value", datatype:"string", info: app.getText("info_value")},
-        {rowtype:"flip", name:"width", datatype:"percent", info: app.getText("info_width")},
-        {rowtype:"flip", name:"align", datatype:"select", default: "left",
-          options: [["left","left"],["right","right"],["center","center"]], info: app.getText("info_align")},
-        {rowtype:"flip", name:"multiline", datatype:"select", default: "false",
-          options: [["false","false"],["true","true"]], info: app.getText("info_multiline")},
-        {rowtype:"groupline"},
-        {rowtype:"flip", name:"font-style", datatype:"select", default: "",
-          options: [["",""],["bold","bold"],["italic","italic"],["bolditalic","bolditalic"]], 
-          info: app.getText("info_font-style")},
-        {rowtype:"flip", name:"font-size", datatype:"integer", default: 12},
-        {rowtype:"flip", name:"color", datatype:"color", info:app.getText("info_color")},
-        {rowtype:"flip", name:"border-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_border-color")},
-        {rowtype:"flip", name:"background-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_background-color")},
-        {rowtype:"flip", name:"border", datatype:"checklist", 
-          values: ["1|All", "L|Left", "T|Top", "R|Right", "B|Bottom"]}
-      ]
-    },
-    image:{
-      options: {
-        title: "IMAGE"},
-      rows: [
-        {rowtype:"flip", name:"src", datatype:"image", info: app.getText("info_src")},
-        {rowtype:"flip", name:"height", datatype:"float", default: 0, info: app.getText("info_height_image")}
-      ]
-    },
-    barcode:{
-      options: {
-        title: "BARCODE"},
-      rows: [
-        {rowtype:"flip", name:"code-type", datatype:"select", default: "ITF",
-          options: [["ITF","ITF"],["CODE_39","CODE_39"],["CODE_128","CODE_128"],["EAN","EAN"],["QR","QR"]], info: app.getText("info_code-type")},
-        {rowtype:"flip", name:"value", datatype:"string", default: "", info: app.getText("info_barcode_value")},
-        {rowtype:"flip", name:"visible-value", datatype:"select", default: "0",
-          options: [["0","0"],["1","1"]], info: app.getText("info_visible-value")},
-        {rowtype:"flip", name:"wide", datatype:"float", default: 0, info: app.getText("info_optional")},
-        {rowtype:"flip", name:"narrow", datatype:"float", default: 0, info: app.getText("info_optional")}
-          ]
-    },
-    separator:{
-      options: {
-        title: "SEPARATOR"},
-      rows: [
-        {rowtype:"flip", name:"hgap", datatype:"integer", default: 0, info: app.getText("info_hgap")}]
-    },
-    vgap:{
-      options: {
-        title: "VGAP"},
-      rows: [
-        {rowtype:"flip", name:"height", datatype:"float", default: 0, info: app.getText("info_height")}]
-    },
-    hline:{
-      options: {
-        title: "HLINE"},
-      rows: [
-        {rowtype:"flip", name:"width", datatype:"percent", info: app.getText("info_width")},
-        {rowtype:"flip", name:"gap", datatype:"integer", default:0, info: app.getText("info_gap")},
-        {rowtype:"flip", name:"border-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_border-color")}
-        ]
-    },
-    html:{
-      options: {
-        title: "HTML"},
-      rows: [
-        {rowtype:"flip", name:"html", datatype:"text", default: "", info: app.getText("info_html")}]
-    },
-    datagrid:{
-      options: {
-        title: "DATAGRID"},
-      rows: [
-        {rowtype:"flip", name:"name", datatype:"string", default: "items", info: app.getText("info_datagrid_name")},
-        {rowtype:"flip", name:"databind", datatype:"string", default: "", info: app.getText("info_databind")},
-        {rowtype:"flip", name:"width", datatype:"percent", info: app.getText("info_width")},
-        {rowtype:"flip", name:"merge", datatype:"select", default: "0",
-          options: [["0","0"],["1","1"]], info: app.getText("info_merge")},
-        {rowtype:"flip", name:"font-size", datatype:"integer", default: 12},
-        {rowtype:"flip", name:"border", datatype:"checklist", 
-          values: ["1|All", "L|Left", "T|Top", "R|Right", "B|Bottom"]},
-        {rowtype:"flip", name:"color", datatype:"color", info:app.getText("info_color")},
-        {rowtype:"flip", name:"border-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_border-color")},
-        {rowtype:"flip", name:"background-color", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_background-color")},
-        {rowtype:"flip", name:"header-background", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_background-color")},
-        {rowtype:"flip", name:"footer-background", datatype:"integer", default: 0, max: 255, min: 0,
-          info: app.getText("info_background-color")}
-        ]
-    },
-    column:{
-      options: {
-        title: "COLUMN"},
-      rows: [
-        {rowtype:"flip", name:"fieldname", datatype:"string", default: "", info: app.getText("info_fieldname")},
-        {rowtype:"flip", name:"label", datatype:"string", default: "", info: app.getText("info_label")},
-        {rowtype:"flip", name:"width", datatype:"percent", info: app.getText("info_width")},
-        {rowtype:"flip", name:"align", datatype:"select", default: "left",
-          options: [["left","left"],["right","right"],["center","center"]], info: app.getText("info_align")},
-        {rowtype:"flip", name:"header-align", datatype:"select", default: "left",
-          options: [["left","left"],["right","right"],["center","center"]], info: app.getText("info_align")},
-        {rowtype:"flip", name:"footer-align", datatype:"select", default: "left",
-          options: [["left","left"],["right","right"],["center","center"]], info: app.getText("info_align")},
-        {rowtype:"flip", name:"thousands", datatype:"string", default: "", info: app.getText("info_thousands")},
-        {rowtype:"flip", name:"digit", datatype:"integer", default: 0, info: app.getText("info_digit")},
-        {rowtype:"flip", name:"footer", datatype:"string", default: "", info: app.getText("info_footer")}
-      ]
-    },
-    header:{
-      options: {
-        title: "HEADER"},
-      rows: []
-    },
-    details:{
-      options: {
-        title: "DETAILS"},
-      rows: []
-    },
-    footer:{
-      options: {
-        title: "FOOTER"},
-      rows: []
-    }
-  }
 
   const getElementType = (element) => {
     if (Object.getOwnPropertyNames(element).length>0) {
@@ -241,97 +75,70 @@ export const templateActions = (data, setData) => {
     }
   }
 
-  const setCurrent = (options) => {
+  const setCurrent = (options, templateData) => {
     const item = options.tmp_id.split("_");
-    let setting = update(options.setting||data.setting, {template: {$merge: {
+    let setting = update(templateData||data.template, {$merge: {
       current: {
         id: options.tmp_id,
         section: item[1]
       }
-    }}})
+    }})
     switch (item.length) {
       case 2:
-        setting = update(setting, {template: {current: {$merge: {
+        setting = update(setting, {current: {$merge: {
           type: item[1],
-          item: setting.template.template[setting.template.current.section],
+          item: setting.template[setting.current.section],
           index: null,
           parent: null,
           parent_type: null,
           parent_index: null
-        }}}})
+        }}})
         break;
       case 4:
-        setting = update(setting, {template: {current: {$merge: {
+        setting = update(setting, {current: {$merge: {
           type: item[3],
           index: parseInt(item[2],10),
-          parent: setting.template.template[setting.template.current.section],
-          parent_type: setting.template.current.section,
+          parent: setting.template[setting.current.section],
+          parent_type: setting.current.section,
           parent_index: null
-        }}}})
-        if ((setting.template.current.type==="row") || (setting.template.current.type==="datagrid")) {
-          setting = update(setting, {template: {current: {$merge: {
-            item: setting.template.template[setting.template.current.section][parseInt(item[2],10)][item[3]].columns,
-            item_base: setting.template.template[setting.template.current.section][parseInt(item[2],10)][item[3]]
-          }}}})
+        }}})
+        if ((setting.current.type==="row") || (setting.current.type==="datagrid")) {
+          setting = update(setting, {current: {$merge: {
+            item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
+            item_base: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
+          }}})
         } else {
-          setting = update(setting, {template: {current: {$merge: {
-            item: setting.template.template[setting.template.current.section][parseInt(item[2],10)][item[3]]
-          }}}})
+          setting = update(setting, {current: {$merge: {
+            item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
+          }}})
         }
         break;
       case 6:
-        setting = update(setting, {template: {current: {$merge: {
+        setting = update(setting, {current: {$merge: {
           type: item[5],
-          item: setting.template.template[setting.template.current.section][parseInt(item[2],10)][item[3]].columns[parseInt(item[4],10)][item[5]],
+          item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns[parseInt(item[4],10)][item[5]],
           index: parseInt(item[4],10),
-          parent: setting.template.template[setting.template.current.section][parseInt(item[2],10)][item[3]].columns,
+          parent: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
           parent_type: item[3],
           parent_index: parseInt(item[2],10)
-        }}}})
+        }}})
         break;
       default:
         break;
     }
-    setting = update(setting, {template: {current: {$merge: {
-      form: elements[setting.template.current.type]
-    }}}})
-    if(options.set_dirty && (setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+    setting = update(setting, {current: {$merge: {
+      form: templateElements({ getText: app.getText })[setting.current.type]
+    }}})
+    if(options.set_dirty && !["_blank","_sample"].includes(setting.key)){
       setting = update(setting, {$merge: {
         dirty: true
       }})
     }
-    setData("setting", setting)
-  }
-
-  const setTemplate = (options) => {
-    let setting = update(data.setting, {$merge: {
-      type: "template_editor",
-      dataset: options.dataset,
-      current: null,
-      filter: "",
-      result: [],
-      caption: options.dataset.template[0].repname,
-      icon: "TextHeight",
-      template: {
-        key: options.dataset.template[0].reportkey,
-        title: options.dataset.template[0].repname,
-        template: JSON.parse(options.dataset.template[0].report),
-        current: {},
-        current_data: null,
-        dataset: [],
-        docnumber: "",
-        tabView: "template"
-      }
-    }})
-    setting = update(setting, {template: {$merge: {
-      dataset: getDataset(setting.template.template.data)
-    }}})
-    setCurrent({tmp_id: "tmp_report", setting: setting})
-    setData("current", { module: "setting" })
+    setData("template", setting)
   }
 
   const createMap = (cv) => {
-    const { template, current } = data.setting.template
+    const { template, current } = data.template
     let cont = cv.getContext('2d')
     let cell_color = "#CCCCCC"; let row_color = "#FFFF00"; let sel_color = "#00EE00";
     let cell_size = 8; let cell_pad = 1; let page_pad = 3; let rows = [];
@@ -470,9 +277,9 @@ export const templateActions = (data, setData) => {
     }
   }
   
-  const getNextItemId = (setting) => {
+  const getNextItemId = (templateData) => {
     //tmp_section_index_type_subindex_subtype
-    const { current, template } = setting.template
+    const { current, template } = templateData
     let section = current.section;
     let index = current.parent_index;
     let subindex = current.index;
@@ -485,7 +292,7 @@ export const templateActions = (data, setData) => {
       etype = getElementType(template[section][index]);
       if (subindex < template[section][index][etype].columns.length-1) {
         subtype = getElementType(template[section][index][etype].columns[subindex+1]);
-        return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype, setting: setting};
+        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype}, templateData];
       }
     }
     if (index!==null) {
@@ -494,20 +301,20 @@ export const templateActions = (data, setData) => {
         if (etype==="row" || etype==="datagrid") {
           if (template[section][index][etype].columns.length>0) {
             subtype = getElementType(template[section][index][etype].columns[0]);
-            return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype, setting: setting};
+            return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype}, templateData];
           }
         }
       }
       if (index < template[section].length-1) {
         etype = getElementType(template[section][index+1]);
-        return {tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype, setting: setting};
+        return [{tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype}, templateData];
       }
       if (section==="footer") {
         if (subindex!==null) {
           subtype = getElementType(template[section][index][etype].columns[subindex]);
-          return {tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype, setting: setting};
+          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype}, templateData];
         } else {
-          return {tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype, setting: setting};
+          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype}, templateData];
         }
       } else {
         section = sections[sections.indexOf(section)+1];
@@ -515,18 +322,18 @@ export const templateActions = (data, setData) => {
     }
     if (template[section].length>0) {
       etype = getElementType(template[section][0]);
-      return {tmp_id: "tmp_"+section+"_0_"+etype, setting: setting};
+      return [{tmp_id: "tmp_"+section+"_0_"+etype}, templateData];
     } else {
       if (section!=="footer") {
         section = sections[sections.indexOf(section)+1];
       }
-      return {tmp_id: "tmp_"+section, setting: setting};
+      return [{tmp_id: "tmp_"+section}, templateData];
     }
   };
 
-  const getPrevItemId = (setting) => {
+  const getPrevItemId = (templateData) => {
     //tmp_section_index_type_subindex_subtype
-    const { current, template } = setting.template
+    const { current, template } = templateData
     let section = current.section;
     let index = current.parent_index;
     let subindex = current.index;
@@ -534,16 +341,16 @@ export const templateActions = (data, setData) => {
       index = current.index; subindex = null;
     }
     if (section==="report") {
-      return {tmp_id: "tmp_report", setting: setting};
+      return [{tmp_id: "tmp_report"},templateData];
     }
     let etype; let subtype;
     if (subindex!==null) {
       etype = getElementType(template[section][index]);
       if (subindex>0) {
         subtype = getElementType(template[section][index][etype].columns[subindex-1]);
-        return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype, setting: setting};
+        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
       }
-      return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype, setting: setting};
+      return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype}, templateData];
     }
     if (index!==null) {
       if (index>0) {
@@ -552,20 +359,20 @@ export const templateActions = (data, setData) => {
           subindex = template[section][index-1][etype].columns.length;
           if (subindex>0) {
             subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-            return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype, setting: setting};
+            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
           } else {
-            return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype, setting: setting};
+            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
           }
         } else {
-          return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype, setting: setting};
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
         }
       }
-      return {tmp_id: "tmp_"+section, setting: setting};
+      return [{tmp_id: "tmp_"+section}, templateData];
     }
     let sections = ["report","header","details","footer"];
     section = sections[sections.indexOf(section)-1];
     if (section==="report") {
-      return {tmp_id: "tmp_report", setting: setting};
+      return [{tmp_id: "tmp_report"}, templateData];
     }
     index = template[section].length;
     if (index>0) {
@@ -574,28 +381,28 @@ export const templateActions = (data, setData) => {
         subindex = template[section][index-1][etype].columns.length;
         if (subindex>0) {
           subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-          return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype, setting: setting};
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
         } else {
-          return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype, setting: setting};
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
         }
       } else {
-        return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype, setting: setting};
+        return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
       }
     } else {
-      return {tmp_id: "tmp_"+section, setting: setting};
+      return [{tmp_id: "tmp_"+section}, templateData];
     }
   }
 
-  const goPrevious = (setting) => {
-    setCurrent(getPrevItemId(setting))
+  const goPrevious = (templateData) => {
+    setCurrent(...getPrevItemId(templateData))
   }
 
-  const goNext = (setting) => {
-    setCurrent(getNextItemId(setting))
+  const goNext = (templateData) => {
+    setCurrent(...getNextItemId(templateData))
   }
 
-  const moveDown = (setting) => {
-    const { current } = setting.template;
+  const moveDown = (templateData) => {
+    const { current } = templateData;
     if (current.parent!==null && current.index!==null) {
       if (current.index<current.parent.length-1) {
         let next_item = current.parent[current.index+1];
@@ -606,13 +413,13 @@ export const templateActions = (data, setData) => {
           id += current.parent_index.toString()+"_"+current.parent_type+"_";
         }
         id += (current.index+1).toString()+"_"+current.type;
-        setCurrent({ tmp_id: id, set_dirty: true, setting: setting})
+        setCurrent({ tmp_id: id, set_dirty: true}, templateData)
       }
     }
   }
 
-  const moveUp = (setting) => {
-    const { current } = setting.template;
+  const moveUp = (templateData) => {
+    const { current } = templateData;
     if (current.parent!==null && current.index!==null) {
       if (current.index>0) {
         let prev_item = current.parent[current.index-1];
@@ -624,25 +431,25 @@ export const templateActions = (data, setData) => {
           id += current.parent_index.toString()+"_"+current.parent_type+"_";
         }
         id += (current.index-1).toString()+"_"+current.type;
-        setCurrent({ tmp_id: id, set_dirty: true, setting: setting})
+        setCurrent({ tmp_id: id, set_dirty: true}, templateData)
       }
     }
   }
 
-  const deleteItem = (setting) => {
-    const { current } = setting.template;
+  const deleteItem = (templateData) => {
+    const { current } = templateData;
     if (current.parent!==null && current.index!==null) {
       current.parent.splice(current.index, 1);
       let id = "tmp_"+current.section;
       if (current.parent_index!==null) {
         id += "_"+current.parent_index.toString()+"_"+current.parent_type;
       }
-      setCurrent({ tmp_id: id, set_dirty: true, setting: setting})
+      setCurrent({ tmp_id: id, set_dirty: true}, templateData)
     }
   }
 
-  const addItem = (value, setting) => {
-    const { current } = setting.template;
+  const addItem = (value, templateData) => {
+    const { current } = templateData;
     if (value !== "") {
       let ename = value.toString().toLowerCase();
       let element = {}; element[ename] = {};
@@ -651,70 +458,71 @@ export const templateActions = (data, setData) => {
         element[ename].columns=[];
       }
       current.item.push(element);
-      setCurrent({ tmp_id: id, set_dirty: true, setting: setting})
+      setCurrent({ tmp_id: id, set_dirty: true}, templateData)
     }
   }
 
-  const editItem = (options) => {
-    let setting = update(options.setting||data.setting, {})
-    const itemId = setting.template.current.id.split("_");
+  const editItem = (options, templateData) => {
+    let setting = update(templateData||data.template, {})
+    const id = setting.current.id
+    const itemId = id.split("_");
 
     const setItemBase = (key, value) => {
       if(value === null){
-        setting = update(setting, {template: {current: {item_base: {
+        setting = update(setting, {current: {item_base: {
           $unset: [key]
-        }}}})
+        }}})
       } else {
-        setting = update(setting, {template: {current: {item_base: {$merge: {
+        setting = update(setting, {current: {item_base: {$merge: {
           [key]: value
-        }}}}})
+        }}}})
       }
-      setting = update(setting, {template: {template: {
-        [setting.template.current.section]: {[parseInt(itemId[2],10)]: {[itemId[3]]: { 
-          $set: setting.template.current.item_base
-      }}}}}})
+      setting = update(setting, {
+        [setting.current.section]: {[parseInt(itemId[2],10)]: {[itemId[3]]: { 
+          $set: setting.current.item_base
+      }}}})
     }
 
     const setItem = (key, value) => {
       if(value === null){
-        setting = update(setting, {template: {current: {item: {
+        setting = update(setting, {current: {item: {
           $unset: [key]
-        }}}})
+        }}})
       } else {
-        setting = update(setting, {template: {current: {item: {$merge: {
+        setting = update(setting, {current: {item: {$merge: {
           [key]: value
-        }}}}})
+        }}}})
       }
       switch (itemId.length) {
         case 2:
-          setting = update(setting, {template: {template: {[setting.template.current.section]: {
-            $set: setting.template.current.item
-          }}}})
+          setting = update(setting, {template: {[setting.current.section]: {
+            $set: setting.current.item
+          }}})
           break;
 
         case 4:
-          if ((setting.template.current.type==="row") || (setting.template.current.type==="datagrid")) {
-            setting = update(setting, {template: {template: {[setting.template.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {columns: {
-              $set: setting.template.current.item
-            }}}}}}})
-          } else {
-            setting = update(setting, {template: {template: {[setting.template.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {
-              $set: setting.template.current.item
+          if ((setting.current.type==="row") || (setting.current.type==="datagrid")) {
+            setting = update(setting, {template: {[setting.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {columns: {
+              $set: setting.current.item
             }}}}}})
+          } else {
+            setting = update(setting, {template: {[setting.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {
+              $set: setting.current.item
+            }}}}})
           }
           break;
 
         case 6:
-          setting = update(setting, {template: {template: {[setting.template.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {columns: {[parseInt(itemId[4],10)]: {[itemId[5]]: {
-            $set: setting.template.current.item
-          }}}}}}}}})
+          setting = update(setting, {template: {[setting.current.section]: { [parseInt(itemId[2],10)]: {[itemId[3]]: {columns: {[parseInt(itemId[4],10)]: {[itemId[5]]: {
+            $set: setting.current.item
+          }}}}}}}})
           break;
 
         default:
       }
     }
 
-    if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+    if(!["_blank","_sample"].includes(setting.key)){
       setting = update(setting, {$merge: {
         dirty: true
       }})
@@ -736,13 +544,13 @@ export const templateActions = (data, setData) => {
               break;
           }
         }
-        if(setting.template.current.item_base){
+        if(setting.current.item_base){
           setItemBase(options.name, value)
         } else {
           setItem(options.name, value)
         }
       } else {
-        if(setting.template.current.item_base){
+        if(setting.current.item_base){
           setItemBase(options.name, null)
         } else {
           setItem(options.name, null)
@@ -753,19 +561,19 @@ export const templateActions = (data, setData) => {
         let file = options.value[0]
         let fileReader = new FileReader();
         fileReader.onload = function(event) {
-          if(setting.template.current.item_base){
+          if(setting.current.item_base){
             setItemBase(options.name, event.target.result)
           } else {
             setItem(options.name, event.target.result)
           }
-          setData("setting", setting)
+          setCurrent({tmp_id: id}, setting)
         }
         fileReader.readAsDataURL(file);
       }
     } else if(options.checklist){
-      let ovalue = ((setting.template.current.item_base) ? 
-        setting.template.current.item_base[options.name] : 
-        setting.template.current.item[options.name]) || ""
+      let ovalue = ((setting.current.item_base) ? 
+        setting.current.item_base[options.name] : 
+        setting.current.item[options.name]) || ""
       let value = options.value
       if(options.checked){
         if(value !== "1"){
@@ -774,19 +582,19 @@ export const templateActions = (data, setData) => {
           }
         }
       } else {
-        if(setting.template.current.item_base){
+        if(setting.current.item_base){
           value = ovalue.replace(value,"")
         } else {
           value = ovalue.replace(value,"")
         }
       }
-      if(setting.template.current.item_base){
+      if(setting.current.item_base){
         setItemBase(options.name, value)
       } else {
         setItem(options.name, value)
       }
     } else {
-      if(setting.template.current.item_base){
+      if(setting.current.item_base){
         setItemBase(options.name, options.value)
       } else {
         setItem(options.name, options.value)
@@ -794,82 +602,74 @@ export const templateActions = (data, setData) => {
     }
 
     if(!options.file){
-      setData("setting", setting)
+      setCurrent({tmp_id: id}, setting)
     }
   }
 
   const exportTemplate = () => {
-    const { template } = data.setting
-    const xtempl = JSON.stringify(template.template)
+    const xtempl = JSON.stringify(data.template.template)
     let fUrl = URL.createObjectURL(new Blob([xtempl], 
       {type : 'text/json;charset=utf-8;'}));
-    saveToDisk(fUrl, template.key+".json")
+    saveToDisk(fUrl, data.template.key+".json")
   }
 
-  const newBlank = () => {
-    let setting = update(data.setting, {$merge: {
-      type: "template_editor",
-      caption: app.getText("title_report_editor"),
-      icon: "TextHeight",
-      dataset: {},
-      current: null,
-      filter: "",
-      result: [],
+  const setTemplate = (options) => {
+    let blank = {
+      id: undefined,
+      key: options.type,
+      title: "Nervatura Report",
       template: {
-        key: "_blank",
-        title: "Nervatura Report",
-        template: {
-          report: {}, 
-          header: [],
-          details: [],
-          footer: [], 
-          data: {}
+        meta: {
+          reportkey: options.type,
+          nervatype: "", transtype: "", direction: "", 
+          repname: "Nervatura Report", description: "", 
+          filetype:"pdf"
         },
-        current: {},
-        current_data: null,
-        dataset: [],
-        docnumber: "",
-        tabView: "template"
-      }
-    }})
-    setCurrent({tmp_id: "tmp_report", setting: setting})
-    setData("current", { module: "setting" })
-  }
-
-  const newSample = () => {
-    let sample = require('../../config/sample.json')
-    let setting = update(data.setting, {$merge: {
-      type: "template_editor",
-      caption: sample.report.title,
-      icon: "TextHeight",
-      dataset: {},
-      current: null,
-      filter: "",
-      result: [],
-      template: {
-        key: "_sample",
-        title: sample.report.title,
-        template: sample,
-        current: {},
-        current_data: null,
-        dataset: [],
-        docnumber: "",
-        tabView: "template"
-      }
-    }})
-    setting = update(setting, {template: {$merge: {
-      dataset: getDataset(setting.template.template.data)
-    }}})
-    setCurrent({tmp_id: "tmp_report", setting: setting})
-    setData("current", { module: "setting" })
+        report: {},
+        header: [],
+        details: [],
+        footer: [],
+        sources: {},
+        data: {}
+      },
+      current: {},
+      current_data: null,
+      dataset: [],
+      docnumber: "",
+      tabView: "template",
+      dirty: false
+    }
+    if (options.type === "_sample"){
+      const sample = require('../../config/sample.json')
+      blank = update(blank, {
+        template: {$merge: {
+          ...sample
+        }},
+        dataset: {$set: getDataset(sample.data)}
+      })
+    }
+    if (options.type === "template"){
+      blank = update(blank, {$merge: {
+        id: options.dataset.template[0].id,
+        key: options.dataset.template[0].reportkey,
+        title: options.dataset.template[0].repname,
+        template: JSON.parse(options.dataset.template[0].report),
+        dbtemp: options.dataset.template[0]
+      }})
+      blank = update(blank, {$merge: {
+        dataset: getDataset(blank.template.data)
+      }})
+    }
+    setCurrent({tmp_id: "tmp_report"}, blank)
+    setData("current", { module: "template" })
   }
 
   const saveTemplate = async (warning) => {
     const updateData = async ()=>{
-      let setting = update(data.setting, {})
+      let setting = update(data.template, {})
       let values = { 
-        id: setting.dataset.template[0].id,
-        report: JSON.stringify(setting.template.template)
+        id: setting.id,
+        report: JSON.stringify(setting.template)
       }
       let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
       if(result.error){
@@ -896,7 +696,7 @@ export const templateActions = (data, setData) => {
             setData("current", { modalForm: null }, async ()=>{
               const result = await updateData()
               if(result){
-                setData("setting", result)
+                setData("template", result)
               }
             })
           }}
@@ -907,14 +707,29 @@ export const templateActions = (data, setData) => {
     }
   }
 
-  const deleteTemplate = async (id) => {
-    const result = await app.requestData("/ui_report", 
-      { method: "DELETE", query: { id: id } })
-    if(result && result.error){
-      app.resultError(result)
-      return false
-    }
-    return true
+  const deleteTemplate = async () => {
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("msg_warning")}
+        message={app.getText("msg_delete_text")}
+        infoText={app.getText("msg_delete_info")}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async ()=>{
+            const result = await app.requestData("/ui_report", 
+              { method: "DELETE", query: { id: data.template.id } })
+            if(result && result.error){
+              return app.resultError(result)
+            } 
+            setData("current", { module: "setting", content: { type: 'template' } })
+          })
+        }}
+      /> 
+    })
   }
 
   const deleteData = (dskey) => {
@@ -930,18 +745,18 @@ export const templateActions = (data, setData) => {
         }}
         onOK={(value) => {
           setData("current", { modalForm: null }, async ()=>{
-            let setting = update(data.setting, {template: {template: {data: {
+            let setting = update(data.template, {template: {data: {
               $unset: [dskey]
-            }}}})
-            if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+            }}})
+            if(!["_blank","_sample"].includes(setting.key)){
               setting = update(setting, {$merge: {
                 dirty: true
               }})
             }
-            setting = update(setting, {template: { $merge: {
-              dataset: getDataset(setting.template.template.data)
-            }}})
-            setData("setting", setting)
+            setting = update(setting, { $merge: {
+              dataset: getDataset(setting.template.data)
+            }})
+            setData("template", setting)
           })
         }}
       /> 
@@ -973,24 +788,24 @@ export const templateActions = (data, setData) => {
   }
 
   const setCurrentData = (cdata) => {
-    let setting = update(data.setting, {})
+    let setting = update(data.template, {})
 
     const setCData=(values) => {
-      if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+      if(!["_blank","_sample"].includes(setting.key)){
         setting = update(setting, {$merge: {
           dirty: true
         }})
       }
-      setting = update(setting, {template: { $merge: {
+      setting = update(setting, { $merge: {
         current_data: values
-      }}})
-      setData("setting", setting)
+      }})
+      setData("template", setting)
     }
 
     if(cdata){
       switch (cdata.type) {
         case "new":
-          if (Object.keys(setting.template.template.data).includes(cdata.values.name) || cdata.values.name==="") {
+          if (Object.keys(setting.template.data).includes(cdata.values.name) || cdata.values.name==="") {
             app.showToast({ type: "error",
               title: app.getText("msg_warning"), 
               message: app.getText("msg_value_exists") })
@@ -1005,30 +820,30 @@ export const templateActions = (data, setData) => {
             }})
             switch (values.type) {
               case "string":
-                setting = update(setting, {template: { template: {data: {$merge: {
+                setting = update(setting, { template: {data: {$merge: {
                   [values.name]: ""
-                }}}}})
+                }}}})
                 break;
 
               case "list":
-                setting = update(setting, {template: { template: {data: {$merge: {
+                setting = update(setting, { template: {data: {$merge: {
                   [values.name]: {}
-                }}}}})
+                }}}})
                 values.items = getDataList({})
                 break;
               
               case "table":
-                setting = update(setting, {template: { template: {data: {$merge: {
+                setting = update(setting, { template: {data: {$merge: {
                   [values.name]: []
-                }}}}})
+                }}}})
                 let columns = cdata.values.columns.split(",")
                 let item = {}
                 for(let i = 0; i < columns.length; i++) {
                   item[String(columns[i]).trim()] = ""
                 }
-                setting = update(setting, {template: { template: {data: {
+                setting = update(setting, { template: {data: {
                   [values.name]: {$push: [item]}
-                }}}})
+                }}})
                 const table_data = getDataTable([item])
                 values.items = table_data.items
                 values.fields = table_data.fields
@@ -1037,20 +852,20 @@ export const templateActions = (data, setData) => {
                 default:
                   break;
             }
-            setting = update(setting, {template: {$merge: {
-              dataset: getDataset(setting.template.template.data)
-            }}})
+            setting = update(setting, {$merge: {
+              dataset: getDataset(setting.template.data)
+            }})
             setCData(values)
           }
           break;
 
         case "list":
-          cdata.items = getDataList(setting.template.template.data[cdata.name])
+          cdata.items = getDataList(setting.template.data[cdata.name])
           setCData(cdata)
           break;
         
         case "table":
-          const table_data = getDataTable(setting.template.template.data[cdata.name])
+          const table_data = getDataTable(setting.template.data[cdata.name])
           cdata.items = table_data.items
           cdata.fields = table_data.fields
           setCData(cdata)
@@ -1066,18 +881,18 @@ export const templateActions = (data, setData) => {
   }
 
   const setCurrentDataItem = (value) => {
-    let setting = update(data.setting, {})
+    let setting = update(data.template, {})
 
     const setItem=(item) => {
-      if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+      if(!["_blank","_sample"].includes(setting.key)){
         setting = update(setting, {$merge: {
           dirty: true
         }})
       }
-      setting = update(setting, {template: {current_data: { $merge: {
+      setting = update(setting, {current_data: { $merge: {
         item: item
-      }}}})
-      setData("setting", setting)
+      }}})
+      setData("template", setting)
     }
     
     const newList=() => {
@@ -1094,17 +909,17 @@ export const templateActions = (data, setData) => {
           onOK={(value) => {
             setData("current", { modalForm: null }, async ()=>{
               if (value !== "") { 
-                if (Object.keys(setting.template.template.data[setting.template.current_data.name]).includes(value)) {
+                if (Object.keys(setting.template.data[setting.current_data.name]).includes(value)) {
                   app.showToast({ type: "error",
                     title: app.getText("msg_warning"), 
                     message: app.getText("msg_value_exists") })
                 } else {
-                  setting = update(setting, {template: { template: {data: {[setting.template.current_data.name]: {$merge: {
+                  setting = update(setting, { template: {data: {[setting.current_data.name]: {$merge: {
                     [value]: ""
-                  }}}}}})
-                  setting = update(setting, {template: { current_data: {$merge: {
-                    items: getDataList(setting.template.template.data[setting.template.current_data.name])
-                  }}}})
+                  }}}}})
+                  setting = update(setting, { current_data: {$merge: {
+                    items: getDataList(setting.template.data[setting.current_data.name])
+                  }}})
                   setItem(value)
                 }
               }
@@ -1115,27 +930,27 @@ export const templateActions = (data, setData) => {
     }
 
     const newTable=() => {      
-      let item = update(setting.template.template.data[setting.template.current_data.name][0], {$merge:{
-        _index: setting.template.template.data[setting.template.current_data.name].length-1
+      let item = update(setting.template.data[setting.current_data.name][0], {$merge:{
+        _index: setting.template.data[setting.current_data.name].length
       }})
       Object.keys(item).forEach((fieldname) => {
         if(fieldname !== "_index"){
           item[fieldname] = ""
         }
       })
-      setting = update(setting, {template: { template: {data: {
-        [setting.template.current_data.name]: {$push: [item]
-      }}}}})
-      setting = update(setting, {template: { current_data: {$merge: {
-        items: getDataTable(setting.template.template.data[setting.template.current_data.name]).items
+      setting = update(setting, { template: {data: {
+        [setting.current_data.name]: {$push: [item]
       }}}})
+      setting = update(setting, { current_data: {$merge: {
+        items: getDataTable(setting.template.data[setting.current_data.name]).items
+      }}})
       setItem(item)
     }
 
     if(typeof value === "undefined"){
-      if(setting.template.current_data.type === "list"){
+      if(setting.current_data.type === "list"){
         newList()
-      } else if(setting.template.current_data.type === "table"){
+      } else if(setting.current_data.type === "table"){
         newTable()
       }
     } else {
@@ -1157,49 +972,49 @@ export const templateActions = (data, setData) => {
         }}
         onOK={(value) => {
           setData("current", { modalForm: null }, async ()=>{
-            let setting = update(data.setting, {})
+            let setting = update(data.template, {})
   
-            switch (setting.template.current_data.type) {
+            switch (setting.current_data.type) {
               case "list":
-                setting = update(setting, {template: {template: {data: {[setting.template.current_data.name]: {
+                setting = update(setting, {template: {data: {[setting.current_data.name]: {
                   $unset: [options.key]
-                }}}}})
-                setting = update(setting, {template: { current_data: {$merge: {
-                  items: getDataList(setting.template.template.data[setting.template.current_data.name])
                 }}}})
+                setting = update(setting, { current_data: {$merge: {
+                  items: getDataList(setting.template.data[setting.current_data.name])
+                }}})
                 break;
     
               case "table":
               default:
-                if (setting.template.template.data[setting.template.current_data.name].length===1){
-                  setting = update(setting, {template: {template: {data: {
-                    $unset: [setting.template.current_data.name]
-                  }}}})
-                  setting = update(setting, {template: {$merge: {
-                    current_data: null,
-                    dataset: getDataset(setting.template.template.data)
+                if (setting.template.data[setting.current_data.name].length===1){
+                  setting = update(setting, {template: {data: {
+                    $unset: [setting.current_data.name]
                   }}})
+                  setting = update(setting, {$merge: {
+                    current_data: null,
+                    dataset: getDataset(setting.template.data)
+                  }})
                 } else {
-                  setting = update(setting, {template: {template: {data: {[setting.template.current_data.name]: {
+                  setting = update(setting, {template: {data: {[setting.current_data.name]: {
                     $splice: [[options._index, 1]]
-                  }}}}})
-                  setting = update(setting, {template: { current_data: {$merge: {
-                    items: getDataTable(setting.template.template.data[setting.template.current_data.name]).items
                   }}}})
+                  setting = update(setting, { current_data: {$merge: {
+                    items: getDataTable(setting.template.data[setting.current_data.name]).items
+                  }}})
                 }
                 break;
             }
             
-            setting = update(setting, {template: { $merge: {
-              dataset: getDataset(setting.template.template.data)
-            }}})
+            setting = update(setting, { $merge: {
+              dataset: getDataset(setting.template.data)
+            }})
   
-            if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+            if(!["_blank","_sample"].includes(setting.key)){
               setting = update(setting, {$merge: {
                 dirty: true
               }})
             }
-            setData("setting", setting)
+            setData("template", setting)
           })
         }}
       /> 
@@ -1207,42 +1022,42 @@ export const templateActions = (data, setData) => {
   }
 
   const editDataItem = (options) => {
-    let setting = update(data.setting, {})
-    if((setting.template.key !== "_blank") && (setting.template.key !== "_sample")){
+    let setting = update(data.template, {})
+    if(!["_blank","_sample"].includes(setting.key)){
       setting = update(setting, {$merge: {
         dirty: true
       }})
     }
-    switch (setting.template.current_data.type) {
+    switch (setting.current_data.type) {
       case "string":
-        setting = update(setting, {template: { template: {data: {$merge: {
-          [setting.template.current_data.name]: options.value
-        }}}}})
+        setting = update(setting, { template: {data: {$merge: {
+          [setting.current_data.name]: options.value
+        }}}})
         break;
       
       case "list":
-        setting = update(setting, {template: { template: {data: {[setting.template.current_data.name]: {$merge: {
-          [setting.template.current_data.item]: options.value
-        }}}}}})
-        setting = update(setting, {template: { current_data: {$merge: {
-          items: getDataList(setting.template.template.data[setting.template.current_data.name])
-        }}}})
+        setting = update(setting, { template: {data: {[setting.current_data.name]: {$merge: {
+          [setting.current_data.item]: options.value
+        }}}}})
+        setting = update(setting, { current_data: {$merge: {
+          items: getDataList(setting.template.data[setting.current_data.name])
+        }}})
         break;
 
       default:
-        setting = update(setting, {template: { current_data: {item: {$merge: {
+        setting = update(setting, { current_data: {item: {$merge: {
           [options.field]: options.value
-        }}}}})
-        setting = update(setting, {template: { template: {data: {
-          [setting.template.current_data.name]: {[options._index]: {$merge: {
-          [options.field]: options.value
-        }}}}}}})
-        setting = update(setting, {template: { current_data: {$merge: {
-          items: getDataTable(setting.template.template.data[setting.template.current_data.name]).items
         }}}})
+        setting = update(setting, { template: {data: {
+          [setting.current_data.name]: {[options._index]: {$merge: {
+          [options.field]: options.value
+        }}}}}})
+        setting = update(setting, { current_data: {$merge: {
+          items: getDataTable(setting.template.data[setting.current_data.name]).items
+        }}})
         break;
     }
-    setData("setting", setting)
+    setData("template", setting)
   }
 
   const addTemplateData = () => {
@@ -1275,29 +1090,29 @@ export const templateActions = (data, setData) => {
         base64: false,
       })
     }
-    let setting = update(data.setting, {})
+    let setting = update(data.template, {})
     const params = {
-      reportkey: setting.template.key,
+      reportkey: setting.key,
       orientation: orient || getSetting("page_orient"),
       size: getSetting("page_size"),
       output: "auto",
-      title: setting.template.title,
-      template: JSON.stringify(setting.template.template)
+      title: setting.title,
+      template: JSON.stringify(setting.template)
     }
-    if((setting.template.key === "_blank") || (setting.template.key === "_sample")){
+    if(["_blank","_sample"].includes(setting.key)){
       params.reportkey = ""
       loadPreview(params)
     } else {
-      params.nervatype = setting.dataset.template[0].ntype
-      if(setting.preview && (setting.template.docnumber !== "")){
-        params.refnumber = setting.template.docnumber
+      params.nervatype = setting.template.meta.nervatype
+      if(setting.preview && (setting.docnumber !== "")){
+        params.refnumber = setting.docnumber
         loadPreview(params)
       } else {
         setData("current", { modalForm: 
           <InputBox 
             title={app.getText("template_preview_data")}
             message={app.getText("template_preview_input").replace("docname",params.nervatype)}
-            value={setting.template.docnumber} showValue={true}
+            value={setting.docnumber} showValue={true}
             labelOK={app.getText("msg_ok")}
             labelCancel={app.getText("msg_cancel")}
             onCancel={() => {
@@ -1309,7 +1124,7 @@ export const templateActions = (data, setData) => {
                   const template = update(setting.template, {$merge: {
                     docnumber: value
                   }})
-                  setData("setting", { template: template })
+                  setData("template", { template: template })
                   params.refnumber = value
                   loadPreview(params)
                 }
@@ -1319,6 +1134,59 @@ export const templateActions = (data, setData) => {
         })
       }
     }
+  }
+
+  const changeTemplateData = (options, templateData) => {
+    const { key, value } = options
+    let setting = update(templateData, {$merge: {
+      [key]: value
+    }})
+    setData("template", setting)
+  }
+
+  const changeCurrentData = (options, templateData) => {
+    const { key, value } = options
+    let setting = update(templateData, {current: {$merge: {
+      [key]: value
+    }}})
+    setData("template", setting)
+  }
+
+  const checkTemplate = (options, nextKey) => {
+    const cbNext = {
+      NEW_BLANK: () => setTemplate({ type: "_blank" }),
+      NEW_SAMPLE: () => setTemplate({ type: "_sample" }),
+      LOAD_SETTING: () => setData("current", { module: "setting", content: { type: 'template' } })
+    }
+    if (data.template.dirty === true) {
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("msg_warning")}
+          message={app.getText("msg_dirty_text")}
+          infoText={app.getText("msg_dirty_info")}
+          labelOK={app.getText("msg_save")}
+          labelCancel={app.getText("msg_cancel")}
+          onCancel={() => {
+            setData("current", { modalForm: null }, ()=>{
+              setData(data.current.module, { dirty: false }, ()=>{
+                return cbNext[nextKey]()
+              })
+            })
+          }}
+          onOK={() => {
+            setData("current", { modalForm: null }, async ()=>{
+              const setting = await saveTemplate()
+              if(setting){
+                return setData("template", setting, ()=>{
+                  return cbNext[nextKey]()
+                })
+              }
+            })
+          }}
+        /> 
+      })
+    }
+    return cbNext[nextKey]()
   }
 
   return {
@@ -1335,8 +1203,6 @@ export const templateActions = (data, setData) => {
     addItem: addItem,
     editItem: editItem,
     exportTemplate: exportTemplate,
-    newBlank: newBlank,
-    newSample: newSample,
     saveTemplate: saveTemplate,
     deleteTemplate: deleteTemplate,
     deleteData: deleteData,
@@ -1345,6 +1211,9 @@ export const templateActions = (data, setData) => {
     editDataItem: editDataItem,
     setCurrentDataItem: setCurrentDataItem,
     deleteDataItem: deleteDataItem,
-    showPreview: showPreview
+    showPreview: showPreview,
+    changeTemplateData: changeTemplateData,
+    changeCurrentData: changeCurrentData,
+    checkTemplate: checkTemplate
   }
 }

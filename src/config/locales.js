@@ -697,6 +697,7 @@ export const en = {
   template_label_list: "LIST",
   template_label_map: "MAP",
   template_label_data: "DATA",
+  template_label_meta: "META",
   template_label_new_data: "NEW DATA",
   template_data_name: "Name",
   template_data_type: "Data type",
@@ -711,6 +712,7 @@ export const en = {
   template_preview_data: "PREVIEW DATA",
   template_preview_input: "Enter a valid docname No.:",
   template_preview_invalid: "Incorrect or non-existing docname No.:",
+  template_data_sources: "Data sources",
   
   msg_loader_text: "Waiting for the response...",
   

@@ -2,12 +2,10 @@ import update from 'immutability-helper';
 import { format } from 'date-fns'
 
 import { appActions, getSql } from 'containers/App/actions'
-import { editorActions } from 'containers/Editor/actions'
 import { Sql } from 'containers/Controller/Sql'
 import dataset from 'containers/Controller/Dataset'
 import { Forms } from 'containers/Controller/Forms'
 import { InitItem, Validator } from 'containers/Controller/Validator'
-import { templateActions } from 'containers/Report/Template'
 import InputBox from 'components/Modal/InputBox'
 import Audit from 'components/Modal/Audit'
 import Menu from 'components/Modal/Menu'
@@ -15,10 +13,8 @@ import { getSetting } from 'config/app'
 
 export const settingActions = (data, setData) => {
   const app = appActions(data, setData)
-  const editor = editorActions(data, setData)
   const validator = Validator(data, setData)
   const initItem = InitItem(data, setData)
-  const template = templateActions(data, setData)
 
   const forms = Forms({ getText: app.getText })
   const sql = Sql({ getText: app.getText })
@@ -107,6 +103,7 @@ export const settingActions = (data, setData) => {
       filter: "", 
       result: [], 
       dirty: false,
+      audit: "all",
       view: {
         type: "password",
         result: []
@@ -262,7 +259,7 @@ export const settingActions = (data, setData) => {
         $merge: view
       }})
       if ((setting.type === "template") && (typeof setting.id !== "undefined")) {
-        return template.setTemplate(setting) 
+        return setData("current", { module: "template", content: setting }) 
       }
     }
     setSettingData(setting)
@@ -466,51 +463,39 @@ export const settingActions = (data, setData) => {
         case "SETTING_FORM":
           setSettingForm(options.id)
           break;
-        case "NEW_BLANK":
-          template.newBlank()
-          break;
-        case "NEW_SAMPLE":
-          template.newSample()
+        case "PASSWORD_FORM":
+          setPasswordForm(options.username)
           break;
         default:
           break;
       }
     }
-    if (data.setting.dirty === true) {
+    if ((data.setting.dirty === true) || (data.template.dirty === true)) {
       setData("current", { modalForm: 
         <InputBox 
           title={app.getText("msg_warning")}
           message={app.getText("msg_dirty_text")}
           infoText={app.getText("msg_dirty_info")}
-          labelOK={app.getText("msg_ok")}
+          labelOK={app.getText("msg_save")}
           labelCancel={app.getText("msg_cancel")}
           onCancel={() => {
             setData("current", { modalForm: null }, ()=>{
-              if (cbKeyFalse) {
-                setData("edit", { dirty: false }, ()=>{
+              setData(data.current.module, { dirty: false }, ()=>{
+                if (cbKeyFalse) {
                   cbNext(cbKeyFalse)
-                })
-              } else {
-                cbNext(cbKeyTrue)
-              }
+                } else {
+                  cbNext(cbKeyTrue)
+                }
+              })
             })
           }}
           onOK={(value) => {
             setData("current", { modalForm: null }, async ()=>{
-              if (data.setting.type === "template_editor"){
-                const setting = await template.saveTemplate()
-                if(setting){
-                  return setData("setting", setting, ()=>{
-                    cbNext(cbKeyTrue)
-                  })
-                }
-              } else {
-                const setting = await saveSetting()
-                if(setting){
-                  return setData("setting", setting, ()=>{
-                    cbNext(cbKeyTrue)
-                  })
-                }
+              const setting = await saveSetting()
+              if(setting){
+                return setData("setting", setting, ()=>{
+                  cbNext(cbKeyTrue)
+                })
               }
               return cbNext(cbKeyFalse)
             })
@@ -538,8 +523,8 @@ export const settingActions = (data, setData) => {
             break;
           
           case "place":
-            editor.checkEditor({ntype: data.setting.type, ttype: null, 
-              id: row.id || null}, 'LOAD_EDITOR')
+            setData("current", { module: "edit", content: {ntype: data.setting.type, ttype: null, 
+              id: row.id || null} })
             break;
          
           case "usergroup":
@@ -588,29 +573,6 @@ export const settingActions = (data, setData) => {
 
         case "deleteItem":
         deleteSetting(row)
-        break;
-
-      case "deleteTemplate":
-        setData("current", { modalForm: 
-          <InputBox 
-            title={app.getText("msg_warning")}
-            message={app.getText("msg_delete_text")}
-            infoText={app.getText("msg_delete_info")}
-            labelOK={app.getText("msg_ok")}
-            labelCancel={app.getText("msg_cancel")}
-            onCancel={() => {
-              setData("current", { modalForm: null })
-            }}
-            onOK={(value) => {
-              setData("current", { modalForm: null }, async ()=>{
-                const result  = await template.deleteTemplate(row.id)
-                if(result){
-                  loadSetting({type: "template"})
-                }
-              })
-            }}
-          /> 
-        })
         break;
 
       case "editAudit":
@@ -729,17 +691,17 @@ export const settingActions = (data, setData) => {
     }
   }
 
-  const createTemplate = (setting) => {
-    let reportkey = setting.dataset.template[0].ntype;
+  const createTemplate = () => {
+    let reportkey = data.template.template.meta.nervatype;
     if (reportkey === "trans") {
-      reportkey = setting.dataset.template[0].ttype+"_"+setting.dataset.template[0].dirtype;
+      reportkey = data.template.template.meta.transtype+"_"+data.template.template.meta.direction;
     }
     reportkey += "_"+format(new Date(),"yyyyMMddHHmm")
     setData("current", { modalForm: 
       <InputBox 
         title={app.getText("template_label_new")}
         message={reportkey}
-        value={setting.dataset.template[0].repname} showValue={true}
+        value={data.template.repname} showValue={true}
         labelOK={app.getText("msg_ok")}
         labelCancel={app.getText("msg_cancel")}
         onCancel={() => {
@@ -747,11 +709,17 @@ export const settingActions = (data, setData) => {
         }}
         onOK={(value) => {
           setData("current", { modalForm: null }, async ()=>{
-            let values = update(tableValues("report", setting.dataset.template[0]), {$merge: {
+            const template = update(data.template.template, {
+              meta: {$merge: {
+                reportkey: reportkey,
+                repname: value
+              }}
+            })
+            let values = update(tableValues("report", data.template.dbtemp), {$merge: {
               id: null,
               reportkey: reportkey,
               repname: value,
-              report: JSON.stringify(setting.template.template)
+              report: JSON.stringify(template)
             }})
             values = update(values, {
               $unset: ["orientation", "size"]

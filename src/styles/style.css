@@ -24,6 +24,11 @@
 .align-right { text-align: right; }
 .justify { text-align: justify; }
 .center { text-align: center; }
+.centered { margin: auto; }
+.margin0 { margin: 0!important; }
+.top {
+  vertical-align: top!important;
+}
 
 .bold { font-weight: bold; }
 .italic { font-style: italic; }
@@ -52,6 +57,10 @@
   content: "";
   display: table;
   clear: both;
+}
+
+.trow {
+  display: table-row;
 }
 
 .cell {

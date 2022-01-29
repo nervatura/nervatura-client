@@ -9,9 +9,7 @@ const Template = (args) => <Paginator {...args} />
 
 export const Default = Template.bind({});
 Default.args = {
-  pagination: {
-    page: 1
-  },
+  page: 1,
   pages: 3,
 }
 

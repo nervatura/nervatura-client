@@ -1,4 +1,4 @@
-import { getText, getSetting } from './app'
+import { getText, getSetting, formatNumber } from './app'
 
 it('getText', () => {
   const locales = {
@@ -22,4 +22,10 @@ it('getSetting', () => {
   expect(value).toBe("7000")
   value = getSetting("missing")
   expect(value).toBe("")
+})
+
+it('formatNumber', () => {
+  formatNumber(123.123, 0);
+  formatNumber(123.123);
+  formatNumber("number");
 })

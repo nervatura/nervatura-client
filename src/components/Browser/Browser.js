@@ -288,7 +288,7 @@ export const Browser = ({
               {(viewDef.actions_new)?<div className={`${"cell"} ${styles.resultTitlePlus}`}>
                 <Button id="btn_actions_new"
                   className={`${"small-button"}`} 
-                  onClick={ ()=>onEvent("setActions",[viewDef.actions_new]) } 
+                  onClick={ ()=>onEvent("setFormActions",[{ params: viewDef.actions_new, row: undefined }]) } 
                   value={<Icon iconKey="Plus" />}
                 />
               </div>:null}

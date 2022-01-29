@@ -2752,7 +2752,7 @@ export const Forms = ({ getText }) => {
             actions: {
               new: null, 
               edit: {action: "editItem"}, 
-              delete: {action: "deleteTemplate"}
+              delete: null
             }
           }
         },

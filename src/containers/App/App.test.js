@@ -114,6 +114,23 @@ describe('<App />', () => {
 
   });
 
+  it('renders in the Template state', () => {
+    const data = {
+      login: {
+        username: 'admin',
+        data: {
+          audit_filter: EditDefault.args.auditFilter,
+          edit_new: EditDefault.args.newFilter
+        }
+      },
+      current: {
+        module: "template"
+      }
+    }
+    render(<App data={data} />);
+
+  });
+
   it('renders in the Modal state', () => {
     const data = {
       login: {

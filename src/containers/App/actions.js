@@ -1,4 +1,3 @@
-//import { useContext } from 'react';
 import update from 'immutability-helper';
 import 'whatwg-fetch';
 import { formatISO } from 'date-fns'
@@ -6,9 +5,11 @@ import { formatISO } from 'date-fns'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-//import AppStore from 'containers/App/context'
 import InputBox from 'components/Modal/InputBox'
+import Selector from 'components/Modal/Selector'
+
 import { getText, getSetting } from 'config/app'
+import { Quick, UserFilter } from 'containers/Controller/Quick'
 
 toast.configure({});
 
@@ -280,7 +281,6 @@ export const request = (url, options) => {
 }
 
 export const appActions = (data, setData) => {
-  //const { data, setData } = useContext(AppStore)
 
   const getLangText = (key, defValue) => {
     return getText({ 
@@ -565,6 +565,119 @@ export const appActions = (data, setData) => {
     element.click()
   }
 
+  const getDataFilter = (type, _where, view) => {
+    if(type === "transitem"){
+      if (getAuditFilter("trans", "offer")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'offer'"]]);
+      }
+      if (getAuditFilter("trans", "order")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
+      }
+      if (getAuditFilter("trans", "worksheet")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
+      }
+      if (getAuditFilter("trans", "rent")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
+      }
+      if (getAuditFilter("trans", "invoice")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
+      }
+    }
+    if(type === "transpayment"){
+      if (getAuditFilter("trans", "bank")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
+      }
+      if (getAuditFilter("trans", "cash")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
+      }
+    }
+    if((type === "transmovement") && (view !== "InventoryView")){
+      if (getAuditFilter("trans", "delivery")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
+      }
+      if (getAuditFilter("trans", "inventory")[0] === "disabled") {
+        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
+      }
+    }
+    return _where;
+  }
+
+  const getUserFilter = (type) => {
+    let filter = { params: [], where: []}
+    if(data.login.data.transfilterName === "usergroup"){
+      if (typeof UserFilter.usergroup_filter[type] !== "undefined") {
+        filter.where = ["and", UserFilter.usergroup_filter[type]]
+        filter.params = [data.login.data.employee.usergroup]
+      }
+    }
+    if(data.login.data.transfilterName === "own"){
+      if (typeof UserFilter.employee_filter[type] !== "undefined") {
+        filter.where = ["and", UserFilter.employee_filter[type]]
+        filter.params = [data.login.data.employee.id]
+      }
+    }
+    return filter;
+  }
+
+  const quickSearch = async (qview, qfilter) => {
+    const query = Quick({ getText: getLangText })[qview](String(data.login.data.employee.usergroup))
+    let _sql = update({}, {$set: query.sql})
+    let params = []; let _where = []
+    if(qfilter !== ""){
+      const filter = `{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE} `
+      query.columns.forEach((column, index) => {
+        _where.push([((index!==0)?"or":""),[`lower(${column[1]})`,"like", filter]])
+        params.push(qfilter)
+      });
+      _where = ["and",[_where]]
+    }
+    _where = getDataFilter(qview, _where)
+    if(_where.length > 0){
+      _sql = update(_sql, { where: {$push: [_where]}})
+    }
+
+    let userFilter = getUserFilter(qview)
+    if(userFilter.where.length > 0){
+      _sql = update(_sql, { where: {$push: userFilter.where}})
+      params = params.concat(userFilter.params)
+    }
+    
+    let views = [
+      { key: "result",
+        text: getSql(data.login.data.engine, _sql).sql,
+        values: params 
+      }
+    ]
+    let options = { method: "POST", data: views }
+    return await requestData("/view", options)
+  }
+
+  const onSelector = (selectorType, selectorFilter, setSelector) => {
+    let formProps = {
+      view: selectorType, 
+      columns: Quick({ getText: getLangText })[selectorType]().columns,
+      result: [],
+      filter: selectorFilter,
+      getText: getLangText, 
+      onClose: ()=>setData("current", { modalForm: null }),
+      onSelect: (row, filter) => {
+        setData("current", { modalForm: null }, ()=>{
+          setSelector(row, filter)
+        })
+      },
+      onSearch: async (filter)=>{
+        const view = await quickSearch(selectorType, filter)
+        if(view.error){
+          return resultError(view)
+        }
+        formProps.result = view.result
+        setData("current", { modalForm: <Selector {...formProps} /> })
+      }
+    }
+    setData("current", { modalForm: <Selector {...formProps} /> })
+    return formProps
+  }
+
   return {
     getText: getLangText,
     getAuditFilter: getAuditFilter,
@@ -576,6 +689,10 @@ export const appActions = (data, setData) => {
     createHistory: createHistory,
     loadBookmark: loadBookmark,
     saveBookmark: saveBookmark,
-    showHelp: showHelp
+    showHelp: showHelp,
+    quickSearch: quickSearch,
+    getUserFilter: getUserFilter,
+    getDataFilter: getDataFilter,
+    onSelector: onSelector
   }
 }

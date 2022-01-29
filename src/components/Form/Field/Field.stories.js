@@ -32,7 +32,7 @@ Default.args = {
   className: "light",
   getText: (key)=>getText({ locales: store.session.locales, lang: "en", key: key }),
   onEdit: undefined,
-  onLoad: undefined,
+  onEvent: undefined,
   onSelector: undefined,
 }
 

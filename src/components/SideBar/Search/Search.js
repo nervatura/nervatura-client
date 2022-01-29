@@ -14,7 +14,7 @@ export const SIDE_VISIBILITY = {
 
 export const Search = ({ 
   side, groupKey, auditFilter, className,
-  getText, onGroup, onMenu,
+  getText, onEvent,
   ...props 
 }) => {
   const groupButton = (key) => {
@@ -28,20 +28,20 @@ export const Search = ({
       <div key={key} className="row full">
         <Button id={"btn_group_"+key}
           className={`${"full medium"} ${groupButton(key)}`} 
-          onClick={()=>onGroup(key)}
+          onClick={()=>onEvent("changeData", ["group_key", key])}
           value={<Label value={getText("search_"+key)} 
             leftIcon={<Icon iconKey="FileText" />} iconWidth="20px" />}
         />
         {(groupKey === key)?<div className={`${"row full"} ${styles.panelGroup}`} >
           <Button id={"btn_view_"+key}
             className={`${"full medium"} ${styles.panelButton}`} 
-            onClick={()=>onMenu("quickView", [key])}
+            onClick={()=>onEvent("quickView", [key])}
             value={<Label value={getText("quick_search")} 
               leftIcon={<Icon iconKey="Bolt" />} iconWidth="20px" />}
           />
           <Button id={"btn_browser_"+key}
             className={`${"full medium"} ${styles.panelButton}`} 
-            onClick={()=>onMenu("showBrowser", [key])} 
+            onClick={()=>onEvent("showBrowser", [key])} 
             value={<Label value={getText("browser_"+key)} 
               leftIcon={<Icon iconKey="Search" />} iconWidth="20px" />}
           />
@@ -71,34 +71,34 @@ export const Search = ({
       <Button id="btn_report"
         className={`${"full medium"} ${groupButton("report")}`} 
         onClick={()=>{
-          onGroup("report"); 
-          onMenu("quickView",["report"])
+          onEvent("changeData", ["group_key", "report"]); 
+          onEvent("quickView",["report"])
         }}
         value={<Label value={getText("search_report")} 
           leftIcon={<Icon iconKey="ChartBar" />} iconWidth="20px"  />}
       />
       <Button id="btn_office"
         className={`${"full medium"} ${groupButton("office")}`} 
-        onClick={()=>onGroup("office")} 
+        onClick={()=>onEvent("changeData", ["group_key", "office"])} 
         value={<Label value={getText("search_office")} 
           leftIcon={<Icon iconKey="Inbox" />} iconWidth="20px"  />}
       />
       {(groupKey === "office")?<div className={`${"row full"} ${styles.panelGroup}`} >
         <Button id="btn_printqueue"
           className={`${"full medium primary"} ${styles.panelButton}`} 
-          onClick={()=>onMenu("checkEditor", [{ ntype: "printqueue", ttype: null, id: null}, 'LOAD_EDITOR'])} 
+          onClick={()=>onEvent("checkEditor", [{ ntype: "printqueue", ttype: null, id: null}])} 
           value={<Label value={getText("title_printqueue")} 
             leftIcon={<Icon iconKey="Print" />} iconWidth="20px"  />}
         />
         <Button id="btn_rate"
           className={`${"full medium primary"} ${styles.panelButton}`} 
-          onClick={()=>onMenu("showBrowser",["rate"])} 
+          onClick={()=>onEvent("showBrowser",["rate"])} 
           value={<Label value={getText("title_rate")} 
             leftIcon={<Icon iconKey="Globe" />} iconWidth="20px"  />}
         />
         <Button id="btn_servercmd"
           className={`${"full medium primary"} ${styles.panelButton}`} 
-          onClick={()=>onMenu("quickView",["servercmd"])} 
+          onClick={()=>onEvent("quickView",["servercmd"])} 
           value={<Label value={getText("title_servercmd")} 
             leftIcon={<Icon iconKey="Share" />} iconWidth="20px"  />}
         />
@@ -121,14 +121,10 @@ Search.propTypes = {
    */ 
   auditFilter: PropTypes.object.isRequired, 
   className: PropTypes.string, 
-  /** 
-   * Group selection handle
-  */
-  onGroup: PropTypes.func,
   /**
    * Menu selection handle
    */
-  onMenu: PropTypes.func,
+  onEvent: PropTypes.func,
   /**
    * Localization
    */
@@ -139,9 +135,8 @@ Search.defaultProps = {
   side: SIDE_VISIBILITY.AUTO,
   groupKey: "", 
   auditFilter: {}, 
-  className: "", 
-  onGroup: undefined, 
-  onMenu: undefined,
+  className: "",  
+  onEvent: undefined,
   getText: undefined,
 }
 

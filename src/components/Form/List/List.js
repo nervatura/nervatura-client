@@ -74,7 +74,7 @@ export const ListView = ({
     <div {...props}>
       {(listFilter || (showPaginator && paginationTop))?<div className="padding-tiny">
         {(showPaginator && paginationTop) ?
-          <Paginator pagination={state.pagination} pages={listRows.amount} onSelect={onSelect} />:null}
+          <Paginator page={listRows.page+1} pages={listRows.amount} onSelect={onSelect} />:null}
         {(listFilter) ? <div className="row full">
           <div className="cell" >
             <Input id="filter" type="text" className="full"
@@ -114,7 +114,7 @@ export const ListView = ({
         </li>)}
       </ul>
       {(showPaginator && !paginationTop) ? <div className="padding-tiny">
-        <Paginator pagination={state.pagination} pages={listRows.amount} onSelect={onSelect} /></div>:null}
+        <Paginator page={listRows.page+1} pages={listRows.amount} onSelect={onSelect} /></div>:null}
     </div>
   )
 }

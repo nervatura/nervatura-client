@@ -45,11 +45,6 @@
   color: var(--danger);
 }
 
-.text{
-  border-radius: 3px;
-  overflow: auto;
-}
-
 .inputStyle {
   border-radius: 3px;
   border-width: 1px;
@@ -63,5 +58,19 @@
 }
 
 .inputStyle::placeholder, .inputStyle::-ms-input-placeholder {
+  opacity: 0.5;
+}
+
+.textareaStyle{
+  border-radius: 3px;
+  overflow: auto;
+  padding: 8px;
+}
+
+.textareaStyle:disabled {
+  opacity: 0.5;
+}
+
+.textareaStyle::placeholder, .textareaStyle::-ms-input-placeholder {
   opacity: 0.5;
 }

@@ -9,7 +9,7 @@ import 'react-pagify/style.css';
 import './Paginator.css';
 
 export const Paginator = ({
-  pagination, pages, className, onSelect,
+  page, pages, className, onSelect,
   ...props 
 }) => {
   return(
@@ -18,14 +18,14 @@ export const Paginator = ({
       <Pagify.Context
         className="pagify-pagination"
         segments={segmentize({
-          page: pagination.page,
+          page: page,
           pages,
           beginPages: 3,
           endPages: 3,
           sidePages: 2
         })} onSelect={onSelect}
       >
-        <Pagify.Button  page={pagination.page - 1}>&#10094;</Pagify.Button>
+        <Pagify.Button  page={page - 1}>&#10094;</Pagify.Button>
 
         <Pagify.Segment field="beginPages" />
 
@@ -47,25 +47,21 @@ export const Paginator = ({
 
         <Pagify.Segment field="endPages" />
 
-        <Pagify.Button page={pagination.page + 1}>&#10095;</Pagify.Button>
+        <Pagify.Button page={page + 1}>&#10095;</Pagify.Button>
       </Pagify.Context>
     </div>
   )
 }
 
 Paginator.propTypes = {
-  pagination: PropTypes.shape({
-    page: PropTypes.number.isRequired,
-  }).isRequired,
+  page: PropTypes.number.isRequired,
   pages: PropTypes.number.isRequired,
   className: PropTypes.string.isRequired,
   onSelect: PropTypes.func
 }
 
 Paginator.defaultProps = {
-  pagination: {
-    page: 1
-  },
+  page: 1,
   pages: 10,
   className: "",
   onSelect: undefined

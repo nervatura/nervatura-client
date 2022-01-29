@@ -1,12 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import { getSql, saveToDisk, appActions } from 'containers/App/actions'
 import { searchActions } from './actions'
-import { editorActions } from 'containers/Editor/actions'
 import { Queries } from 'containers/Controller/Queries'
+import { Quick } from 'containers/Controller/Quick'
 import Total from 'components/Modal/Total'
 import { getSetting } from 'config/app'
 
@@ -15,18 +15,28 @@ import SearchMemo, { SearchView } from './Search';
 const Search = (props) => {
   const { data, setData } = useContext(AppStore);
   const search = searchActions(data, setData)
-  const editor = editorActions(data, setData)
   const app = appActions(data, setData)
 
   const [state] = useState(update(props, {$merge: {
     engine: data.login.data.engine,
+    login: data.login.data,
     queries: Queries({ getText: app.getText }),
-    theme: data.current.theme,
+    quick: Quick({ getText: app.getText }),
     ui: getSetting("ui"),
     showHelp: app.showHelp
   }}))
 
   state.data = update(state.data, {$merge: { ...data[state.key] }})
+  state.current = update(state.current, {$merge: { ...data.current }})
+
+  useEffect(() => {
+    if(state.current && state.current.content){
+      const content = state.current.content
+      setData("current", { content: null }, () => {
+        search.showBrowser(...content)
+      })
+    }
+  }, [setData, search, state]);
 
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)
@@ -34,6 +44,16 @@ const Search = (props) => {
 
   state.onEvent = (fname, params) => {
     state[fname](...params)
+  }
+
+  state.checkEditor = (params) => {
+    setData("current", { module: "edit", content: params })
+  }
+
+  state.quickView = (qview) => {
+    setData(state.key, { seltype: "selector",
+      result: [], qview: qview, qfilter: "", page: 1 })
+    setData("current", { side: app.getSideBar() })
   }
 
   state.editRow = (row, rowIndex) => {
@@ -46,12 +66,13 @@ const Search = (props) => {
     if (options.ntype === "servercmd") {
       search.showServerCmd(options.id)
     } else {
-      editor.checkEditor(options, 'LOAD_EDITOR')
+      setData("current", { module: "edit", content: options })
     }
   }
 
-  state.setActions = (params, row) => {
-    editor.setFormActions(params, row)
+  state.setFormActions = (options) => {
+    options.nextKey = "FORM_ACTIONS"
+    setData("current", { module: "edit", content: options })
   }
 
   state.onEdit = ( fieldname, value, row ) => {
@@ -67,7 +88,7 @@ const Search = (props) => {
         form_id: row.form_id
       }})
     }
-    editor.checkEditor(options, 'LOAD_EDITOR')
+    setData("current", { module: "edit", content: options })
   }
 
   state.onPage = (page) => {
@@ -218,7 +239,7 @@ const Search = (props) => {
   }
 
   state.quickSearch = async (filter) => {
-    const view = await search.quickSearch(state.data.qview, filter)
+    const view = await app.quickSearch(state.data.qview, filter)
     if(view.error){
       return app.resultError(view)
     }
@@ -251,12 +272,12 @@ const Search = (props) => {
       _sql = update(_sql, { having: {$push: [..._where]}})
     }
 
-    _where = search.getDataFilter(state.data.vkey, [], state.data.view)
+    _where = app.getDataFilter(state.data.vkey, [], state.data.view)
     if(_where.length > 0){
       _sql = update(_sql, { where: {$push: [_where]}})
     }
 
-    let userFilter = search.getUserFilter(state.data.vkey)
+    let userFilter = app.getUserFilter(state.data.vkey)
     if(userFilter.where.length > 0){
       _sql = update(_sql, { where: {$push: userFilter.where}})
       params = params.concat(userFilter.params)
@@ -348,7 +369,7 @@ Search.propTypes = {
   key: PropTypes.string.isRequired,
   ...SearchView.propTypes,
   showHelp: PropTypes.func,
-  setActions: PropTypes.func,
+  setFormActions: PropTypes.func,
   onEdit: PropTypes.func,
   changeData: PropTypes.func,
   setColumns: PropTypes.func,
@@ -368,7 +389,7 @@ Search.defaultProps = {
   key: "search",
   ...SearchView.defaultProps,
   showHelp: undefined,
-  setActions: undefined,
+  setFormActions: undefined,
   onEdit: undefined,
   changeData: undefined,
   setColumns: undefined,

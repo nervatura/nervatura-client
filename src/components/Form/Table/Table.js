@@ -294,7 +294,7 @@ export const TableView = ({
     <div {...props} className={` ${"ui-table"} ${className}`} >
       {(tableFilter || (showPaginator && paginationTop))?<div className="padding-tiny">
         {(showPaginator && paginationTop) ?
-          <Paginator pagination={pagination} pages={tableRows.amount} onSelect={onSelect} />:null}
+          <Paginator page={tableRows.page+1} pages={tableRows.amount} onSelect={onSelect} />:null}
         {(tableFilter) ? <div className="row full">
           <div className="cell" >
             <Input id="filter" type="text" className="full"
@@ -316,7 +316,7 @@ export const TableView = ({
           onRow={onRow} />
       </Table.Provider>
       {(showPaginator && !paginationTop) ? <div className="padding-tiny">
-        <Paginator pagination={pagination} pages={tableRows.amount} onSelect={onSelect} /></div>:null}
+        <Paginator page={tableRows.page+1} pages={tableRows.amount} onSelect={onSelect} /></div>:null}
     </div>
   )
 }

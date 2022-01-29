@@ -43,8 +43,7 @@ Default.args = {
     audit: ["all", 1]
   },
   username: "admin",
-  onGroup: undefined,
-  onMenu: undefined,
+  onEvent: undefined,
   getText: (key)=>getText({ locales: store.session.locales, lang: "en", key: key })
 }
 
@@ -66,15 +65,6 @@ UserGroup.args = {
   auditFilter: {
     setting: ["disabled", 1],
   }
-}
-
-export const TemplateEditor = Template.bind({});
-TemplateEditor.args = {
-  ...Default.args,
-  module: { 
-    dirty: true, 
-    template: {}
-  },
 }
 
 export const FormItemAll = Template.bind({});

@@ -70,97 +70,6 @@ export const searchActions = (data, setData) => {
       setData("current", { module: "search" })
     })
   }
-  
-  const getDataFilter = (type, _where, view) => {
-    if(type === "transitem"){
-      if (app.getAuditFilter("trans", "offer")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'offer'"]]);
-      }
-      if (app.getAuditFilter("trans", "order")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'order'"]]);
-      }
-      if (app.getAuditFilter("trans", "worksheet")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'worksheet'"]]);
-      }
-      if (app.getAuditFilter("trans", "rent")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'rent'"]]);
-      }
-      if (app.getAuditFilter("trans", "invoice")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'invoice'"]]);
-      }
-    }
-    if(type === "transpayment"){
-      if (app.getAuditFilter("trans", "bank")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'bank'"]]);
-      }
-      if (app.getAuditFilter("trans", "cash")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'cash'"]]);
-      }
-    }
-    if((type === "transmovement") && (view !== "InventoryView")){
-      if (app.getAuditFilter("trans", "delivery")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'delivery'"]]);
-      }
-      if (app.getAuditFilter("trans", "inventory")[0] === "disabled") {
-        _where = _where.concat(["and", ["tg.groupvalue", "<>", "'inventory'"]]);
-      }
-    }
-    return _where;
-  }
-
-  const getUserFilter = (type) => {
-    let filter = { params: [], where: []}
-    const query = queries[type]
-    if(!query){
-      return filter
-    }
-    if(data.login.data.transfilterName === "usergroup"){
-      if (query().options.usergroup_filter !== null) {
-        filter.where = ["and", query().options.usergroup_filter]
-        filter.params = [data.login.data.employee.usergroup]
-      }
-    }
-    if(data.login.data.transfilterName === "own"){
-      if (query().options.employee_filter !== null) {
-        filter.where = ["and", query().options.employee_filter]
-        filter.params = [data.login.data.employee.id]
-      }
-    }
-    return filter;
-  }
-
-  const quickSearch = async (qview, qfilter) => {
-    const query = queries.quick[qview](String(data.login.data.employee.usergroup))
-    let _sql = update({}, {$set: query.sql})
-    let params = []; let _where = []
-    if(qfilter !== ""){
-      const filter = `{CCS}{JOKER}{SEP}lower(?){SEP}{JOKER}{CCE} `
-      query.columns.forEach((column, index) => {
-        _where.push([((index!==0)?"or":""),[`lower(${column[1]})`,"like", filter]])
-        params.push(qfilter)
-      });
-      _where = ["and",[_where]]
-    }
-    _where = getDataFilter(qview, _where)
-    if(_where.length > 0){
-      _sql = update(_sql, { where: {$push: [_where]}})
-    }
-
-    let userFilter = getUserFilter(qview)
-    if(userFilter.where.length > 0){
-      _sql = update(_sql, { where: {$push: userFilter.where}})
-      params = params.concat(userFilter.params)
-    }
-    
-    let views = [
-      { key: "result",
-        text: getSql(data.login.data.engine, _sql).sql,
-        values: params 
-      }
-    ]
-    let options = { method: "POST", data: views }
-    return await app.requestData("/view", options)
-  }
 
   const showServerCmd = (menu_id) => {
     const menuCmd = data.login.data.menuCmds.filter(item => (item.id === parseInt(menu_id, 10)))[0]
@@ -291,11 +200,8 @@ export const searchActions = (data, setData) => {
 
   return {
     showBrowser: showBrowser,
-    quickSearch: quickSearch,
-    getUserFilter: getUserFilter,
-    getDataFilter: getDataFilter,
     showServerCmd: showServerCmd,
     getFilterWhere: getFilterWhere,
-    defaultFilterValue: defaultFilterValue
+    defaultFilterValue: defaultFilterValue,
   }
 }

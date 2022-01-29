@@ -7,21 +7,20 @@ import { Default, NewItem, NewPayment, NewMovement, NewResource, Document,
 const getById = queryByAttribute.bind(null, 'id');
 
 it('renders in the Default state', () => {
-  const onGroup = jest.fn()
-  const onMenu = jest.fn()
+  const onEvent = jest.fn()
 
   const { container } = render(
-    <Default {...Default.args} id="test_menu" onGroup={onGroup} onMenu={onMenu} />
+    <Default {...Default.args} id="test_menu" onEvent={onEvent} />
   );
   expect(getById(container, "test_menu")).toBeDefined();
 
   const btn_view = getById(container, 'state_edit')
   fireEvent.click(btn_view)
-  expect(onMenu).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(1);
 
   const btn_group = getById(container, 'new_transitem_group')
   fireEvent.click(btn_group)
-  expect(onGroup).toHaveBeenCalledTimes(1);
+  expect(onEvent).toHaveBeenCalledTimes(2);
 
 })
 

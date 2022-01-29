@@ -7,13 +7,12 @@ import { store as app_store  } from 'config/app'
 import { AppProvider } from 'containers/App/context'
 import { Default as SelectorData } from 'components/Modal/Selector/Selector.stories'
 import { Default as BrowserData, Filters, HavingFilter, Columns, FormActions } from 'components/Browser/Browser.stories'
+import { Default as SideBarData } from 'components/SideBar/Search/Search.stories'
 
 import { appActions, getSql, saveToDisk } from 'containers/App/actions'
-import { editorActions } from 'containers/Editor/actions'
 import { searchActions } from 'containers/Search/actions'
 
 jest.mock("containers/App/actions");
-jest.mock("containers/Editor/actions");
 jest.mock("containers/Search/actions");
 
 const getById = queryByAttribute.bind(null, 'id');
@@ -25,6 +24,8 @@ const store = update(app_store, {$merge: {
         id: 1, empnumber: 'admin', username: 'admin', usergroup: 114,
         usergroupName: 'admin'
       },
+      audit_filter: SideBarData.args.auditFilter,
+      edit_new: SideBarData.args.newFilter
     }
   }
 }})
@@ -37,18 +38,15 @@ describe('<Search />', () => {
       showHelp: jest.fn(),
       requestData: jest.fn(async () => ({})),
       resultError: jest.fn(),
-      saveBookmark: jest.fn()
-    })
-    editorActions.mockReturnValue({
-      checkEditor: jest.fn(),
-      setFormActions: jest.fn(),
+      saveBookmark: jest.fn(),
+      getSideBar: jest.fn(),
+      quickSearch: jest.fn(async () => ({})),
+      getDataFilter: jest.fn(() => ([""])),
+      getUserFilter: jest.fn(() => ({ where: [""], params:[] })),
     })
     searchActions.mockReturnValue({
       showServerCmd: jest.fn(),
       showBrowser: jest.fn(),
-      quickSearch: jest.fn(async () => ({})),
-      getDataFilter: jest.fn(() => ([""])),
-      getUserFilter: jest.fn(() => ({ where: [""], params:[] })),
       getFilterWhere: jest.fn(() => ([])),
       defaultFilterValue: jest.fn(() => (""))
     })
@@ -94,6 +92,11 @@ describe('<Search />', () => {
     const row_item = screen.getAllByRole('row')[1]
     fireEvent.click(row_item)
 
+    //SideBar quickView
+    const btn_transitem = getById(container, 'btn_view_transitem')
+    fireEvent.click(btn_transitem)
+    expect(setData).toHaveBeenCalledTimes(4);
+
     rerender(
       <AppProvider value={{ data: it_store, setData: setData }}>
         <Search />
@@ -101,13 +104,40 @@ describe('<Search />', () => {
     )
   });
 
+  it('useEffect', async () => {
+    const setData = jest.fn((key, data, callback)=>{ 
+      if(callback){callback()} 
+    })
+    const it_store = update(store, {
+      current: {$merge: {
+        content: []
+      }}
+    })
+
+    const { container } = render(
+      <AppProvider value={{ data: it_store, setData: setData }}>
+        <Search />
+      </AppProvider>
+    );
+    expect(getById(container, 'selector_customer')).toBeDefined();
+
+  })
+
   it('selector quickSearch err. and editRow servercmd', () => {
-    searchActions.mockReturnValue({
-      showServerCmd: jest.fn(),
-      showBrowser: jest.fn(),
+    appActions.mockReturnValue({
+      getText: BrowserData.args.getText,
+      showHelp: jest.fn(),
+      requestData: jest.fn(async () => ({})),
+      resultError: jest.fn(),
+      saveBookmark: jest.fn(),
+      getSideBar: jest.fn(),
       quickSearch: jest.fn(async () => ({ error: {} })),
       getDataFilter: jest.fn(),
       getUserFilter: jest.fn(),
+    })
+    searchActions.mockReturnValue({
+      showServerCmd: jest.fn(),
+      showBrowser: jest.fn(),
       getFilterWhere: jest.fn(),
     })
     const setData = jest.fn()
@@ -121,7 +151,8 @@ describe('<Search />', () => {
         vkey: null, 
         qview: "servercmd", 
         qfilter: "", 
-        page: 1
+        page: 1,
+        group_key: "office"
       }}
     })
 
@@ -139,6 +170,10 @@ describe('<Search />', () => {
     //editRow
     const row_item = screen.getAllByRole('row')[1]
     fireEvent.click(row_item)
+
+    //SideBar checkEditor
+    const btn_printqueue = getById(container, 'btn_printqueue')
+    fireEvent.click(btn_printqueue)
 
   })
 
@@ -204,7 +239,7 @@ describe('<Search />', () => {
     //onEdit
     const row_item = getById(container, 'edit_customer//2')
     fireEvent.click(row_item)
-    expect(setData).toHaveBeenCalledTimes(5);
+    expect(setData).toHaveBeenCalledTimes(6);
     
     global.Storage.prototype.getItem.mockReset()
   })
@@ -214,13 +249,13 @@ describe('<Search />', () => {
       getText: BrowserData.args.getText,
       requestData: jest.fn(async () => ({ error: {} })),
       resultError: jest.fn(),
+      quickSearch: jest.fn(async () => ({})),
+      getDataFilter: jest.fn(() => ([])),
+      getUserFilter: jest.fn(() => ({ where: [], params:[] })),
     })
     searchActions.mockReturnValue({
       showServerCmd: jest.fn(),
       showBrowser: jest.fn(),
-      quickSearch: jest.fn(async () => ({})),
-      getDataFilter: jest.fn(() => ([])),
-      getUserFilter: jest.fn(() => ({ where: [], params:[] })),
       getFilterWhere: jest.fn(() => ([])),
     })
     const setData = jest.fn()
@@ -298,7 +333,7 @@ describe('<Search />', () => {
     //onEdit
     const link_cell = getById(container, 'link_31')
     fireEvent.click(link_cell)
-    expect(setData).toHaveBeenCalledTimes(8);
+    expect(setData).toHaveBeenCalledTimes(9);
 
   })
 
@@ -332,7 +367,7 @@ describe('<Search />', () => {
 
   })
 
-  it('setActions', async () => {
+  it('setFormActions', async () => {
     const setData = jest.fn()
     const it_store = update(store, {
       search: {$merge: {
@@ -347,10 +382,10 @@ describe('<Search />', () => {
       </AppProvider>
     );
 
-    //setActions
+    //setFormActions
     const btn_actions_new = getById(container, 'btn_actions_new')
     fireEvent.click(btn_actions_new)
-    expect(setData).toHaveBeenCalledTimes(0);
+    expect(setData).toHaveBeenCalledTimes(1);
 
   })
 

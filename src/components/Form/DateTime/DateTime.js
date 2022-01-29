@@ -2,10 +2,26 @@ import PropTypes from 'prop-types';
 import DatePicker from "react-datepicker";
 import { formatISO, isValid, parseISO } from 'date-fns'
 
+import { registerLocale } from  "react-datepicker";
+
+import { default as de } from 'date-fns/locale/de'
+import { default as en } from 'date-fns/locale/en-US'
+import { default as es } from 'date-fns/locale/es'
+import { default as fr } from 'date-fns/locale/fr'
+import { default as it } from 'date-fns/locale/it'
+import { default as pt } from 'date-fns/locale/pt'
+
 import "react-datepicker/dist/react-datepicker.css";
 import './DateTime.css';
 
 import { getSetting } from 'config/app'
+
+const calendarLocales = [
+  [de, "de"], [en, "en"], [es, "es"], [fr, "fr"], [it, "it"], [pt, "pt"], 
+]
+calendarLocales.forEach(loc => {
+  registerLocale(loc[1], loc[0])
+});
 
 export const DateTime = ({ 
   value, placeholder, dateTime, isEmpty, showTimeSelectOnly,

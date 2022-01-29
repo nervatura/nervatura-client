@@ -1,7 +1,7 @@
 {
   "name": "nervatura-client",
   "description": "Business Management Application",
-  "version": "5.0.0-beta.17",
+  "version": "5.0.0-beta.18",
   "keywords": [
     "business management",
     "open-data",
@@ -30,6 +30,7 @@
   },
   "homepage": ".",
   "scripts": {
+    "analyze": "source-map-explorer './build/static/js/*.js'",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -38,8 +39,8 @@
     "deploy": "gh-pages -b build -d build",
     "prebuild": "npm run generate-build-meta",
     "generate-build-meta": "./node_modules/react-clear-cache/bin/cli.js",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "eslintConfig": {
     "extends": [
@@ -75,28 +76,30 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.4.9",
-    "@storybook/addon-essentials": "^6.4.9",
-    "@storybook/addon-links": "^6.4.9",
-    "@storybook/builder-webpack5": "^6.4.9",
-    "@storybook/manager-webpack5": "^6.4.9",
-    "@storybook/node-logger": "^6.4.9",
+    "@storybook/addon-actions": "^6.4.15",
+    "@storybook/addon-essentials": "^6.4.15",
+    "@storybook/addon-links": "^6.4.15",
+    "@storybook/builder-webpack5": "^6.4.15",
+    "@storybook/manager-webpack5": "^6.4.15",
+    "@storybook/node-logger": "^6.4.15",
     "@storybook/preset-create-react-app": "^4.0.0",
-    "@storybook/react": "^6.4.9",
+    "@storybook/react": "^6.4.15",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
-    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
-    "draft-convert": "^2.1.12",
-    "draft-js": "^0.11.7",
+    "@tiptap/core": "^2.0.0-beta.171",
+    "@tiptap/extension-bold": "^2.0.0-beta.25",
+    "@tiptap/extension-document": "^2.0.0-beta.15",
+    "@tiptap/extension-italic": "^2.0.0-beta.25",
+    "@tiptap/extension-paragraph": "^2.0.0-beta.23",
+    "@tiptap/extension-text": "^2.0.0-beta.15",
+    "@tiptap/react": "^2.0.0-beta.107",
     "gh-pages": "^3.2.3",
-    "ical.js": "^1.4.0",
     "immutability-helper": "^3.1.1",
-    "jest-environment-jsdom-sixteen": "^2.0.0",
     "print-js": "^1.6.0",
     "react": "^17.0.2",
     "react-clear-cache": "^1.4.12",
-    "react-datepicker": "^4.5.0",
+    "react-datepicker": "^4.6.0",
     "react-dom": "^17.0.2",
     "react-pagify": "^2.4.0",
     "react-scripts": "5.0.0",
@@ -107,9 +110,11 @@
     "sanitize.css": "^13.0.0",
     "segmentize": "^0.4.1",
     "sortabular": "^1.6.0",
+    "source-map-explorer": "^2.5.2",
     "whatwg-fetch": "^3.6.2"
   },
   "files": [
     "build"
-  ]
+  ],
+  "dependencies": {}
 }

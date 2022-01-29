@@ -8,14 +8,8 @@ import { AppProvider } from 'containers/App/context'
 import { BookmarkData } from 'components/Modal/Bookmark/Bookmark.stories'
 
 import { appActions } from 'containers/App/actions'
-import { editorActions } from 'containers/Editor/actions'
-import { settingActions } from 'containers/Setting/actions'
-import { searchActions } from 'containers/Search/actions'
 
 jest.mock("containers/App/actions");
-jest.mock("containers/Editor/actions");
-jest.mock("containers/Setting/actions");
-jest.mock("containers/Search/actions");
 
 const getById = queryByAttribute.bind(null, 'id');
 
@@ -55,7 +49,9 @@ describe('<MenuBar />', () => {
   });
 
   it('renders without crashing', () => {
-    const setData = jest.fn()
+    const setData = jest.fn((key, data, callback)=>{ 
+      if(callback){callback()} 
+    })
     const it_store = update(store, {
       current: {$merge: {
         scrollTop: true
@@ -85,6 +81,14 @@ describe('<MenuBar />', () => {
     fireEvent.click(mnu_help_large)
     expect(setData).toHaveBeenCalledTimes(1);
 
+    const mnu_setting_large = getById(container, 'mnu_setting_large')
+    fireEvent.click(mnu_setting_large)
+    expect(setData).toHaveBeenCalledTimes(4);
+
+    const mnu_edit_large = getById(container, 'mnu_edit_large')
+    fireEvent.click(mnu_edit_large)
+    expect(setData).toHaveBeenCalledTimes(5);
+
     rerender(
       <AppProvider value={{ data: it_store, setData: setData }}>
         <MenuBar />
@@ -92,40 +96,7 @@ describe('<MenuBar />', () => {
     )
   });
 
-  it('loadSetting', () => {
-    settingActions.mockReturnValue({
-      loadSetting: jest.fn(),
-    })
-    const it_store = update({}, {$merge: store})
-    const setData = jest.fn((key, data, callback)=>{ 
-      if(callback){
-        if(data.group_key){
-          it_store.setting.group_key = "group_admin"
-        }
-        callback()
-      } 
-    })
-
-    const { container } = render(
-      <AppProvider value={{ data: it_store, setData: setData }}>
-        <MenuBar />
-      </AppProvider>
-    );
-
-    const mnu_setting_large = getById(container, 'mnu_setting_large')
-    fireEvent.click(mnu_setting_large)
-    expect(setData).toHaveBeenCalledTimes(2);
-    fireEvent.click(mnu_setting_large)
-    expect(setData).toHaveBeenCalledTimes(3);
-  })
-
   it('showBookmarks - bookmark', () => {
-    searchActions.mockReturnValue({
-      showBrowser: jest.fn(),
-    })
-    editorActions.mockReturnValue({
-      checkEditor: jest.fn(),
-    })
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const { container } = render(data.modalForm);
@@ -149,16 +120,10 @@ describe('<MenuBar />', () => {
 
     const mnu_bookmark_large = getById(container, 'mnu_bookmark_large')
     fireEvent.click(mnu_bookmark_large)
-    expect(setData).toHaveBeenCalledTimes(3);
+    expect(setData).toHaveBeenCalledTimes(4);
   })
 
   it('showBookmarks - history', () => {
-    searchActions.mockReturnValue({
-      showBrowser: jest.fn(),
-    })
-    editorActions.mockReturnValue({
-      checkEditor: jest.fn(),
-    })
     const setData = jest.fn((key, data, callback)=>{
       if((key === "current") && data.modalForm ){
         const { container } = render(data.modalForm);
@@ -179,7 +144,7 @@ describe('<MenuBar />', () => {
 
     const mnu_bookmark_large = getById(container, 'mnu_bookmark_large')
     fireEvent.click(mnu_bookmark_large)
-    expect(setData).toHaveBeenCalledTimes(2);
+    expect(setData).toHaveBeenCalledTimes(3);
   })
 
   it('showBookmarks - onDelete cancel+error', () => {

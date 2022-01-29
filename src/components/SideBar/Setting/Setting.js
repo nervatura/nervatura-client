@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './Setting.module.css';
@@ -15,21 +14,21 @@ export const SIDE_VISIBILITY = {
 
 export const Setting = ({ 
   side, auditFilter, module, username, className,
-  getText, onGroup, onMenu,
+  getText, onEvent,
   ...props 
 }) => {
-  const { group_key, current, panel, dirty, template, type } = module
+  const { group_key, current, panel, dirty, type } = module
   const itemMenu = (keyValue, classValue, eventValue, labelValue) => {
     return <Button id={keyValue} key={keyValue}
       className={classValue}
-      onClick={ ()=>onMenu(...eventValue) }
+      onClick={ ()=>onEvent(...eventValue) }
       value={labelValue}
     />
   }
   const groupMenu = (keyValue, classValue, groupKey, labelValue) => {
     return <Button id={keyValue} key={keyValue}
       className={classValue}
-      onClick={ ()=>onGroup(groupKey) }
+      onClick={ ()=>onEvent("changeData", ["group_key", groupKey]) }
       value={labelValue}
     />
   }
@@ -56,7 +55,7 @@ export const Setting = ({
         )
       )
     }
-    if ((options.delete !== false) && (current.form.id !== null)) {
+    if ((options.delete !== false) && current.form && (current.form.id !== null)) {
       panels.push(
         itemMenu("cmd_delete",
           `${"full medium"} ${styles.itemButton}`, 
@@ -66,7 +65,7 @@ export const Setting = ({
         )
       )
     }
-    if ((options.new !== false) && (current.form.id !== null)) {
+    if ((options.new !== false) && current.form && (current.form.id !== null)) {
       panels.push(
         itemMenu("cmd_new",
           `${"full medium"} ${styles.itemButton}`, 
@@ -90,74 +89,7 @@ export const Setting = ({
 
     return panels
   }
-  if(template){
-    return(
-      <div {...props}
-        className={`${styles.sidebar} ${((side !== "auto")? side : "")} ${className}`} >
-        {itemMenu("cmd_back",
-          `${"medium"} ${styles.itemButton} ${styles.selected}`, 
-          ["settingBack",["template"]],
-          <Label value={getText("label_back")} 
-            leftIcon={<Icon iconKey="Reply" />} iconWidth="25px"  />
-        )}
-        <div key="tmp_sep_1" className={styles.separator} />
-
-        {((template.key !== "_blank") && (template.key !== "_sample"))?
-        <Fragment>
-          <div key="tmp_sep_2" className={styles.separator} />
-          {itemMenu("cmd_save",
-            `${"full medium"} ${styles.itemButton} ${(dirty)?styles.selected:""}`,
-            ["saveTemplate", [true]],
-            <Label value={getText("template_save")} 
-              leftIcon={<Icon iconKey="Check" />} iconWidth="25px"  />
-          )}
-          {itemMenu("cmd_create",
-            `${"full medium"} ${styles.itemButton}`,
-            ["createTemplate", [module]],
-            <Label value={getText("template_create_from")} 
-              leftIcon={<Icon iconKey="Sitemap" />} iconWidth="25px" />
-          )}
-        </Fragment>:null}
-
-        <div key="tmp_sep_3" className={styles.separator} />
-        {itemMenu("cmd_blank",
-          `${"full medium"} ${styles.itemButton}`,
-          ["checkSetting", [{ type: "template" }, 'NEW_BLANK']],
-          <Label value={getText("template_new_blank")} 
-            leftIcon={<Icon iconKey="Plus" />} iconWidth="25px" />
-        )}
-        {itemMenu("cmd_sample",
-          `${"full medium"} ${styles.itemButton}`,
-          ["checkSetting", [{ type: "template" }, 'NEW_SAMPLE']],
-          <Label value={getText("template_new_sample")} 
-            leftIcon={<Icon iconKey="Plus" />} iconWidth="25px" />
-        )}
-
-        <div key="tmp_sep_4" className={styles.separator} />
-        {itemMenu("cmd_print",
-          `${"full medium"} ${styles.itemButton}`, 
-          ["showPreview"],
-          <Label value={getText("label_print")} 
-            leftIcon={<Icon iconKey="Print" />} iconWidth="25px"  />
-        )}
-        {itemMenu("cmd_json",
-          `${"full medium"} ${styles.itemButton}`,
-          ["exportTemplate"],
-          <Label value={getText("template_export_json")} 
-            leftIcon={<Icon iconKey="Code" />} iconWidth="25px" />
-        )}
-
-        <div key="tmp_sep_5" className={styles.separator} />
-        {itemMenu("cmd_help",
-          `${"full medium"} ${styles.itemButton}`, 
-          ["showHelp", ["editor"]],
-          <Label value={getText("label_help")} 
-            leftIcon={<Icon iconKey="QuestionCircle" />} iconWidth="20px"  />
-        )}
-
-      </div>
-    )
-  } else if(current && panel){
+  if(current && panel){
     return(
       <div {...props}
         className={`${styles.sidebar} ${((side !== "auto")? side : "")} ${className}`} >
@@ -251,7 +183,7 @@ export const Setting = ({
               )}
               {itemMenu("cmd_company", 
                 `${"full medium primary"} ${styles.panelButton}`, 
-                ["checkEditor", [{ ntype: "customer", ttype: null, id: 1}, 'LOAD_EDITOR']],
+                ["companyForm", []],
                 <Label value={getText("title_company")} 
                   leftIcon={<Icon iconKey="Home" />} iconWidth="20px"  />
               )}
@@ -300,19 +232,14 @@ Setting.propTypes = {
   module: PropTypes.shape({
     current: PropTypes.object, 
     dirty: PropTypes.bool,
-    panel: PropTypes.object, 
-    template: PropTypes.object, 
+    panel: PropTypes.object,  
     group_key: PropTypes.string
   }).isRequired,
   className: PropTypes.string, 
-  /** 
-   * Group selection handle
-  */
-  onGroup: PropTypes.func,
   /**
    * Menu selection handle
    */
-  onMenu: PropTypes.func,
+  onEvent: PropTypes.func,
   /**
    * Localization
    */
@@ -324,15 +251,13 @@ Setting.defaultProps = {
   module: {
     current: {}, 
     dirty: false,
-    panel: {}, 
-    template: {}, 
+    panel: {},  
     group_key: ""
   }, 
   auditFilter: {},
   username: undefined,
-  className: "", 
-  onGroup: undefined, 
-  onMenu: undefined,
+  className: "",  
+  onEvent: undefined,
   getText: undefined,
 }
 

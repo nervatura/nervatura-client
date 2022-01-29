@@ -39,7 +39,16 @@
   color: var(--danger);
 }
 
-.text {
+.textareaStyle{
   border-radius: 3px;
   overflow: auto;
+  padding: 8px;
+}
+
+.textareaStyle:disabled {
+  opacity: 0.5;
+}
+
+.textareaStyle::placeholder, .textareaStyle::-ms-input-placeholder {
+  opacity: 0.5;
 }

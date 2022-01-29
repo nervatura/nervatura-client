@@ -115,8 +115,7 @@ Default.args = {
     //  return { options: { icon: "Clock" }}
     //}
   },
-  onGroup: undefined,
-  onMenu: undefined,
+  onEvent: undefined,
   getText: (key)=>getText({ locales: store.session.locales, lang: "en", key: key })
 }
 

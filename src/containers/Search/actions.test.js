@@ -113,66 +113,6 @@ describe('searchActions', () => {
     expect(setData).toHaveBeenCalledTimes(1);
   })
 
-  it('getDataFilter', () => {
-    let result = searchActions(store, jest.fn()).getDataFilter("transitem", [])
-    expect(result.length).toBe(0)
-    result = searchActions(store, jest.fn()).getDataFilter("transpayment", [])
-    expect(result.length).toBe(0)
-    result = searchActions(store, jest.fn()).getDataFilter("transmovement", [], "")
-    expect(result.length).toBe(0)
-    result = searchActions(store, jest.fn()).getDataFilter("transmovement", [], "InventoryView")
-    expect(result.length).toBe(0)
-  })
-
-  it('getDataFilter disabled', () => {
-    appActions.mockReturnValue({
-      getAuditFilter: jest.fn(() => (["disabled",1])),
-    })
-    let result = searchActions(store, jest.fn()).getDataFilter("transitem", [])
-    expect(result.length).toBe(10)
-    result = searchActions(store, jest.fn()).getDataFilter("transpayment", [])
-    expect(result.length).toBe(4)
-    result = searchActions(store, jest.fn()).getDataFilter("transmovement", [], "")
-    expect(result.length).toBe(4)
-    result = searchActions(store, jest.fn()).getDataFilter("transmovement", [], "InventoryView")
-    expect(result.length).toBe(0)
-  })
-
-  it('getUserFilter', () => {
-    let it_store = update(store, {})
-    let filter = searchActions(it_store, jest.fn()).getUserFilter("missing")
-    expect(filter.params.length).toBe(0)
-    filter = searchActions(it_store, jest.fn()).getUserFilter("customer")
-    expect(filter.params.length).toBe(0)
-
-    it_store = update(store, {login: {data: {$merge: {
-      transfilterName: "usergroup"
-    }}}})
-    filter = searchActions(it_store, jest.fn()).getUserFilter("customer")
-    expect(filter.params.length).toBe(0)
-    filter = searchActions(it_store, jest.fn()).getUserFilter("transitem")
-    expect(filter.params.length).toBe(1)
-
-    it_store = update(store, {login: {data: {$merge: {
-      transfilterName: "own"
-    }}}})
-    filter = searchActions(it_store, jest.fn()).getUserFilter("customer")
-    expect(filter.params.length).toBe(0)
-    filter = searchActions(it_store, jest.fn()).getUserFilter("transitem")
-    expect(filter.params.length).toBe(1)
-  })
-
-  it('quickSearch', async () => {
-    const it_store = update(store, {login: {data: {$merge: {
-      transfilterName: "usergroup"
-    }}}})
-    let data = await searchActions(it_store, jest.fn()).quickSearch("customer", "")
-    expect(data).toBeDefined()
-
-    data = await searchActions(it_store, jest.fn()).quickSearch("transitem", "item")
-    expect(data).toBeDefined()
-  })
-
   it('defaultFilterValue', () => {
     const it_store = update(store, {})
     let result = searchActions(it_store, jest.fn()).defaultFilterValue("date")

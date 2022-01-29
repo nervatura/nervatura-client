@@ -39,8 +39,7 @@ Default.args = {
     setting: ["all", 1],
     audit: ["all", 1]
   },  
-  onGroup: undefined, 
-  onMenu: undefined,
+  onEvent: undefined,
   getText: (key)=>getText({ locales: store.session.locales, lang: "en", key: key })
 }
 

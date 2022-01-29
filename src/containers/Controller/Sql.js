@@ -689,7 +689,7 @@ export const Sql = ({ getText }) => {
           default:
             return {
               select:["r.id","r.reportkey","r.repname","r.description","r.label","fg.groupvalue as filetype",
-                "case when ig.groupvalue='disabled' then 0 else 1 end as reportActionss","r.nervatype",
+                "case when ig.groupvalue='disabled' then 0 else 1 end as usereports","r.nervatype",
                 "r.report","r.direction"],
               from:"ui_report r", 
               inner_join:["groups fg","on",["r.filetype","=","fg.id"]],
@@ -756,7 +756,7 @@ export const Sql = ({ getText }) => {
         return sql;},
       template_view: () => {
         let sql = {
-          select:["r.*","r.reportkey as lslabel","r.repname as lsvalue"],
+          select:["r.id","r.reportkey as lslabel","r.repname as lsvalue"],
           from:"ui_report r", 
           inner_join:[
             ["groups fg","on",["r.filetype","=","fg.id"]],

@@ -1,11 +1,10 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import update from 'immutability-helper';
 
 import AppStore from 'containers/App/context'
 import { appActions } from 'containers/App/actions'
 import { settingActions } from './actions'
 import { Setting } from './Setting';
-import { templateActions } from 'containers/Report/Template'
 import { getSetting } from 'config/app'
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -13,68 +12,61 @@ export default (props) => {
   const { data, setData } = useContext(AppStore);
   const app = appActions(data, setData)
   const setting = settingActions(data, setData)
-  const template = templateActions(data, setData)
 
   const [state] = useState({
     engine: data.login.data.engine,
+    username: data.login.username,
     ui: getSetting("ui"),
-    theme: data.current.theme,
-    getMapCtr: template.getMapCtr,
-    getElementType: template.getElementType
+    login: data.login.data,
   })
 
   state.data = data.setting
+  state.current = data.current //= update(state.current, {$merge: { ...data.current }})
 
-  state.mapRef = useCallback(map => {
-    if (map) {
-      template.createMap(map)
+  useEffect(() => {
+    if(state.current && state.current.content){
+      const content = state.current.content
+      setData("current", { content: null }, () => {
+        setting.checkSetting(content, content.nextKey || "LOAD_SETTING")
+      })
     }
-  }, [template]);
+  }, [setData, setting, state]);
 
   state.getText = (key, defValue) => {
     return app.getText(key, defValue)
+  }
+
+  state.onEvent = (fname, params) => {
+    params = params || []
+    if(setting[fname]){
+      return setting[fname](...params)  
+    }
+    if(app[fname]){
+      return app[fname](...params)  
+    }
+    state[fname](...params)
+  }
+
+  state.changeData = (fieldname, value) => {
+    setData("setting", { [fieldname]: value })
+  }
+
+  state.companyForm = () => {
+    setData("current", { module: "edit", content: { ntype: "customer", ttype: null, id: 1 } })
   }
 
   state.setViewActions = (params, _row) => {
     setting.setViewActions(params, _row)
   }
 
-  state.editTemplate = (options) => {
-    template.editItem({...options, setting: state.data})
-  }
-
-  state.mapNext = () => {
-    template.goNext(state.data)
-  }
-
-  state.mapPrevious = () => {
-    template.goPrevious(state.data)
-  }
-
-  state.moveUp = () => {
-    template.moveUp(state.data)
-  }
-
-  state.moveDown = () => {
-    template.moveDown(state.data)
-  }
-
-  state.deleteItem = () => {
-    template.deleteItem(state.data)
-  }
-
-  state.addItem = (value) => {
-    template.addItem(value, state.data)
-  }
-
-  state.editItem = async (options) => {
+  state.editItem = (options) => {
     let settings = update({}, {$set: state.data})
     if(settings.type === "program"){
       settings = update(settings, {current: {form: {$merge: {
         [options.name]: options.value
       }}}})
       localStorage.setItem(options.name, options.value)
-    } else if(options === "log_search"){
+    } else if(options.name === "log_search"){
       setting.loadLog()
     } else {
       if((settings.audit==="all") || (settings.audit==="update")){
@@ -98,46 +90,37 @@ export default (props) => {
     setData("setting", settings)
   }
 
-  state.changeTemplateData = (key, value) => {
-    let setting = update(data.setting, {template: {$merge: {
-      [key]: value
-    }}})
-    setData("setting", setting)
+  state.settingBack = (back_type) => {
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(data.setting.type === "password"){
+        return setData(state.current.module, { group_key: "group_admin" }, ()=>{
+          setting.loadSetting({ type: 'setting' })
+        })
+      }
+      setting.checkSetting({ type: back_type || data.setting.type }, 'LOAD_SETTING')
+    })
   }
 
-  state.changeCurrentData = (key, value) => {
-    let setting = update(data.setting, {template: {current: {$merge: {
-      [key]: value
-    }}}})
-    setData("setting", setting)
+  state.settingSave = () => {
+    setData("current", { side: app.getSideBar() }, async ()=>{
+      if(data.setting.type === "password"){
+        setting.changePassword()
+      } else {
+        const result = await setting.saveSetting()
+        if(result){
+          setting.loadSetting({type: result.type, id: result.current.form.id})
+        }
+      }
+    })
   }
 
-  state.setCurrent = (tmp_id, set_dirty) => {
-    template.setCurrent({tmp_id: tmp_id, set_dirty: set_dirty, setting: state.data})
-  }
-
-  state.addTemplateData = () => {
-    template.addTemplateData()
-  }
-
-  state.setCurrentData = (data) => {
-    template.setCurrentData(data)
-  }
-
-  state.setCurrentDataItem = (value) => {
-    template.setCurrentDataItem(value)
-  }
-
-  state.deleteDataItem = (options) => {
-    template.deleteDataItem(options)
-  }
-
-  state.deleteData = (dskey) => {
-    template.deleteData(dskey)
-  }
-
-  state.editDataItem = (options) => {
-    template.editDataItem(options)
+  state.setPassword = (username) =>{
+    setData("current", { side: app.getSideBar() }, ()=>{
+      if(!username && data.edit.current){
+        username = data.edit.dataset[data.edit.current.type][0].username
+      }
+      setting.checkSetting({ username: username }, "PASSWORD_FORM")
+    })
   }
 
   if(state.data.type){

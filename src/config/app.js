@@ -1,6 +1,4 @@
 import update from 'immutability-helper';
-import { registerLocale } from  "react-datepicker";
-import * as dateLocales from 'date-fns/locale/';
 
 import packageData from '../../package.json';
 import * as locales from './locales';
@@ -9,17 +7,9 @@ const publicHost = "nervatura.github.io"
 const basePath = "/api"
 
 const calendarLocales = [
-  ["bg", "bg"], ["cs", "cs"], ["da", "da"], ["de", "de"], ["el", "el"], 
-  ["en", "en"], ["es", "es"], ["fi", "fi"], ["fr", "fr"], ["he", "he"], 
-  ["hr", "hr"], ["hu", "hu"], ["id", "id"], ["is", "is"], ["it", "it"], 
-  ["ja", "ja"], ["ko", "ko"], ["lt", "lt"], ["nb", "nb"], ["nl", "nl"], 
-  ["nn", "nn"], ["pl", "pl"], ["pt", "pt"], ["ro", "ro"], ["ru", "ru"], 
-  ["sk", "sk"], ["sv", "sv"], ["th", "th"], ["tr", "tr"], ["uz", "uz"], 
-  ["vi", "vi"], ["zh", "zh"]
+  ["de", "de"], ["en", "en"], ["es", "es"], 
+  ["fr", "fr"], ["it", "it"], ["pt", "pt"], 
 ]
-calendarLocales.forEach(loc => {
-  registerLocale(loc[0], dateLocales[loc[0]])
-});
 
 export const DECIMAL_SEPARATOR = {
   POINT: ".",
@@ -36,7 +26,7 @@ export const store = {
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.15", "5.0.0-beta.16", "5.0.0-beta.17"],
+    service: ["dev", "5.0.0-beta.15", "5.0.0-beta.16", "5.0.0-beta.17", "5.0.0-beta.18"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {
@@ -95,15 +85,6 @@ export const store = {
       ["a3", "A3"], ["a4", "A4"],
       ["a5", "A5"], ["letter", "Letter"],
       ["legal", "Legal"]
-    ],
-    rtf_inline: [
-      { label: 'Bold', style: 'BOLD', icon: "Bold" }, 
-      { label: 'Italic', style: 'ITALIC', icon: "Italic"  }, 
-      { label: 'Underline', style: 'UNDERLINE', icon: "Underline" }
-    ],
-    rtf_block: [
-      { label: 'UL', style: 'unordered-list-item', icon: "ListUl" }, 
-      { label: 'OL', style: 'ordered-list-item', icon: "ListOl" }
     ]
   },
   current: { 
@@ -122,8 +103,9 @@ export const store = {
   },
   search: { seltype: "selector", group_key: "transitem", result: [], vkey: null, qview: "transitem", qfilter: "", 
     filters: {}, columns: {}, browser_filter: true },
-  edit: { dataset: {}, current: {}, dirty: false, form_dirty: false, preview: null },
-  setting: { dirty: false, result: [] }, 
+  edit: { dataset: {}, current: {}, dirty: false, form_dirty: false },
+  setting: { dirty: false, result: [] },
+  template: { dirty: false }, 
   bookmark: { history: null, bookmark: [] }
 }
 
@@ -151,4 +133,10 @@ export const getSetting = (key) => {
     default:
       return localStorage.getItem(key) || store.ui[key] || "";
   }
+}
+
+export const formatNumber = (number, digit) => {
+  digit = digit || 2
+  const value = (!isNaN(parseFloat(number))) ? parseFloat(number) : 0
+  return value.toFixed(digit).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }

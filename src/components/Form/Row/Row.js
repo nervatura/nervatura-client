@@ -10,7 +10,7 @@ import styles from './Row.module.css';
 export const Row = ({ 
   row, values, options, data,
   className, getText, 
-  onEdit, onLoad, onSelector,
+  onEdit, onEvent, onSelector,
   ...props 
 }) => {
   const { id, rowtype, label, columns, name, disabled, notes, selected, empty, 
@@ -67,7 +67,7 @@ export const Row = ({
             {(enabled)?<div className="row full"><div className={`${"cell padding-small"}`} >
               <Field id={"field_"+name}
                 field={row} values={values} options={options} data={data}
-                getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+                getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
             </div></div>:null}
             {(info)?<div className="row full padding-small">
               <div className={`${"cell padding-small info"} ${styles.leftbar}`} >
@@ -100,7 +100,7 @@ export const Row = ({
             </div>
             {(enabled)?<div className="row full"><div className={`${"cell padding-small"}`} >
               <textarea id={"input_"+name}
-                className={`${"full small"} ${styles.text}`} 
+                className={`${"full small"} ${styles.textareaStyle}`} 
                 value={imgValue()} rows={5}
                 onChange={(event) => onEdit({
                   id: id, 
@@ -172,7 +172,7 @@ export const Row = ({
               {(enabled)?<div className={`${"cell padding-small half"}`} >
                 <Field id={"field_"+name}
                   field={row} values={values} options={options} data={data}
-                  getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+                  getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
               </div>:null}
             </div>
             {(info)?<div className="row full padding-small">
@@ -195,7 +195,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+name}
             field={row} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
       </div>)
     
@@ -211,7 +211,7 @@ export const Row = ({
         </div>
         <Field id={"field_"+name}
           field={row} values={values} options={options} data={data}
-          getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+          getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
       </div>)
 
     case "fieldvalue":
@@ -232,7 +232,7 @@ export const Row = ({
           <div className={`${"cell padding-small s12 m6 l6"}`} >
             <Field id={"field_"+row.fieldname}
               field={row} values={values} options={options} data={data}
-              getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+              getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
           </div>
           <div className={`${"cell padding-small s12 m6 l6"}`} >
             <Input id={'notes_'+row.fieldname} name="fieldvalue_notes" type="text" 
@@ -253,7 +253,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[0].name}
             field={columns[0]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m6 l6"}`} >
           <div>
@@ -261,7 +261,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[1].name}
             field={columns[1]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
       </div>)
     
@@ -274,7 +274,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[0].name}
             field={columns[0]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m4 l4"}`} >
           <div>
@@ -282,7 +282,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[1].name}
             field={columns[1]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m4 l4"}`} >
           <div>
@@ -290,7 +290,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[2].name}
             field={columns[2]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
       </div>)
 
@@ -303,7 +303,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[0].name}
             field={columns[0]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
@@ -311,7 +311,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[1].name}
             field={columns[1]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
@@ -319,7 +319,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[2].name}
             field={columns[2]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
         <div className={`${"cell padding-small s12 m3 l3"}`} >
           <div>
@@ -327,7 +327,7 @@ export const Row = ({
           </div>
           <Field id={"field_"+columns[3].name}
             field={columns[3]} values={values} options={options} data={data}
-            getText={getText} onEdit={onEdit} onLoad={onLoad} onSelector={onSelector} />
+            getText={getText} onEdit={onEdit} onEvent={onEvent} onSelector={onSelector} />
         </div>
       </div>)
     
@@ -348,7 +348,7 @@ Row.propTypes = {
   className: PropTypes.string,
   getText: PropTypes.func,
   onEdit: PropTypes.func,
-  onLoad: PropTypes.func,
+  onEvent: PropTypes.func,
   onSelector: PropTypes.func,
 }
 
@@ -364,7 +364,7 @@ Row.defaultProps = {
   className: "",
   getText: undefined,
   onEdit: undefined,
-  onLoad: undefined,
+  onEvent: undefined,
   onSelector: undefined,
 }
 

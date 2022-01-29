@@ -16,7 +16,7 @@ import { getSetting } from 'config/app'
 export const Field = ({ 
   field, values, options, data,
   className, getText, 
-  onEdit, onLoad, onSelector,
+  onEdit, onEvent, onSelector,
   ...props 
 }) => {
   const [ state, setState ] = useState({
@@ -370,11 +370,13 @@ export const Field = ({
       return <div {...props} 
         className={`${className} ${"link"} ${styles.link}`} >
         <span id={"link_"+fieldMap.lnktype+"_"+fieldName} className={`${styles.lnkText}`} 
-          onClick={()=>onLoad("checkEditor", {
-            ntype: fieldMap.lnktype, 
-            ttype: fieldMap.transtype, 
-            id: value }, "LOAD_EDITOR"
-          )
+          onClick={()=>onEvent("checkEditor", [
+            { ntype: fieldMap.lnktype, 
+              ttype: fieldMap.transtype, 
+              id: value 
+            }, 
+            "LOAD_EDITOR", undefined
+          ])
           } >{llabel}</span>
       </div>
     
@@ -415,11 +417,12 @@ export const Field = ({
       columns.push(<div key="sel_text" className={`${"link"} ${styles.link}`}>
         {(selector.text !== "")?<span id={"sel_link_"+fieldName}
           className={`${styles.lnkText}`}
-          onClick={()=>onLoad("checkTranstype", { 
-            ntype: selector.ntype, 
-            ttype: selector.ttype, 
-            id: selector.id }, 'LOAD_EDITOR'
-          )} >{selector.text}</span>:null}
+          onClick={()=>onEvent("checkTranstype", [
+            { ntype: selector.ntype, 
+              ttype: selector.ttype, 
+              id: selector.id }, 
+            'LOAD_EDITOR', undefined
+          ])} >{selector.text}</span>:null}
       </div>)
       return <div {...props} 
         className={`${className} ${"row full"}`} >{columns}</div>
@@ -429,7 +432,7 @@ export const Field = ({
         className={`${className} ${"border-button"} ${styles.selectorButton} ${field.class}`}
         disabled={(disabled) ? 'disabled' : ''}
         autoFocus={field.focus || false}
-        onClick={ ()=>onEdit(fieldName) }
+        onClick={ ()=>onChange({value: fieldName, item: {}, event_type: "click"}) }
         value={<Label value={(field.title)?(field.title):""} 
           leftIcon={(field.icon)?<Icon iconKey={field.icon} />:null} 
           iconWidth={(field.icon)?"20px":null} />}
@@ -494,7 +497,7 @@ export const Field = ({
         }
       }
       if((datatype === "notes") || datatype === "text"){
-        return <textarea {...props} className={`${className} ${"full"} ${styles.text}`} 
+        return <textarea {...props} className={`${className} ${"full"} ${styles.textareaStyle}`} 
           name={fieldName} value={value||""}
           rows={(field.rows )?field.rows:null}
           onChange={(event) => onChange({value: event.target.value, event_type: "change"})}
@@ -521,7 +524,7 @@ Field.propTypes = {
   className: PropTypes.string,
   getText: PropTypes.func,
   onEdit: PropTypes.func,
-  onLoad: PropTypes.func,
+  onEvent: PropTypes.func,
   onSelector: PropTypes.func,
 }
 
@@ -537,7 +540,7 @@ Field.defaultProps = {
   className: "",
   getText: undefined,
   onEdit: undefined,
-  onLoad: undefined,
+  onEvent: undefined,
   onSelector: undefined,
 }
 

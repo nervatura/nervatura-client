@@ -1,0 +1,34 @@
+.tabButton {
+  border-radius: 0px;
+  margin-top: 2px;
+}
+
+.rtfEditor {
+  padding: 8px;
+  width: 100%;
+  min-height: 65px;
+}
+
+.barButton {
+  border-radius: 0px;
+  margin-left: -0.7px;
+}
+
+.barButton:focus {
+  outline: none;
+}
+
+.activeStyle {
+  background-color: var(--info)!important;
+}
+
+.viewPanel {
+  width: 100%;
+}
+
+.formPanel {
+  width: 100%;
+  border-top: none;
+  border-bottom: none;
+  border-radius: 0px;
+}

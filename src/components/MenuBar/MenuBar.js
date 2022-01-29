@@ -17,7 +17,8 @@ export const APP_MODULE = {
   EDIT: "edit",
   SETTING: "setting",
   HELP: "help",
-  BOOKMARK: "bookmark"
+  BOOKMARK: "bookmark",
+  TEMPLATE: "template"
 }
 
 export const MenuBar = ({ 
