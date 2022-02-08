@@ -1,11 +1,13 @@
 import update from 'immutability-helper';
 import printJS from 'print-js'
+import format from 'date-fns/format'
 
 import { appActions, saveToDisk } from 'containers/App/actions'
 import InputBox from 'components/Modal/InputBox'
 import TemplateData from 'components/Modal/Template'
 import { getSetting } from 'config/app'
 import { templateElements } from 'containers/Template/Template'
+import { InitItem } from 'containers/Controller/Validator'
 
 export const templateActions = (data, setData) => {
   const app = appActions(data, setData)
@@ -75,9 +77,9 @@ export const templateActions = (data, setData) => {
     }
   }
 
-  const setCurrent = (options, templateData) => {
+  const setCurrent = (options, template) => {
     const item = options.tmp_id.split("_");
-    let setting = update(templateData||data.template, {$merge: {
+    let setting = update(template || data.template, {$merge: {
       current: {
         id: options.tmp_id,
         section: item[1]
@@ -277,9 +279,9 @@ export const templateActions = (data, setData) => {
     }
   }
   
-  const getNextItemId = (templateData) => {
+  const getNextItemId = () => {
     //tmp_section_index_type_subindex_subtype
-    const { current, template } = templateData
+    const { current, template } = data.template
     let section = current.section;
     let index = current.parent_index;
     let subindex = current.index;
@@ -292,7 +294,7 @@ export const templateActions = (data, setData) => {
       etype = getElementType(template[section][index]);
       if (subindex < template[section][index][etype].columns.length-1) {
         subtype = getElementType(template[section][index][etype].columns[subindex+1]);
-        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype}, templateData];
+        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype}];
       }
     }
     if (index!==null) {
@@ -301,20 +303,20 @@ export const templateActions = (data, setData) => {
         if (etype==="row" || etype==="datagrid") {
           if (template[section][index][etype].columns.length>0) {
             subtype = getElementType(template[section][index][etype].columns[0]);
-            return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype}, templateData];
+            return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype}];
           }
         }
       }
       if (index < template[section].length-1) {
         etype = getElementType(template[section][index+1]);
-        return [{tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype}, templateData];
+        return [{tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype}];
       }
       if (section==="footer") {
         if (subindex!==null) {
           subtype = getElementType(template[section][index][etype].columns[subindex]);
-          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype}, templateData];
+          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype}];
         } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype}, templateData];
+          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype}];
         }
       } else {
         section = sections[sections.indexOf(section)+1];
@@ -322,18 +324,18 @@ export const templateActions = (data, setData) => {
     }
     if (template[section].length>0) {
       etype = getElementType(template[section][0]);
-      return [{tmp_id: "tmp_"+section+"_0_"+etype}, templateData];
+      return [{tmp_id: "tmp_"+section+"_0_"+etype}];
     } else {
       if (section!=="footer") {
         section = sections[sections.indexOf(section)+1];
       }
-      return [{tmp_id: "tmp_"+section}, templateData];
+      return [{tmp_id: "tmp_"+section}];
     }
   };
 
-  const getPrevItemId = (templateData) => {
+  const getPrevItemId = () => {
     //tmp_section_index_type_subindex_subtype
-    const { current, template } = templateData
+    const { current, template } = data.template
     let section = current.section;
     let index = current.parent_index;
     let subindex = current.index;
@@ -341,16 +343,16 @@ export const templateActions = (data, setData) => {
       index = current.index; subindex = null;
     }
     if (section==="report") {
-      return [{tmp_id: "tmp_report"},templateData];
+      return [{tmp_id: "tmp_report"}];
     }
     let etype; let subtype;
     if (subindex!==null) {
       etype = getElementType(template[section][index]);
       if (subindex>0) {
         subtype = getElementType(template[section][index][etype].columns[subindex-1]);
-        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
+        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
       }
-      return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype}, templateData];
+      return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype}];
     }
     if (index!==null) {
       if (index>0) {
@@ -359,20 +361,20 @@ export const templateActions = (data, setData) => {
           subindex = template[section][index-1][etype].columns.length;
           if (subindex>0) {
             subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
+            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
           } else {
-            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
+            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
           }
         } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
         }
       }
-      return [{tmp_id: "tmp_"+section}, templateData];
+      return [{tmp_id: "tmp_"+section}];
     }
     let sections = ["report","header","details","footer"];
     section = sections[sections.indexOf(section)-1];
     if (section==="report") {
-      return [{tmp_id: "tmp_report"}, templateData];
+      return [{tmp_id: "tmp_report"}];
     }
     index = template[section].length;
     if (index>0) {
@@ -381,28 +383,28 @@ export const templateActions = (data, setData) => {
         subindex = template[section][index-1][etype].columns.length;
         if (subindex>0) {
           subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}, templateData];
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
         } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
+          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
         }
       } else {
-        return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}, templateData];
+        return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
       }
     } else {
-      return [{tmp_id: "tmp_"+section}, templateData];
+      return [{tmp_id: "tmp_"+section}];
     }
   }
 
-  const goPrevious = (templateData) => {
-    setCurrent(...getPrevItemId(templateData))
+  const goPrevious = () => {
+    setCurrent(...getPrevItemId())
   }
 
-  const goNext = (templateData) => {
-    setCurrent(...getNextItemId(templateData))
+  const goNext = () => {
+    setCurrent(...getNextItemId())
   }
 
-  const moveDown = (templateData) => {
-    const { current } = templateData;
+  const moveDown = () => {
+    const { current } = data.template;
     if (current.parent!==null && current.index!==null) {
       if (current.index<current.parent.length-1) {
         let next_item = current.parent[current.index+1];
@@ -413,13 +415,13 @@ export const templateActions = (data, setData) => {
           id += current.parent_index.toString()+"_"+current.parent_type+"_";
         }
         id += (current.index+1).toString()+"_"+current.type;
-        setCurrent({ tmp_id: id, set_dirty: true}, templateData)
+        setCurrent({ tmp_id: id, set_dirty: true})
       }
     }
   }
 
-  const moveUp = (templateData) => {
-    const { current } = templateData;
+  const moveUp = () => {
+    const { current } = data.template;
     if (current.parent!==null && current.index!==null) {
       if (current.index>0) {
         let prev_item = current.parent[current.index-1];
@@ -431,25 +433,25 @@ export const templateActions = (data, setData) => {
           id += current.parent_index.toString()+"_"+current.parent_type+"_";
         }
         id += (current.index-1).toString()+"_"+current.type;
-        setCurrent({ tmp_id: id, set_dirty: true}, templateData)
+        setCurrent({ tmp_id: id, set_dirty: true})
       }
     }
   }
 
-  const deleteItem = (templateData) => {
-    const { current } = templateData;
+  const deleteItem = () => {
+    const { current } = data.template;
     if (current.parent!==null && current.index!==null) {
       current.parent.splice(current.index, 1);
       let id = "tmp_"+current.section;
       if (current.parent_index!==null) {
         id += "_"+current.parent_index.toString()+"_"+current.parent_type;
       }
-      setCurrent({ tmp_id: id, set_dirty: true}, templateData)
+      setCurrent({ tmp_id: id, set_dirty: true})
     }
   }
 
-  const addItem = (value, templateData) => {
-    const { current } = templateData;
+  const addItem = (value) => {
+    const { current } = data.template;
     if (value !== "") {
       let ename = value.toString().toLowerCase();
       let element = {}; element[ename] = {};
@@ -458,12 +460,12 @@ export const templateActions = (data, setData) => {
         element[ename].columns=[];
       }
       current.item.push(element);
-      setCurrent({ tmp_id: id, set_dirty: true}, templateData)
+      setCurrent({ tmp_id: id, set_dirty: true})
     }
   }
 
-  const editItem = (options, templateData) => {
-    let setting = update(templateData||data.template, {})
+  const editItem = (options) => {
+    let setting = update(data.template, {})
     const id = setting.current.id
     const itemId = id.split("_");
 
@@ -607,10 +609,12 @@ export const templateActions = (data, setData) => {
   }
 
   const exportTemplate = () => {
-    const xtempl = JSON.stringify(data.template.template)
-    let fUrl = URL.createObjectURL(new Blob([xtempl], 
-      {type : 'text/json;charset=utf-8;'}));
-    saveToDisk(fUrl, data.template.key+".json")
+    setData("current", { side: "hide"}, ()=>{
+      const xtempl = JSON.stringify(data.template.template)
+      let fUrl = URL.createObjectURL(new Blob([xtempl], 
+        {type : 'text/json;charset=utf-8;'}));
+      saveToDisk(fUrl, data.template.key+".json")
+    })
   }
 
   const setTemplate = (options) => {
@@ -661,7 +665,7 @@ export const templateActions = (data, setData) => {
       }})
     }
     setCurrent({tmp_id: "tmp_report"}, blank)
-    setData("current", { module: "template" })
+    setData("current", { module: "template", side: "hide" })
   }
 
   const saveTemplate = async (warning) => {
@@ -700,7 +704,8 @@ export const templateActions = (data, setData) => {
               }
             })
           }}
-        /> 
+        />,
+        side: "hide"
       })
     } else {
       return await updateData()
@@ -728,7 +733,8 @@ export const templateActions = (data, setData) => {
             setData("current", { module: "setting", content: { type: 'template' } })
           })
         }}
-      /> 
+      />,
+      side: "hide"
     })
   }
 
@@ -1130,23 +1136,24 @@ export const templateActions = (data, setData) => {
                 }
               })
             }}
-          /> 
+          />,
+          side: "hide"
         })
       }
     }
   }
 
-  const changeTemplateData = (options, templateData) => {
+  const changeTemplateData = (options) => {
     const { key, value } = options
-    let setting = update(templateData, {$merge: {
+    let setting = update(data.template, {$merge: {
       [key]: value
     }})
     setData("template", setting)
   }
 
-  const changeCurrentData = (options, templateData) => {
+  const changeCurrentData = (options) => {
     const { key, value } = options
-    let setting = update(templateData, {current: {$merge: {
+    let setting = update(data.template, {current: {$merge: {
       [key]: value
     }}})
     setData("template", setting)
@@ -1156,10 +1163,10 @@ export const templateActions = (data, setData) => {
     const cbNext = {
       NEW_BLANK: () => setTemplate({ type: "_blank" }),
       NEW_SAMPLE: () => setTemplate({ type: "_sample" }),
-      LOAD_SETTING: () => setData("current", { module: "setting", content: { type: 'template' } })
+      LOAD_SETTING: () => setData("current", { module: "setting", content: { type: 'template' }, side: "hide" })
     }
     if (data.template.dirty === true) {
-      setData("current", { modalForm: 
+      return setData("current", { modalForm: 
         <InputBox 
           title={app.getText("msg_warning")}
           message={app.getText("msg_dirty_text")}
@@ -1189,6 +1196,62 @@ export const templateActions = (data, setData) => {
     return cbNext[nextKey]()
   }
 
+  const createTemplate = () => {
+    const tableValues = (type, item) => {
+      let values = {}
+      const baseValues = InitItem(data, setData)({tablename: type, 
+        dataset: data.setting.dataset, current: data.setting.current})
+      for (const key in item) {
+        if (baseValues.hasOwnProperty(key)) {
+          values[key] = item[key]
+        }
+      }
+      return values
+    }
+    let reportkey = data.template.template.meta.nervatype;
+    if (reportkey === "trans") {
+      reportkey = data.template.template.meta.transtype+"_"+data.template.template.meta.direction;
+    }
+    reportkey += "_"+format(new Date(),"yyyyMMddHHmm")
+    setData("current", { modalForm: 
+      <InputBox 
+        title={app.getText("template_label_new")}
+        message={reportkey}
+        value={data.template.repname} showValue={true}
+        labelOK={app.getText("msg_ok")}
+        labelCancel={app.getText("msg_cancel")}
+        onCancel={() => {
+          setData("current", { modalForm: null })
+        }}
+        onOK={(value) => {
+          setData("current", { modalForm: null }, async ()=>{
+            const template = update(data.template.template, {
+              meta: {$merge: {
+                reportkey: reportkey,
+                repname: value
+              }}
+            })
+            let values = update(tableValues("report", data.template.dbtemp), {$merge: {
+              id: null,
+              reportkey: reportkey,
+              repname: value,
+              report: JSON.stringify(template)
+            }})
+            values = update(values, {
+              $unset: ["orientation", "size"]
+            })
+            let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
+            if(result.error){
+              return app.resultError(result)
+            }
+            setData("current", { module: "setting", content: { type: "template", id: result[0] }, side: "hide" })
+          })
+        }}
+      />,
+      side: "hide"
+    })
+  }
+
   return {
     getMapCtr: getMapCtr,
     setTemplate: setTemplate,
@@ -1214,6 +1277,7 @@ export const templateActions = (data, setData) => {
     showPreview: showPreview,
     changeTemplateData: changeTemplateData,
     changeCurrentData: changeCurrentData,
-    checkTemplate: checkTemplate
+    checkTemplate: checkTemplate,
+    createTemplate: createTemplate
   }
 }

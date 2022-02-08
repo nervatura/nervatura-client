@@ -29,7 +29,7 @@ Default.args = {
       terms: 8, transcast: "normal", vatamount: "129"
     },
     state: "normal",
-    pagination: { page: 1, perPage: 5 },
+    page: 0,
     template: 1,
     fieldvalue: [
       { deleted: 0, fieldname: "trans_custinvoice_custname", id: 54,
@@ -259,10 +259,7 @@ Report.args = {
       repname: "Payments Due List", description: "Accounts Payable and Receivable", label: "Invoice",
       filetype: 54, report: "", orientation: "portrait", size: "a4", ftype: "pdf" },
     state: "normal",
-    pagination: {
-      page: 1,
-      perPage: 5
-    },
+    page: 0,
     fieldvalue: [
       { id: 1, rowtype: "reportfield", datatype: "date", name: "posdate",
         label: "Date", selected: true, empty: "false", value: "2022-01-16" },
@@ -305,7 +302,7 @@ PrintQueue.args = {
       transnumber: null, username: null, server: null, mode: "pdf",
       orientation: "portrait", size: "a4" },
     state: "normal",
-    pagination: { page: 1, perPage: 5 },
+    page: 0,
     fieldvalue: [],
     view: "form"
   },

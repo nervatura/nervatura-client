@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, queryByAttribute, screen } from '@testing-library/react'
+import { render, fireEvent, queryByAttribute } from '@testing-library/react'
 import update from 'immutability-helper';
 
 import Editor from './index';
@@ -34,6 +34,10 @@ const store = update(app_store, {$merge: {
 }})
 
 describe('<Editor />', () => {
+  beforeAll(() => {
+    Object.defineProperty(global.document, 'execCommand', { value: jest.fn() });
+  });
+
   beforeEach(() => {
     appActions.mockReturnValue({
       getText: EditorData.args.getText,
@@ -44,7 +48,7 @@ describe('<Editor />', () => {
     })
   });
   
-  afterEach(() => {
+  afterAll(() => {
     jest.clearAllMocks();
   });
 
@@ -101,11 +105,6 @@ describe('<Editor />', () => {
       </AppProvider>
     );
     expect(getById(container, 'edit')).toBeDefined();
-
-    //onPaginationSelect
-    const page_2 = screen.getByText("2")
-    fireEvent.click(page_2)
-    expect(setData).toHaveBeenCalledTimes(1);
 
   });
 

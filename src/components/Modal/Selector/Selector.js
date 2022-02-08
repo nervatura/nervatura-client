@@ -22,17 +22,16 @@ export const Selector = ({
     filter: filter,
   })
   let fields = {
-    view: { columnDef: { property: "view",
-      cell: { 
-        props: {
-          style: { width: 25, padding: "7px 2px 3px 8px" } 
-        },
-        formatters: [
-        (value, { rowData }) => {
-          if(rowData.deleted === 1)
-            return <Icon iconKey="ExclamationTriangle" className={styles.exclamation} />
-          return <Icon iconKey="CaretRight" width={9} height={24} />
-        }] }
+    view: { columnDef: { 
+      id: "view",
+      Header: "",
+      headerStyle: {},
+      Cell: ({ row, value }) => {
+        if(row.original.deleted === 1)
+          return <Icon iconKey="ExclamationTriangle" className={styles.exclamation} />
+        return <Icon iconKey="CaretRight" width={9} height={24} />
+      },
+      cellStyle: { width: 25, padding: "7px 2px 3px 8px" }
     }}
   }
   columns.forEach(field => {
@@ -82,7 +81,7 @@ export const Selector = ({
             <Table fields={fields} rows={result}
               filterPlaceholder={getText("placeholder_search")} 
               paginationPage={(onClose) ? selectorPage : paginationPage} 
-              paginationTop={true} 
+              paginationTop={true} hidePaginatonSize={true}
               currentPage={currentPage} onCurrentPage={onCurrentPage}
               onRowSelected={(row)=>onSelect(row, state.filter)} />
           </div>
@@ -161,7 +160,7 @@ Selector.defaultProps = {
   filter: "",
   selectorPage: getSetting("selectorPage"),
   paginationPage: getSetting("paginationPage"),
-  currentPage: 1,
+  currentPage: 0,
   className: "",
   getText: undefined,
   onClose: undefined,

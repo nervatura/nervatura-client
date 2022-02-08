@@ -50,7 +50,8 @@ LoginPage.defaultProps = {
 export default memo(LoginPage, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.current === nextProps.current) &&
+    (prevProps.current.theme === nextProps.current.theme) &&
+    (prevProps.current.lang === nextProps.current.lang) &&
     (prevProps.locales === nextProps.locales)
   )
 })

@@ -3,7 +3,6 @@ import { render, fireEvent, screen, queryByAttribute } from '@testing-library/re
 import '@testing-library/jest-dom/extend-expect';
 
 import { Default, TopPagination, BottomPagination, Filtered } from './Table.stories';
-import Table from './Table';
 
 const getById = queryByAttribute.bind(null, 'id');
 
@@ -52,6 +51,7 @@ it('renders in the TopPagination state', () => {
 
   const sort_header = screen.getAllByText('Stamp')[0]
   fireEvent.click(sort_header)
+  fireEvent.click(sort_header)
 
 });
 
@@ -82,16 +82,5 @@ it('renders in the Filtered state', () => {
   const filter = getById(container, 'filter')
   fireEvent.change(filter, {target: {value: "filter"}})
   expect(filter.value).toEqual("filter");
-
-});
-
-it('renders in the List memo state', () => {
-
-  const { container, rerender } = render(
-    <Table id="test_table" />
-  );
-  expect(getById(container, 'test_table')).toBeDefined();
-
-  rerender(<Table id="test_table" />);
 
 });

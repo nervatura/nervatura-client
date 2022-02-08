@@ -1,3 +1,15 @@
+.responsive {
+  display: grid; 
+  width: 100%;
+}
+
+.tableWrap {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .sort {
   cursor: pointer;
   cursor: hand;
@@ -8,19 +20,19 @@
   font-size: 0.5em;
 }
 
-.sort-none:after {
+.sortNone:after {
   padding-left: 0.5em;
   font-size: 1em;
 }
 
-.sort-asc:after {
-  content: '▼';
+.sortAsc:after {
+  content: '▲';
   font-size: 14px;
   color: var(--warning);
 }
 
-.sort-desc:after {
-  content: '▲';
+.sortDesc:after {
+  content: '▼';
   font-size: 14px;
   color: var(--warning);
 }
@@ -29,42 +41,40 @@
   margin-left: 0.5em;
 }
 
-.number-cell {
+.numberCell {
   text-align: right;
 }
 
-.link-cell {
+.linkCell {
   color: var(--info);
   cursor: pointer;
 }
 
-.link-cell:hover {
+.linkCell:hover {
   text-decoration: underline;
 }
 
-.ui-table table {
+.uiTable {
   overflow-x: auto;
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
-  display: table;
   font-size: 14px;
 }
 
-.ui-table tbody th, .ui-table tbody td {
+.uiTable tbody th, .uiTable tbody td {
   vertical-align: top;
 }
 
-.ui-table tbody tr:hover {
+.uiTable tbody tr:hover {
   color: var(--warning);
 }
 
-.ui-table th:hover {
+.uiTable th:hover {
   color: var(--warning);
 }
 
-.ui-table td .cell-label,
-.ui-table th .cell-label { 
+.cellLabel { 
 	display: none;
   font-weight: bold;
   font-size: 12px;
@@ -72,27 +82,26 @@
 /* Mobile first styles: Begin with the stacked presentation at narrow widths */ 
 @media only all {
 	/* Hide the table headers */ 
-	.ui-table thead td, 
-	.ui-table thead th {
+	.uiTable thead td, 
+	.uiTable thead th {
 		display: none;
     font-size: 13px;
     background-color: rgba(var(--secondary-rgb),0.3);
     white-space: nowrap;
 	}
 	/* Show the table cells as a block level element */ 
-	.ui-table td,
-	.ui-table th { 
+	.uiTable td,
+	.uiTable th { 
 		text-align: left;
 		display: block;
     padding: 8px;
 	}
 	/* Add a fair amount of top margin to visually separate each row when stacked */  
-	.ui-table tbody th {
+	.uiTable tbody th {
 		margin-top: 3em;
 	}
 	/* Make the label elements a percentage width */ 
-	.ui-table td .cell-label,
-	.ui-table th .cell-label { 
+	.cellLabel { 
 		padding: 4px 6px;
 		min-width: 30%; 
 		display: inline-block;
@@ -102,26 +111,25 @@
 /* Breakpoint to show as a standard table at 560px (35em x 16px) or wider */ 
 @media ( min-width: 35em ) {
 	/* Show the table header rows */ 
-	.ui-table td,
-	.ui-table th,
-	.ui-table tbody th,
-	.ui-table tbody td,
-	.ui-table thead td,
-	.ui-table thead th {
+	.uiTable td,
+	.uiTable th,
+	.uiTable tbody th,
+	.uiTable tbody td,
+	.uiTable thead td,
+	.uiTable thead th {
 		display: table-cell;
     margin: 0;
 	}
 	/* Hide the labels in each cell */ 
-	.ui-table td .cell-label,
-	.ui-table th .cell-label { 
+  .cellLabel { 
 		display: none;
 	}
 }
 /* Hack to make IE9 and WP7.5 treat cells like block level elements, scoped to ui-responsive class */ 
 /* Applied in a max-width media query up to the table layout breakpoint so we don't need to negate this*/ 
 @media ( max-width: 35em ) {
-	.ui-table td,
-	.ui-table th {
+	.uiTable td,
+	.uiTable th {
 		width: 100%;
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
@@ -132,28 +140,22 @@
     padding: 4px 6px;
     line-height: 11.5px;
 	}
-  .number-cell {
+  .numberCell {
     text-align: left;
   }
 }
 
-.cursor-pointer {
+.cursorPointer {
   cursor: pointer;
 }
 
-.cursor-disabled {
+.cursorDisabled {
   cursor: not-allowed;
 }
 
-.ui-table input {
+.filterInput {
   width: 100%;
   border-radius: 0px!important;
-  margin-top: 1px;
-  margin-bottom: 2px;
-}
-
-.border-button {
-  margin-left: 1px;
   margin-top: 1px;
   margin-bottom: 2px;
 }
@@ -161,8 +163,15 @@
 .addButton {
   border-radius: 0px!important;
   padding: 8px 16px;
+  margin-left: 1px;
+  margin-top: 1px;
+  margin-bottom: 2px;
 }
 
 .addLabel {
   padding-left: 4px;
+}
+
+.middle {
+  vertical-align: middle;
 }

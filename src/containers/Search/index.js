@@ -16,7 +16,7 @@ const Search = (props) => {
   const { data, setData } = useContext(AppStore);
   const search = searchActions(data, setData)
   const app = appActions(data, setData)
-
+  
   const [state] = useState(update(props, {$merge: {
     engine: data.login.data.engine,
     login: data.login.data,
@@ -52,8 +52,8 @@ const Search = (props) => {
 
   state.quickView = (qview) => {
     setData(state.key, { seltype: "selector",
-      result: [], qview: qview, qfilter: "", page: 1 })
-    setData("current", { side: app.getSideBar() })
+      result: [], qview: qview, qfilter: "", page: 0 })
+    setData("current", { side: "hide" })
   }
 
   state.editRow = (row, rowIndex) => {
@@ -243,7 +243,7 @@ const Search = (props) => {
     if(view.error){
       return app.resultError(view)
     }
-    setData(state.key, { result: view.result, qfilter: filter, page: 1 })
+    setData(state.key, { result: view.result, qfilter: filter, page: 0 })
   }
 
   state.browserView = async () => {
@@ -294,7 +294,7 @@ const Search = (props) => {
     if(view.error){
       return app.resultError(view)
     }
-    setData(state.key, { result: view.result, dropdown: "", page: 1 })
+    setData(state.key, { result: view.result, dropdown: "", page: 0 })
   }
 
   state.showTotal = (fields, total) => {

@@ -37,10 +37,7 @@ const Template = (props) => {
     if(app[fname]){
       return app[fname](...params)  
     }
-    if(template[fname]){
-      return template[fname](...params, state.data)  
-    }
-    state[fname](...params)
+    template[fname](...params)  
   }
 
   if(state.data.template){

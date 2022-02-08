@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, queryByAttribute } from '@testing-library/react'
+import { render, queryByAttribute, fireEvent } from '@testing-library/react'
 import update from 'immutability-helper';
 
 import Template from './index';
@@ -18,6 +18,9 @@ const getById = queryByAttribute.bind(null, 'id');
 const store = update(app_store, {$merge: {
   template: {
     ...EditorData.args.data,
+  },
+  current: {
+    content: { type: '_sample' }
   }
 }})
 
@@ -25,10 +28,12 @@ describe('<Template />', () => {
   beforeEach(() => {
     appActions.mockReturnValue({
       getText: EditorData.args.getText,
+      showHelp: jest.fn(),
     })
     templateActions.mockReturnValue({
       createMap: jest.fn(),
-      goNext: jest.fn()
+      goNext: jest.fn(),
+      setTemplate: jest.fn(),
     })
   });
   
@@ -37,7 +42,7 @@ describe('<Template />', () => {
   });
 
   it('renders in the Template state', () => {
-    const setData = jest.fn()
+    const setData = jest.fn((key, data, callback)=>{ if(callback){callback()} })
 
     const { container, rerender } = render(
       <AppProvider value={{ data: store, setData: setData }}>
@@ -46,11 +51,29 @@ describe('<Template />', () => {
     );
     expect(getById(container, 'template')).toBeDefined();
 
+    //onEvent - app
+    const cmd_help = getById(container, 'cmd_help')
+    fireEvent.click(cmd_help)
+
     rerender(
       <AppProvider value={{ data: store, setData: setData }}>
         <Template />
       </AppProvider>
     )
+  });
+
+  it('renders in the Empty state', () => {
+    const setData = jest.fn()
+    const it_store = update(app_store, {$merge: {
+      template: {
+      }
+    }})
+    render(
+      <AppProvider value={{ data: it_store, setData: setData }}>
+        <Template />
+      </AppProvider>
+    );
+
   });
 
 })

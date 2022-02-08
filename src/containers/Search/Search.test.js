@@ -39,7 +39,6 @@ describe('<Search />', () => {
       requestData: jest.fn(async () => ({})),
       resultError: jest.fn(),
       saveBookmark: jest.fn(),
-      getSideBar: jest.fn(),
       quickSearch: jest.fn(async () => ({})),
       getDataFilter: jest.fn(() => ([""])),
       getUserFilter: jest.fn(() => ({ where: [""], params:[] })),
@@ -70,7 +69,7 @@ describe('<Search />', () => {
         vkey: null, 
         qview: "customer", 
         qfilter: "", 
-        page: 1
+        page: 0
       }}
     })
 
@@ -130,7 +129,6 @@ describe('<Search />', () => {
       requestData: jest.fn(async () => ({})),
       resultError: jest.fn(),
       saveBookmark: jest.fn(),
-      getSideBar: jest.fn(),
       quickSearch: jest.fn(async () => ({ error: {} })),
       getDataFilter: jest.fn(),
       getUserFilter: jest.fn(),
@@ -151,7 +149,7 @@ describe('<Search />', () => {
         vkey: null, 
         qview: "servercmd", 
         qfilter: "", 
-        page: 1,
+        page: 0,
         group_key: "office"
       }}
     })
@@ -231,14 +229,14 @@ describe('<Search />', () => {
     fireEvent.click(btn_columns)
     expect(setData).toHaveBeenCalledTimes(4);
 
-    //onPage
-    const page_2 = screen.getByText("2")
-    fireEvent.click(page_2)
-    expect(setData).toHaveBeenCalledTimes(5);
-
     //onEdit
     const row_item = getById(container, 'edit_customer//2')
     fireEvent.click(row_item)
+    expect(setData).toHaveBeenCalledTimes(5);
+
+    //onPage
+    const page_2 = screen.getByText("2")
+    fireEvent.click(page_2)
     expect(setData).toHaveBeenCalledTimes(6);
     
     global.Storage.prototype.getItem.mockReset()
@@ -287,7 +285,8 @@ describe('<Search />', () => {
     const it_store = update(store, {
       search: {$merge: {
         seltype: "browser",
-        ...Filters.args.data
+        ...Filters.args.data,
+        page: 0
       }}
     })
     const { container } = render(

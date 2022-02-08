@@ -1,7 +1,7 @@
 import { render, queryByAttribute, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { Default, List, ReadOnly, Empty, DeleteOnly } from './View.stories';
+import { Default, List, ReadOnly, Empty, DeleteOnly, ReadOnlyList } from './View.stories';
 
 const getById = queryByAttribute.bind(null, 'id');
 
@@ -57,10 +57,6 @@ it('renders in the ReadOnly state', () => {
   );
   expect(getById(container, "test_editor")).toBeDefined();
 
-  const btn_add = getById(container, 'btn_add')
-  fireEvent.click(btn_add)
-  expect(onEvent).toHaveBeenCalledTimes(0);
-
 })
 
 it('renders in the Empty state', () => {
@@ -74,6 +70,14 @@ it('renders in the Empty state', () => {
 it('renders in the DeleteOnly state', () => {
   const { container } = render(
     <DeleteOnly {...DeleteOnly.args} id="test_editor" />
+  );
+  expect(getById(container, "test_editor")).toBeDefined();
+
+})
+
+it('renders in the ReadOnlyList state', () => {
+  const { container } = render(
+    <ReadOnlyList {...ReadOnlyList.args} id="test_editor" />
   );
   expect(getById(container, "test_editor")).toBeDefined();
 

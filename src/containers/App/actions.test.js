@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { queryByAttribute } from '@testing-library/react'
 import ReactDOM from 'react-dom';
 import update from 'immutability-helper';
@@ -5,6 +6,7 @@ import update from 'immutability-helper';
 import { store as app_store  } from 'config/app'
 import { request, guid, saveToDisk, getSql, appActions } from './actions'
 import { toast } from 'react-toastify';
+import InputBox from 'components/Modal/InputBox'
 
 jest.mock("react-toastify");
 
@@ -459,19 +461,6 @@ describe('appActions', () => {
 
   });
 
-  it('getSideBar', () => {
-    const setData = jest.fn()
-    
-    let value = appActions(app_store, setData).getSideBar()
-    expect(value).toBe("show");
-    value = appActions(app_store, setData).getSideBar("auto")
-    expect(value).toBe("show");
-    value = appActions(app_store, setData).getSideBar("show")
-    expect(value).toBe("hide");
-    value = appActions(app_store, setData).getSideBar("hide")
-    expect(value).toBe("show");
-  });
-
   it('getAuditFilter', () => {
     const setData = jest.fn()
     const it_store = update(app_store, {
@@ -733,7 +722,10 @@ describe('appActions', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const container = document.createElement('div');
-        ReactDOM.render(data.modalForm, container);
+        ReactDOM.render(
+          <Suspense fallback={<InputBox {...data.modalForm.props} />}>
+            {data.modalForm}
+          </Suspense>, container);
 
         // onOK
         const btn_ok = getById(container, 'btn_ok')
@@ -790,7 +782,10 @@ describe('appActions', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const container = document.createElement('div');
-        ReactDOM.render(data.modalForm, container);
+        ReactDOM.render(
+          <Suspense fallback={<InputBox {...data.modalForm.props} />}>
+            {data.modalForm}
+          </Suspense>, container);
 
         // onOK
         const btn_ok = getById(container, 'btn_ok')
@@ -844,7 +839,10 @@ describe('appActions', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const container = document.createElement('div');
-        ReactDOM.render(data.modalForm, container);
+        ReactDOM.render(
+          <Suspense fallback={<InputBox {...data.modalForm.props} />}>
+            {data.modalForm}
+          </Suspense>, container);
 
         // onOK
         const btn_ok = getById(container, 'btn_ok')
@@ -898,7 +896,10 @@ describe('appActions', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const container = document.createElement('div');
-        ReactDOM.render(data.modalForm, container);
+        ReactDOM.render(
+          <Suspense fallback={<InputBox {...data.modalForm.props} />}>
+            {data.modalForm}
+          </Suspense>, container);
 
         // onOK
         const btn_ok = getById(container, 'btn_ok')
@@ -945,7 +946,10 @@ describe('appActions', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if((key === "current") && data.modalForm ){
         const container = document.createElement('div');
-        ReactDOM.render(data.modalForm, container);
+        ReactDOM.render(
+          <Suspense fallback={<InputBox {...data.modalForm.props} />}>
+            {data.modalForm}
+          </Suspense>, container);
 
         // onOK
         const btn_ok = getById(container, 'btn_ok')
@@ -1112,15 +1116,15 @@ describe('appActions', () => {
         }
       }},
     })
-    const formProps = appActions(it_store, setData).onSelector("customer", "", setSelector)
+    const formProps = await appActions(it_store, setData).onSelector("customer", "", setSelector)
     formProps.onSearch("")
     formProps.onClose()
     formProps.onSelect({},"")
-    expect(setData).toHaveBeenCalledTimes(4);
+    expect(setData).toHaveBeenCalledTimes(3);
     expect(setSelector).toHaveBeenCalledTimes(1);
   })
 
-  it('onSelector error', () => {
+  it('onSelector error', async () => {
     const res = new Response('{"code":400, "message":"errordata"}', {
       status: 400,
       headers: {
@@ -1144,9 +1148,9 @@ describe('appActions', () => {
         }
       }},
     })
-    const formProps = appActions(it_store, setData).onSelector("customer", "", setSelector)
+    const formProps = await appActions(it_store, setData).onSelector("customer", "", setSelector)
     formProps.onSearch("")
-    expect(setData).toHaveBeenCalledTimes(2);
+    expect(setData).toHaveBeenCalledTimes(1);
   })
 
 })

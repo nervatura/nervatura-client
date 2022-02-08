@@ -31,7 +31,6 @@ describe('<MenuBar />', () => {
 
   beforeEach(() => {
     appActions.mockReturnValue({
-      getSideBar: jest.fn(),
       getText: jest.fn(),
       signOut: jest.fn(),
       showHelp: jest.fn(),
@@ -52,7 +51,7 @@ describe('<MenuBar />', () => {
     const setData = jest.fn((key, data, callback)=>{ 
       if(callback){callback()} 
     })
-    const it_store = update(store, {
+    let it_store = update(store, {
       current: {$merge: {
         scrollTop: true
       }}
@@ -89,11 +88,19 @@ describe('<MenuBar />', () => {
     fireEvent.click(mnu_edit_large)
     expect(setData).toHaveBeenCalledTimes(5);
 
+
+    it_store = update(it_store, {
+      current: {$merge: {
+        side: "show"
+      }}
+    })
     rerender(
       <AppProvider value={{ data: it_store, setData: setData }}>
         <MenuBar />
       </AppProvider>
     )
+    fireEvent.click(mnu_sidebar)
+    expect(setData).toHaveBeenCalledTimes(6);
   });
 
   it('showBookmarks - bookmark', () => {

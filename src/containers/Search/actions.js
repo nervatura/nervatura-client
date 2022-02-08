@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import { formatISO } from 'date-fns'
+import formatISO from 'date-fns/formatISO'
 
 import { getSql, appActions, request } from 'containers/App/actions'
 import { Queries } from 'containers/Controller/Queries'
@@ -11,7 +11,7 @@ export const searchActions = (data, setData) => {
 
   const showBrowser = (vkey, view, search_data) => {
     search_data = search_data || data.search
-    setData("current", { side: app.getSideBar() }, async ()=>{
+    setData("current", { side: "hide" }, async ()=>{
       let search = update(search_data, {$merge: {
         seltype: "browser",
         vkey: vkey, 
@@ -20,7 +20,7 @@ export const searchActions = (data, setData) => {
         show_dropdown: false,
         show_header: (typeof search_data.show_header === "undefined") ? true : search_data.show_header,
         show_columns: (typeof search_data.show_columns === "undefined") ? false : search_data.show_columns,
-        page: search_data.page || 1,
+        page: search_data.page || 0,
       }})
       let views = [
         { key: "deffield",

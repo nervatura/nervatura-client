@@ -7,8 +7,8 @@ const publicHost = "nervatura.github.io"
 const basePath = "/api"
 
 const calendarLocales = [
-  ["de", "de"], ["en", "en"], ["es", "es"], 
-  ["fr", "fr"], ["it", "it"], ["pt", "pt"], 
+  ["de", "German"], ["en", "en"], ["es", "Spanish"], 
+  ["fr", "French"], ["it", "Italian"], ["pt", "Portuguese"], 
 ]
 
 export const DECIMAL_SEPARATOR = {
@@ -26,7 +26,7 @@ export const store = {
     proxy: process.env.REACT_APP_PROXY||"",
     apiPath: "/api",
     engines: ["sqlite", "sqlite3", "mysql", "postgres", "mssql"],
-    service: ["dev", "5.0.0-beta.15", "5.0.0-beta.16", "5.0.0-beta.17", "5.0.0-beta.18"],
+    service: ["dev", "5.0.0-beta.17", "5.0.0-beta.18", "5.0.0-beta.19"],
     helpPage: "https://nervatura.github.io/nervatura/docs/"
   },
   ui: {

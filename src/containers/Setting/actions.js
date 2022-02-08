@@ -1,5 +1,4 @@
 import update from 'immutability-helper';
-import { format } from 'date-fns'
 
 import { appActions, getSql } from 'containers/App/actions'
 import { Sql } from 'containers/Controller/Sql'
@@ -110,7 +109,7 @@ export const settingActions = (data, setData) => {
       }
     }
     setData("setting", setting)
-    setData("current", { module: "setting" })
+    setData("current", { module: "setting", side: "hide" })
   }
 
   const changePassword = async () => {
@@ -199,10 +198,11 @@ export const settingActions = (data, setData) => {
         delete: (audit !== "all") ? null : form.view.setting.actions.delete
       },
       audit: audit,
-      template: null
+      template: null,
+      page: (data.setting.type === options.type) ? data.setting.page || 0 : 0
     }})
     setData("setting", setting)
-    setData("current", { module: "setting" })
+    setData("current", { module: "setting", side: "hide" })
     if(((options.type === "usergroup") || (options.type === "ui_menu")) && options.id) {
       setViewActions({action: "editItem", setting: setting}, { id: options.id })
     } else if(typeof options.id !== "undefined"){
@@ -361,7 +361,8 @@ export const settingActions = (data, setData) => {
             }
           })
         }}
-      /> 
+      />,
+      side: "hide"
     })
   }
 
@@ -500,7 +501,8 @@ export const settingActions = (data, setData) => {
               return cbNext(cbKeyFalse)
             })
           }}
-        /> 
+        />,
+        side: "hide"
       })
     } else if (cbKeyFalse) {
       cbNext(cbKeyFalse);
@@ -691,48 +693,64 @@ export const settingActions = (data, setData) => {
     }
   }
 
-  const createTemplate = () => {
-    let reportkey = data.template.template.meta.nervatype;
-    if (reportkey === "trans") {
-      reportkey = data.template.template.meta.transtype+"_"+data.template.template.meta.direction;
+  const editItem = (options) => {
+    let settings = update({}, {$set: data.setting})
+    if(settings.type === "program"){
+      settings = update(settings, {current: {form: {$merge: {
+        [options.name]: options.value
+      }}}})
+      localStorage.setItem(options.name, options.value)
+    } else if(options.name === "log_search"){
+      loadLog()
+    } else {
+      if((settings.audit==="all") || (settings.audit==="update")){
+        settings = update(settings, {$merge: {
+          dirty: true
+        }})
+      }
+      if((options.name === "fieldvalue_value") || (options.name === "fieldvalue_notes")){
+        settings = update(settings, {current: {fieldvalue: {$merge: {
+          [options.name]: options.value
+        }}}})
+        settings = update(settings, {current: {form: {$merge: {
+          [options.name.split("_")[1]]: options.value.toString()
+        }}}})
+      } else {
+        settings = update(settings, {current: {form: {$merge: {
+          [options.name]: options.value
+        }}}})
+      }
     }
-    reportkey += "_"+format(new Date(),"yyyyMMddHHmm")
-    setData("current", { modalForm: 
-      <InputBox 
-        title={app.getText("template_label_new")}
-        message={reportkey}
-        value={data.template.repname} showValue={true}
-        labelOK={app.getText("msg_ok")}
-        labelCancel={app.getText("msg_cancel")}
-        onCancel={() => {
-          setData("current", { modalForm: null })
-        }}
-        onOK={(value) => {
-          setData("current", { modalForm: null }, async ()=>{
-            const template = update(data.template.template, {
-              meta: {$merge: {
-                reportkey: reportkey,
-                repname: value
-              }}
-            })
-            let values = update(tableValues("report", data.template.dbtemp), {$merge: {
-              id: null,
-              reportkey: reportkey,
-              repname: value,
-              report: JSON.stringify(template)
-            }})
-            values = update(values, {
-              $unset: ["orientation", "size"]
-            })
-            let result = await app.requestData("/ui_report", { method: "POST", data: [values] })
-            if(result.error){
-              return app.resultError(result)
-            }
-            checkSetting({ type: "template", id: result[0] }, 'LOAD_SETTING')
-          })
-        }}
-      /> 
+    setData("setting", settings)
+  }
+
+  const setPassword = (username) =>{
+    if(!username && data.edit.current){
+      username = data.edit.dataset[data.edit.current.type][0].username
+    }
+    checkSetting({ username: username }, "PASSWORD_FORM")
+  }
+
+  const settingSave = () => {
+    setData("current", { side: "hide" }, async ()=>{
+      if(data.setting.type === "password"){
+        changePassword()
+      } else {
+        const result = await saveSetting()
+        if(result){
+          loadSetting({type: result.type, id: result.current.form.id})
+        }
+      }
     })
+  }
+
+  const settingBack = (back_type) => {
+    if(data.setting.type === "password"){
+      return setData(data.current.module, { group_key: "group_admin" }, ()=>{
+        loadSetting({ type: 'setting' })
+      })
+    }
+    checkSetting({ type: back_type || data.setting.type }, 'LOAD_SETTING')
   }
 
   return {
@@ -745,6 +763,9 @@ export const settingActions = (data, setData) => {
     setProgramForm: setProgramForm,
     deleteSetting: deleteSetting,
     loadLog: loadLog,
-    createTemplate: createTemplate
+    editItem: editItem,
+    setPassword: setPassword,
+    settingSave: settingSave,
+    settingBack: settingBack
   }
 }

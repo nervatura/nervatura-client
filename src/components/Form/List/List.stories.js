@@ -23,7 +23,7 @@ Default.args = {
     { lslabel: "Label 9", lsvalue: "Value row 9"}
   ],
   listFilter: false,
-  paginationPage: 0,
+  paginationPage: 10,
   onEdit: undefined,
   onAddItem: null,
   onDelete: null
@@ -36,6 +36,7 @@ TopPagination.args = {
   paginationPage: 5,
   paginationTop: true,
   paginatonScroll: true,
+  hidePaginatonSize: false,
   listFilter: false,
   labelAdd: "Add new",
   onEdit: undefined,
@@ -47,9 +48,10 @@ export const BottomPagination = Template.bind({});
 BottomPagination.args = {
   ...Default.args,
   paginationPage: 5,
-  currentPage: 2,
+  currentPage: 1,
   paginationTop: false,
   paginatonScroll: false,
+  hidePaginatonSize: true,
   listFilter: true,
   filterPlaceholder: "Placeholder text",
   onEdit: undefined,

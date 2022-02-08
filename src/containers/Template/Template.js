@@ -36,7 +36,7 @@ TemplateView.defaultProps = {
 export default memo(TemplateView, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.current === nextProps.current)
+    (prevProps.current.side === nextProps.current.side)
   )
 })
 

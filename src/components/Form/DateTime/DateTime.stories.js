@@ -1,5 +1,5 @@
 import { DateTime } from "./DateTime";
-import { formatISO } from 'date-fns'
+import formatISO from 'date-fns/formatISO'
 
 export default {
   title: "Form/DateTime",
@@ -12,7 +12,6 @@ export const Default = Template.bind({});
 Default.args = {
   className: "light",
   value: formatISO(new Date()),
-  placeholder: undefined,
   dateTime: true,
   isEmpty: true,
   showTimeSelectOnly: false,
@@ -25,6 +24,7 @@ DateInput.args = {
   value: formatISO(new Date(), { representation: 'date' }),
   dateTime: false,
   isEmpty: false,
+  locale: "de"
 }
 
 export const TimeInput = Template.bind({});
@@ -32,11 +32,4 @@ TimeInput.args = {
   ...Default.args,
   value: formatISO(new Date(), { representation: 'time' }),
   showTimeSelectOnly: true,
-}
-
-export const Placeholder = Template.bind({});
-Placeholder.args = {
-  ...Default.args,
-  value: null,
-  placeholder: "placeholder value",
 }

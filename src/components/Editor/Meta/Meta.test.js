@@ -45,6 +45,9 @@ it('renders in the NewField state', () => {
   fireEvent.click(page_2)
   expect(onEvent).toHaveBeenCalledTimes(2);
 
+  const sel_page_size = getById(container, 'sel_page_size')
+  fireEvent.change(sel_page_size, {target: {value: "50"}})
+
 })
 
 it('renders in the Customer state', () => {
@@ -56,16 +59,16 @@ it('renders in the Customer state', () => {
 })
 
 it('renders in the ReadOnly state', () => {
-  const { container, rerender } = render(
+  const { container } = render(
     <ReadOnly {...ReadOnly.args} id="test_editor" />
   );
   expect(getById(container, "test_editor")).toBeDefined();
 
-  rerender(<ReadOnly {...ReadOnly.args} id="test_editor"
+  render(<ReadOnly {...ReadOnly.args} id="test_editor"
     current={{
       ...Default.args.current,
-      pagination: { page: 1, perPage: 2 },
     }}
+    paginationPage={2}
   />)
 
 })

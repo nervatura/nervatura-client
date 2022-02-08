@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import { format, isValid, parseISO, formatISO } from 'date-fns'
+import formatISO from 'date-fns/formatISO'
+import isValid from 'date-fns/isValid'
+import parseISO from 'date-fns/parseISO'
+import format from 'date-fns/format'
 
 import Icon from 'components/Form/Icon'
 import DateTime from 'components/Form/DateTime'

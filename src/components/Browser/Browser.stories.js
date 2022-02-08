@@ -61,7 +61,7 @@ Default.args = {
       { description: "Sample bool", fieldname: "sample_customer_bool", fieldtype: "bool", id: 60 },
       { description: "Sample integer", fieldname: "sample_customer_integer", fieldtype: "integer", id: 55 },
     ], 
-    page: 1,
+    page: 0,
   },
   keyMap: Queries({ getText: getText }).customer(),
   viewDef: Queries({ getText: getText }).customer().CustomerView,
@@ -196,7 +196,7 @@ HavingFilter.args = {
     deffield: [
       { description: "Ref.No.", fieldname: "trans_transitem_link", fieldtype: "transitem", id: 1 }
     ], 
-    page: 1,
+    page: 0,
   },
   keyMap: Queries({ getText: getText }).transmovement(),
   viewDef: Queries({ getText: getText }).transmovement().InventoryView,
@@ -224,7 +224,7 @@ FormActions.args = {
       RateView: []
     },
     deffield: [], 
-    page: 1,
+    page: 0,
   },
   keyMap: Queries({ getText: getText }).rate(),
   viewDef: Queries({ getText: getText }).rate().RateView,

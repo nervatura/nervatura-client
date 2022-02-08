@@ -1,32 +1,30 @@
-import { memo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useTable, usePagination } from 'react-table'
 
 import 'styles/style.css';
 import styles from './List.module.css';
 
 import { getSetting } from 'config/app'
-import Paginator, { paginate } from 'components/Form/Paginator/Paginator';
 import Icon from 'components/Form/Icon'
 import Button from 'components/Form/Button'
 import Label from 'components/Form/Label'
 import Input from 'components/Form/Input'
+import Pagination from 'components/Form/Pagination'
 
 export const ListView = ({
   rows, labelAdd, addIcon, editIcon, deleteIcon,
   listFilter, filterPlaceholder, filterValue,
-  currentPage, paginationPage, paginationTop, paginatonScroll, 
+  currentPage, paginationPage, paginationTop, paginatonScroll, hidePaginatonSize,
   onEdit, onAddItem, onDelete, onCurrentPage,
   ...props 
 }) => {
   const [ state, setState ] = useState({
-    pagination: {
-      page: currentPage,
-      perPage: paginationPage
-    },
     filter: filterValue,
   })
 
-  const rowFilter = () => {
+  const columns = useMemo(() => [ { accessor: "list" } ],[])
+  const data = useMemo(() => {
     const getValidRow = (row, filter)=>{
       if(String(row.lslabel).toLowerCase().indexOf(filter)>-1 || 
         String(row.lsvalue).toLowerCase().indexOf(filter)>-1){
@@ -46,44 +44,48 @@ export const ListView = ({
     } else {
       return rows
     }
-  }
+  } , [rows, state.filter])
 
-  const onSelect = (page) => {
-    const pages = Math.ceil(
-      rows.length / state.pagination.perPage
-    );
-    const _page = Math.min(Math.max(page, 1), pages)
-    setState({
-      ...state,
-      pagination: Object.assign({}, state.pagination, {
-        page: _page
-      })
-    });
+  const { prepareRow, page, canPreviousPage, canNextPage, pageCount,
+    gotoPage, nextPage, previousPage, setPageSize,
+    state: { pageIndex, pageSize },
+  } = useTable(
+    { columns, data,
+      initialState: { pageIndex: currentPage, pageSize: paginationPage },
+    },
+    usePagination
+  )
+
+  const onPagination = (key, args) => {
+    const pevents = {
+      gotoPage: gotoPage, nextPage: nextPage, previousPage: previousPage, setPageSize: setPageSize
+    }
+    pevents[key](...args)
     if(paginatonScroll){
       window.scrollTo(0,0);
     }
-    if(onCurrentPage){
-      onCurrentPage(_page)
+    if(onCurrentPage && (key !== "setPageSize")){
+      onCurrentPage(args[0])
     }
   }
 
-  const listRows = (state.pagination.perPage > 0) 
-    ? paginate(state.pagination)(rowFilter()) : { amount: undefined, rows: rowFilter() }
-  const showPaginator = ((typeof listRows.amount !== "undefined") && (listRows.amount > 1)) ? true : false
+  const showPaginator = (pageCount > 1)
   return (
     <div {...props}>
-      {(listFilter || (showPaginator && paginationTop))?<div className="padding-tiny">
+      {(listFilter || (showPaginator && paginationTop))?<div>
         {(showPaginator && paginationTop) ?
-          <Paginator page={listRows.page+1} pages={listRows.amount} onSelect={onSelect} />:null}
+          <Pagination pageIndex={pageIndex} pageSize={pageSize} pageCount={pageCount} 
+            canPreviousPage={canPreviousPage} canNextPage={canNextPage} hidePageSize={hidePaginatonSize}
+            onEvent={onPagination} />:null}
         {(listFilter) ? <div className="row full">
           <div className="cell" >
-            <Input id="filter" type="text" className="full"
+            <Input id="filter" type="text" className={styles.filterInput}
               placeholder={filterPlaceholder} value={state.filter}
               onChange={(value) => setState({ ...state, filter: value })} />
           </div>
           {(onAddItem)?<div className="cell" style={{width:20}} >
             <Button id="btn_add" 
-              className={`${"border-button"} ${"addButton"}`}
+              className={`${"border-button"} ${styles.addButton}`}
               value={<Label className="addLabel" 
                 leftIcon={addIcon} value={labelAdd} />} 
               onClick={(event)=>onAddItem(event)} />
@@ -91,30 +93,35 @@ export const ListView = ({
         </div>: null}
       </div>:null}
       <ul className={`${"list"} ${styles.list}`} >
-        {listRows.rows.map((row, index) => <li 
+        {page.map((row, index) => {
+          prepareRow(row)
+          return <li 
           key={index}
           className={`${"border-bottom"} ${styles.listRow}`} >
           {(onEdit)?<div id={`row_edit_${index}`}
-            className={`${styles.editCell}`} onClick={()=>onEdit(row)} >
+            className={`${styles.editCell}`} onClick={()=>onEdit(row.original)} >
             {editIcon}
           </div>:null}
           <div id={`row_item_${index}`}
-            className={`${styles.valueCell} ${(onEdit)?styles.cursor:""}`} onClick={()=>onEdit(row)}>
+            className={`${styles.valueCell} ${(onEdit)?styles.cursor:""}`} 
+            onClick={()=>(onEdit)?onEdit(row.original):null}>
             <div className={`${"border-bottom"} ${styles.label}`} >
-              <span>{row.lslabel}</span>
+              <span>{row.original.lslabel}</span>
             </div>
             <div className={`${styles.value}`} >
-              <span>{row.lsvalue}</span>
+              <span>{row.original.lsvalue}</span>
             </div>
           </div>
           {(onDelete)?<div id={`row_delete_${index}`}
-            className={`${styles.deleteCell}`} onClick={()=>onDelete(row)} >
+            className={`${styles.deleteCell}`} onClick={()=>onDelete(row.original)} >
             {deleteIcon}
           </div>:null}
-        </li>)}
+        </li>})}
       </ul>
       {(showPaginator && !paginationTop) ? <div className="padding-tiny">
-        <Paginator page={listRows.page+1} pages={listRows.amount} onSelect={onSelect} /></div>:null}
+        <Pagination pageIndex={pageIndex} pageSize={pageSize} pageCount={pageCount} 
+          canPreviousPage={canPreviousPage} canNextPage={canNextPage} hidePageSize={hidePaginatonSize}
+          onEvent={onPagination} /></div>:null}
     </div>
   )
 }
@@ -143,6 +150,7 @@ ListView.propTypes = {
    * Scroll to top after pagination change
    */
   paginatonScroll: PropTypes.bool.isRequired,
+  hidePaginatonSize: PropTypes.bool.isRequired,
   /**
    * Show/hide filter input 
    */ 
@@ -191,10 +199,11 @@ ListView.propTypes = {
 
 ListView.defaultProps = {
   rows: [],
-  currentPage: 1,
+  currentPage: 0,
   paginationPage: getSetting("paginationPage"),
   paginationTop: true,
   paginatonScroll: false,
+  hidePaginatonSize: false,
   listFilter: true,
   filterPlaceholder: undefined,
   filterValue: "",
@@ -208,10 +217,4 @@ ListView.defaultProps = {
   onCurrentPage: undefined
 }
 
-export default memo(ListView, (prevProps, nextProps) => {
-  return (
-    (prevProps.rows === nextProps.rows) &&
-    (prevProps.filter === nextProps.filter) &&
-    (prevProps.pagination === nextProps.pagination)
-  )
-})
+export default ListView;

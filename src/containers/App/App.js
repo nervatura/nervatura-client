@@ -30,7 +30,7 @@ class App extends Component {
       })  
     }
     window.addEventListener("scroll", this.onScroll.bind(this), {passive: true});
-    window.addEventListener('resize', this.onResize.bind(this), {passive: true})
+    //window.addEventListener('resize', this.onResize.bind(this), {passive: true})
     const [ current, params ] = this.getPath(window.location)
     if(current === "hash" && params.access_token){
       this.setHashToken(params)

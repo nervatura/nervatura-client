@@ -27,8 +27,8 @@ export const TemplateEditor = ({
 
   const getMapCtr = (type, key) => {
     const keyMap = {
-      map_edit: { data: false, report: false, header: false, footer: false, details: false, row: true, datagrid: true },
-      map_insert: { data: false, report: false, header: true, footer: true, details: true, row: true, datagrid: true }
+      map_edit: { data: false, report: false, header: false, footer: false, details: false },
+      map_insert: { header: true, footer: true, details: true, row: true, datagrid: true }
     }
     return keyMap[key][type]
   }
@@ -153,24 +153,23 @@ export const TemplateEditor = ({
 
   const tableFields = () => {
     let fields = update(current_data.fields, {$merge: {
-      delete: { columnDef: { property: "delete",
-        cell: { 
-          props: {
-            style: { width: 40, padding: "7px 8px 3px 8px" } 
-          },
-          formatters: [
-          (value, { rowData }) => {
-            return (<div 
-              className={`${"cell"} ${styles.deleteCol}`} >
-              <Icon id={"delete_"+rowData["_index"]}
-                iconKey="Times" width={19} height={27.6} 
-                onClick={(event)=>{
-                  event.stopPropagation();
-                  onEvent("deleteDataItem",[{ _index: rowData._index }])
-                }}
-                className={styles.deleteCol} />
-            </div>)
-          }] }
+      delete: { columnDef: {
+        id: "delete",
+        Header: "",
+        headerStyle: {},
+        Cell: ({ row, value }) => {
+          return (<div 
+            className={`${"cell"} ${styles.deleteCol}`} >
+            <Icon id={"delete_"+row.original["_index"]}
+              iconKey="Times" width={19} height={27.6} 
+              onClick={(event)=>{
+                event.stopPropagation();
+                onEvent("deleteDataItem",[{ _index: row.original._index }])
+              }}
+              className={styles.deleteCol} />
+          </div>)
+        },
+        cellStyle: { width: 40, padding: "7px 8px 3px 8px" }
       }}
     }})
     return fields
@@ -247,7 +246,7 @@ export const TemplateEditor = ({
                     {createMapList()}
                   </div>
                   <div className="cell padding-small third" >
-                    {(getMapCtr(current.type, "map_edit"))?<div>
+                    {(getMapCtr(current.type, "map_edit") !== false)?<div>
                       {navButton("move_up", ["moveUp",[]], "label_move_up", "ArrowUp", "full", true)}
                       {navButton("move_down", ["moveDown",[]], "label_move_down", "ArrowDown", "full", true)}
                       {navButton("delete_item", ["deleteItem",[]], "label_delete", "Times", "full", true)}

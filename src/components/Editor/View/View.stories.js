@@ -35,6 +35,25 @@ ReadOnly.args = {
   audit: "readonly",
 }
 
+export const ReadOnlyList = Template.bind({});
+ReadOnlyList.args = {
+  ...Default.args,
+  viewName: "invoice_link",
+  template: {
+    ...EditorDefault.args.template,
+    view: {
+      invoice_link: {
+        ...EditorDefault.args.template.view.invoice_link,
+        actions: {
+          new: null,
+          edit: null,
+          delete: null
+        }
+      }
+    }
+  },
+}
+
 export const Empty = Template.bind({});
 Empty.args = {
   ...Default.args,

@@ -30,12 +30,13 @@ NewField.args = {
   current: {
     ...Default.args.current,
     deffield: "trans_transitem_link",
-    pagination: { page: 1, perPage: 2 },
+    page: 0,
   },
   dataset: {
     ...Default.args.dataset,
     deffield_prop: []
-  }
+  },
+  paginationPage: 2
 }
 
 export const ReadOnly = Template.bind({});
@@ -54,7 +55,7 @@ Customer.args = {
       taxnumber: "12345678-1-12", account: null, notax: 0, terms: 8, creditlimit: 1000000,
       discount: 2, notes: null, inactive: 0, deleted: 0 },
     state: "normal",
-    pagination: { page: 1, perPage: 5 },
+    page: 0,
     fieldvalue: [
       { deleted: 0, fieldname: "sample_customer_date", id: 27, notes: "", 
         ref_id: 2, value: "2022-08-12" },

@@ -1,17 +1,11 @@
+import { lazy } from 'react'
 import update from 'immutability-helper';
 import 'whatwg-fetch';
-import { formatISO } from 'date-fns'
+import formatISO from 'date-fns/formatISO'
 
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-import InputBox from 'components/Modal/InputBox'
-import Selector from 'components/Modal/Selector'
-
+import Toastify from 'components/Form/Toastify'
 import { getText, getSetting } from 'config/app'
-import { Quick, UserFilter } from 'containers/Controller/Quick'
-
-toast.configure({});
+import { UserFilter } from 'containers/Controller/Filter'
 
 export const getSql = (engine, _sql) => {
   let prm_count = 0;
@@ -238,7 +232,7 @@ export const guid = () => {
   return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
-export const request = (url, options) => {
+export const request = async (url, options) => {
   const parseJSON = (response) => {
     if (response.status === 401)
       return { code: 401, message: "Unauthorized" }
@@ -275,9 +269,9 @@ export const request = (url, options) => {
     throw error;
   }
 
-  return fetch(url, options)
-    .then(checkStatus)
-    .then(parseJSON);
+  const fetch_response = await fetch(url, options);
+  const response = checkStatus(fetch_response);
+  return parseJSON(response);
 }
 
 export const appActions = (data, setData) => {
@@ -291,40 +285,11 @@ export const appActions = (data, setData) => {
   }
 
   const showToast = (params) => {
-    const autoClose = (params.autoClose === false) ? false : getSetting("toastTime")
-    switch (params.type) {
-      case "error":
-        toast.error(params.message, {
-          theme: "colored",
-          autoClose: autoClose,
-        });
-        break;
-      
-      case "warning":
-        toast.warning(params.message, {
-          theme: "colored",
-          autoClose: autoClose,
-        });
-        break;
-      
-      case "success":
-        toast.success(params.message, {
-          theme: "colored",
-          autoClose: autoClose,
-        });
-        break;
-      
-      case "info":
-        toast.info(params.message, {
-          theme: "colored",
-          autoClose: autoClose,
-        });
-        break;
-    
-      default:
-        toast(params.message, { autoClose: autoClose })
-        break;
-    }
+    Toastify({ 
+      toastType: params.type, 
+      message: params.message,
+      toastTime: (params.autoClose === false) ? 0 : getSetting("toastTime")
+    })
   }
 
   const resultError = (result) => {
@@ -391,14 +356,6 @@ export const appActions = (data, setData) => {
       }
       return { error: { message: err.message }, data: null }
     }
-  }
-
-  const getSideBar = (value) => {
-    const sideValue = {
-      auto: "show", show: "hide", hide: "show"
-    }
-    return (typeof sideValue[value] === "undefined") 
-      ? sideValue[data.current.side] : sideValue[value]
   }
 
   const getAuditFilter = (nervatype, transtype) => {
@@ -497,6 +454,7 @@ export const appActions = (data, setData) => {
   }
 
   const saveBookmark = (params) => {
+    const InputBox = lazy(() => import('components/Modal/InputBox'));
     setData("current", { modalForm: 
       <InputBox 
         title={getLangText("msg_bookmark_new")}
@@ -553,7 +511,7 @@ export const appActions = (data, setData) => {
             }
           })
         }}
-      /> 
+      />, side: "hide"
     })
   }
 
@@ -620,6 +578,7 @@ export const appActions = (data, setData) => {
   }
 
   const quickSearch = async (qview, qfilter) => {
+    const { Quick } = await import('containers/Controller/Quick');
     const query = Quick({ getText: getLangText })[qview](String(data.login.data.employee.usergroup))
     let _sql = update({}, {$set: query.sql})
     let params = []; let _where = []
@@ -652,7 +611,9 @@ export const appActions = (data, setData) => {
     return await requestData("/view", options)
   }
 
-  const onSelector = (selectorType, selectorFilter, setSelector) => {
+  const onSelector = async (selectorType, selectorFilter, setSelector) => {
+    const { Quick } = await import('containers/Controller/Quick');
+    const Selector = lazy(() => import('components/Modal/Selector'));
     let formProps = {
       view: selectorType, 
       columns: Quick({ getText: getLangText })[selectorType]().columns,
@@ -685,7 +646,6 @@ export const appActions = (data, setData) => {
     resultError: resultError,
     requestData: requestData,
     signOut: signOut,
-    getSideBar: getSideBar,
     createHistory: createHistory,
     loadBookmark: loadBookmark,
     saveBookmark: saveBookmark,

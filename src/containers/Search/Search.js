@@ -70,7 +70,7 @@ SearchView.defaultProps = {
 export default memo(SearchView, (prevProps, nextProps) => {
   return (
     (prevProps.data === nextProps.data) &&
-    (prevProps.current === nextProps.current) &&
+    (prevProps.current.side === nextProps.current.side) &&
     (prevProps.data.update === nextProps.data.update)
   )
 })

@@ -47,7 +47,6 @@ describe('searchActions', () => {
       getText: jest.fn((key)=>(key)),
       requestData: jest.fn(async () => ({})),
       resultError: jest.fn(),
-      getSideBar: jest.fn(),
       getAuditFilter: jest.fn(() => (["all",1])),
       showToast: jest.fn()
     })
@@ -103,7 +102,6 @@ describe('searchActions', () => {
       getText: jest.fn((key)=>(key)),
       requestData: jest.fn(async () => ({ error: {} })),
       resultError: jest.fn(),
-      getSideBar: jest.fn(),
     })
     const setData = jest.fn((key, data, callback)=>{
       if(callback){callback()}

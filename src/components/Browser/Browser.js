@@ -55,20 +55,20 @@ export const Browser = ({
     return retval
   }
   let fields = {
-    view: { columnDef: { property: "view",
-      cell: { 
-        props: {
-          style: { width: 25, padding: "7px 3px 3px 8px" } 
-        },
-        formatters: [
-        (value, { rowData }) => {
-          if(!viewDef.readonly)
-            return <Icon id={"edit_"+rowData["id"]}
-              iconKey="Edit" width={24} height={21.3} 
-              onClick={ ()=>onEvent("onEdit",['id', rowData["id"], rowData]) }
-              className={styles.editCol} />
-          return <Icon iconKey="CaretRight" width={9} height={24} />
-        }] }
+    view: { columnDef: { 
+      id: "view",
+      Header: "",
+      headerStyle: {},
+      Cell: ({ row, value }) => {
+        if(!viewDef.readonly){
+          return <Icon id={"edit_"+row.original["id"]}
+            iconKey="Edit" width={24} height={21.3} 
+            onClick={ ()=>onEvent("onEdit",['id', row.original["id"], row.original]) }
+            className={styles.editCol} />
+        }
+        return <Icon iconKey="CaretRight" width={9} height={24} />
+      },
+      cellStyle: { width: 25, padding: "7px 3px 3px 8px" }
     }}
   }
   Object.keys(viewDef.fields).forEach((fieldname) => {
@@ -135,8 +135,8 @@ export const Browser = ({
             </div>
           </div>
           {(state.header)?<div className={`${styles.filterPanel} ${"border"}`} >
-            <div className="row full section-small" >
-              <div className="cell" >
+            <div className="row full" >
+              <div className="cell top" >
                 <Button id="btn_search" 
                   className={`${"border-button"} ${styles.barButton}`} 
                   onClick={ ()=>onEvent("browserView",[]) } 
@@ -166,7 +166,7 @@ export const Browser = ({
                 />
               </div>
             </div>
-            <div className="row full section-small" >
+            <div className="row full section-small-top" >
               <div className="cell" >
                 <div className={`${styles.dropdownBox}`} >
                   <Button id="btn_views"
@@ -352,7 +352,7 @@ Browser.defaultProps = {
     columns: {},
     filters: {},
     deffield: [], 
-    page: 1,
+    page: 0,
   },
   keyMap: {},
   viewDef: {

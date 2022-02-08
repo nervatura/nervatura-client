@@ -1,34 +1,42 @@
 import PropTypes from 'prop-types';
-import DatePicker from "react-datepicker";
-import { formatISO, isValid, parseISO } from 'date-fns'
 
-import { registerLocale } from  "react-datepicker";
+import Flatpickr from "react-flatpickr";
+import formatISO from 'date-fns/formatISO'
+import isValid from 'date-fns/isValid'
+import parseISO from 'date-fns/parseISO'
+import isEqual from 'date-fns/isEqual'
 
-import { default as de } from 'date-fns/locale/de'
-import { default as en } from 'date-fns/locale/en-US'
-import { default as es } from 'date-fns/locale/es'
-import { default as fr } from 'date-fns/locale/fr'
-import { default as it } from 'date-fns/locale/it'
-import { default as pt } from 'date-fns/locale/pt'
+import { German } from "flatpickr/dist/l10n/de.js"
+import { Spanish } from "flatpickr/dist/l10n/es.js"
+import { French } from "flatpickr/dist/l10n/fr.js"
+import { Italian } from "flatpickr/dist/l10n/it.js"
+import { Portuguese } from "flatpickr/dist/l10n/pt.js"
 
-import "react-datepicker/dist/react-datepicker.css";
+import "flatpickr/dist/themes/dark.css";
 import './DateTime.css';
 
 import { getSetting } from 'config/app'
 
-const calendarLocales = [
-  [de, "de"], [en, "en"], [es, "es"], [fr, "fr"], [it, "it"], [pt, "pt"], 
+const locales = {
+  de: German, es: Spanish, fr: French, it: Italian, pt: Portuguese 
+}
+
+const dateStyle = [
+  ["yyyy-MM-dd", "Y-m-d"], 
+  ["dd-MM-yyyy", "d-m-Y"], 
+  ["MM-dd-yyyy", "m-d-Y"]
 ]
-calendarLocales.forEach(loc => {
-  registerLocale(loc[1], loc[0])
-});
 
 export const DateTime = ({ 
-  value, placeholder, dateTime, isEmpty, showTimeSelectOnly,
+  value, dateTime, isEmpty, showTimeSelectOnly,
   dateFormat, timeFormat, locale, className,
   onChange,
   ...props 
 }) => {
+  let calDateFormat = dateStyle.filter(value => (value[0] === dateFormat))[0][1]
+  if(dateTime){
+    calDateFormat += " H:i"
+  }
   const selectedDate = () => {
     let dateValue = (value) ? parseISO(value) : null
     if(value && !isValid(dateValue) && showTimeSelectOnly){
@@ -37,38 +45,39 @@ export const DateTime = ({
     return dateValue
   } 
 
-  const setValue = ( input ) => {
+  const setValue = ( selectedDate ) => {
     if(onChange){
-      if(input === null){
+      if(typeof selectedDate === "undefined"){
         if(isEmpty){
           return onChange(null)
         }
         return onChange(value)
       }
       if(showTimeSelectOnly){
-        return onChange(formatISO(input, { representation: 'time' }))  
+        return onChange(formatISO(selectedDate, { representation: 'time' }))  
       }
       if(!dateTime){
-        return onChange(formatISO(input, { representation: 'date' }))  
+        return onChange(formatISO(selectedDate, { representation: 'date' }))  
       }
-      return onChange(formatISO(input))
+      return onChange(formatISO(selectedDate))
     }
   }
-
   return(
-    <DatePicker
-      className={`${className}`} 
-      selected={selectedDate()}
-      placeholderText={placeholder}
-      dateFormat={(showTimeSelectOnly) ? timeFormat : 
-        (dateTime) ? dateFormat+" "+timeFormat : dateFormat}
-      timeFormat={timeFormat}
-      showTimeSelect={(dateTime || showTimeSelectOnly)}
-      showTimeSelectOnly={showTimeSelectOnly}
-      locale={locale}
-      isClearable={isEmpty}
-      onChange={(value) => setValue( value )}
-      {...props}
+    <Flatpickr {...props} className={`${className}`}
+      options={{ 
+        allowInput: true, 
+        time_24hr: true,
+        enableTime: (dateTime || showTimeSelectOnly),
+        noCalendar: showTimeSelectOnly,
+        locale: (locale !== "en") ? locales[locale] : null,
+        dateFormat: calDateFormat,
+        onChange: (selectedDates) => {
+          if(!isEqual(selectedDates[0], selectedDate())){
+            setValue( selectedDates[0] )
+          }
+        }
+      }}
+      value={selectedDate()}
     />
   )
 }
@@ -78,10 +87,6 @@ DateTime.propTypes = {
    * Calendar selected value
    */
   value: PropTypes.string,
-  /**
-   * Input box placeholder text
-   */
-  placeholder: PropTypes.string,
   /**
    * Date or Datetime input
    */ 
@@ -114,7 +119,6 @@ DateTime.propTypes = {
 
 DateTime.defaultProps = {
   value: undefined,
-  placeholder: undefined,
   dateTime: true,
   isEmpty: true,
   showTimeSelectOnly: false,

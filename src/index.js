@@ -9,11 +9,11 @@ import { ClearCacheProvider } from 'react-clear-cache';
 import App from './containers/App';
 
 ReactDOM.render(
-    //<React.StrictMode>
+    <React.StrictMode>
       <ClearCacheProvider duration={5000} auto={true} basePath={window.location.pathname}>
         <App />
-      </ClearCacheProvider>,
-    //</React.StrictMode>, 
+      </ClearCacheProvider>
+    </React.StrictMode>, 
   document.getElementById('root')
 );
 

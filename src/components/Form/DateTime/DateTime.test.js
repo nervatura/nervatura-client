@@ -1,8 +1,7 @@
 import { render, fireEvent, queryByAttribute } from '@testing-library/react';
-import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect';
 
-import { Default, DateInput, TimeInput, Placeholder } from './DateTime.stories';
+import { Default, DateInput, TimeInput } from './DateTime.stories';
 
 const getById = queryByAttribute.bind(null, 'id');
 
@@ -13,18 +12,15 @@ it('renders in the Default state', () => {
     <Default {...Default.args} id="test_date"
       onChange={onChange} />
   );
-  expect(getById(container, 'test_date')).toBeDefined();
+  const test_input = getById(container, 'test_date')
+  expect(test_input).toBeDefined();
 
-  const close_btn = screen.getByRole('button', {});
-  fireEvent.click(close_btn)
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onChange).toHaveBeenCalledTimes(1);
-
-  const input = getById(container, 'test_date')
-  fireEvent.change(input, {target: {value: null}})
+  
+  test_input.value = ""
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onChange).toHaveBeenCalledTimes(2);
-
-  fireEvent.change(input, {target: {value: "2021-12-24 12:00"}})
-  expect(onChange).toHaveBeenCalledTimes(3);
 
 });
 
@@ -35,13 +31,19 @@ it('renders in the DateInput state', () => {
     <DateInput {...DateInput.args} id="test_date" 
       onChange={onChange} />
   );
-  expect(getById(container, 'test_date')).toBeDefined();
+  const test_input = getById(container, 'test_date')
+  expect(test_input).toBeDefined();
 
-  const input = getById(container, 'test_date')
-  fireEvent.change(input, {target: {value: null}})
+  fireEvent.change(test_input, {target: {value: test_input.value}})
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
+  expect(onChange).toHaveBeenCalledTimes(0);
+
+  fireEvent.change(test_input, {target: {value: "2021-12-24"}})
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onChange).toHaveBeenCalledTimes(1);
-
-  fireEvent.change(input, {target: {value: "2021-12-24"}})
+  
+  fireEvent.change(test_input, {target: {value: ""}})
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onChange).toHaveBeenCalledTimes(2);
 
 });
@@ -53,21 +55,21 @@ it('renders in the TimeInput state', () => {
     <TimeInput {...TimeInput.args} id="test_date" 
       onChange={onChange}/>
   );
-  expect(getById(container, 'test_date')).toBeDefined();
+  const test_input = getById(container, 'test_date')
+  expect(test_input).toBeDefined();
 
-  const input = getById(container, 'test_date')
-  fireEvent.change(input, {target: {value: "12:20"}})
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onChange).toHaveBeenCalledTimes(1);
 
 });
 
-it('renders in the Placeholder state', () => {
+it('onChange', () => {
   const { container } = render(
-    <Placeholder {...Placeholder.args} id="test_date" onChange={null} />
+    <TimeInput {...TimeInput.args} id="test_date" value="" />
   );
-  expect(getById(container, 'test_date')).toBeDefined();
+  const test_input = getById(container, 'test_date')
+  expect(test_input).toBeDefined();
 
-  const input = getById(container, 'test_date')
-  fireEvent.change(input, {target: {value: "2001-12-12"}})
-  
+  fireEvent.keyDown(test_input, { key: 'Enter', code: 'Enter', keyCode: 13 })
+
 });

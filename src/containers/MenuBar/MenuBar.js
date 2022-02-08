@@ -38,6 +38,8 @@ MenuBarComponent.defaultProps = {
 
 export default memo(MenuBarComponent, (prevProps, nextProps) => {
   return (
-    (prevProps.data === nextProps.data)
+    (prevProps.data.side === nextProps.data.side) &&
+    (prevProps.data.scrollTop === nextProps.data.scrollTop) &&
+    (prevProps.data.module === nextProps.data.module)
   )
 })

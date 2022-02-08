@@ -56,3 +56,18 @@
 .cursor {
   cursor: pointer;
 }
+
+.filterInput {
+  width: 100%;
+  border-radius: 0px!important;
+  margin-top: 1px;
+  margin-bottom: 2px;
+}
+
+.addButton {
+  border-radius: 0px!important;
+  padding: 8px 16px;
+  margin-left: 1px;
+  margin-top: 1px;
+  margin-bottom: 2px;
+}

@@ -32,12 +32,6 @@ export const View = ({
       delete: null
     }})
   }
-
-  const onAction = (action, row) => {
-    if(edited && action){
-      onEvent("setFormActions",[{ params: action, row: row }])
-    }
-  }
   
   const editIcon = (typeof vtemplate.edit_icon !== "undefined") ? 
     [vtemplate.edit_icon, undefined, undefined] : ["Edit", 24, 21.3]
@@ -52,29 +46,28 @@ export const View = ({
   if(vtemplate.type === "table"){
     if(edited && (actions.edit || actions.delete)){
       fields = update(fields, {$merge: {
-        edit: { columnDef: { property: "edit",
-          cell: { 
-            props: {
-              style: { width: 30, padding: "7px 3px 3px 8px" } 
-            },
-            formatters: [
-            (value, { rowData }) => {
-              const ecol = (actions.edit !== null)?<div 
-                className={`${"cell"} ${styles.editCol}`} >
-                {<Icon id={"edit_"+rowData["id"]}
-                  iconKey={editIcon[0]} width={editIcon[1]} height={editIcon[2]} 
-                  onClick={ () => onAction(actions.edit, rowData) }
-                  className={styles.editCol} />}
-              </div>:null
-              const dcol = (actions.delete !== null)?<div 
-                className={`${"cell"} ${styles.deleteCol}`} >
-                {<Icon id={"delete_"+rowData["id"]}
-                  iconKey={deleteIcon[0]} width={deleteIcon[1]} height={deleteIcon[2]} 
-                  onClick={ () => onAction(actions.delete, rowData) }
-                  className={styles.deleteCol} />}
-              </div>:null
-              return <Fragment>{ecol}{dcol}</Fragment>
-            }] }
+        edit: { columnDef: { 
+          id: "edit",
+          Header: "",
+          headerStyle: {},
+          Cell: ({ row, value }) => {
+            const ecol = (actions.edit !== null)?<div 
+              className={`${"cell"} ${styles.editCol}`} >
+              {<Icon id={"edit_"+row.original["id"]}
+                iconKey={editIcon[0]} width={editIcon[1]} height={editIcon[2]} 
+                onClick={ () => onEvent("setFormActions", [{ params: actions.edit, row: row.original }]) }
+                className={styles.editCol} />}
+            </div>:null
+            const dcol = (actions.delete !== null)?<div 
+              className={`${"cell"} ${styles.deleteCol}`} >
+              {<Icon id={"delete_"+row.original["id"]}
+                iconKey={deleteIcon[0]} width={deleteIcon[1]} height={deleteIcon[2]} 
+                onClick={ () => onEvent("setFormActions", [{ params: actions.delete, row: row.original }]) }
+                className={styles.deleteCol} />}
+            </div>:null
+            return <Fragment>{ecol}{dcol}</Fragment>
+          },
+          cellStyle: { width: 30, padding: "7px 3px 3px 8px" }
         }}
       }})
     }
@@ -108,7 +101,8 @@ export const View = ({
       <div className="row full" >
         {(vtemplate.type === "table")?
         <Table rowKey="id"
-          onAddItem={ () => onAction(actions.new) }
+          onAddItem={(edited && actions.new) 
+            ? () => onEvent("setFormActions", [{ params: actions.new}]) : undefined }
           fields={fields} rows={rows} tableFilter={true}
           filterPlaceholder={getText("placeholder_filter")}
           labelYes={getText("label_yes")} labelNo={getText("label_no")} 
@@ -123,9 +117,12 @@ export const View = ({
           deleteIcon={<Icon iconKey={deleteIcon[0]} width={deleteIcon[1]} height={deleteIcon[2]} />}
           listFilter={true} filterPlaceholder={getText("placeholder_filter")}
           paginationPage={paginationPage} paginationTop={true} 
-          onEdit={ (row) => onAction(actions.edit, row) } 
-          onAddItem={ () => onAction(actions.new) } 
-          onDelete={ (row) => onAction(actions.delete, row) } />}
+          onEdit={(edited && actions.edit) 
+            ? (row) => onEvent("setFormActions", [{ params: actions.edit, row: row }]) : undefined } 
+          onAddItem={(edited && actions.new) 
+            ? () => onEvent("setFormActions", [{ params: actions.new }]) : undefined } 
+          onDelete={(edited && actions.delete) 
+            ? (row) => onEvent("setFormActions", [{ params: actions.delete, row: row }]) : undefined } />}
       </div>
     </div>
   )

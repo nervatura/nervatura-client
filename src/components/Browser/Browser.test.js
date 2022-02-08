@@ -120,7 +120,8 @@ it('renders in the Filters state', () => {
   expect(onEvent).toHaveBeenCalledTimes(5);
 
   const filter_value_date = getById(container, 'filter_value_1')
-  fireEvent.change(filter_value_date, {target: {value: "2022-01-02"}})
+  filter_value_date.value = "2022-01-02"
+  fireEvent.keyDown(filter_value_date, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onEvent).toHaveBeenCalledTimes(6);
 
   const filter_value_bool = getById(container, 'filter_value_2')

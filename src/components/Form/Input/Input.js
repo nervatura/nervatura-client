@@ -121,6 +121,7 @@ Input.defaultProps = {
   value: "",
   minValue: undefined,
   maxValue: undefined,
+  className: "",
   onChange: undefined,
   onBlur: undefined,
   onEnter: undefined,

@@ -12,6 +12,8 @@
 .barButton {
   border-radius: 0px;
   margin-left: -0.7px;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 .barButton:focus {

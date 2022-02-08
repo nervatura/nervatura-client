@@ -40,8 +40,8 @@
 }
 
 .info, .Toastify__toast--info {
-  color: var(--light);
-  background-color: var(--info);
+  color: var(--light)!important;
+  background-color: var(--info)!important;
 }
 
 .warning, .Toastify__toast--warning {
@@ -90,7 +90,7 @@ select:focus, select:hover:not(:disabled), button:focus, button:hover:not(:disab
 }
 
 .light input, .light textarea , .light select, .light button, .light .border, 
-.light .ui-table table, .light .toggle, .light .link, .light .list, .light .dialog {
+.light .ui-table, .light .toggle, .light .link, .light .list, .light .dialog {
   border: 1px solid rgba(var(--dark-rgb),0.2);
 }
 
@@ -128,7 +128,7 @@ select:focus, select:hover:not(:disabled), button:focus, button:hover:not(:disab
 }
 
 .dark input, .dark textarea, .dark select, .dark button, .dark .border, 
-.dark .ui-table table, .dark .toggle, .dark .link, .dark .list, .dark .dialog   {
+.dark .ui-table, .dark .toggle, .dark .link, .dark .list, .dark .dialog   {
   border: 1px solid rgba(var(--light-rgb),0.2);
 }
 
@@ -147,8 +147,4 @@ select:focus, select:hover:not(:disabled), button:focus, button:hover:not(:disab
 
 .dark .ui-table tbody tr:nth-child(odd), .dark .list li:nth-child(odd){
   background-color: rgba(var(--primary-rgb),0.4);
-}
-
-.dark .react-datepicker {
-  filter: invert(1) hue-rotate(180deg);
 }

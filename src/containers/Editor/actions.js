@@ -1,5 +1,11 @@
 import update from 'immutability-helper';
-import { formatISO, addDays, parseISO, isEqual, format } from 'date-fns'
+
+import formatISO from 'date-fns/formatISO'
+import addDays from 'date-fns/addDays'
+import parseISO from 'date-fns/parseISO'
+import isEqual from 'date-fns/isEqual'
+import format from 'date-fns/format'
+
 import printJS from 'print-js'
 
 import { appActions, getSql, saveToDisk, guid } from 'containers/App/actions'
@@ -275,7 +281,8 @@ export const editorActions = (data, setData) => {
             reportOutput(params)
           })
         }}
-      /> 
+      />,
+      side: "hide" 
     })
   }
 
@@ -347,7 +354,7 @@ export const editorActions = (data, setData) => {
 
     edit = update(edit, {current: {$merge: {
       state: "normal",
-      pagination: { page: 1, perPage: getSetting("selectorPage") }
+      page: 0
     }}})
     if (edit.current.type === "trans") {
       if (typeof edit.dataset.trans[0].transcast !== "undefined") {
@@ -593,7 +600,7 @@ export const editorActions = (data, setData) => {
       view: options.form||'form'
     }}})
     setData("edit", edit)
-    setData("current", { module: "edit", edit: true })
+    setData("current", { module: "edit", edit: true, side: "hide" })
   }
 
   const loadEditor = async (params) => {
@@ -995,7 +1002,8 @@ export const editorActions = (data, setData) => {
             }
           })
         }}
-      /> 
+      />,
+      side: "hide"
     })
   }
 
@@ -1041,7 +1049,8 @@ export const editorActions = (data, setData) => {
               deleteItem()
             })
           }}
-        /> 
+        />,
+        side: "hide"
       })
     }
   }
@@ -2079,7 +2088,8 @@ export const editorActions = (data, setData) => {
             })
           });
         }}
-      /> 
+      />,
+      side: "hide"
     })
   }
 
@@ -2108,7 +2118,8 @@ export const editorActions = (data, setData) => {
                   calcFormula(formula_id)
                 })
               }}
-            /> 
+            />,
+            side: "hide"
           })
           break;
         case "NEW_FIELDVALUE":
@@ -2169,7 +2180,8 @@ export const editorActions = (data, setData) => {
                 return cbNext(cbKeyFalse)
               })
             }}
-          /> 
+          />,
+          side: "hide"
         })
     } else if (cbKeyFalse) {
       cbNext(cbKeyFalse);

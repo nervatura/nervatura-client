@@ -25,7 +25,7 @@ const MenuBar = (props) => {
   }
 
   state.sideBar = () => {
-    setData(state.key, { side: app.getSideBar() })
+    setData(state.key, { side: (state.data.side === "show") ? "hide" : "show" })
   }
 
   state.setScroll = () => {

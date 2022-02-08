@@ -50,7 +50,8 @@ export const Stock = ({
               <Table rowKey="id"
                 fields={fields} rows={rows} tableFilter={true}
                 filterPlaceholder={getText("placeholder_filter")} 
-                paginationPage={selectorPage} paginationTop={true}/>
+                paginationPage={selectorPage} paginationTop={true}
+                hidePaginatonSize={true} />
             </div>
           </div>
           <div className={`${"row full section container-small secondary-title"}`}>

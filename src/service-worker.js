@@ -70,3 +70,8 @@ self.addEventListener('message', (event) => {
 });
 
 // Any other custom service worker logic can go here.
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
+  // or simply don't call event.respondWith, which
+  // will result in default browser behaviour
+});

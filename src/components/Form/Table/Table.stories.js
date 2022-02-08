@@ -47,13 +47,17 @@ Default.args = {
     levels: { fieldtype: 'number', label: "Levels", format: true, verticalAlign: "middle" },
     videos: { fieldtype: 'number', textAlign: "center" },
     deffield: { fieldtype: 'deffield', label: "Deffield" },
-    editor: { columnDef: { property: "editor", 
-      cell: { formatters: [
-        () => <Button className="primary full" label="Hello" /> ] }
+    editor: { columnDef: { 
+      id: "editor",
+      Header: "",
+      headerStyle: {},
+      Cell: ({ row, value }) => {
+        return <Button className="primary full" label="Hello" />
+      },
+      cellStyle: {}
     }}
   },
   tableFilter: false,
-  paginationPage: 0,
   onRowSelected: null,
   onEditCell: null,
   onAddItem: null

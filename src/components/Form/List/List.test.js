@@ -63,6 +63,9 @@ it('renders in the BottomPagination state', () => {
   const page_1 = screen.getByText("1")
   fireEvent.click(page_1)
 
+  const row_item = getById(container, 'row_item_1')
+  fireEvent.click(row_item)
+
 });
 
 it('renders in the Filtered state', () => {

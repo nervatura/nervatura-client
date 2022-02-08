@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { format, parseISO } from 'date-fns'
+
+import parseISO from 'date-fns/parseISO'
+import format from 'date-fns/format'
 
 import { getSetting } from 'config/app'
 import 'styles/style.css';
@@ -99,7 +101,7 @@ export const Bookmark = ({
                   rows={(state.tabView === "bookmark") ? state.bookmarkList : state.historyList} 
                   editIcon={(state.tabView === "bookmark") ? <Icon iconKey="Star" /> : <Icon iconKey="History" />}
                   listFilter={true} filterPlaceholder={getText("placeholder_filter")}
-                  paginationPage={paginationPage} paginationTop={true} 
+                  paginationPage={paginationPage} paginationTop={true} hidePaginatonSize={true}
                   onEdit={(row)=>onSelect(state.tabView, row)}  
                   onDelete={(state.tabView === "bookmark") ? (row)=>onDelete(row.bookmark_id) : null} />
               </div>

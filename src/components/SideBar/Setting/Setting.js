@@ -38,7 +38,7 @@ export const Setting = ({
     panels.push(
       itemMenu("cmd_back",
         `${"medium"} ${styles.itemButton} ${styles.selected}`, 
-        ["settingBack"],
+        ["settingBack",[]],
         <Label value={getText("label_back")} 
           leftIcon={<Icon iconKey="Reply" />} iconWidth="20px"  />
       )
@@ -49,7 +49,7 @@ export const Setting = ({
       panels.push(
         itemMenu("cmd_save",
           `${"full medium"} ${styles.itemButton} ${(dirty)?styles.selected:""}`,
-          ["settingSave"],
+          ["settingSave",[]],
           <Label value={getText("label_save")} 
             leftIcon={<Icon iconKey="Check" />} iconWidth="20px"  />
         )
@@ -205,7 +205,7 @@ export const Setting = ({
           {(group_key === "group_user")?<div className={`${"row full"} ${styles.panelGroup}`} >
             {itemMenu("cmd_program", 
               `${"full medium primary"} ${styles.panelButton}`, 
-              ["setProgramForm"],
+              ["setProgramForm",[]],
               <Label value={getText("title_program")} 
                 leftIcon={<Icon iconKey="Keyboard" />} iconWidth="20px"  />
             )}

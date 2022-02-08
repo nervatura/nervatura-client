@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+import { useTable, usePagination } from 'react-table'
 
+import { getSetting } from 'config/app'
 import styles from './Meta.module.css';
 
 import Row from 'components/Form/Row'
@@ -8,52 +11,16 @@ import Select from 'components/Form/Select'
 import Label from 'components/Form/Label'
 import Icon from 'components/Form/Icon'
 import Button from 'components/Form/Button'
-
-import Paginator, { paginate } from 'components/Form/Paginator/Paginator';
+import Pagination from 'components/Form/Pagination'
 
 export const Meta = ({ 
-  current, dataset, audit, className,
+  current, dataset, audit, className, paginationPage,
   getText, onEvent,
   ...props 
 }) => {  
   const editItem = (options) => onEvent("editItem", [options])
   const onSelector = (...params) => onEvent("onSelector", [...params])
-  const onSelect = (page) => {
-    onEvent("onPaginationSelect", [page, fieldvalue_list.length])
-  }
 
-  let fieldvalue_list = []
-  current.fieldvalue.forEach(fieldvalue => {
-    let _deffield = dataset.deffield.filter((df) => (df.fieldname === fieldvalue.fieldname))[0]
-    if ((_deffield.visible === 1) && (fieldvalue.deleted === 0)) {
-      let _fieldtype = dataset.groups.filter((group) => (group.id === _deffield.fieldtype ))[0].groupvalue
-      let _description = fieldvalue.value;
-      let _datatype = _fieldtype;
-      if(["customer", "tool", "trans", "transitem", "transmovement", "transpayment", 
-        "product", "project", "employee", "place"].includes(_fieldtype)){
-          let item = dataset.deffield_prop.filter((df) => (
-            (df.ftype === _fieldtype) && (df.id === parseInt(fieldvalue.value,10))))[0]
-          if(item){
-            _description = item.description;}
-          _datatype = "selector";
-      }
-      if(_fieldtype === "urlink"){
-        _datatype = "text";
-      }
-      if(_fieldtype === "valuelist"){
-        _description = _deffield.valuelist.split("|");
-      }
-      fieldvalue_list = update(fieldvalue_list, {$push: [{ 
-        rowtype: 'fieldvalue',
-        id: fieldvalue.id, name: 'fieldvalue_value', 
-        fieldname: fieldvalue.fieldname, 
-        value: fieldvalue.value, notes: fieldvalue.notes||'',
-        label: _deffield.description, description: _description, 
-        disabled: _deffield.readonly ? true : false,
-        fieldtype: _fieldtype, datatype: _datatype
-      }]})
-    }
-  });
   const deffields = () => {
     const ntype_id = dataset.groups.filter((group) => (
       (group.groupname === "nervatype") && (group.groupvalue === current.type )))[0].id
@@ -69,10 +36,66 @@ export const Meta = ({
     }
   }
   
-  const fieldRows = paginate(current.pagination)(fieldvalue_list)
+  const columns = useMemo(() => [ { accessor: "list" } ],[])
+  const data = useMemo(() => {
+    let fieldvalue_list = []
+    current.fieldvalue.forEach(fieldvalue => {
+      let _deffield = dataset.deffield.filter((df) => (df.fieldname === fieldvalue.fieldname))[0]
+      if ((_deffield.visible === 1) && (fieldvalue.deleted === 0)) {
+        let _fieldtype = dataset.groups.filter((group) => (group.id === _deffield.fieldtype ))[0].groupvalue
+        let _description = fieldvalue.value;
+        let _datatype = _fieldtype;
+        if(["customer", "tool", "trans", "transitem", "transmovement", "transpayment", 
+          "product", "project", "employee", "place"].includes(_fieldtype)){
+            let item = dataset.deffield_prop.filter((df) => (
+              (df.ftype === _fieldtype) && (df.id === parseInt(fieldvalue.value,10))))[0]
+            if(item){
+              _description = item.description;}
+            _datatype = "selector";
+        }
+        if(_fieldtype === "urlink"){
+          _datatype = "text";
+        }
+        if(_fieldtype === "valuelist"){
+          _description = _deffield.valuelist.split("|");
+        }
+        fieldvalue_list = update(fieldvalue_list, {$push: [{ 
+          rowtype: 'fieldvalue',
+          id: fieldvalue.id, name: 'fieldvalue_value', 
+          fieldname: fieldvalue.fieldname, 
+          value: fieldvalue.value, notes: fieldvalue.notes||'',
+          label: _deffield.description, description: _description, 
+          disabled: _deffield.readonly ? true : false,
+          fieldtype: _fieldtype, datatype: _datatype
+        }]})
+      }
+    })
+    return fieldvalue_list
+  },[current.fieldvalue, dataset.deffield, dataset.deffield_prop, dataset.groups])
+
+  const { prepareRow, page, canPreviousPage, canNextPage, pageCount,
+    gotoPage, nextPage, previousPage, setPageSize,
+    state: { pageIndex, pageSize },
+  } = useTable(
+    { columns, data,
+      initialState: { pageIndex: current.page, pageSize: paginationPage },
+    },
+    usePagination
+  )
+
+  const onPagination = (key, args) => {
+    const pevents = {
+      gotoPage: gotoPage, nextPage: nextPage, previousPage: previousPage, setPageSize: setPageSize
+    }
+    pevents[key](...args)
+    if(key !== "setPageSize"){
+      onEvent("changeCurrentData", ["page", args[0]])
+    }
+  }
+
   return (
     <div {...props} className={`${styles.formPanel} ${"border"} ${className}`} >
-      {((audit !== 'readonly')||((fieldRows.amount) && (fieldRows.amount > 1)))?
+      {((audit !== 'readonly')||(pageCount > 1))?
       <div className="row full container-small section-small border-bottom" >
         {(audit !== 'readonly')?<div className="cell mobile">
           <div className="cell padding-small" >
@@ -90,17 +113,23 @@ export const Meta = ({
             />
           </div>:null}
         </div>:null}
-        {((fieldRows.amount) && (fieldRows.amount > 1)) ?
+        {(pageCount > 1) ?
         <div className={` ${styles.paginatorCell} ${"cell right mobile"}`} >
-          <Paginator page={fieldRows.page+1} pages={fieldRows.amount} onSelect={onSelect} />
+          <Pagination
+            pageIndex={pageIndex} pageSize={pageSize} pageCount={pageCount} 
+            canPreviousPage={canPreviousPage} canNextPage={canNextPage}
+            onEvent={onPagination} />
         </div>:null}
       </div>:null}
-      {fieldRows.rows.map((fieldvalue, index) => <Row
-        key={fieldvalue.id} row={fieldvalue} 
-        values={fieldvalue} options={{}}
-        data={{ audit: audit, current: current, dataset: dataset }}
-        getText={getText} onEdit={editItem} onEvent={onEvent} onSelector={onSelector}
-      />)}
+      {page.map((fieldvalue, index) => {
+        prepareRow(fieldvalue)
+        return<Row
+          key={fieldvalue.original.id} row={fieldvalue.original} 
+          values={fieldvalue.original} options={{}}
+          data={{ audit: audit, current: current, dataset: dataset }}
+          getText={getText} onEdit={editItem} onEvent={onEvent} onSelector={onSelector}
+        />
+      })}
     </div>
   )
 }
@@ -110,6 +139,7 @@ Meta.propTypes = {
   dataset: PropTypes.object.isRequired, 
   audit: PropTypes.string.isRequired,
   className: PropTypes.string,
+  paginationPage: PropTypes.number.isRequired,
   onEvent: PropTypes.func,
   getText: PropTypes.func,
 }
@@ -119,6 +149,7 @@ Meta.defaultProps = {
   dataset: {}, 
   audit: "",
   className: "",
+  paginationPage: getSetting("selectorPage"),
   onEvent: undefined,
   getText: undefined,
 }

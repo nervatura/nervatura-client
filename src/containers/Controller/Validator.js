@@ -1,8 +1,8 @@
 import update from 'immutability-helper';
-import { formatISO, addDays } from 'date-fns'
+import formatISO from 'date-fns/formatISO'
+import addDays from 'date-fns/addDays'
 
-import { appActions, getSql } from 'containers/App/actions'
-import { guid } from 'containers/App/actions'
+import { appActions, getSql, guid } from 'containers/App/actions'
 import { getSetting } from 'config/app'
 
 export const Validator = (data, setData) => {

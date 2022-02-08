@@ -38,13 +38,15 @@ const Editor = (props) => {
 
   state.onEvent = (fname, params) => {
     params = params || []
+    if(state[fname]){
+      return state[fname](...params)
+    }
     if(editor[fname]){
       return editor[fname](...params, state.data)  
     }
     if(app[fname]){
       return app[fname](...params)  
     }
-    state[fname](...params)
   }
 
   state.changeData = (fieldname, value) => {
@@ -62,137 +64,115 @@ const Editor = (props) => {
     setData("current", { edit: !state.current.edit })
   }
 
-  state.onPaginationSelect = (page, size) => {
-    const pages = Math.ceil(
-      size / data.edit.current.pagination.perPage
-    );
-    const _page = Math.min(Math.max(page, 1), pages)
-    const current = update(data.edit.current, {$merge: {
-      pagination: update(data.edit.current.pagination, { $merge: {
-        page: _page
-      }})
-    }})
-    setData(state.key, { current: current })
-  }
-
   state.onSelector = (selectorType, selectorFilter, setSelector) => {
     app.onSelector(selectorType, selectorFilter, setSelector)
   }
 
   state.editorBack = () =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      if(data.edit.current.form){
+    if(data.edit.current.form){
+      editor.checkEditor({
+        ntype: data.edit.current.type, 
+        ttype: data.edit.current.transtype, 
+        id: data.edit.current.item.id,
+        form: data.edit.current.form_type}, 'LOAD_EDITOR')
+    } else {
+      if(data.edit.current.form_type === "transitem_shipping"){
         editor.checkEditor({
           ntype: data.edit.current.type, 
           ttype: data.edit.current.transtype, 
           id: data.edit.current.item.id,
           form: data.edit.current.form_type}, 'LOAD_EDITOR')
       } else {
-        if(data.edit.current.form_type === "transitem_shipping"){
-          editor.checkEditor({
-            ntype: data.edit.current.type, 
-            ttype: data.edit.current.transtype, 
-            id: data.edit.current.item.id,
-            form: data.edit.current.form_type}, 'LOAD_EDITOR')
-        } else {
-          let reftype = state.login.groups.filter((item)=> {
-            return (item.id === data.edit.current.item.nervatype)
-          })[0].groupvalue
-          editor.checkEditor({ntype: reftype, 
-            ttype: null, id: data.edit.current.item.ref_id,
-            form: data.edit.current.type}, 'LOAD_EDITOR')
-        }
+        let reftype = state.login.groups.filter((item)=> {
+          return (item.id === data.edit.current.item.nervatype)
+        })[0].groupvalue
+        editor.checkEditor({ntype: reftype, 
+          ttype: null, id: data.edit.current.item.ref_id,
+          form: data.edit.current.type}, 'LOAD_EDITOR')
       }
-    })
+    }
   }
 
-  state.saveEditor = () => {
-    setData("current", { side: app.getSideBar() }, async ()=>{
-      let edit = null
-      if(data.edit.current.form){
-        edit = await editor.saveEditorForm()
-      } else {
-        edit = await editor.saveEditor()
-      }
-      if(edit){
-        editor.loadEditor({
-          ntype: edit.current.type, 
-          ttype: edit.current.transtype, 
-          id: edit.current.item.id,
-          form: edit.current.view
-        })
-      }
-    })
+  state.saveEditor = async () => {
+    let edit = null
+    if(data.edit.current.form){
+      edit = await editor.saveEditorForm()
+    } else {
+      edit = await editor.saveEditor()
+    }
+    if(edit){
+      editor.loadEditor({
+        ntype: edit.current.type, 
+        ttype: edit.current.transtype, 
+        id: edit.current.item.id,
+        form: edit.current.view
+      })
+    }
   }
 
   state.editorDelete = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      if(data.edit.current.form){
-        editor.deleteEditorItem({
-          fkey: data.edit.current.form_type, 
-          table: data.edit.current.form_datatype, 
-          id: data.edit.current.form.id
-        })
-      } else {
-        editor.deleteEditor()
-      }
-    })
+    if(data.edit.current.form){
+      editor.deleteEditorItem({
+        fkey: data.edit.current.form_type, 
+        table: data.edit.current.form_datatype, 
+        id: data.edit.current.form.id
+      })
+    } else {
+      editor.deleteEditor()
+    }
   }
 
   state.editorNew = (params) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      if(params.ttype === "shipping"){
-        app.onSelector("transitem_delivery", "", (row, filter)=>{
-          const params = row.id.split("/")
-          editor.checkEditor({ 
-            ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
-            shipping: true
-          }, 'LOAD_EDITOR')
-        })
-      /*
-      } else if(data.edit.current.form){
-        editor.checkEditor({
-          fkey: params.fkey || data.edit.current.form_type, 
-          id: null}, 'SET_EDITOR_ITEM')
-      */
-      } else {
-        editor.checkEditor({
-          ntype: params.ntype || data.edit.current.type, 
-          ttype: params.ttype || data.edit.current.transtype, 
-          id: null}, 'LOAD_EDITOR')
-      }
-    })
+    if(params.ttype === "shipping"){
+      app.onSelector("transitem_delivery", "", (row, filter)=>{
+        const params = row.id.split("/")
+        editor.checkEditor({ 
+          ntype: params[0], ttype: params[1], id: parseInt(params[2],10), 
+          shipping: true
+        }, 'LOAD_EDITOR')
+      })
+    /*
+    } else if(data.edit.current.form){
+      editor.checkEditor({
+        fkey: params.fkey || data.edit.current.form_type, 
+        id: null}, 'SET_EDITOR_ITEM')
+    */
+    } else {
+      editor.checkEditor({
+        ntype: params.ntype || data.edit.current.type, 
+        ttype: params.ttype || data.edit.current.transtype, 
+        id: null}, 'LOAD_EDITOR')
+    }
   }
 
   state.transCopy = (ctype) => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      if (ctype === "create") {
-        editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
-      } else {
-        setData("current", { modalForm: 
-          <InputBox 
-            title={app.getText("msg_warning")}
-            message={app.getText("msg_copy_text")}
-            infoText={app.getText("msg_delete_info")}
-            defaultOK={true}
-            labelOK={app.getText("msg_ok")}
-            labelCancel={app.getText("msg_cancel")}
-            onCancel={() => {
-              setData("current", { modalForm: null })
-            }}
-            onOK={(value) => {
-              setData("current", { modalForm: null }, () => {
-                editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
-              })
-            }}
-          /> 
-        })
-      }
-    })
+    if (ctype === "create") {
+      editor.checkEditor({}, "CREATE_TRANS_OPTIONS");
+    } else {
+      setData("current", { modalForm: 
+        <InputBox 
+          title={app.getText("msg_warning")}
+          message={app.getText("msg_copy_text")}
+          infoText={app.getText("msg_delete_info")}
+          defaultOK={true}
+          labelOK={app.getText("msg_ok")}
+          labelCancel={app.getText("msg_cancel")}
+          onCancel={() => {
+            setData("current", { modalForm: null })
+          }}
+          onOK={(value) => {
+            setData("current", { modalForm: null }, () => {
+              editor.checkEditor({ cmdtype: "copy", transcast: ctype }, "CREATE_TRANS");
+            })
+          }}
+        />,
+        side: "hide"
+      })
+    }
   };
 
   state.setLink = (type, field) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
+    setData("current", { side: "hide" }, ()=>{
       let link_id = (data.edit.current.transtype === "cash") ? 
       data.edit.current.extend.id : data.edit.current.form.id;
       editor.checkEditor(
@@ -201,37 +181,33 @@ const Editor = (props) => {
   }
 
   state.setPassword = (username) =>{
-    setData("current", { side: app.getSideBar() }, ()=>{
-      if(!username && data.edit.current){
-        username = data.edit.dataset[data.edit.current.type][0].username
-      }
-      setData("current", { module: "setting", content: { username: username, nextKey: "PASSWORD_FORM" } })
-    })
+    if(!username && data.edit.current){
+      username = data.edit.dataset[data.edit.current.type][0].username
+    }
+    setData("current", { module: "setting", content: { username: username, nextKey: "PASSWORD_FORM" }, side: "hide" })
   }
 
   state.shippingAddAll = () => {
-    setData("current", { side: app.getSideBar() }, ()=>{
-      let edit = update({}, {$set: data.edit})
-      edit.dataset.shipping_items_.forEach(sitem => {
-        if (sitem.diff !== 0 && sitem.edited !== true) {
-          edit = update(edit, {dataset: { shiptemp: {$push: [{ 
-            "id": sitem.item_id+"-"+sitem.product_id,
-            "item_id": sitem.item_id, 
-            "product_id": sitem.product_id,  
-            "product": sitem.product, 
-            "partnumber": sitem.partnumber,
-            "partname": sitem.partname, 
-            "unit": sitem.unit, 
-            "batch_no":"", 
-            "qty":sitem.diff, 
-            "diff":0,
-            "oqty": sitem.qty, 
-            "tqty": sitem.tqty
-          }]}}})
-        }
-      });
-      editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
-    })
+    let edit = update({}, {$set: data.edit})
+    edit.dataset.shipping_items_.forEach(sitem => {
+      if (sitem.diff !== 0 && sitem.edited !== true) {
+        edit = update(edit, {dataset: { shiptemp: {$push: [{ 
+          "id": sitem.item_id+"-"+sitem.product_id,
+          "item_id": sitem.item_id, 
+          "product_id": sitem.product_id,  
+          "product": sitem.product, 
+          "partnumber": sitem.partnumber,
+          "partname": sitem.partname, 
+          "unit": sitem.unit, 
+          "batch_no":"", 
+          "qty":sitem.diff, 
+          "diff":0,
+          "oqty": sitem.qty, 
+          "tqty": sitem.tqty
+        }]}}})
+      }
+    });
+    editor.setEditor({shipping: true, form:"shiptemp_items"}, edit.template, edit)
   }
 
   return <EditorMemo {...state} />

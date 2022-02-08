@@ -1,4 +1,4 @@
-import { render, fireEvent, queryByAttribute, screen } from '@testing-library/react';
+import { render, fireEvent, queryByAttribute } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import update from 'immutability-helper';
 
@@ -720,13 +720,14 @@ it('renders in the DateTime state', () => {
     <DateTime {...DateTime.args} id="test_input" onEdit={onEdit} />
   );
   expect(getById(container, 'test_input')).toBeDefined();
- 
-  const close_btn = screen.getByRole('button', {});
-  fireEvent.click(close_btn)
-  expect(onEdit).toHaveBeenCalledTimes(1);
 
   const input = getById(container, 'test_input')
   fireEvent.change(input, {target: {value: "2021-12-24"}})
+  fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', keyCode: 13 })
+  expect(onEdit).toHaveBeenCalledTimes(1);
+
+  fireEvent.change(input, {target: {value: ""}})
+  fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', keyCode: 13 })
   expect(onEdit).toHaveBeenCalledTimes(2);
 
 });

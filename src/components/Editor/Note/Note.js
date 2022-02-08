@@ -1,10 +1,8 @@
+import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useEditor, EditorContent } from '@tiptap/react'
-import Document from '@tiptap/extension-document'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
-import Bold from '@tiptap/extension-bold'
-import Italic from '@tiptap/extension-italic'
+
+import { init } from 'pell';
+import 'pell/dist/pell.css'
 
 import styles from './Note.module.css';
 
@@ -12,24 +10,48 @@ import Icon from 'components/Form/Icon'
 import Button from 'components/Form/Button'
 import Select from 'components/Form/Select'
 
+let noteEditor = null
+
 export const Note = ({ 
   value, patternId, patterns, readOnly, lastUpdate, className,
   getText, onEvent,
   ...props 
-}) => {  
-  const editor = useEditor({
-    extensions: [ Document, Paragraph, Text, Bold, Italic ],
-    content: value,
-    onUpdate({ editor }) {
-      /* istanbul ignore next */
-      onEvent("editItem", [{ name: "fnote", value: editor.getHTML() }])
-    },
-    editable: !readOnly,
-    autofocus: "end"
-  },[lastUpdate])
-  if (!editor) {
-    return null
-  }
+}) => {
+  
+  const editorRef = useCallback(element => {
+    if(element && !noteEditor){
+      const editor = init({
+        element: element,
+        onChange: (html) => {
+          /* istanbul ignore next */
+          onEvent("editItem", [{ name: "fnote", value: html }])
+        },
+        actions: ['bold', 'italic'],
+        classes: {
+          actionbar: `border-bottom ${styles.actionbar}`,
+          button: `border-button ${styles.barButton}`,
+          content: 'pell-content',
+          selected: styles.activeStyle
+        }
+      })
+      editor.content.innerHTML = value
+      noteEditor = editor
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if(noteEditor && (noteEditor.content.innerHTML !== value)){
+      noteEditor.content.innerHTML = value
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastUpdate])
+
+  useEffect(() => {
+    return function cleanup() {
+      noteEditor = null
+    }
+  })
   
   return (
     <div {...props} className={`${styles.formPanel} ${"border"} ${className}`} >
@@ -79,29 +101,13 @@ export const Note = ({
                     text: pattern.description+((pattern.defpattern === 1)?"*":"") 
                 }})} />
             </div>
-            <div className="cell padding-tiny">
-              <Button id="btn_bold" title="Bold"
-                className={`${"border-button"} ${styles.barButton} ${
-                  /* istanbul ignore next */
-                  (editor && editor.isActive("bold")) ? styles.activeStyle : ""
-                }`} 
-                onClick={ () => editor.chain().focus().toggleBold().run() }
-                value={<Icon iconKey="Bold" />}
-              />
-              <Button id="btn_italic" title="Italic"
-                className={`${"border-button"} ${styles.barButton} ${
-                  /* istanbul ignore next */
-                  (editor && editor.isActive("italic")) ? styles.activeStyle : ""
-                }`} 
-                onClick={ () => editor.chain().focus().toggleItalic().run() }
-                value={<Icon iconKey="Italic" />}
-              />
-            </div>
           </div>
         </div>
       </div>:null}
       <div className={`${styles.rtfEditor} ${"rtf"}`} >
-        <EditorContent id="note_editor" editor={editor} />
+        {(!readOnly) 
+          ? <div id="editor" className="pell" ref={editorRef} />
+          : <div className="pell-content" dangerouslySetInnerHTML={{ __html: value }} />}
       </div>
     </div>
   )
