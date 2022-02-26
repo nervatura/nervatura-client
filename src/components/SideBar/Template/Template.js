@@ -90,7 +90,7 @@ export const Template = ({
       <div key="tmp_sep_5" className={styles.separator} />
       {itemMenu("cmd_help",
         `${"full medium"} ${styles.itemButton}`, 
-        ["showHelp", ["editor"]],
+        ["showHelp", ["program/editor"]],
         <Label value={getText("label_help")} 
           leftIcon={<Icon iconKey="QuestionCircle" />} iconWidth="20px"  />
       )}

@@ -36,47 +36,6 @@ export const templateActions = (data, setData) => {
     return dataset;
   }
 
-  const getMapCtr = (type, key) => {
-    switch (key) {
-      case "map_edit":
-        switch (type) {
-          case "data":
-            return false;
-          case "report":
-            return false;
-          case "header":
-          case "footer":
-            return false;
-          case "details":
-            return false;
-          case "row":
-          case "datagrid":
-            return true;
-          default:
-            return true;
-        }
-      case "map_insert":
-        switch (type) {
-          case "data":
-            return false;
-          case "report":
-            return false;
-          case "header":
-          case "footer":
-            return true;
-          case "details":
-            return true;
-          case "row":
-          case "datagrid":
-            return true;
-          default:
-            return false;
-        }
-      default:
-        return false;
-    }
-  }
-
   const setCurrent = (options, template) => {
     const item = options.tmp_id.split("_");
     let setting = update(template || data.template, {$merge: {
@@ -85,48 +44,44 @@ export const templateActions = (data, setData) => {
         section: item[1]
       }
     }})
-    switch (item.length) {
-      case 2:
+    if(item.length === 2){
+      setting = update(setting, {current: {$merge: {
+        type: item[1],
+        item: setting.template[setting.current.section],
+        index: null,
+        parent: null,
+        parent_type: null,
+        parent_index: null
+      }}})
+    }
+    if(item.length === 4){
+      setting = update(setting, {current: {$merge: {
+        type: item[3],
+        index: parseInt(item[2],10),
+        parent: setting.template[setting.current.section],
+        parent_type: setting.current.section,
+        parent_index: null
+      }}})
+      if (["row","datagrid"].includes(setting.current.type)) {
         setting = update(setting, {current: {$merge: {
-          type: item[1],
-          item: setting.template[setting.current.section],
-          index: null,
-          parent: null,
-          parent_type: null,
-          parent_index: null
+          item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
+          item_base: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
         }}})
-        break;
-      case 4:
+      } else {
         setting = update(setting, {current: {$merge: {
-          type: item[3],
-          index: parseInt(item[2],10),
-          parent: setting.template[setting.current.section],
-          parent_type: setting.current.section,
-          parent_index: null
+          item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
         }}})
-        if ((setting.current.type==="row") || (setting.current.type==="datagrid")) {
-          setting = update(setting, {current: {$merge: {
-            item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
-            item_base: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
-          }}})
-        } else {
-          setting = update(setting, {current: {$merge: {
-            item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]]
-          }}})
-        }
-        break;
-      case 6:
-        setting = update(setting, {current: {$merge: {
-          type: item[5],
-          item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns[parseInt(item[4],10)][item[5]],
-          index: parseInt(item[4],10),
-          parent: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
-          parent_type: item[3],
-          parent_index: parseInt(item[2],10)
-        }}})
-        break;
-      default:
-        break;
+      }
+    }
+    if(item.length === 6){
+      setting = update(setting, {current: {$merge: {
+        type: item[5],
+        item: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns[parseInt(item[4],10)][item[5]],
+        index: parseInt(item[4],10),
+        parent: setting.template[setting.current.section][parseInt(item[2],10)][item[3]].columns,
+        parent_type: item[3],
+        parent_index: parseInt(item[2],10)
+      }}})
     }
     setting = update(setting, {current: {$merge: {
       form: templateElements({ getText: app.getText })[setting.current.type]
@@ -201,206 +156,200 @@ export const templateActions = (data, setData) => {
 
     let x = page_pad; let y = page_pad; let coldif = 0;
     for(let r = 0; r < rows.length; r++) {
-      switch (rows[r].type) {
-        case "row":
-          coldif = (cv.width - (rows[r].cols*(cell_size+cell_pad)+2*page_pad))/rows[r].cols;
-          for(let cr = 0; cr < rows[r].cols; cr++) {
-            if (rows[r].selected) {
-              if (rows[r].selcol === cr || rows[r].selcol === -1) {
-                cont.fillStyle = sel_color;
-              } else {
-                cont.fillStyle = row_color;
-              }
-            } else {
-              cont.fillStyle = cell_color;
-            }
-            cont.fillRect(x, y, cell_size+coldif, cell_size);
-            x += cell_size + coldif + cell_pad;
-          }
-          y += cell_size + cell_pad;
-          break;
-        case "datagrid":
+      if(rows[r].type === "row"){
+        coldif = (cv.width - (rows[r].cols*(cell_size+cell_pad)+2*page_pad))/rows[r].cols;
+        for(let cr = 0; cr < rows[r].cols; cr++) {
           if (rows[r].selected) {
-            cont.fillStyle = sel_color;
+            if (rows[r].selcol === cr || rows[r].selcol === -1) {
+              cont.fillStyle = sel_color;
+            } else {
+              cont.fillStyle = row_color;
+            }
           } else {
             cont.fillStyle = cell_color;
           }
-          cont.fillRect(x, y, cv.width-2*page_pad-cell_pad, cell_size/2);
-          coldif = (cv.width - (rows[r].cols*(cell_size+cell_pad)+2*page_pad))/rows[r].cols;
-          for(let cc = 0; cc < rows[r].cols; cc++) {
-            if (rows[r].selected) {
-              if (rows[r].selcol === cc || rows[r].selcol === -1) {
-                cont.fillStyle = sel_color;
-              } else {
-                cont.fillStyle = row_color;
-              }
+          cont.fillRect(x, y, cell_size+coldif, cell_size);
+          x += cell_size + coldif + cell_pad;
+        }
+        y += cell_size + cell_pad;
+      }
+      if(rows[r].type === "datagrid"){
+        if (rows[r].selected) {
+          cont.fillStyle = sel_color;
+        } else {
+          cont.fillStyle = cell_color;
+        }
+        cont.fillRect(x, y, cv.width-2*page_pad-cell_pad, cell_size/2);
+        coldif = (cv.width - (rows[r].cols*(cell_size+cell_pad)+2*page_pad))/rows[r].cols;
+        for(let cc = 0; cc < rows[r].cols; cc++) {
+          if (rows[r].selected) {
+            if (rows[r].selcol === cc || rows[r].selcol === -1) {
+              cont.fillStyle = sel_color;
             } else {
-              cont.fillStyle = cell_color;
+              cont.fillStyle = row_color;
             }
-            cont.fillRect(x, y+cell_size/2+cell_pad, cell_size+coldif, cell_size/2);
-            cont.fillRect(x, y+cell_size+2*cell_pad, cell_size+coldif, cell_size/2);
-            cont.fillRect(x, y+1.5*cell_size+3*cell_pad, cell_size+coldif, cell_size/2);
-            x += cell_size + coldif + cell_pad;
-          }
-          y += 2*cell_size + 4*cell_pad;
-          break;
-        case "vgap":
-          if (rows[r].selected) {
-            cont.fillStyle = sel_color;
-            cont.fillRect(x, y-cell_pad, cv.width-2*page_pad-cell_pad, rows[r].height);
-          }
-          y += rows[r].height;
-          break;
-        case "hline":
-          if (rows[r].selected) {
-            cont.strokeStyle = sel_color;
-          } else {
-            cont.strokeStyle = cell_color;
-          }
-          cont.beginPath();
-          cont.moveTo(x, y);
-          cont.lineTo(cv.width-page_pad-cell_pad, y);
-          cont.stroke();
-          y += 2;
-          break;
-        case "html":
-          if (rows[r].selected) {
-            cont.fillStyle = sel_color;
           } else {
             cont.fillStyle = cell_color;
           }
-          cont.fillRect(x, y, cv.width-2*page_pad-cell_pad, cell_size);
-          y += cell_size + cell_pad;
-          break;
-        default:
-          break;
+          cont.fillRect(x, y+cell_size/2+cell_pad, cell_size+coldif, cell_size/2);
+          cont.fillRect(x, y+cell_size+2*cell_pad, cell_size+coldif, cell_size/2);
+          cont.fillRect(x, y+1.5*cell_size+3*cell_pad, cell_size+coldif, cell_size/2);
+          x += cell_size + coldif + cell_pad;
+        }
+        y += 2*cell_size + 4*cell_pad;
+      }
+      if(rows[r].type === "vgap"){
+        if (rows[r].selected) {
+          cont.fillStyle = sel_color;
+          cont.fillRect(x, y-cell_pad, cv.width-2*page_pad-cell_pad, rows[r].height);
+        }
+        y += rows[r].height;
+      }
+      if(rows[r].type === "vgap"){
+        if (rows[r].selected) {
+          cont.strokeStyle = sel_color;
+        } else {
+          cont.strokeStyle = cell_color;
+        }
+        cont.beginPath();
+        cont.moveTo(x, y);
+        cont.lineTo(cv.width-page_pad-cell_pad, y);
+        cont.stroke();
+        y += 2;
+      }
+      if(rows[r].type === "html"){
+        if (rows[r].selected) {
+          cont.fillStyle = sel_color;
+        } else {
+          cont.fillStyle = cell_color;
+        }
+        cont.fillRect(x, y, cv.width-2*page_pad-cell_pad, cell_size);
+        y += cell_size + cell_pad;
       }
       x = page_pad;
     }
   }
-  
-  const getNextItemId = () => {
-    //tmp_section_index_type_subindex_subtype
-    const { current, template } = data.template
-    let section = current.section;
-    let index = current.parent_index;
-    let subindex = current.index;
-    if (current.parent_index===null) {
-      index = current.index; subindex = null;
-    }
-    let etype; let subtype;
-    let sections = ["report","header","details","footer"];
-    if (subindex!==null) {
-      etype = getElementType(template[section][index]);
-      if (subindex < template[section][index][etype].columns.length-1) {
-        subtype = getElementType(template[section][index][etype].columns[subindex+1]);
-        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype}];
+
+  const goPrevious = () => {
+    const getPrevItemId = () => {
+      //tmp_section_index_type_subindex_subtype
+      const { current, template } = data.template
+      let section = current.section;
+      let index = current.parent_index;
+      let subindex = current.index;
+      if (current.parent_index===null) {
+        index = current.index; subindex = null;
       }
-    }
-    if (index!==null) {
-      if (subindex===null) {
+      if (section==="report") {
+        return {tmp_id: "tmp_report"}
+      }
+      let etype; let subtype;
+      if (subindex!==null) {
         etype = getElementType(template[section][index]);
-        if (etype==="row" || etype==="datagrid") {
-          if (template[section][index][etype].columns.length>0) {
-            subtype = getElementType(template[section][index][etype].columns[0]);
-            return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype}];
+        if (subindex>0) {
+          subtype = getElementType(template[section][index][etype].columns[subindex-1]);
+          return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}
+        }
+        return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype}
+      }
+      if (index!==null) {
+        if (index>0) {
+          etype = getElementType(template[section][index-1]);
+          if (etype==="row" || etype==="datagrid") {
+            subindex = template[section][index-1][etype].columns.length;
+            if (subindex>0) {
+              subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
+              return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}
+            } else {
+              return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}
+            }
+          } else {
+            return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}
           }
         }
+        return {tmp_id: "tmp_"+section}
       }
-      if (index < template[section].length-1) {
-        etype = getElementType(template[section][index+1]);
-        return [{tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype}];
+      let sections = ["report","header","details","footer"];
+      section = sections[sections.indexOf(section)-1];
+      if (section==="report") {
+        return {tmp_id: "tmp_report"}
       }
-      if (section==="footer") {
-        if (subindex!==null) {
-          subtype = getElementType(template[section][index][etype].columns[subindex]);
-          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype}];
-        } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype}];
-        }
-      } else {
-        section = sections[sections.indexOf(section)+1];
-      }
-    }
-    if (template[section].length>0) {
-      etype = getElementType(template[section][0]);
-      return [{tmp_id: "tmp_"+section+"_0_"+etype}];
-    } else {
-      if (section!=="footer") {
-        section = sections[sections.indexOf(section)+1];
-      }
-      return [{tmp_id: "tmp_"+section}];
-    }
-  };
-
-  const getPrevItemId = () => {
-    //tmp_section_index_type_subindex_subtype
-    const { current, template } = data.template
-    let section = current.section;
-    let index = current.parent_index;
-    let subindex = current.index;
-    if (current.parent_index===null) {
-      index = current.index; subindex = null;
-    }
-    if (section==="report") {
-      return [{tmp_id: "tmp_report"}];
-    }
-    let etype; let subtype;
-    if (subindex!==null) {
-      etype = getElementType(template[section][index]);
-      if (subindex>0) {
-        subtype = getElementType(template[section][index][etype].columns[subindex-1]);
-        return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
-      }
-      return [{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype}];
-    }
-    if (index!==null) {
+      index = template[section].length;
       if (index>0) {
         etype = getElementType(template[section][index-1]);
         if (etype==="row" || etype==="datagrid") {
           subindex = template[section][index-1][etype].columns.length;
           if (subindex>0) {
             subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
+            return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}
           } else {
-            return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
+            return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}
           }
         } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
-        }
-      }
-      return [{tmp_id: "tmp_"+section}];
-    }
-    let sections = ["report","header","details","footer"];
-    section = sections[sections.indexOf(section)-1];
-    if (section==="report") {
-      return [{tmp_id: "tmp_report"}];
-    }
-    index = template[section].length;
-    if (index>0) {
-      etype = getElementType(template[section][index-1]);
-      if (etype==="row" || etype==="datagrid") {
-        subindex = template[section][index-1][etype].columns.length;
-        if (subindex>0) {
-          subtype = getElementType(template[section][index-1][etype].columns[subindex-1]);
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype+"_"+(subindex-1).toString()+"_"+subtype}];
-        } else {
-          return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
+          return {tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}
         }
       } else {
-        return [{tmp_id: "tmp_"+section+"_"+(index-1).toString()+"_"+etype}];
+        return {tmp_id: "tmp_"+section}
       }
-    } else {
-      return [{tmp_id: "tmp_"+section}];
     }
-  }
-
-  const goPrevious = () => {
-    setCurrent(...getPrevItemId())
+    setCurrent(getPrevItemId())
   }
 
   const goNext = () => {
-    setCurrent(...getNextItemId())
+    const getNextItemId = () => {
+      //tmp_section_index_type_subindex_subtype
+      const { current, template } = data.template
+      let section = current.section;
+      let index = current.parent_index;
+      let subindex = current.index;
+      if (current.parent_index===null) {
+        index = current.index; subindex = null;
+      }
+      let etype; let subtype;
+      let sections = ["report","header","details","footer"];
+      if (subindex!==null) {
+        etype = getElementType(template[section][index]);
+        if (subindex < template[section][index][etype].columns.length-1) {
+          subtype = getElementType(template[section][index][etype].columns[subindex+1]);
+          return{tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_"+(subindex+1).toString()+"_"+subtype}
+        }
+      }
+      if (index!==null) {
+        if (subindex===null) {
+          etype = getElementType(template[section][index]);
+          if (etype==="row" || etype==="datagrid") {
+            if (template[section][index][etype].columns.length>0) {
+              subtype = getElementType(template[section][index][etype].columns[0]);
+              return {tmp_id: "tmp_"+section+"_"+index.toString()+"_"+etype+"_0_"+subtype}
+            }
+          }
+        }
+        if (index < template[section].length-1) {
+          etype = getElementType(template[section][index+1]);
+          return {tmp_id: "tmp_"+section+"_"+(index+1).toString()+"_"+etype}
+        }
+        if (section==="footer") {
+          if (subindex!==null) {
+            subtype = getElementType(template[section][index][etype].columns[subindex]);
+            return {tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype+"_"+(subindex).toString()+"_"+subtype}
+          } else {
+            return {tmp_id: "tmp_"+section+"_"+(index).toString()+"_"+etype}
+          }
+        } else {
+          section = sections[sections.indexOf(section)+1];
+        }
+      }
+      if (template[section].length>0) {
+        etype = getElementType(template[section][0]);
+        return {tmp_id: "tmp_"+section+"_0_"+etype}
+      } else {
+        if (section!=="footer") {
+          section = sections[sections.indexOf(section)+1];
+        }
+        return {tmp_id: "tmp_"+section}
+      }
+    }
+    setCurrent(getNextItemId())
   }
 
   const moveDown = () => {
@@ -1253,31 +1202,31 @@ export const templateActions = (data, setData) => {
   }
 
   return {
-    getMapCtr: getMapCtr,
-    setTemplate: setTemplate,
-    setCurrent: setCurrent,
-    getElementType: getElementType,
-    createMap: createMap,
-    goPrevious: goPrevious,
-    goNext: goNext,
-    moveUp: moveUp, 
-    moveDown: moveDown, 
-    deleteItem: deleteItem,
     addItem: addItem,
+    addTemplateData: addTemplateData,
+    changeCurrentData: changeCurrentData,
+    changeTemplateData: changeTemplateData,
+    checkTemplate: checkTemplate,
+    createMap: createMap,
+    createTemplate: createTemplate,
+    deleteData: deleteData,
+    deleteDataItem: deleteDataItem,
+    deleteItem: deleteItem,
+    deleteTemplate: deleteTemplate,
+    editDataItem: editDataItem,
     editItem: editItem,
     exportTemplate: exportTemplate,
+    getElementType: getElementType,
+    getDataset: getDataset,
+    goNext: goNext,
+    goPrevious: goPrevious,
+    moveDown: moveDown, 
+    moveUp: moveUp, 
     saveTemplate: saveTemplate,
-    deleteTemplate: deleteTemplate,
-    deleteData: deleteData,
-    addTemplateData: addTemplateData,
-    setCurrentData: setCurrentData,
-    editDataItem: editDataItem,
     setCurrentDataItem: setCurrentDataItem,
-    deleteDataItem: deleteDataItem,
+    setCurrentData: setCurrentData,
+    setCurrent: setCurrent,
+    setTemplate: setTemplate,
     showPreview: showPreview,
-    changeTemplateData: changeTemplateData,
-    changeCurrentData: changeCurrentData,
-    checkTemplate: checkTemplate,
-    createTemplate: createTemplate
   }
 }

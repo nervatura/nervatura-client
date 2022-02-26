@@ -228,9 +228,7 @@ export const settingActions = (data, setData) => {
             _sql.order_by = info.order
           }
         } else {
-          if (typeof sql[setting.type][info.sqlKey] !== "undefined") {
-            _sql = sql[setting.type][info.sqlKey](setting.type)
-          } else if (typeof sql[setting.type][info.infoName] !== "undefined") {
+          if (typeof sql[setting.type][info.infoName] !== "undefined") {
             _sql = sql[setting.type][info.infoName](setting.type)
           } else {
             _sql = sql["all"][info.infoName](setting.type)
@@ -367,6 +365,40 @@ export const settingActions = (data, setData) => {
   }
 
   const loadLog = async () => {
+    const nervatype_filter = {
+      "customer": {
+        inner_join: ["customer c","on",["l.ref_id","=","c.id"]],
+        select: "c.custnumber as refnumber"
+      },
+      "employee": {
+        inner_join: ["employee em","on",["l.ref_id","=","em.id"]],
+        select: "em.empnumber as refnumber"
+      },
+      "event": {
+        inner_join: ["event ev","on",["l.ref_id","=","ev.id"]],
+        select: "ev.calnumber as refnumber"
+      },
+      "place": {
+        inner_join: ["place p","on",["l.ref_id","=","p.id"]],
+        select: "p.planumber as refnumber"
+      },
+      "product": {
+        inner_join: ["product p","on",["l.ref_id","=","p.id"]],
+        select: "p.partnumber as refnumber"
+      },
+      "project": {
+        inner_join: ["project p","on",["l.ref_id","=","p.id"]],
+        select: "p.pronumber as refnumber"
+      },
+      "tool": {
+        inner_join: ["tool t","on",["l.ref_id","=","t.id"]],
+        select: "t.serial as refnumber"
+      },
+      "trans": {
+        inner_join: ["trans t","on",["l.ref_id","=","t.id"]],
+        select: "t.transnumber as refnumber"
+      }
+    }
     let setting = update(data.setting, {view: {$merge: {
       result: []
     }}})
@@ -377,46 +409,13 @@ export const settingActions = (data, setData) => {
         ["groups nt","on",[["l.nervatype","=","nt.id"],
           ["and","nt.groupvalue","=","?"]]])
       paramList.push(setting.current.form.nervatype)
-      switch (setting.current.form.nervatype) {
-        case "":
-          return app.showToast({ type: "error",
-            title: app.getText("msg_warning"), 
-            message: app.getText("msg_required")+" "+app.getText("log_nervatype") })
-        case "customer":
-          _log.inner_join.push(["customer c","on",["l.ref_id","=","c.id"]])
-          _log.select[4] = "c.custnumber as refnumber";
-          break;
-        case "employee":
-          _log.inner_join.push(["employee em","on",["l.ref_id","=","em.id"]])
-          _log.select[4] = "em.empnumber as refnumber";
-          break;
-        case "event":
-          _log.inner_join.push(["event ev","on",["l.ref_id","=","ev.id"]])
-          _log.select[4] = "ev.calnumber as refnumber";
-          break;
-        case "place":
-          _log.inner_join.push(["place p","on",["l.ref_id","=","p.id"]])
-          _log.select[4] = "p.planumber as refnumber";
-          break;
-        case "product":
-          _log.inner_join.push(["product p","on",["l.ref_id","=","p.id"]])
-          _log.select[4] = "p.partnumber as refnumber";
-          break;
-        case "project":
-          _log.inner_join.push(["project p","on",["l.ref_id","=","p.id"]])
-          _log.select[4] = "p.pronumber as refnumber";
-          break;
-        case "tool":
-          _log.inner_join.push(["tool t","on",["l.ref_id","=","t.id"]])
-          _log.select[4] = "t.serial as refnumber";
-          break;
-        case "trans":
-          _log.inner_join.push(["trans t","on",["l.ref_id","=","t.id"]])
-          _log.select[4] = "t.transnumber as refnumber";
-          break;
-        default:
-          break;
+      if(!nervatype_filter[setting.current.form.nervatype]){
+        return app.showToast({ type: "error",
+          title: app.getText("msg_warning"), 
+          message: app.getText("msg_required")+" "+app.getText("log_nervatype") })
       }
+      _log.inner_join.push(nervatype_filter[setting.current.form.nervatype].inner_join)
+      _log.select[4] = nervatype_filter[setting.current.form.nervatype].select
     }
 
     _log.where.push(["ls.groupvalue","=","?"])
@@ -455,24 +454,14 @@ export const settingActions = (data, setData) => {
     setData("setting", setting)
   }
 
-  const checkSetting = (options, cbKeyTrue, cbKeyFalse) => {
-    const cbNext = (cbKey) =>{
-      switch (cbKey) {
-        case "LOAD_SETTING":
-          loadSetting(options)
-          break;
-        case "SETTING_FORM":
-          setSettingForm(options.id)
-          break;
-        case "PASSWORD_FORM":
-          setPasswordForm(options.username)
-          break;
-        default:
-          break;
-      }
+  const checkSetting = (options, cbKeyTrue) => {
+    const nextKeys = {
+      LOAD_SETTING: ()=>loadSetting(options),
+      //SETTING_FORM: ()=>setSettingForm(options.id),
+      PASSWORD_FORM: ()=>setPasswordForm(options.username)
     }
-    if ((data.setting.dirty === true) || (data.template.dirty === true)) {
-      setData("current", { modalForm: 
+    if (data.setting.dirty === true) {
+      return setData("current", { modalForm: 
         <InputBox 
           title={app.getText("msg_warning")}
           message={app.getText("msg_dirty_text")}
@@ -482,11 +471,7 @@ export const settingActions = (data, setData) => {
           onCancel={() => {
             setData("current", { modalForm: null }, ()=>{
               setData(data.current.module, { dirty: false }, ()=>{
-                if (cbKeyFalse) {
-                  cbNext(cbKeyFalse)
-                } else {
-                  cbNext(cbKeyTrue)
-                }
+                nextKeys[cbKeyTrue]()
               })
             })
           }}
@@ -495,20 +480,16 @@ export const settingActions = (data, setData) => {
               const setting = await saveSetting()
               if(setting){
                 return setData("setting", setting, ()=>{
-                  cbNext(cbKeyTrue)
+                  nextKeys[cbKeyTrue]()
                 })
               }
-              return cbNext(cbKeyFalse)
             })
           }}
         />,
         side: "hide"
       })
-    } else if (cbKeyFalse) {
-      cbNext(cbKeyFalse);
-    } else {
-      cbNext(cbKeyTrue);
     }
+    nextKeys[cbKeyTrue]()
   }
 
   const setViewActions = async (params, _row) => {
@@ -573,7 +554,7 @@ export const settingActions = (data, setData) => {
         }
         break;
 
-        case "deleteItem":
+      case "deleteItem":
         deleteSetting(row)
         break;
 
@@ -642,7 +623,7 @@ export const settingActions = (data, setData) => {
         setData("current", { modalForm: 
           <Menu 
             idKey={menufields.id} menu_id={menufields.menu_id}
-            fieldname={menufields.fieldname||""} description={menufields.description||""}
+            fieldname={menufields.fieldname} description={menufields.description}
             fieldtype={menufields.fieldtype} orderby={menufields.orderby}
             fieldtypeOptions={data.setting.dataset.fieldtype.map(group => { 
               return { value: String(group.id), text: group.groupvalue } 
@@ -754,18 +735,21 @@ export const settingActions = (data, setData) => {
   }
 
   return {
+    changePassword: changePassword,
     checkSetting: checkSetting,
+    deleteSetting: deleteSetting,
+    editItem: editItem,
+    loadLog: loadLog,
     loadSetting: loadSetting,
     saveSetting: saveSetting,
     setPasswordForm: setPasswordForm,
-    setViewActions: setViewActions,
-    changePassword: changePassword,
-    setProgramForm: setProgramForm,
-    deleteSetting: deleteSetting,
-    loadLog: loadLog,
-    editItem: editItem,
     setPassword: setPassword,
+    setProgramForm: setProgramForm,
+    setSettingForm: setSettingForm,
+    settingBack: settingBack,
     settingSave: settingSave,
-    settingBack: settingBack
+    setSettingData: setSettingData,
+    setViewActions: setViewActions,
+    tableValues: tableValues,
   }
 }

@@ -199,9 +199,9 @@ export const searchActions = (data, setData) => {
   }
 
   return {
+    defaultFilterValue: defaultFilterValue,
+    getFilterWhere: getFilterWhere,
     showBrowser: showBrowser,
     showServerCmd: showServerCmd,
-    getFilterWhere: getFilterWhere,
-    defaultFilterValue: defaultFilterValue,
   }
 }

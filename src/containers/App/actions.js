@@ -640,19 +640,19 @@ export const appActions = (data, setData) => {
   }
 
   return {
-    getText: getLangText,
-    getAuditFilter: getAuditFilter,
-    showToast: showToast,
-    resultError: resultError,
-    requestData: requestData,
-    signOut: signOut,
     createHistory: createHistory,
+    getAuditFilter: getAuditFilter,
+    getDataFilter: getDataFilter,
+    getText: getLangText,
+    getUserFilter: getUserFilter,
     loadBookmark: loadBookmark,
+    onSelector: onSelector,
+    quickSearch: quickSearch,
+    requestData: requestData,
+    resultError: resultError,
     saveBookmark: saveBookmark,
     showHelp: showHelp,
-    quickSearch: quickSearch,
-    getUserFilter: getUserFilter,
-    getDataFilter: getDataFilter,
-    onSelector: onSelector
+    showToast: showToast,
+    signOut: signOut,
   }
 }

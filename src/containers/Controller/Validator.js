@@ -550,7 +550,7 @@ export const InitItem = (data, setData) => {
       
       case "ui_menufields":
         return update({}, {$set: {
-          id: null, menu_id: null, fieldname: null, description: null, 
+          id: null, menu_id: null, fieldname: "", description: "", 
           fieldtype: null, orderby: 0
         }})
           

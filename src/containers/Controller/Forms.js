@@ -40,7 +40,7 @@ export const Forms = ({ getText }) => {
           fieldvalue: true,
           pattern: true,
           panel: {arrow:true, more:true, trans:true, create:false,
-            bookmark:["editor","trans","transnumber"], help:"payment"}},
+            bookmark:["editor","trans","transnumber"], help:"document/payment"}},
         view: {
           payment: {
             type: "table",
@@ -150,7 +150,7 @@ export const Forms = ({ getText }) => {
           pattern:true,
           extend: "payment",
           panel: {arrow:true, more:true, trans:true, create:false,
-            cancellation:true, bookmark:["editor","trans","transnumber"], help:"payment",
+            cancellation:true, bookmark:["editor","trans","transnumber"], help:"document/payment",
             link: true, link_type:"payment_link", link_field:"ref_id_1",
             link_label: getText("label_link_invoice")}},
         view: {
@@ -281,7 +281,7 @@ export const Forms = ({ getText }) => {
           icon: "Dollar",
           data: "currency",
           title: getText("title_currency"),
-          panel: {page:"setting", more:false, help:"currency"}},
+          panel: {page:"setting", more:false, help:"settings/currency"}},
         view: {
           setting: {
             type:"table",
@@ -331,7 +331,7 @@ export const Forms = ({ getText }) => {
           title_field: "custnumber",
           icon: "User",
           fieldvalue:true,
-          panel: {more:true, bookmark:["editor","customer","custname","custnumber"], help:"customer"}},
+          panel: {more:true, bookmark:["editor","customer","custname","custnumber"], help:"resources/customer"}},
         view: {
           address: {
             type: "list",
@@ -428,7 +428,7 @@ export const Forms = ({ getText }) => {
           icon: "Tag",
           data: "deffield",
           title: getText("title_deffield"),
-          panel: {page:"setting", more:false, help:"deffield"}},
+          panel: {page:"setting", more:false, help:"settings/metadata"}},
         view: {
           setting: {
             type: "list",
@@ -495,7 +495,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true, create:false, copy:false, 
             cancellation:true, delete:false, new:false,
-            bookmark: ["editor","trans","transnumber"], help:"delivery"
+            bookmark: ["editor","trans","transnumber"], help:"stock/delivery"
           }
         },
         view: {
@@ -679,7 +679,7 @@ export const Forms = ({ getText }) => {
           panel: { 
             more:true, password:true,
             bookmark:["editor","employee","empnumber","empnumber"], 
-            help:"employee"}
+            help:"resources/employee"}
           },
         view: {
           address: {
@@ -761,7 +761,7 @@ export const Forms = ({ getText }) => {
           panel: {
             back: true, more: true, 
             bookmark:["editor","event","calnumber","calnumber"], 
-            help: "event", 
+            help: "resources/event", 
             export_event: true, report: false
           }
         },
@@ -805,7 +805,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow: true, more: true, trans: true, create: false,
             bookmark:["editor","trans","transnumber"], 
-            help:"formula"
+            help:"stock/formula"
           }
         },
         view: {
@@ -873,7 +873,7 @@ export const Forms = ({ getText }) => {
           data: "groups",
           title: getText("title_groups"),
           panel: {
-            page: "setting", more: false, help: "groups"
+            page: "setting", more: false, help: "settings/groups"
           }
         },
         view: {
@@ -930,7 +930,7 @@ export const Forms = ({ getText }) => {
             arrow: true, more: true, trans: true, 
             create: false, cancellation: true, delete: false, 
             bookmark: ["editor","trans","transnumber"], 
-            help: "inventory"
+            help: "stock/inventory"
           }
         },
         view: {
@@ -1024,7 +1024,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow: true, more: true, trans: true,
             bookmark: ["editor","trans","transnumber"], 
-            help: "document"
+            help: "document/document"
           }
         },
         view: {
@@ -1177,7 +1177,7 @@ export const Forms = ({ getText }) => {
           title_field: "",
           icon: "ListOl",
           panel: {
-            help:"item"
+            help:"document/item"
           }
         },
         rows: [
@@ -1388,7 +1388,7 @@ export const Forms = ({ getText }) => {
           title: getText("title_numberdef"),
           panel: {
             page:"setting", delete:false, new:false, 
-            more:false, help:"numberdef"
+            more:false, help:"settings/numberdef"
           }
         },
         view: {
@@ -1437,7 +1437,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true,
             bookmark:["editor","trans","transnumber"], 
-            help:"document"
+            help:"document/document"
           }
         },
         view: {
@@ -1537,7 +1537,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true,
             bookmark:["editor","trans","transnumber"], 
-            help:"document"
+            help:"document/document"
           }
         },
         view: {
@@ -1771,7 +1771,7 @@ export const Forms = ({ getText }) => {
           panel: {
             more: true, report: false, 
             bookmark: ["editor","place","description","planumber"], 
-            help: "place"
+            help: "settings/place"
           }
         },
         view: {
@@ -1896,7 +1896,7 @@ export const Forms = ({ getText }) => {
           icon: "Filter",
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
-            search:true, export_all:true, print:false, bookmark:false, help:"printqueue"
+            search:true, export_all:true, print:false, bookmark:false, help:"program/printqueue"
           }
         },
         view: {
@@ -1944,7 +1944,7 @@ export const Forms = ({ getText }) => {
           panel: {
             more: true, 
             bookmark: ["editor","product","description","partnumber"], 
-            help: "product"
+            help: "resources/product"
           }
         },
         view: {
@@ -2029,7 +2029,7 @@ export const Forms = ({ getText }) => {
           extend: "movement_head",
           panel: {
             arrow:true, more:true, trans:true, create:false, formula:true,
-            bookmark:["editor","trans","transnumber"], help:"production"
+            bookmark:["editor","trans","transnumber"], help:"stock/production"
           }
         },
         view: {
@@ -2107,7 +2107,7 @@ export const Forms = ({ getText }) => {
           icon: "Clock",
           fieldvalue: true,
           panel: {
-            more:true, bookmark:["editor","project","description","pronumber"], help:"project"
+            more:true, bookmark:["editor","project","description","pronumber"], help:"resources/project"
           }
         },
         view: {
@@ -2179,7 +2179,7 @@ export const Forms = ({ getText }) => {
           fieldvalue: true,
           panel: {
             more:true, report:false, 
-            bookmark:false, help:"rate"
+            bookmark:false, help:"settings/rate"
           }
         },
         view: {},
@@ -2259,7 +2259,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true, create:false,
             bookmark:["editor","trans","transnumber"], 
-            help:"document"
+            help:"document/document"
           }
         },
         view: {
@@ -2400,7 +2400,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true,
             bookmark:["editor","trans","transnumber"], 
-            help:"document"
+            help:"document/document"
           }
         },
         view: {
@@ -2548,7 +2548,7 @@ export const Forms = ({ getText }) => {
           icon: "ChartBar",
           panel: {
             save:false, new:false, delete:false, more:true, report:false,
-            print:true, export_pdf:true, export_xml:true, bookmark:false, help:"report"
+            print:true, export_pdf:true, export_xml:true, bookmark:false, help:"program/report"
           }
         },
         view: {},
@@ -2583,7 +2583,7 @@ export const Forms = ({ getText }) => {
           data: "fieldvalue",
           title: getText("title_dbsettings"),
           panel: {
-            page:"setting", delete:false, new:false, more:false, help:"setting"
+            page:"setting", delete:false, new:false, more:false, help:"settings/setting"
           }
         },
         view: {
@@ -2617,7 +2617,7 @@ export const Forms = ({ getText }) => {
           title_field: "transnumber",
           icon: "Truck",
           panel: {
-            back:true, save:false, delete:false, new:false, shipping:true, help:"shipping"
+            back:true, save:false, delete:false, new:false, shipping:true, help:"stock/shipping"
           }
         },
         view: {
@@ -2771,7 +2771,7 @@ export const Forms = ({ getText }) => {
           panel: {
             more:true, 
             bookmark:["editor","tool","description","serial"], 
-            help:"tool"
+            help:"resources/tool"
           }
         },
         view: {
@@ -2827,7 +2827,7 @@ export const Forms = ({ getText }) => {
           data: "ui_menu",
           title: getText("title_menucmd"),
           panel: {
-            page:"setting", more:false, help:"menu"
+            page:"setting", more:false, help:"settings/uimenu"
           }
         },
         view: {
@@ -2887,7 +2887,7 @@ export const Forms = ({ getText }) => {
           data: "groups",
           title: getText("title_usergroup"),
           panel: {
-            page:"setting", more:false, help:"usergroup"
+            page:"setting", more:false, help:"settings/usergroup"
           }
         },
         view: {
@@ -2956,7 +2956,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true, create:false,
             bookmark:["editor","trans","transnumber"], 
-            help:"waybill"
+            help:"stock/waybill"
           }
         },
         view: {
@@ -3046,7 +3046,7 @@ export const Forms = ({ getText }) => {
           panel: {
             arrow:true, more:true, trans:true,
             bookmark:["editor","trans","transnumber"], 
-            help:"document"
+            help:"document/document"
           }
         },
         view: {

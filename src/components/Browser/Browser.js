@@ -160,7 +160,7 @@ export const Browser = ({
                 />
                 <Button id="btn_help"
                   className={`${"border-button small-button"} ${styles.barButton}`} 
-                  onClick={()=>onEvent("showHelp",["browser"])} 
+                  onClick={()=>onEvent("showHelp",["program/browser"])} 
                   value={<Label value={getText("browser_help")} 
                     leftIcon={<Icon iconKey="QuestionCircle" height={14} width={14} />} />}
                 />
