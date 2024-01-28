@@ -5,8 +5,6 @@ The Nervatura Client is part of the Nervatura Framework and can be used freely u
 
 **The Nervatura Client web component is included in the nervatura package, it does not need to be installed separately.** This is a special version that allows you to use different Nervatura servers. Recommended for testing and development.
 
-Last build host: [Nervatura Client](https://nervatura.github.io/nervatura-client)
-
 Examples: https://github.com/nervatura/nervatura-examples
 ## Docs & Community
 
